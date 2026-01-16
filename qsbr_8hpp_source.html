@@ -1512,22 +1512,23 @@ $(document).ready(function(){initNavTree('qsbr_8hpp_source.html',''); initResiza
 <div class="line"><a id="l01591" name="l01591"></a><span class="lineno"> 1591</span>    <span class="keywordflow">return</span> std::thread{</div>
 <div class="line"><a id="l01592" name="l01592"></a><span class="lineno"> 1592</span>        [inner_new_qsbr_per_thread = std::move(new_qsbr_per_thread)](</div>
 <div class="line"><a id="l01593" name="l01593"></a><span class="lineno"> 1593</span>            <span class="keyword">auto</span>&amp;&amp; f2,</div>
-<div class="line"><a id="l01594" name="l01594"></a><span class="lineno"> 1594</span>            <span class="keyword">auto</span>&amp;&amp;... a2) <span class="keyword">mutable</span> <span class="keyword">noexcept</span>(<span class="keyword">noexcept</span>(f2(std::</div>
-<div class="line"><a id="l01595" name="l01595"></a><span class="lineno"> 1595</span>                                                           forward&lt;</div>
-<div class="line"><a id="l01596" name="l01596"></a><span class="lineno"> 1596</span>                                                               <span class="keyword">decltype</span>(a2)&gt;(</div>
-<div class="line"><a id="l01597" name="l01597"></a><span class="lineno"> 1597</span>                                                               a2)...))) {</div>
-<div class="line"><a id="l01598" name="l01598"></a><span class="lineno"> 1598</span>          qsbr_per_thread::set_instance(std::move(inner_new_qsbr_per_thread));</div>
-<div class="line"><a id="l01599" name="l01599"></a><span class="lineno"> 1599</span>          f2(std::forward&lt;<span class="keyword">decltype</span>(a2)&gt;(a2)...);</div>
-<div class="line"><a id="l01600" name="l01600"></a><span class="lineno"> 1600</span>        },</div>
-<div class="line"><a id="l01601" name="l01601"></a><span class="lineno"> 1601</span>        std::forward&lt;Function&gt;(f), std::forward&lt;Args&gt;(args)...};</div>
-<div class="line"><a id="l01602" name="l01602"></a><span class="lineno"> 1602</span>  }</div>
+<div class="line"><a id="l01594" name="l01594"></a><span class="lineno"> 1594</span>            <span class="comment">// cppcheck-suppress constStatement</span></div>
+<div class="line"><a id="l01595" name="l01595"></a><span class="lineno"> 1595</span>            <span class="keyword">auto</span>&amp;&amp;... a2) <span class="keyword">mutable</span> <span class="keyword">noexcept</span>(<span class="keyword">noexcept</span>(f2(std::</div>
+<div class="line"><a id="l01596" name="l01596"></a><span class="lineno"> 1596</span>                                                           forward&lt;</div>
+<div class="line"><a id="l01597" name="l01597"></a><span class="lineno"> 1597</span>                                                               <span class="keyword">decltype</span>(a2)&gt;(</div>
+<div class="line"><a id="l01598" name="l01598"></a><span class="lineno"> 1598</span>                                                               a2)...))) {</div>
+<div class="line"><a id="l01599" name="l01599"></a><span class="lineno"> 1599</span>          qsbr_per_thread::set_instance(std::move(inner_new_qsbr_per_thread));</div>
+<div class="line"><a id="l01600" name="l01600"></a><span class="lineno"> 1600</span>          f2(std::forward&lt;<span class="keyword">decltype</span>(a2)&gt;(a2)...);</div>
+<div class="line"><a id="l01601" name="l01601"></a><span class="lineno"> 1601</span>        },</div>
+<div class="line"><a id="l01602" name="l01602"></a><span class="lineno"> 1602</span>        std::forward&lt;Function&gt;(f), std::forward&lt;Args&gt;(args)...};</div>
+<div class="line"><a id="l01603" name="l01603"></a><span class="lineno"> 1603</span>  }</div>
 </div>
-<div class="line"><a id="l01603" name="l01603"></a><span class="lineno"> 1603</span>};</div>
+<div class="line"><a id="l01604" name="l01604"></a><span class="lineno"> 1604</span>};</div>
 </div>
-<div class="line"><a id="l01604" name="l01604"></a><span class="lineno"> 1604</span> </div>
-<div class="line"><a id="l01605" name="l01605"></a><span class="lineno"> 1605</span>}  <span class="comment">// namespace unodb</span></div>
-<div class="line"><a id="l01606" name="l01606"></a><span class="lineno"> 1606</span> </div>
-<div class="line"><a id="l01607" name="l01607"></a><span class="lineno"> 1607</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_QSBR_HPP</span></div>
+<div class="line"><a id="l01605" name="l01605"></a><span class="lineno"> 1605</span> </div>
+<div class="line"><a id="l01606" name="l01606"></a><span class="lineno"> 1606</span>}  <span class="comment">// namespace unodb</span></div>
+<div class="line"><a id="l01607" name="l01607"></a><span class="lineno"> 1607</span> </div>
+<div class="line"><a id="l01608" name="l01608"></a><span class="lineno"> 1608</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_QSBR_HPP</span></div>
 <div class="ttc" id="aassert_8hpp_html"><div class="ttname"><a href="assert_8hpp.html">assert.hpp</a></div><div class="ttdoc">Internal macros for assertions, assumptions &amp; intentional crashing.</div></div>
 <div class="ttc" id="aclassunodb_1_1detail_1_1deallocation__request_html"><div class="ttname"><a href="classunodb_1_1detail_1_1deallocation__request.html">unodb::detail::deallocation_request</a></div><div class="ttdoc">Pending deallocation request for QSBR-managed memory.</div><div class="ttdef"><b>Definition</b> qsbr.hpp:454</div></div>
 <div class="ttc" id="aclassunodb_1_1detail_1_1deallocation__request_html_a005b7873662cb6c0e8e2519c0a7efa16"><div class="ttname"><a href="classunodb_1_1detail_1_1deallocation__request.html#a005b7873662cb6c0e8e2519c0a7efa16">unodb::detail::deallocation_request::debug_callback</a></div><div class="ttdeci">std::function&lt; void(const void *)&gt; debug_callback</div><div class="ttdoc">Debug build only: function type for callbacks executed during deallocation.</div><div class="ttdef"><b>Definition</b> qsbr.hpp:459</div></div>
