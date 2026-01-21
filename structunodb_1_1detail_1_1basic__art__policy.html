@@ -98,142 +98,618 @@ $(document).ready(function(){initNavTree('structunodb_1_1detail_1_1basic__art__p
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#pub-types">Public Types</a> &#124;
-<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
-<a href="#pri-types">Private Types</a> &#124;
-<a href="#pri-static-methods">Static Private Member Functions</a> &#124;
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="structunodb_1_1detail_1_1basic__art__policy-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">unodb::detail::basic_art_policy&lt; Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator &gt; Struct Template Reference<span class="mlabels"><span class="mlabel">final</span></span></div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Policy class encapsulating ART implementation differences.  
+ <a href="structunodb_1_1detail_1_1basic__art__policy.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html">delete_db_node_ptr_at_scope_exit</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">RAII helper deleting node on scope exit.  <a href="structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:aaa520bf3d24747d4775919b3d0b2de23" id="r_aaa520bf3d24747d4775919b3d0b2de23"><td class="memItemLeft" align="right" valign="top"><a id="aaa520bf3d24747d4775919b3d0b2de23" name="aaa520bf3d24747d4775919b3d0b2de23"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>key_type</b> = Key</td></tr>
-<tr class="separator:aaa520bf3d24747d4775919b3d0b2de23"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9c691c79b784bc0913c713da6265a5ec" id="r_a9c691c79b784bc0913c713da6265a5ec"><td class="memItemLeft" align="right" valign="top"><a id="a9c691c79b784bc0913c713da6265a5ec" name="a9c691c79b784bc0913c713da6265a5ec"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>value_type</b> = Value</td></tr>
-<tr class="separator:a9c691c79b784bc0913c713da6265a5ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ade1ebf4d4483f22d2151a5dafbe0f542" id="r_ade1ebf4d4483f22d2151a5dafbe0f542"><td class="memItemLeft" align="right" valign="top"><a id="ade1ebf4d4483f22d2151a5dafbe0f542" name="ade1ebf4d4483f22d2151a5dafbe0f542"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>art_key_type</b> = <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt;</td></tr>
-<tr class="separator:ade1ebf4d4483f22d2151a5dafbe0f542"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8cd97a2445cf3bf1b445c3dd82614dba" id="r_a8cd97a2445cf3bf1b445c3dd82614dba"><td class="memItemLeft" align="right" valign="top"><a id="a8cd97a2445cf3bf1b445c3dd82614dba" name="a8cd97a2445cf3bf1b445c3dd82614dba"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>node_ptr</b> = NodePtr</td></tr>
-<tr class="separator:a8cd97a2445cf3bf1b445c3dd82614dba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a617c611c68387ce3a3e195948c028833" id="r_a617c611c68387ce3a3e195948c028833"><td class="memItemLeft" align="right" valign="top"><a id="a617c611c68387ce3a3e195948c028833" name="a617c611c68387ce3a3e195948c028833"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>header_type</b> = typename NodePtr::header_type</td></tr>
-<tr class="separator:a617c611c68387ce3a3e195948c028833"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa249160507ae5df97ba1dc4e40fa5596" id="r_aa249160507ae5df97ba1dc4e40fa5596"><td class="memItemLeft" align="right" valign="top"><a id="aa249160507ae5df97ba1dc4e40fa5596" name="aa249160507ae5df97ba1dc4e40fa5596"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>lock_policy</b> = LockPolicy</td></tr>
-<tr class="separator:aa249160507ae5df97ba1dc4e40fa5596"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf44dff192f6bcd0d16c17c496bb4146" id="r_adf44dff192f6bcd0d16c17c496bb4146"><td class="memItemLeft" align="right" valign="top"><a id="adf44dff192f6bcd0d16c17c496bb4146" name="adf44dff192f6bcd0d16c17c496bb4146"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>read_critical_section</b> = ReadCriticalSection</td></tr>
-<tr class="separator:adf44dff192f6bcd0d16c17c496bb4146"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad32ad3dd765f19774f4fac12b3915370" id="r_ad32ad3dd765f19774f4fac12b3915370"><td class="memItemLeft" align="right" valign="top"><a id="ad32ad3dd765f19774f4fac12b3915370" name="ad32ad3dd765f19774f4fac12b3915370"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>inode_defs</b> = INodeDefs&lt; Key, Value &gt;</td></tr>
-<tr class="separator:ad32ad3dd765f19774f4fac12b3915370"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a65b1d2e989725efccc3942441ae30316" id="r_a65b1d2e989725efccc3942441ae30316"><td class="memItemLeft" align="right" valign="top"><a id="a65b1d2e989725efccc3942441ae30316" name="a65b1d2e989725efccc3942441ae30316"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>inode</b> = typename inode_defs::inode</td></tr>
-<tr class="separator:a65b1d2e989725efccc3942441ae30316"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a555c843dbdad1f137c0abdd430fa8d6d" id="r_a555c843dbdad1f137c0abdd430fa8d6d"><td class="memItemLeft" align="right" valign="top"><a id="a555c843dbdad1f137c0abdd430fa8d6d" name="a555c843dbdad1f137c0abdd430fa8d6d"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>inode4_type</b> = typename inode_defs::n4</td></tr>
-<tr class="separator:a555c843dbdad1f137c0abdd430fa8d6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5471cb2d52f93fadbae1a8573aaa4d5b" id="r_a5471cb2d52f93fadbae1a8573aaa4d5b"><td class="memItemLeft" align="right" valign="top"><a id="a5471cb2d52f93fadbae1a8573aaa4d5b" name="a5471cb2d52f93fadbae1a8573aaa4d5b"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>inode16_type</b> = typename inode_defs::n16</td></tr>
-<tr class="separator:a5471cb2d52f93fadbae1a8573aaa4d5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a93668d9616bf30b36613ee83761be3ae" id="r_a93668d9616bf30b36613ee83761be3ae"><td class="memItemLeft" align="right" valign="top"><a id="a93668d9616bf30b36613ee83761be3ae" name="a93668d9616bf30b36613ee83761be3ae"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>inode48_type</b> = typename inode_defs::n48</td></tr>
-<tr class="separator:a93668d9616bf30b36613ee83761be3ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2020cf68c9780c23c4ae8186c5be3949" id="r_a2020cf68c9780c23c4ae8186c5be3949"><td class="memItemLeft" align="right" valign="top"><a id="a2020cf68c9780c23c4ae8186c5be3949" name="a2020cf68c9780c23c4ae8186c5be3949"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>inode256_type</b> = typename inode_defs::n256</td></tr>
-<tr class="separator:a2020cf68c9780c23c4ae8186c5be3949"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2e809e4fd7111083184ce1b5081b6a6e" id="r_a2e809e4fd7111083184ce1b5081b6a6e"><td class="memItemLeft" align="right" valign="top"><a id="a2e809e4fd7111083184ce1b5081b6a6e" name="a2e809e4fd7111083184ce1b5081b6a6e"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>tree_depth_type</b> = <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> &gt;</td></tr>
-<tr class="separator:a2e809e4fd7111083184ce1b5081b6a6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aea417ed6f98e209c3e0958bd064915d6" id="r_aea417ed6f98e209c3e0958bd064915d6"><td class="memItemLeft" align="right" valign="top"><a id="aea417ed6f98e209c3e0958bd064915d6" name="aea417ed6f98e209c3e0958bd064915d6"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>leaf_type</b> = <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">basic_leaf</a>&lt; Key, header_type &gt;</td></tr>
-<tr class="separator:aea417ed6f98e209c3e0958bd064915d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae90fdda165e947b64dd8f1490b4f3934" id="r_ae90fdda165e947b64dd8f1490b4f3934"><td class="memItemLeft" align="right" valign="top"><a id="ae90fdda165e947b64dd8f1490b4f3934" name="ae90fdda165e947b64dd8f1490b4f3934"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>db_type</b> = Db&lt; Key, Value &gt;</td></tr>
-<tr class="separator:ae90fdda165e947b64dd8f1490b4f3934"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a15eb547c69364c430c3fb9944789e95a" id="r_a15eb547c69364c430c3fb9944789e95a"><td class="memTemplParams" colspan="2"><a id="a15eb547c69364c430c3fb9944789e95a" name="a15eb547c69364c430c3fb9944789e95a"></a>
-template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a15eb547c69364c430c3fb9944789e95a"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>critical_section_policy</b> = CriticalSectionPolicy&lt; T &gt;</td></tr>
-<tr class="separator:a15eb547c69364c430c3fb9944789e95a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Smart pointer aliases</div></td></tr>
 <tr class="memitem:a9a56725b8d7cd23a70a64a9892f0c27e" id="r_a9a56725b8d7cd23a70a64a9892f0c27e"><td class="memTemplParams" colspan="2"><a id="a9a56725b8d7cd23a70a64a9892f0c27e" name="a9a56725b8d7cd23a70a64a9892f0c27e"></a>
 template&lt;class INode &gt; </td></tr>
-<tr class="memitem:a9a56725b8d7cd23a70a64a9892f0c27e"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>db_inode_unique_ptr</b> = std::unique_ptr&lt; INode, <a class="el" href="classunodb_1_1detail_1_1basic__db__inode__deleter.html">db_inode_deleter</a>&lt; INode &gt; &gt;</td></tr>
+<tr class="memitem:a9a56725b8d7cd23a70a64a9892f0c27e"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>db_inode_unique_ptr</b> = std::unique_ptr&lt; INode, <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a62cb23c9d3227b1281d45900433b3aae">db_inode_deleter</a>&lt; INode &gt; &gt;</td></tr>
+<tr class="memdesc:a9a56725b8d7cd23a70a64a9892f0c27e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unique pointer to internal node with deleter. <br /></td></tr>
 <tr class="separator:a9a56725b8d7cd23a70a64a9892f0c27e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8bf69fc0899ae76924ebcd47edf9843f" id="r_a8bf69fc0899ae76924ebcd47edf9843f"><td class="memItemLeft" align="right" valign="top"><a id="a8bf69fc0899ae76924ebcd47edf9843f" name="a8bf69fc0899ae76924ebcd47edf9843f"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>db_inode4_unique_ptr</b> = db_inode_unique_ptr&lt; inode4_type &gt;</td></tr>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>db_inode4_unique_ptr</b> = <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a9a56725b8d7cd23a70a64a9892f0c27e">db_inode_unique_ptr</a>&lt; <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a555c843dbdad1f137c0abdd430fa8d6d">inode4_type</a> &gt;</td></tr>
+<tr class="memdesc:a8bf69fc0899ae76924ebcd47edf9843f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unique pointer to <a class="el" href="classunodb_1_1detail_1_1basic__inode__4.html" title="Internal node with 2-4 children (N4).">basic_inode_4</a>. <br /></td></tr>
 <tr class="separator:a8bf69fc0899ae76924ebcd47edf9843f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a82bff2e1cc99b65ececc41c2fa5e9240" id="r_a82bff2e1cc99b65ececc41c2fa5e9240"><td class="memItemLeft" align="right" valign="top"><a id="a82bff2e1cc99b65ececc41c2fa5e9240" name="a82bff2e1cc99b65ececc41c2fa5e9240"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>db_inode16_unique_ptr</b> = db_inode_unique_ptr&lt; inode16_type &gt;</td></tr>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>db_inode16_unique_ptr</b> = <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a9a56725b8d7cd23a70a64a9892f0c27e">db_inode_unique_ptr</a>&lt; <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a5471cb2d52f93fadbae1a8573aaa4d5b">inode16_type</a> &gt;</td></tr>
+<tr class="memdesc:a82bff2e1cc99b65ececc41c2fa5e9240"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unique pointer to <a class="el" href="classunodb_1_1detail_1_1basic__inode__16.html" title="Internal node with 5-16 children (N16).">basic_inode_16</a>. <br /></td></tr>
 <tr class="separator:a82bff2e1cc99b65ececc41c2fa5e9240"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4022d39798d93570b2b5ba480a5b7749" id="r_a4022d39798d93570b2b5ba480a5b7749"><td class="memItemLeft" align="right" valign="top"><a id="a4022d39798d93570b2b5ba480a5b7749" name="a4022d39798d93570b2b5ba480a5b7749"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>db_inode48_unique_ptr</b> = db_inode_unique_ptr&lt; inode48_type &gt;</td></tr>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>db_inode48_unique_ptr</b> = <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a9a56725b8d7cd23a70a64a9892f0c27e">db_inode_unique_ptr</a>&lt; <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a93668d9616bf30b36613ee83761be3ae">inode48_type</a> &gt;</td></tr>
+<tr class="memdesc:a4022d39798d93570b2b5ba480a5b7749"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unique pointer to <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html" title="Internal node with 17-48 children (N48).">basic_inode_48</a>. <br /></td></tr>
 <tr class="separator:a4022d39798d93570b2b5ba480a5b7749"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a59ea6f5b94a70d2c2edaf377c87f7f4a" id="r_a59ea6f5b94a70d2c2edaf377c87f7f4a"><td class="memItemLeft" align="right" valign="top"><a id="a59ea6f5b94a70d2c2edaf377c87f7f4a" name="a59ea6f5b94a70d2c2edaf377c87f7f4a"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>db_inode256_unique_ptr</b> = db_inode_unique_ptr&lt; inode256_type &gt;</td></tr>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>db_inode256_unique_ptr</b> = <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a9a56725b8d7cd23a70a64a9892f0c27e">db_inode_unique_ptr</a>&lt; <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a2020cf68c9780c23c4ae8186c5be3949">inode256_type</a> &gt;</td></tr>
+<tr class="memdesc:a59ea6f5b94a70d2c2edaf377c87f7f4a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unique pointer to <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html" title="Internal node with 49-256 children (N256).">basic_inode_256</a>. <br /></td></tr>
 <tr class="separator:a59ea6f5b94a70d2c2edaf377c87f7f4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2f14ed279e6404203f522b64089ad258" id="r_a2f14ed279e6404203f522b64089ad258"><td class="memTemplParams" colspan="2"><a id="a2f14ed279e6404203f522b64089ad258" name="a2f14ed279e6404203f522b64089ad258"></a>
 template&lt;class INode &gt; </td></tr>
 <tr class="memitem:a2f14ed279e6404203f522b64089ad258"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>db_inode_reclaimable_ptr</b> = std::unique_ptr&lt; INode, INodeReclamator&lt; Key, Value, INode &gt; &gt;</td></tr>
+<tr class="memdesc:a2f14ed279e6404203f522b64089ad258"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unique pointer to internal node for deferred reclamation. <br /></td></tr>
 <tr class="separator:a2f14ed279e6404203f522b64089ad258"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace5e2f58b3a9f52eb5b2268bfb714e1a" id="r_ace5e2f58b3a9f52eb5b2268bfb714e1a"><td class="memItemLeft" align="right" valign="top"><a id="ace5e2f58b3a9f52eb5b2268bfb714e1a" name="ace5e2f58b3a9f52eb5b2268bfb714e1a"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>db_leaf_unique_ptr</b> = <a class="el" href="namespaceunodb_1_1detail.html#a85b1873633c46b13271dcf06ac743666">basic_db_leaf_unique_ptr</a>&lt; key_type, value_type, header_type, Db &gt;</td></tr>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>db_leaf_unique_ptr</b> = <a class="el" href="namespaceunodb_1_1detail.html#a85b1873633c46b13271dcf06ac743666">basic_db_leaf_unique_ptr</a>&lt; <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#aaa520bf3d24747d4775919b3d0b2de23">key_type</a>, <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a9c691c79b784bc0913c713da6265a5ec">value_type</a>, <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a617c611c68387ce3a3e195948c028833">header_type</a>, Db &gt;</td></tr>
+<tr class="memdesc:ace5e2f58b3a9f52eb5b2268bfb714e1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unique pointer to leaf. <br /></td></tr>
 <tr class="separator:ace5e2f58b3a9f52eb5b2268bfb714e1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a6e24a261063c9483d3987977453cdf5e" id="r_a6e24a261063c9483d3987977453cdf5e"><td class="memItemLeft" align="right" valign="top"><a id="a6e24a261063c9483d3987977453cdf5e" name="a6e24a261063c9483d3987977453cdf5e"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>basic_art_policy</b> ()=delete</td></tr>
+<tr class="memdesc:a6e24a261063c9483d3987977453cdf5e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Not instantiable. <br /></td></tr>
+<tr class="separator:a6e24a261063c9483d3987977453cdf5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:abfce480be12491d012bedb41c984203d" id="r_abfce480be12491d012bedb41c984203d"><td class="memItemLeft" align="right" valign="top"><a id="abfce480be12491d012bedb41c984203d" name="abfce480be12491d012bedb41c984203d"></a>
-static auto&#160;</td><td class="memItemRight" valign="bottom"><b>make_db_leaf_ptr</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">value_view</a> v, db_type &amp;db_instance)</td></tr>
-<tr class="separator:abfce480be12491d012bedb41c984203d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a90499cec07fe0f333cd4498345e4f6d1" id="r_a90499cec07fe0f333cd4498345e4f6d1"><td class="memItemLeft" align="right" valign="top"><a id="a90499cec07fe0f333cd4498345e4f6d1" name="a90499cec07fe0f333cd4498345e4f6d1"></a>
-static auto&#160;</td><td class="memItemRight" valign="bottom"><b>reclaim_leaf_on_scope_exit</b> (<a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">leaf_type</a> *leaf, db_type &amp;db_instance) noexcept</td></tr>
-<tr class="separator:a90499cec07fe0f333cd4498345e4f6d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a10c0482426031e4d956f5b7a541dea8f" id="r_a10c0482426031e4d956f5b7a541dea8f"><td class="memTemplParams" colspan="2"><a id="a10c0482426031e4d956f5b7a541dea8f" name="a10c0482426031e4d956f5b7a541dea8f"></a>
-template&lt;class INode , class... Args&gt; </td></tr>
-<tr class="memitem:a10c0482426031e4d956f5b7a541dea8f"><td class="memTemplItemLeft" align="right" valign="top">static auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>make_db_inode_unique_ptr</b> (db_type &amp;db_instance, Args &amp;&amp;... args)</td></tr>
-<tr class="memdesc:a10c0482426031e4d956f5b7a541dea8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates memory for a node inode and does a placement new pattern to construct the new inode, returning a unique pointer to that newly constructed inode. <br /></td></tr>
-<tr class="separator:a10c0482426031e4d956f5b7a541dea8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a39df2f80bea501c58e19678f71a6e927" id="r_a39df2f80bea501c58e19678f71a6e927"><td class="memTemplParams" colspan="2"><a id="a39df2f80bea501c58e19678f71a6e927" name="a39df2f80bea501c58e19678f71a6e927"></a>
-template&lt;class INode &gt; </td></tr>
-<tr class="memitem:a39df2f80bea501c58e19678f71a6e927"><td class="memTemplItemLeft" align="right" valign="top">static auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>make_db_inode_unique_ptr</b> (INode *inode_ptr, db_type &amp;db_instance) noexcept</td></tr>
-<tr class="separator:a39df2f80bea501c58e19678f71a6e927"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a473614495cf488eb9aca0278798e9549" id="r_a473614495cf488eb9aca0278798e9549"><td class="memTemplParams" colspan="2"><a id="a473614495cf488eb9aca0278798e9549" name="a473614495cf488eb9aca0278798e9549"></a>
-template&lt;class INode &gt; </td></tr>
-<tr class="memitem:a473614495cf488eb9aca0278798e9549"><td class="memTemplItemLeft" align="right" valign="top">static auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>make_db_inode_reclaimable_ptr</b> (INode *inode_ptr, db_type &amp;db_instance) noexcept</td></tr>
-<tr class="separator:a473614495cf488eb9aca0278798e9549"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a37c9583cd644afbbc30306bcb3af064c" id="r_a37c9583cd644afbbc30306bcb3af064c"><td class="memItemLeft" align="right" valign="top"><a id="a37c9583cd644afbbc30306bcb3af064c" name="a37c9583cd644afbbc30306bcb3af064c"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>delete_subtree</b> (NodePtr node, db_type &amp;db_instance) noexcept</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Tree operations</div></td></tr>
+<tr class="memitem:a37c9583cd644afbbc30306bcb3af064c" id="r_a37c9583cd644afbbc30306bcb3af064c"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a37c9583cd644afbbc30306bcb3af064c">delete_subtree</a> (NodePtr node, <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ae90fdda165e947b64dd8f1490b4f3934">db_type</a> &amp;db_instance) noexcept</td></tr>
+<tr class="memdesc:a37c9583cd644afbbc30306bcb3af064c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recursively delete node and all its descendants.  <br /></td></tr>
 <tr class="separator:a37c9583cd644afbbc30306bcb3af064c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a241e6a014a20e37956da045b9338f56f" id="r_a241e6a014a20e37956da045b9338f56f"><td class="memItemLeft" align="right" valign="top"><a id="a241e6a014a20e37956da045b9338f56f" name="a241e6a014a20e37956da045b9338f56f"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>dump_node</b> (std::ostream &amp;os, const NodePtr &amp;node, bool recursive=true)</td></tr>
+<tr class="memitem:a241e6a014a20e37956da045b9338f56f" id="r_a241e6a014a20e37956da045b9338f56f"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a241e6a014a20e37956da045b9338f56f">dump_node</a> (std::ostream &amp;os, const NodePtr &amp;node, bool recursive=true)</td></tr>
+<tr class="memdesc:a241e6a014a20e37956da045b9338f56f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dump node contents to stream for debugging.  <br /></td></tr>
 <tr class="separator:a241e6a014a20e37956da045b9338f56f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-types" name="pri-types"></a>
-Private Types</h2></td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader">Type aliases</h2></td></tr>
+<tr class="memitem:aaa520bf3d24747d4775919b3d0b2de23" id="r_aaa520bf3d24747d4775919b3d0b2de23"><td class="memItemLeft" align="right" valign="top"><a id="aaa520bf3d24747d4775919b3d0b2de23" name="aaa520bf3d24747d4775919b3d0b2de23"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>key_type</b> = Key</td></tr>
+<tr class="memdesc:aaa520bf3d24747d4775919b3d0b2de23"><td class="mdescLeft">&#160;</td><td class="mdescRight">Key type. <br /></td></tr>
+<tr class="separator:aaa520bf3d24747d4775919b3d0b2de23"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c691c79b784bc0913c713da6265a5ec" id="r_a9c691c79b784bc0913c713da6265a5ec"><td class="memItemLeft" align="right" valign="top"><a id="a9c691c79b784bc0913c713da6265a5ec" name="a9c691c79b784bc0913c713da6265a5ec"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>value_type</b> = Value</td></tr>
+<tr class="memdesc:a9c691c79b784bc0913c713da6265a5ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value type. <br /></td></tr>
+<tr class="separator:a9c691c79b784bc0913c713da6265a5ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade1ebf4d4483f22d2151a5dafbe0f542" id="r_ade1ebf4d4483f22d2151a5dafbe0f542"><td class="memItemLeft" align="right" valign="top"><a id="ade1ebf4d4483f22d2151a5dafbe0f542" name="ade1ebf4d4483f22d2151a5dafbe0f542"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>art_key_type</b> = <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt;</td></tr>
+<tr class="memdesc:ade1ebf4d4483f22d2151a5dafbe0f542"><td class="mdescLeft">&#160;</td><td class="mdescRight">Internal ART key type. <br /></td></tr>
+<tr class="separator:ade1ebf4d4483f22d2151a5dafbe0f542"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8cd97a2445cf3bf1b445c3dd82614dba" id="r_a8cd97a2445cf3bf1b445c3dd82614dba"><td class="memItemLeft" align="right" valign="top"><a id="a8cd97a2445cf3bf1b445c3dd82614dba" name="a8cd97a2445cf3bf1b445c3dd82614dba"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>node_ptr</b> = NodePtr</td></tr>
+<tr class="memdesc:a8cd97a2445cf3bf1b445c3dd82614dba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tagged node pointer type. <br /></td></tr>
+<tr class="separator:a8cd97a2445cf3bf1b445c3dd82614dba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a617c611c68387ce3a3e195948c028833" id="r_a617c611c68387ce3a3e195948c028833"><td class="memItemLeft" align="right" valign="top"><a id="a617c611c68387ce3a3e195948c028833" name="a617c611c68387ce3a3e195948c028833"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>header_type</b> = typename NodePtr::header_type</td></tr>
+<tr class="memdesc:a617c611c68387ce3a3e195948c028833"><td class="mdescLeft">&#160;</td><td class="mdescRight">Node header type. <br /></td></tr>
+<tr class="separator:a617c611c68387ce3a3e195948c028833"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa249160507ae5df97ba1dc4e40fa5596" id="r_aa249160507ae5df97ba1dc4e40fa5596"><td class="memItemLeft" align="right" valign="top"><a id="aa249160507ae5df97ba1dc4e40fa5596" name="aa249160507ae5df97ba1dc4e40fa5596"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>lock_policy</b> = LockPolicy</td></tr>
+<tr class="memdesc:aa249160507ae5df97ba1dc4e40fa5596"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lock acquisition policy. <br /></td></tr>
+<tr class="separator:aa249160507ae5df97ba1dc4e40fa5596"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf44dff192f6bcd0d16c17c496bb4146" id="r_adf44dff192f6bcd0d16c17c496bb4146"><td class="memItemLeft" align="right" valign="top"><a id="adf44dff192f6bcd0d16c17c496bb4146" name="adf44dff192f6bcd0d16c17c496bb4146"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>read_critical_section</b> = ReadCriticalSection</td></tr>
+<tr class="memdesc:adf44dff192f6bcd0d16c17c496bb4146"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read critical section. <br /></td></tr>
+<tr class="separator:adf44dff192f6bcd0d16c17c496bb4146"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad32ad3dd765f19774f4fac12b3915370" id="r_ad32ad3dd765f19774f4fac12b3915370"><td class="memItemLeft" align="right" valign="top"><a id="ad32ad3dd765f19774f4fac12b3915370" name="ad32ad3dd765f19774f4fac12b3915370"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>inode_defs</b> = INodeDefs&lt; Key, Value &gt;</td></tr>
+<tr class="memdesc:ad32ad3dd765f19774f4fac12b3915370"><td class="mdescLeft">&#160;</td><td class="mdescRight">Internal node definitions. <br /></td></tr>
+<tr class="separator:ad32ad3dd765f19774f4fac12b3915370"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a65b1d2e989725efccc3942441ae30316" id="r_a65b1d2e989725efccc3942441ae30316"><td class="memItemLeft" align="right" valign="top"><a id="a65b1d2e989725efccc3942441ae30316" name="a65b1d2e989725efccc3942441ae30316"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>inode</b> = typename <a class="el" href="structunodb_1_1detail_1_1basic__inode__def.html#a0c3424aa8982efe64387db777d4651bf">inode_defs::inode</a></td></tr>
+<tr class="memdesc:a65b1d2e989725efccc3942441ae30316"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base internal node type. <br /></td></tr>
+<tr class="separator:a65b1d2e989725efccc3942441ae30316"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a555c843dbdad1f137c0abdd430fa8d6d" id="r_a555c843dbdad1f137c0abdd430fa8d6d"><td class="memItemLeft" align="right" valign="top"><a id="a555c843dbdad1f137c0abdd430fa8d6d" name="a555c843dbdad1f137c0abdd430fa8d6d"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>inode4_type</b> = typename <a class="el" href="structunodb_1_1detail_1_1basic__inode__def.html#acc5b301fdfffce5e00014d6d460e8cbb">inode_defs::n4</a></td></tr>
+<tr class="memdesc:a555c843dbdad1f137c0abdd430fa8d6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Node type for 2-4 children. <br /></td></tr>
+<tr class="separator:a555c843dbdad1f137c0abdd430fa8d6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5471cb2d52f93fadbae1a8573aaa4d5b" id="r_a5471cb2d52f93fadbae1a8573aaa4d5b"><td class="memItemLeft" align="right" valign="top"><a id="a5471cb2d52f93fadbae1a8573aaa4d5b" name="a5471cb2d52f93fadbae1a8573aaa4d5b"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>inode16_type</b> = typename <a class="el" href="structunodb_1_1detail_1_1basic__inode__def.html#af2ec7ed6cda6a58563aaf28100a0d55c">inode_defs::n16</a></td></tr>
+<tr class="memdesc:a5471cb2d52f93fadbae1a8573aaa4d5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Node type for 5-16 children. <br /></td></tr>
+<tr class="separator:a5471cb2d52f93fadbae1a8573aaa4d5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93668d9616bf30b36613ee83761be3ae" id="r_a93668d9616bf30b36613ee83761be3ae"><td class="memItemLeft" align="right" valign="top"><a id="a93668d9616bf30b36613ee83761be3ae" name="a93668d9616bf30b36613ee83761be3ae"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>inode48_type</b> = typename <a class="el" href="structunodb_1_1detail_1_1basic__inode__def.html#ad3736f113e2712c04eb5d77520187740">inode_defs::n48</a></td></tr>
+<tr class="memdesc:a93668d9616bf30b36613ee83761be3ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Node type for 17-48 children. <br /></td></tr>
+<tr class="separator:a93668d9616bf30b36613ee83761be3ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2020cf68c9780c23c4ae8186c5be3949" id="r_a2020cf68c9780c23c4ae8186c5be3949"><td class="memItemLeft" align="right" valign="top"><a id="a2020cf68c9780c23c4ae8186c5be3949" name="a2020cf68c9780c23c4ae8186c5be3949"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>inode256_type</b> = typename <a class="el" href="structunodb_1_1detail_1_1basic__inode__def.html#ad4e3a227067ccac8312b1c1f6a21a9b5">inode_defs::n256</a></td></tr>
+<tr class="memdesc:a2020cf68c9780c23c4ae8186c5be3949"><td class="mdescLeft">&#160;</td><td class="mdescRight">Node type for 49-256 children. <br /></td></tr>
+<tr class="separator:a2020cf68c9780c23c4ae8186c5be3949"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e809e4fd7111083184ce1b5081b6a6e" id="r_a2e809e4fd7111083184ce1b5081b6a6e"><td class="memItemLeft" align="right" valign="top"><a id="a2e809e4fd7111083184ce1b5081b6a6e" name="a2e809e4fd7111083184ce1b5081b6a6e"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>tree_depth_type</b> = <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ade1ebf4d4483f22d2151a5dafbe0f542">art_key_type</a> &gt;</td></tr>
+<tr class="memdesc:a2e809e4fd7111083184ce1b5081b6a6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tree depth wrapper. <br /></td></tr>
+<tr class="separator:a2e809e4fd7111083184ce1b5081b6a6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aea417ed6f98e209c3e0958bd064915d6" id="r_aea417ed6f98e209c3e0958bd064915d6"><td class="memItemLeft" align="right" valign="top"><a id="aea417ed6f98e209c3e0958bd064915d6" name="aea417ed6f98e209c3e0958bd064915d6"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>leaf_type</b> = <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">basic_leaf</a>&lt; Key, <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a617c611c68387ce3a3e195948c028833">header_type</a> &gt;</td></tr>
+<tr class="memdesc:aea417ed6f98e209c3e0958bd064915d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Leaf type. <br /></td></tr>
+<tr class="separator:aea417ed6f98e209c3e0958bd064915d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae90fdda165e947b64dd8f1490b4f3934" id="r_ae90fdda165e947b64dd8f1490b4f3934"><td class="memItemLeft" align="right" valign="top"><a id="ae90fdda165e947b64dd8f1490b4f3934" name="ae90fdda165e947b64dd8f1490b4f3934"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>db_type</b> = Db&lt; Key, Value &gt;</td></tr>
+<tr class="memdesc:ae90fdda165e947b64dd8f1490b4f3934"><td class="mdescLeft">&#160;</td><td class="mdescRight">Database type. <br /></td></tr>
+<tr class="separator:ae90fdda165e947b64dd8f1490b4f3934"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a15eb547c69364c430c3fb9944789e95a" id="r_a15eb547c69364c430c3fb9944789e95a"><td class="memTemplParams" colspan="2"><a id="a15eb547c69364c430c3fb9944789e95a" name="a15eb547c69364c430c3fb9944789e95a"></a>
+template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a15eb547c69364c430c3fb9944789e95a"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>critical_section_policy</b> = CriticalSectionPolicy&lt; T &gt;</td></tr>
+<tr class="memdesc:a15eb547c69364c430c3fb9944789e95a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Critical section policy wrapper. <br /></td></tr>
+<tr class="separator:a15eb547c69364c430c3fb9944789e95a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a62cb23c9d3227b1281d45900433b3aae" id="r_a62cb23c9d3227b1281d45900433b3aae"><td class="memTemplParams" colspan="2"><a id="a62cb23c9d3227b1281d45900433b3aae" name="a62cb23c9d3227b1281d45900433b3aae"></a>
 template&lt;class INode &gt; </td></tr>
-<tr class="memitem:a62cb23c9d3227b1281d45900433b3aae"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>db_inode_deleter</b> = <a class="el" href="classunodb_1_1detail_1_1basic__db__inode__deleter.html">basic_db_inode_deleter</a>&lt; INode, db_type &gt;</td></tr>
+<tr class="memitem:a62cb23c9d3227b1281d45900433b3aae"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>db_inode_deleter</b> = <a class="el" href="classunodb_1_1detail_1_1basic__db__inode__deleter.html">basic_db_inode_deleter</a>&lt; INode, <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ae90fdda165e947b64dd8f1490b4f3934">db_type</a> &gt;</td></tr>
+<tr class="memdesc:a62cb23c9d3227b1281d45900433b3aae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Internal node deleter type. <br /></td></tr>
 <tr class="separator:a62cb23c9d3227b1281d45900433b3aae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0aa20e2df7a50325318103be2429a418" id="r_a0aa20e2df7a50325318103be2429a418"><td class="memItemLeft" align="right" valign="top"><a id="a0aa20e2df7a50325318103be2429a418" name="a0aa20e2df7a50325318103be2429a418"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>leaf_reclaimable_ptr</b> = std::unique_ptr&lt; <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">leaf_type</a>, LeafReclamator&lt; db_type &gt; &gt;</td></tr>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>leaf_reclaimable_ptr</b> = std::unique_ptr&lt; <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#aea417ed6f98e209c3e0958bd064915d6">leaf_type</a>, LeafReclamator&lt; <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ae90fdda165e947b64dd8f1490b4f3934">db_type</a> &gt; &gt;</td></tr>
+<tr class="memdesc:a0aa20e2df7a50325318103be2429a418"><td class="mdescLeft">&#160;</td><td class="mdescRight">Leaf pointer with reclamation policy. <br /></td></tr>
 <tr class="separator:a0aa20e2df7a50325318103be2429a418"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-methods" name="pri-static-methods"></a>
-Static Private Member Functions</h2></td></tr>
-<tr class="memitem:a98d887cdb0d3e4295cccf0c6a26360c1" id="r_a98d887cdb0d3e4295cccf0c6a26360c1"><td class="memItemLeft" align="right" valign="top"><a id="a98d887cdb0d3e4295cccf0c6a26360c1" name="a98d887cdb0d3e4295cccf0c6a26360c1"></a>
-static auto&#160;</td><td class="memItemRight" valign="bottom"><b>make_db_leaf_ptr</b> (<a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">leaf_type</a> *leaf, db_type &amp;db_instance) noexcept</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader">Factory methods</h2></td></tr>
+<tr class="memitem:abfce480be12491d012bedb41c984203d" id="r_abfce480be12491d012bedb41c984203d"><td class="memItemLeft" align="right" valign="top">static auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#abfce480be12491d012bedb41c984203d">make_db_leaf_ptr</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ade1ebf4d4483f22d2151a5dafbe0f542">art_key_type</a> k, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">value_view</a> v, <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ae90fdda165e947b64dd8f1490b4f3934">db_type</a> &amp;db_instance)</td></tr>
+<tr class="memdesc:abfce480be12491d012bedb41c984203d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create new leaf with given key and value.  <br /></td></tr>
+<tr class="separator:abfce480be12491d012bedb41c984203d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a90499cec07fe0f333cd4498345e4f6d1" id="r_a90499cec07fe0f333cd4498345e4f6d1"><td class="memItemLeft" align="right" valign="top">static auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a90499cec07fe0f333cd4498345e4f6d1">reclaim_leaf_on_scope_exit</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#aea417ed6f98e209c3e0958bd064915d6">leaf_type</a> *leaf, <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ae90fdda165e947b64dd8f1490b4f3934">db_type</a> &amp;db_instance) noexcept</td></tr>
+<tr class="memdesc:a90499cec07fe0f333cd4498345e4f6d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create reclaimable pointer to leaf for deferred deletion.  <br /></td></tr>
+<tr class="separator:a90499cec07fe0f333cd4498345e4f6d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10c0482426031e4d956f5b7a541dea8f" id="r_a10c0482426031e4d956f5b7a541dea8f"><td class="memTemplParams" colspan="2">template&lt;class INode , class... Args&gt; </td></tr>
+<tr class="memitem:a10c0482426031e4d956f5b7a541dea8f"><td class="memTemplItemLeft" align="right" valign="top">static auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a10c0482426031e4d956f5b7a541dea8f">make_db_inode_unique_ptr</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ae90fdda165e947b64dd8f1490b4f3934">db_type</a> &amp;db_instance, Args &amp;&amp;... args)</td></tr>
+<tr class="memdesc:a10c0482426031e4d956f5b7a541dea8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create new internal node.  <br /></td></tr>
+<tr class="separator:a10c0482426031e4d956f5b7a541dea8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39df2f80bea501c58e19678f71a6e927" id="r_a39df2f80bea501c58e19678f71a6e927"><td class="memTemplParams" colspan="2">template&lt;class INode &gt; </td></tr>
+<tr class="memitem:a39df2f80bea501c58e19678f71a6e927"><td class="memTemplItemLeft" align="right" valign="top">static auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a39df2f80bea501c58e19678f71a6e927">make_db_inode_unique_ptr</a> (INode *inode_ptr, <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ae90fdda165e947b64dd8f1490b4f3934">db_type</a> &amp;db_instance) noexcept</td></tr>
+<tr class="memdesc:a39df2f80bea501c58e19678f71a6e927"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrap existing internal node pointer in unique pointer.  <br /></td></tr>
+<tr class="separator:a39df2f80bea501c58e19678f71a6e927"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a473614495cf488eb9aca0278798e9549" id="r_a473614495cf488eb9aca0278798e9549"><td class="memTemplParams" colspan="2">template&lt;class INode &gt; </td></tr>
+<tr class="memitem:a473614495cf488eb9aca0278798e9549"><td class="memTemplItemLeft" align="right" valign="top">static auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a473614495cf488eb9aca0278798e9549">make_db_inode_reclaimable_ptr</a> (INode *inode_ptr, <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ae90fdda165e947b64dd8f1490b4f3934">db_type</a> &amp;db_instance) noexcept</td></tr>
+<tr class="memdesc:a473614495cf488eb9aca0278798e9549"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create reclaimable pointer to internal node for deferred deletion.  <br /></td></tr>
+<tr class="separator:a473614495cf488eb9aca0278798e9549"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98d887cdb0d3e4295cccf0c6a26360c1" id="r_a98d887cdb0d3e4295cccf0c6a26360c1"><td class="memItemLeft" align="right" valign="top">static auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a98d887cdb0d3e4295cccf0c6a26360c1">make_db_leaf_ptr</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#aea417ed6f98e209c3e0958bd064915d6">leaf_type</a> *leaf, <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ae90fdda165e947b64dd8f1490b4f3934">db_type</a> &amp;db_instance) noexcept</td></tr>
+<tr class="memdesc:a98d887cdb0d3e4295cccf0c6a26360c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrap raw leaf pointer in unique_ptr with deleter.  <br /></td></tr>
 <tr class="separator:a98d887cdb0d3e4295cccf0c6a26360c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><div class="compoundTemplParams">template&lt;typename Key, typename Value, template&lt; typename, typename &gt; class Db, template&lt; class &gt; class CriticalSectionPolicy, class LockPolicy, class ReadCriticalSection, class NodePtr, template&lt; typename, typename &gt; class INodeDefs, template&lt; typename, typename, class &gt; class INodeReclamator, template&lt; class &gt; class LeafReclamator&gt;<br />
+struct unodb::detail::basic_art_policy&lt; Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator &gt;</div><p>Policy class encapsulating ART implementation differences. </p>
+<p>Encapsulates differences between plain and OLC ART, such as extra header field and node access critical section type.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">Key</td><td>Key type </td></tr>
+    <tr><td class="paramname">Value</td><td>Value type </td></tr>
+    <tr><td class="paramname">Db</td><td>Database template </td></tr>
+    <tr><td class="paramname">CriticalSectionPolicy</td><td>Critical section wrapper policy </td></tr>
+    <tr><td class="paramname">LockPolicy</td><td>Lock acquisition policy </td></tr>
+    <tr><td class="paramname">ReadCriticalSection</td><td>Read critical section type </td></tr>
+    <tr><td class="paramname">NodePtr</td><td>Tagged node pointer type </td></tr>
+    <tr><td class="paramname">INodeDefs</td><td>Internal node definitions template </td></tr>
+    <tr><td class="paramname">INodeReclamator</td><td>Internal node reclamation policy </td></tr>
+    <tr><td class="paramname">LeafReclamator</td><td>Leaf reclamation policy </td></tr>
+  </table>
+  </dd>
+</dl>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a37c9583cd644afbbc30306bcb3af064c" name="a37c9583cd644afbbc30306bcb3af064c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a37c9583cd644afbbc30306bcb3af064c">&#9670;&#160;</a></span>delete_subtree()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value , template&lt; typename, typename &gt; class Db, template&lt; class &gt; class CriticalSectionPolicy, class LockPolicy , class ReadCriticalSection , class NodePtr , template&lt; typename, typename &gt; class INodeDefs, template&lt; typename, typename, class &gt; class INodeReclamator, template&lt; class &gt; class LeafReclamator&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html">unodb::detail::basic_art_policy</a>&lt; Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator &gt;::delete_subtree </td>
+          <td>(</td>
+          <td class="paramtype">NodePtr&#160;</td>
+          <td class="paramname"><em>node</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ae90fdda165e947b64dd8f1490b4f3934">db_type</a> &amp;&#160;</td>
+          <td class="paramname"><em>db_instance</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Recursively delete node and all its descendants. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">node</td><td>Root of subtree to delete </td></tr>
+    <tr><td class="paramname">db_instance</td><td>Database instance </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a241e6a014a20e37956da045b9338f56f" name="a241e6a014a20e37956da045b9338f56f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a241e6a014a20e37956da045b9338f56f">&#9670;&#160;</a></span>dump_node()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value , template&lt; typename, typename &gt; class Db, template&lt; class &gt; class CriticalSectionPolicy, class LockPolicy , class ReadCriticalSection , class NodePtr , template&lt; typename, typename &gt; class INodeDefs, template&lt; typename, typename, class &gt; class INodeReclamator, template&lt; class &gt; class LeafReclamator&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html">unodb::detail::basic_art_policy</a>&lt; Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator &gt;::dump_node </td>
+          <td>(</td>
+          <td class="paramtype">std::ostream &amp;&#160;</td>
+          <td class="paramname"><em>os</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const NodePtr &amp;&#160;</td>
+          <td class="paramname"><em>node</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>recursive</em> = <code>true</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Dump node contents to stream for debugging. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">os</td><td>Output stream </td></tr>
+    <tr><td class="paramname">node</td><td>Node to dump </td></tr>
+    <tr><td class="paramname">recursive</td><td>If true, also dump child nodes </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a473614495cf488eb9aca0278798e9549" name="a473614495cf488eb9aca0278798e9549"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a473614495cf488eb9aca0278798e9549">&#9670;&#160;</a></span>make_db_inode_reclaimable_ptr()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value , template&lt; typename, typename &gt; class Db, template&lt; class &gt; class CriticalSectionPolicy, class LockPolicy , class ReadCriticalSection , class NodePtr , template&lt; typename, typename &gt; class INodeDefs, template&lt; typename, typename, class &gt; class INodeReclamator, template&lt; class &gt; class LeafReclamator&gt; </div>
+<div class="memtemplate">
+template&lt;class INode &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static auto <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html">unodb::detail::basic_art_policy</a>&lt; Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator &gt;::make_db_inode_reclaimable_ptr </td>
+          <td>(</td>
+          <td class="paramtype">INode *&#160;</td>
+          <td class="paramname"><em>inode_ptr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ae90fdda165e947b64dd8f1490b4f3934">db_type</a> &amp;&#160;</td>
+          <td class="paramname"><em>db_instance</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Create reclaimable pointer to internal node for deferred deletion. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">INode</td><td>Internal node type</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">inode_ptr</td><td>Node pointer to wrap </td></tr>
+    <tr><td class="paramname">db_instance</td><td>Database for reclamation</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Reclaimable pointer that defers node deletion </dd></dl>
+
+</div>
+</div>
+<a id="a10c0482426031e4d956f5b7a541dea8f" name="a10c0482426031e4d956f5b7a541dea8f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a10c0482426031e4d956f5b7a541dea8f">&#9670;&#160;</a></span>make_db_inode_unique_ptr() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value , template&lt; typename, typename &gt; class Db, template&lt; class &gt; class CriticalSectionPolicy, class LockPolicy , class ReadCriticalSection , class NodePtr , template&lt; typename, typename &gt; class INodeDefs, template&lt; typename, typename, class &gt; class INodeReclamator, template&lt; class &gt; class LeafReclamator&gt; </div>
+<div class="memtemplate">
+template&lt;class INode , class... Args&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static auto <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html">unodb::detail::basic_art_policy</a>&lt; Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator &gt;::make_db_inode_unique_ptr </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ae90fdda165e947b64dd8f1490b4f3934">db_type</a> &amp;&#160;</td>
+          <td class="paramname"><em>db_instance</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Args &amp;&amp;...&#160;</td>
+          <td class="paramname"><em>args</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Create new internal node. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">INode</td><td>Internal node type </td></tr>
+    <tr><td class="paramname">Args</td><td>Constructor argument types</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">db_instance</td><td>Database instance </td></tr>
+    <tr><td class="paramname">args</td><td>Constructor arguments forwarded to node</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Unique pointer to newly constructed node </dd></dl>
+
+</div>
+</div>
+<a id="a39df2f80bea501c58e19678f71a6e927" name="a39df2f80bea501c58e19678f71a6e927"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a39df2f80bea501c58e19678f71a6e927">&#9670;&#160;</a></span>make_db_inode_unique_ptr() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value , template&lt; typename, typename &gt; class Db, template&lt; class &gt; class CriticalSectionPolicy, class LockPolicy , class ReadCriticalSection , class NodePtr , template&lt; typename, typename &gt; class INodeDefs, template&lt; typename, typename, class &gt; class INodeReclamator, template&lt; class &gt; class LeafReclamator&gt; </div>
+<div class="memtemplate">
+template&lt;class INode &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static auto <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html">unodb::detail::basic_art_policy</a>&lt; Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator &gt;::make_db_inode_unique_ptr </td>
+          <td>(</td>
+          <td class="paramtype">INode *&#160;</td>
+          <td class="paramname"><em>inode_ptr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ae90fdda165e947b64dd8f1490b4f3934">db_type</a> &amp;&#160;</td>
+          <td class="paramname"><em>db_instance</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Wrap existing internal node pointer in unique pointer. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">INode</td><td>Internal node type</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">inode_ptr</td><td>Existing node pointer to wrap </td></tr>
+    <tr><td class="paramname">db_instance</td><td>Database for deleter</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Unique pointer owning the node </dd></dl>
+
+</div>
+</div>
+<a id="abfce480be12491d012bedb41c984203d" name="abfce480be12491d012bedb41c984203d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abfce480be12491d012bedb41c984203d">&#9670;&#160;</a></span>make_db_leaf_ptr() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value , template&lt; typename, typename &gt; class Db, template&lt; class &gt; class CriticalSectionPolicy, class LockPolicy , class ReadCriticalSection , class NodePtr , template&lt; typename, typename &gt; class INodeDefs, template&lt; typename, typename, class &gt; class INodeReclamator, template&lt; class &gt; class LeafReclamator&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static auto <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html">unodb::detail::basic_art_policy</a>&lt; Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator &gt;::make_db_leaf_ptr </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ade1ebf4d4483f22d2151a5dafbe0f542">art_key_type</a>&#160;</td>
+          <td class="paramname"><em>k</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">value_view</a>&#160;</td>
+          <td class="paramname"><em>v</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ae90fdda165e947b64dd8f1490b4f3934">db_type</a> &amp;&#160;</td>
+          <td class="paramname"><em>db_instance</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Create new leaf with given key and value. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">k</td><td>Key to store in leaf </td></tr>
+    <tr><td class="paramname">v</td><td>Value to store in leaf </td></tr>
+    <tr><td class="paramname">db_instance</td><td>Database for memory tracking</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Unique pointer to newly allocated leaf </dd></dl>
+
+</div>
+</div>
+<a id="a98d887cdb0d3e4295cccf0c6a26360c1" name="a98d887cdb0d3e4295cccf0c6a26360c1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a98d887cdb0d3e4295cccf0c6a26360c1">&#9670;&#160;</a></span>make_db_leaf_ptr() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value , template&lt; typename, typename &gt; class Db, template&lt; class &gt; class CriticalSectionPolicy, class LockPolicy , class ReadCriticalSection , class NodePtr , template&lt; typename, typename &gt; class INodeDefs, template&lt; typename, typename, class &gt; class INodeReclamator, template&lt; class &gt; class LeafReclamator&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static auto <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html">unodb::detail::basic_art_policy</a>&lt; Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator &gt;::make_db_leaf_ptr </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#aea417ed6f98e209c3e0958bd064915d6">leaf_type</a> *&#160;</td>
+          <td class="paramname"><em>leaf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ae90fdda165e947b64dd8f1490b4f3934">db_type</a> &amp;&#160;</td>
+          <td class="paramname"><em>db_instance</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">private</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Wrap raw leaf pointer in unique_ptr with deleter. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">leaf</td><td>Existing leaf pointer to wrap </td></tr>
+    <tr><td class="paramname">db_instance</td><td>Database for deleter</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Unique pointer owning the leaf </dd></dl>
+
+</div>
+</div>
+<a id="a90499cec07fe0f333cd4498345e4f6d1" name="a90499cec07fe0f333cd4498345e4f6d1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a90499cec07fe0f333cd4498345e4f6d1">&#9670;&#160;</a></span>reclaim_leaf_on_scope_exit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value , template&lt; typename, typename &gt; class Db, template&lt; class &gt; class CriticalSectionPolicy, class LockPolicy , class ReadCriticalSection , class NodePtr , template&lt; typename, typename &gt; class INodeDefs, template&lt; typename, typename, class &gt; class INodeReclamator, template&lt; class &gt; class LeafReclamator&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static auto <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html">unodb::detail::basic_art_policy</a>&lt; Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator &gt;::reclaim_leaf_on_scope_exit </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#aea417ed6f98e209c3e0958bd064915d6">leaf_type</a> *&#160;</td>
+          <td class="paramname"><em>leaf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ae90fdda165e947b64dd8f1490b4f3934">db_type</a> &amp;&#160;</td>
+          <td class="paramname"><em>db_instance</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Create reclaimable pointer to leaf for deferred deletion. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">leaf</td><td>Leaf pointer to wrap </td></tr>
+    <tr><td class="paramname">db_instance</td><td>Database for reclamation</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Reclaimable pointer that defers leaf deletion </dd></dl>
+
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a></li>
 </ul>

@@ -97,22 +97,38 @@ $(document).ready(function(){initNavTree('unionunodb_1_1detail_1_1basic__inode__
 
 <div class="header">
   <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="unionunodb_1_1detail_1_1basic__inode__4_1_1key__union-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">unodb::detail::basic_inode_4&lt; ArtPolicy &gt;::key_union Union Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Union for key byte storage with integer access for SIMD.  
+ <a href="unionunodb_1_1detail_1_1basic__inode__4_1_1key__union.html#details">More...</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a24fd69c97ea26d76316896ae3e223176" id="r_a24fd69c97ea26d76316896ae3e223176"><td class="memItemLeft" align="right" valign="top"><a id="a24fd69c97ea26d76316896ae3e223176" name="a24fd69c97ea26d76316896ae3e223176"></a>
+constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>key_union</b> () noexcept</td></tr>
+<tr class="memdesc:a24fd69c97ea26d76316896ae3e223176"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default constructor. <br /></td></tr>
+<tr class="separator:a24fd69c97ea26d76316896ae3e223176"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a9d1e87aaefd14f9e1ed671e11b566e6c" id="r_a9d1e87aaefd14f9e1ed671e11b566e6c"><td class="memItemLeft" align="right" valign="top"><a id="a9d1e87aaefd14f9e1ed671e11b566e6c" name="a9d1e87aaefd14f9e1ed671e11b566e6c"></a>
-std::array&lt; critical_section_policy&lt; std::byte &gt;, basic_inode_4::capacity &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>byte_array</b></td></tr>
+std::array&lt; <a class="el" href="classunodb_1_1detail_1_1basic__inode__4.html#ad86305f68f4d5ee1c7c060f3b997ee99">critical_section_policy</a>&lt; std::byte &gt;, <a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a8a9f7cf8d7ee999fd402894bcc04a28f">basic_inode_4::capacity</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>byte_array</b></td></tr>
+<tr class="memdesc:a9d1e87aaefd14f9e1ed671e11b566e6c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Array access to individual key bytes. <br /></td></tr>
 <tr class="separator:a9d1e87aaefd14f9e1ed671e11b566e6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a36ba197b6285168aa92c1b052f273836" id="r_a36ba197b6285168aa92c1b052f273836"><td class="memItemLeft" align="right" valign="top"><a id="a36ba197b6285168aa92c1b052f273836" name="a36ba197b6285168aa92c1b052f273836"></a>
-critical_section_policy&lt; std::uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>integer</b></td></tr>
+<a class="el" href="classunodb_1_1detail_1_1basic__inode__4.html#ad86305f68f4d5ee1c7c060f3b997ee99">critical_section_policy</a>&lt; std::uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>integer</b></td></tr>
+<tr class="memdesc:a36ba197b6285168aa92c1b052f273836"><td class="mdescLeft">&#160;</td><td class="mdescRight">Integer access for SIMD operations. <br /></td></tr>
 <tr class="separator:a36ba197b6285168aa92c1b052f273836"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this union was generated from the following file:<ul>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><div class="compoundTemplParams">template&lt;class ArtPolicy&gt;<br />
+union unodb::detail::basic_inode_4&lt; ArtPolicy &gt;::key_union</div><p>Union for key byte storage with integer access for SIMD. </p>
+</div><hr/>The documentation for this union was generated from the following file:<ul>
 <li><a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a></li>
 </ul>
 </div><!-- contents -->

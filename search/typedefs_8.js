@@ -1,4 +1,15 @@
 var searchData=
 [
-  ['leaf_5ftype_0',['leaf_type',['../classunodb_1_1detail_1_1basic__db__leaf__deleter.html#a6f33ce4114f2fa50cf1e487f53f80e4a',1,'unodb::detail::basic_db_leaf_deleter']]]
+  ['ikey_5ftype_0',['ikey_type',['../classunodb_1_1test_1_1tree__verifier.html#afa56f531a5ce52d2b664ce1f2abdf993',1,'unodb::test::tree_verifier']]],
+  ['inode_1',['inode',['../structunodb_1_1detail_1_1basic__inode__def.html#a0c3424aa8982efe64387db777d4651bf',1,'unodb::detail::basic_inode_def::inode'],['../structunodb_1_1detail_1_1basic__art__policy.html#a65b1d2e989725efccc3942441ae30316',1,'unodb::detail::basic_art_policy::inode']]],
+  ['inode16_5ftype_2',['inode16_type',['../structunodb_1_1detail_1_1basic__art__policy.html#a5471cb2d52f93fadbae1a8573aaa4d5b',1,'unodb::detail::basic_art_policy::inode16_type'],['../classunodb_1_1detail_1_1basic__inode__impl.html#a391911aa4ada3b8333a30b407b6a7bae',1,'unodb::detail::basic_inode_impl::inode16_type']]],
+  ['inode256_5ftype_3',['inode256_type',['../structunodb_1_1detail_1_1basic__art__policy.html#a2020cf68c9780c23c4ae8186c5be3949',1,'unodb::detail::basic_art_policy::inode256_type'],['../classunodb_1_1detail_1_1basic__inode__impl.html#aca72cb01bfbb57cac9c0c91ad5d561de',1,'unodb::detail::basic_inode_impl::inode256_type']]],
+  ['inode48_5ftype_4',['inode48_type',['../structunodb_1_1detail_1_1basic__art__policy.html#a93668d9616bf30b36613ee83761be3ae',1,'unodb::detail::basic_art_policy::inode48_type'],['../classunodb_1_1detail_1_1basic__inode__impl.html#abdcfa9de90ffd281dd43ed6b0152d2eb',1,'unodb::detail::basic_inode_impl::inode48_type']]],
+  ['inode4_5ftype_5',['inode4_type',['../classunodb_1_1detail_1_1basic__inode__impl.html#a819af077973d5732e0d4672bea547f4b',1,'unodb::detail::basic_inode_impl::inode4_type'],['../structunodb_1_1detail_1_1basic__art__policy.html#a555c843dbdad1f137c0abdd430fa8d6d',1,'unodb::detail::basic_art_policy::inode4_type']]],
+  ['inode_5fdefs_6',['inode_defs',['../structunodb_1_1detail_1_1basic__art__policy.html#ad32ad3dd765f19774f4fac12b3915370',1,'unodb::detail::basic_art_policy']]],
+  ['inode_5ftype_7',['inode_type',['../classunodb_1_1detail_1_1basic__inode__impl.html#afa58d345d4460a742d0ee9279f2e21ab',1,'unodb::detail::basic_inode_impl::inode_type'],['../classunodb_1_1detail_1_1basic__inode.html#a71cd659704479a3f3081f19bbdb74de7',1,'unodb::detail::basic_inode::inode_type'],['../classunodb_1_1detail_1_1basic__inode__4.html#a71cd659704479a3f3081f19bbdb74de7',1,'unodb::detail::basic_inode_4::inode_type']]],
+  ['inode_5ftype_5fcounter_5farray_8',['inode_type_counter_array',['../namespaceunodb.html#a60a52550ffa9f2d0d9e1cd9ebc7cab28',1,'unodb']]],
+  ['iter_5fresult_9',['iter_result',['../classunodb_1_1detail_1_1basic__inode__impl.html#a5e989cf901f1b719e9b482fd2f61e9a6',1,'unodb::detail::basic_inode_impl']]],
+  ['iter_5fresult_5fopt_10',['iter_result_opt',['../classunodb_1_1detail_1_1basic__inode__impl.html#a2030306d16106e373eb2a38d17d3815c',1,'unodb::detail::basic_inode_impl::iter_result_opt'],['../namespaceunodb_1_1detail.html#a52168a8b4ef78db5b5cdc3f60a97eb38',1,'unodb::detail::iter_result_opt']]],
+  ['iterator_5fcategory_11',['iterator_category',['../classunodb_1_1qsbr__ptr.html#a12cfbe5b344e89469cadab558252e10c',1,'unodb::qsbr_ptr']]]
 ];

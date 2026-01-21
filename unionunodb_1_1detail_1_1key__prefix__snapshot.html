@@ -107,7 +107,7 @@ $(document).ready(function(){initNavTree('unionunodb_1_1detail_1_1key__prefix__s
 </div><!--header-->
 <div class="contents">
 
-<p>A helper class used to expose a consistent snapshot of the <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html" title="The unodb::detail::key_prefix is a sequence of zero or more bytes for a given node that are a common ...">unodb::detail::key_prefix</a> to the iterator for use in tracking the data on the iterator's stack.  
+<p>Key prefix snapshot for iterator use.  
  <a href="unionunodb_1_1detail_1_1key__prefix__snapshot.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a>&gt;</code></p>
@@ -115,55 +115,219 @@ $(document).ready(function(){initNavTree('unionunodb_1_1detail_1_1key__prefix__s
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1key__prefix__snapshot_1_1inode__fields.html">inode_fields</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structured view of prefix data.  <a href="structunodb_1_1detail_1_1key__prefix__snapshot_1_1inode__fields.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aef125645bbaaf0270fea3ccaeddf1b7b" id="r_aef125645bbaaf0270fea3ccaeddf1b7b"><td class="memItemLeft" align="right" valign="top"><a id="aef125645bbaaf0270fea3ccaeddf1b7b" name="aef125645bbaaf0270fea3ccaeddf1b7b"></a>
-constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix_snapshot</b> (std::uint64_t v) noexcept</td></tr>
+<tr class="memitem:aef125645bbaaf0270fea3ccaeddf1b7b" id="r_aef125645bbaaf0270fea3ccaeddf1b7b"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionunodb_1_1detail_1_1key__prefix__snapshot.html#aef125645bbaaf0270fea3ccaeddf1b7b">key_prefix_snapshot</a> (std::uint64_t v) noexcept</td></tr>
+<tr class="memdesc:aef125645bbaaf0270fea3ccaeddf1b7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct from raw 64-bit value.  <br /></td></tr>
 <tr class="separator:aef125645bbaaf0270fea3ccaeddf1b7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed3c7d3232b29465db2f440dc816a4c4" id="r_aed3c7d3232b29465db2f440dc816a4c4"><td class="memItemLeft" align="right" valign="top"><a id="aed3c7d3232b29465db2f440dc816a4c4" name="aed3c7d3232b29465db2f440dc816a4c4"></a>
-constexpr <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_key_view</b> () const noexcept</td></tr>
-<tr class="memdesc:aed3c7d3232b29465db2f440dc816a4c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a view onto the snapshot of the key prefix. <br /></td></tr>
+<tr class="memitem:aed3c7d3232b29465db2f440dc816a4c4" id="r_aed3c7d3232b29465db2f440dc816a4c4"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionunodb_1_1detail_1_1key__prefix__snapshot.html#aed3c7d3232b29465db2f440dc816a4c4">get_key_view</a> () const noexcept</td></tr>
+<tr class="memdesc:aed3c7d3232b29465db2f440dc816a4c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return view onto snapshot of key prefix.  <br /></td></tr>
 <tr class="separator:aed3c7d3232b29465db2f440dc816a4c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a329e026ba61ed52a07be450fe61c8cfc" id="r_a329e026ba61ed52a07be450fe61c8cfc"><td class="memItemLeft" align="right" valign="top"><a id="a329e026ba61ed52a07be450fe61c8cfc" name="a329e026ba61ed52a07be450fe61c8cfc"></a>
-constexpr key_prefix_size&#160;</td><td class="memItemRight" valign="bottom"><b>length</b> () const noexcept</td></tr>
-<tr class="memdesc:a329e026ba61ed52a07be450fe61c8cfc"><td class="mdescLeft">&#160;</td><td class="mdescRight">The number of prefix bytes. <br /></td></tr>
+<tr class="memitem:a329e026ba61ed52a07be450fe61c8cfc" id="r_a329e026ba61ed52a07be450fe61c8cfc"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="namespaceunodb_1_1detail.html#a2a48856979c828fe6f91a83b8b43e0be">key_prefix_size</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionunodb_1_1detail_1_1key__prefix__snapshot.html#a329e026ba61ed52a07be450fe61c8cfc">length</a> () const noexcept</td></tr>
+<tr class="memdesc:a329e026ba61ed52a07be450fe61c8cfc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return number of prefix bytes.  <br /></td></tr>
 <tr class="separator:a329e026ba61ed52a07be450fe61c8cfc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a10768c518d4b08bcb8c8eec5839a9106" id="r_a10768c518d4b08bcb8c8eec5839a9106"><td class="memItemLeft" align="right" valign="top"><a id="a10768c518d4b08bcb8c8eec5839a9106" name="a10768c518d4b08bcb8c8eec5839a9106"></a>
-constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>get_shared_length</b> (std::uint64_t shifted_key_u64) const noexcept</td></tr>
-<tr class="memdesc:a10768c518d4b08bcb8c8eec5839a9106"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of bytes in common between this <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html" title="The unodb::detail::key_prefix is a sequence of zero or more bytes for a given node that are a common ...">key_prefix</a> and a view of the next 64-bits (max) of some the shifted_key from which any leading bytes already matched by the traversal path have been discarded. <br /></td></tr>
+<tr class="memitem:a10768c518d4b08bcb8c8eec5839a9106" id="r_a10768c518d4b08bcb8c8eec5839a9106"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionunodb_1_1detail_1_1key__prefix__snapshot.html#a10768c518d4b08bcb8c8eec5839a9106">get_shared_length</a> (std::uint64_t shifted_key_u64) const noexcept</td></tr>
+<tr class="memdesc:a10768c518d4b08bcb8c8eec5839a9106"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return shared prefix length with shifted key.  <br /></td></tr>
 <tr class="separator:a10768c518d4b08bcb8c8eec5839a9106"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a56e751276ceb0ca9d7df1837d393b35b" id="r_a56e751276ceb0ca9d7df1837d393b35b"><td class="memItemLeft" align="right" valign="top"><a id="a56e751276ceb0ca9d7df1837d393b35b" name="a56e751276ceb0ca9d7df1837d393b35b"></a>
-constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>operator[]</b> (std::size_t i) const noexcept</td></tr>
-<tr class="memdesc:a56e751276ceb0ca9d7df1837d393b35b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the byte at the specified index. <br /></td></tr>
+<tr class="memitem:a56e751276ceb0ca9d7df1837d393b35b" id="r_a56e751276ceb0ca9d7df1837d393b35b"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionunodb_1_1detail_1_1key__prefix__snapshot.html#a56e751276ceb0ca9d7df1837d393b35b">operator[]</a> (std::size_t i) const noexcept</td></tr>
+<tr class="memdesc:a56e751276ceb0ca9d7df1837d393b35b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return byte at specified index.  <br /></td></tr>
 <tr class="separator:a56e751276ceb0ca9d7df1837d393b35b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-types" name="pri-types"></a>
 Private Types</h2></td></tr>
 <tr class="memitem:a8ed844ab1462fb565acea1061a501af7" id="r_a8ed844ab1462fb565acea1061a501af7"><td class="memItemLeft" align="right" valign="top"><a id="a8ed844ab1462fb565acea1061a501af7" name="a8ed844ab1462fb565acea1061a501af7"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix_data</b> = std::array&lt; std::byte, key_prefix_capacity &gt;</td></tr>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix_data</b> = std::array&lt; std::byte, <a class="el" href="namespaceunodb_1_1detail.html#a6affb48b09460b87dbcb8ab404f26263">key_prefix_capacity</a> &gt;</td></tr>
+<tr class="memdesc:a8ed844ab1462fb565acea1061a501af7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Storage type for prefix bytes. <br /></td></tr>
 <tr class="separator:a8ed844ab1462fb565acea1061a501af7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-methods" name="pri-static-methods"></a>
 Static Private Member Functions</h2></td></tr>
 <tr class="memitem:a58553dcc2c569190cfe83d831d12fca4" id="r_a58553dcc2c569190cfe83d831d12fca4"><td class="memItemLeft" align="right" valign="top"><a id="a58553dcc2c569190cfe83d831d12fca4" name="a58553dcc2c569190cfe83d831d12fca4"></a>
 static constexpr unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>shared_len</b> (std::uint64_t k1, std::uint64_t k2, unsigned clamp_byte_pos) noexcept</td></tr>
+<tr class="memdesc:a58553dcc2c569190cfe83d831d12fca4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute shared prefix length between two 64-bit values. <br /></td></tr>
 <tr class="separator:a58553dcc2c569190cfe83d831d12fca4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:a9e3acde8b26bf03020199a98bd5f5066" id="r_a9e3acde8b26bf03020199a98bd5f5066"><td class="memItemLeft" align="right" valign="top"><a id="a9e3acde8b26bf03020199a98bd5f5066" name="a9e3acde8b26bf03020199a98bd5f5066"></a>
-struct <a class="el" href="structunodb_1_1detail_1_1key__prefix__snapshot_1_1inode__fields.html">unodb::detail::key_prefix_snapshot::inode_fields</a>&#160;</td><td class="memItemRight" valign="bottom"><b>f</b></td></tr>
-<tr class="separator:a9e3acde8b26bf03020199a98bd5f5066"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f0cfcbaa7fe95c7013b963c21c0771c" id="r_a0f0cfcbaa7fe95c7013b963c21c0771c"><td class="memItemLeft" align="right" valign="top"><a id="a0f0cfcbaa7fe95c7013b963c21c0771c" name="a0f0cfcbaa7fe95c7013b963c21c0771c"></a>
+<a class="el" href="structunodb_1_1detail_1_1key__prefix__snapshot_1_1inode__fields.html">inode_fields</a>&#160;</td><td class="memItemRight" valign="bottom"><b>f</b></td></tr>
+<tr class="memdesc:a0f0cfcbaa7fe95c7013b963c21c0771c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structured access to prefix. <br /></td></tr>
+<tr class="separator:a0f0cfcbaa7fe95c7013b963c21c0771c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae33099d9d470b9e1d42a1f6f3747603f" id="r_ae33099d9d470b9e1d42a1f6f3747603f"><td class="memItemLeft" align="right" valign="top"><a id="ae33099d9d470b9e1d42a1f6f3747603f" name="ae33099d9d470b9e1d42a1f6f3747603f"></a>
 std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>u64</b></td></tr>
+<tr class="memdesc:ae33099d9d470b9e1d42a1f6f3747603f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Raw 64-bit access for atomic operations. <br /></td></tr>
 <tr class="separator:ae33099d9d470b9e1d42a1f6f3747603f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>A helper class used to expose a consistent snapshot of the <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html" title="The unodb::detail::key_prefix is a sequence of zero or more bytes for a given node that are a common ...">unodb::detail::key_prefix</a> to the iterator for use in tracking the data on the iterator's stack. </p>
-<p>This method exposes a <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Non-owning view of key bytes, copied into index upon insertion.">key_view</a> over its internal data. We can't do that directly with the <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html" title="The unodb::detail::key_prefix is a sequence of zero or more bytes for a given node that are a common ...">unodb::detail::key_prefix</a> due to (a) thread safety; and (b) the <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Non-owning view of key bytes, copied into index upon insertion.">key_view</a> being a non-owned view. So the data are atomically copied into this structure and it can expose the <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90" title="Non-owning view of key bytes, copied into index upon insertion.">key_view</a> over those data. </p>
-</div><hr/>The documentation for this union was generated from the following file:<ul>
+<div class="textblock"><p>Key prefix snapshot for iterator use. </p>
+<p>Exposes a <code>key_view</code> over internal data that was atomically copied from a <code><a class="el" href="unionunodb_1_1detail_1_1key__prefix.html" title="Key prefix for prefix compression in internal nodes.">key_prefix</a></code>. Direct use of <code><a class="el" href="unionunodb_1_1detail_1_1key__prefix.html" title="Key prefix for prefix compression in internal nodes.">key_prefix</a></code> is not possible because: (a) thread safety concerns; and (b) <code>key_view</code> is a non-owned view. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="aef125645bbaaf0270fea3ccaeddf1b7b" name="aef125645bbaaf0270fea3ccaeddf1b7b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aef125645bbaaf0270fea3ccaeddf1b7b">&#9670;&#160;</a></span>key_prefix_snapshot()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr unodb::detail::key_prefix_snapshot::key_prefix_snapshot </td>
+          <td>(</td>
+          <td class="paramtype">std::uint64_t&#160;</td>
+          <td class="paramname"><em>v</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Construct from raw 64-bit value. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">v</td><td>Raw value containing prefix bytes and length </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="aed3c7d3232b29465db2f440dc816a4c4" name="aed3c7d3232b29465db2f440dc816a4c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aed3c7d3232b29465db2f440dc816a4c4">&#9670;&#160;</a></span>get_key_view()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> unodb::detail::key_prefix_snapshot::get_key_view </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return view onto snapshot of key prefix. </p>
+<dl class="section return"><dt>Returns</dt><dd>Key view of stored prefix bytes </dd></dl>
+
+</div>
+</div>
+<a id="a10768c518d4b08bcb8c8eec5839a9106" name="a10768c518d4b08bcb8c8eec5839a9106"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a10768c518d4b08bcb8c8eec5839a9106">&#9670;&#160;</a></span>get_shared_length()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto unodb::detail::key_prefix_snapshot::get_shared_length </td>
+          <td>(</td>
+          <td class="paramtype">std::uint64_t&#160;</td>
+          <td class="paramname"><em>shifted_key_u64</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return shared prefix length with shifted key. </p>
+<p>Computes bytes in common between this prefix and the next 64 bits (max) of the shifted key from which leading matched bytes have been discarded.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">shifted_key_u64</td><td>Shifted key value to compare against </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Number of common bytes </dd></dl>
+
+</div>
+</div>
+<a id="a329e026ba61ed52a07be450fe61c8cfc" name="a329e026ba61ed52a07be450fe61c8cfc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a329e026ba61ed52a07be450fe61c8cfc">&#9670;&#160;</a></span>length()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="namespaceunodb_1_1detail.html#a2a48856979c828fe6f91a83b8b43e0be">key_prefix_size</a> unodb::detail::key_prefix_snapshot::length </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return number of prefix bytes. </p>
+<dl class="section return"><dt>Returns</dt><dd>Prefix length </dd></dl>
+
+</div>
+</div>
+<a id="a56e751276ceb0ca9d7df1837d393b35b" name="a56e751276ceb0ca9d7df1837d393b35b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a56e751276ceb0ca9d7df1837d393b35b">&#9670;&#160;</a></span>operator[]()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto unodb::detail::key_prefix_snapshot::operator[] </td>
+          <td>(</td>
+          <td class="paramtype">std::size_t&#160;</td>
+          <td class="paramname"><em>i</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return byte at specified index. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">i</td><td>Index (must be less than <a class="el" href="unionunodb_1_1detail_1_1key__prefix__snapshot.html#a329e026ba61ed52a07be450fe61c8cfc" title="Return number of prefix bytes.">length()</a>) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Byte at position <em>i</em> </dd></dl>
+
+</div>
+</div>
+<hr/>The documentation for this union was generated from the following file:<ul>
 <li><a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a></li>
 </ul>
 </div><!-- contents -->

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['header_5ftype_0',['header_type',['../classunodb_1_1detail_1_1basic__node__ptr.html#ad172bc7ee6fb6b1fb4952ddddf27ec53',1,'unodb::detail::basic_node_ptr']]]
+  ['find_5fresult_0',['find_result',['../classunodb_1_1detail_1_1basic__inode__impl.html#abd5f9efd3d001e70509078bbfe214d48',1,'unodb::detail::basic_inode_impl']]]
 ];

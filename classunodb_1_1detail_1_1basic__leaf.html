@@ -107,7 +107,7 @@ $(document).ready(function(){initNavTree('classunodb_1_1detail_1_1basic__leaf.ht
 </div><!--header-->
 <div class="contents">
 
-<p>The <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html" title="The basic_leaf handles most of the behavior of a leaf in the index.">basic_leaf</a> handles most of the behavior of a leaf in the index.  
+<p>Leaf node storing key-value pair.  
  <a href="classunodb_1_1detail_1_1basic__leaf.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a>&gt;</code></p>
@@ -130,44 +130,40 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>value_size_type</b> 
 <tr class="separator:a09d1c7bbbdc27a74c943930e294e814c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a320fd0e04a9e76c044927d815051b319" id="r_a320fd0e04a9e76c044927d815051b319"><td class="memItemLeft" align="right" valign="top"><a id="a320fd0e04a9e76c044927d815051b319" name="a320fd0e04a9e76c044927d815051b319"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>art_key_type</b> = <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt;</td></tr>
+<tr class="memdesc:a320fd0e04a9e76c044927d815051b319"><td class="mdescLeft">&#160;</td><td class="mdescRight">Internal ART key type for this leaf. <br /></td></tr>
 <tr class="separator:a320fd0e04a9e76c044927d815051b319"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a2708c966884c7b9feab50af3e1958ad2" id="r_a2708c966884c7b9feab50af3e1958ad2"><td class="memItemLeft" align="right" valign="top"><a id="a2708c966884c7b9feab50af3e1958ad2" name="a2708c966884c7b9feab50af3e1958ad2"></a>
-constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>basic_leaf</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">value_view</a> v) noexcept</td></tr>
+<tr class="memitem:a2708c966884c7b9feab50af3e1958ad2" id="r_a2708c966884c7b9feab50af3e1958ad2"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a2708c966884c7b9feab50af3e1958ad2">basic_leaf</a> (<a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a320fd0e04a9e76c044927d815051b319">art_key_type</a> k, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">value_view</a> v) noexcept</td></tr>
+<tr class="memdesc:a2708c966884c7b9feab50af3e1958ad2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct leaf with key and value.  <br /></td></tr>
 <tr class="separator:a2708c966884c7b9feab50af3e1958ad2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a25f0e5829d662bfe0d8d505d7497493c" id="r_a25f0e5829d662bfe0d8d505d7497493c"><td class="memItemLeft" align="right" valign="top"><a id="a25f0e5829d662bfe0d8d505d7497493c" name="a25f0e5829d662bfe0d8d505d7497493c"></a>
-constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>get_key</b> () const noexcept</td></tr>
-<tr class="memdesc:a25f0e5829d662bfe0d8d505d7497493c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the binary comparable key stored in the leaf. <br /></td></tr>
+<tr class="memitem:a25f0e5829d662bfe0d8d505d7497493c" id="r_a25f0e5829d662bfe0d8d505d7497493c"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a25f0e5829d662bfe0d8d505d7497493c">get_key</a> () const noexcept</td></tr>
+<tr class="memdesc:a25f0e5829d662bfe0d8d505d7497493c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return binary comparable key stored in leaf.  <br /></td></tr>
 <tr class="separator:a25f0e5829d662bfe0d8d505d7497493c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3faee12b17a4a4b9134c2c4fd81a688b" id="r_a3faee12b17a4a4b9134c2c4fd81a688b"><td class="memItemLeft" align="right" valign="top"><a id="a3faee12b17a4a4b9134c2c4fd81a688b" name="a3faee12b17a4a4b9134c2c4fd81a688b"></a>
-constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>get_key_view</b> () const noexcept</td></tr>
-<tr class="memdesc:a3faee12b17a4a4b9134c2c4fd81a688b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a view onto the key stored in the leaf. <br /></td></tr>
+<tr class="memitem:a3faee12b17a4a4b9134c2c4fd81a688b" id="r_a3faee12b17a4a4b9134c2c4fd81a688b"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a3faee12b17a4a4b9134c2c4fd81a688b">get_key_view</a> () const noexcept</td></tr>
+<tr class="memdesc:a3faee12b17a4a4b9134c2c4fd81a688b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return view onto key stored in leaf.  <br /></td></tr>
 <tr class="separator:a3faee12b17a4a4b9134c2c4fd81a688b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3fb5bc240211394284d1880d0e512cbe" id="r_a3fb5bc240211394284d1880d0e512cbe"><td class="memItemLeft" align="right" valign="top"><a id="a3fb5bc240211394284d1880d0e512cbe" name="a3fb5bc240211394284d1880d0e512cbe"></a>
-constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>matches</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k) const noexcept</td></tr>
-<tr class="memdesc:a3fb5bc240211394284d1880d0e512cbe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true iff the two keys are the same. <br /></td></tr>
+<tr class="memitem:a3fb5bc240211394284d1880d0e512cbe" id="r_a3fb5bc240211394284d1880d0e512cbe"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a3fb5bc240211394284d1880d0e512cbe">matches</a> (<a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a320fd0e04a9e76c044927d815051b319">art_key_type</a> k) const noexcept</td></tr>
+<tr class="memdesc:a3fb5bc240211394284d1880d0e512cbe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if leaf key matches given key <em>k</em>.  <br /></td></tr>
 <tr class="separator:a3fb5bc240211394284d1880d0e512cbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a83845cef7d07d2f4e99eddc1ef05e3ec" id="r_a83845cef7d07d2f4e99eddc1ef05e3ec"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a83845cef7d07d2f4e99eddc1ef05e3ec">cmp</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k) const noexcept</td></tr>
-<tr class="memdesc:a83845cef7d07d2f4e99eddc1ef05e3ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return LT ZERO (0) if this key is less than the caller's key.  <br /></td></tr>
+<tr class="memitem:a83845cef7d07d2f4e99eddc1ef05e3ec" id="r_a83845cef7d07d2f4e99eddc1ef05e3ec"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a83845cef7d07d2f4e99eddc1ef05e3ec">cmp</a> (<a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a320fd0e04a9e76c044927d815051b319">art_key_type</a> k) const noexcept</td></tr>
+<tr class="memdesc:a83845cef7d07d2f4e99eddc1ef05e3ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare leaf key with given key <em>k</em>.  <br /></td></tr>
 <tr class="separator:a83845cef7d07d2f4e99eddc1ef05e3ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a88d3ef305a3e3e8eae77002f433fd73d" id="r_a88d3ef305a3e3e8eae77002f433fd73d"><td class="memItemLeft" align="right" valign="top"><a id="a88d3ef305a3e3e8eae77002f433fd73d" name="a88d3ef305a3e3e8eae77002f433fd73d"></a>
-constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>get_value_view</b> () const noexcept</td></tr>
-<tr class="memdesc:a88d3ef305a3e3e8eae77002f433fd73d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a view onto the value stored in the leaf. <br /></td></tr>
+<tr class="memitem:a88d3ef305a3e3e8eae77002f433fd73d" id="r_a88d3ef305a3e3e8eae77002f433fd73d"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a88d3ef305a3e3e8eae77002f433fd73d">get_value_view</a> () const noexcept</td></tr>
+<tr class="memdesc:a88d3ef305a3e3e8eae77002f433fd73d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return view onto value stored in leaf.  <br /></td></tr>
 <tr class="separator:a88d3ef305a3e3e8eae77002f433fd73d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a65bf9368b0a37a32ec3903aa3d463778" id="r_a65bf9368b0a37a32ec3903aa3d463778"><td class="memItemLeft" align="right" valign="top"><a id="a65bf9368b0a37a32ec3903aa3d463778" name="a65bf9368b0a37a32ec3903aa3d463778"></a>
-constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>get_size</b> () const noexcept</td></tr>
-<tr class="memdesc:a65bf9368b0a37a32ec3903aa3d463778"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the byte size of the leaf data structure. <br /></td></tr>
+<tr class="memitem:a65bf9368b0a37a32ec3903aa3d463778" id="r_a65bf9368b0a37a32ec3903aa3d463778"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a65bf9368b0a37a32ec3903aa3d463778">get_size</a> () const noexcept</td></tr>
+<tr class="memdesc:a65bf9368b0a37a32ec3903aa3d463778"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return byte size of leaf data structure.  <br /></td></tr>
 <tr class="separator:a65bf9368b0a37a32ec3903aa3d463778"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac0cafb1e0be7f524adb937948fce2e8b" id="r_ac0cafb1e0be7f524adb937948fce2e8b"><td class="memItemLeft" align="right" valign="top"><a id="ac0cafb1e0be7f524adb937948fce2e8b" name="ac0cafb1e0be7f524adb937948fce2e8b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os, bool) const</td></tr>
+<tr class="memitem:ac0cafb1e0be7f524adb937948fce2e8b" id="r_ac0cafb1e0be7f524adb937948fce2e8b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#ac0cafb1e0be7f524adb937948fce2e8b">dump</a> (std::ostream &amp;os, bool) const</td></tr>
+<tr class="memdesc:ac0cafb1e0be7f524adb937948fce2e8b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dump leaf contents to stream for debugging.  <br /></td></tr>
 <tr class="separator:ac0cafb1e0be7f524adb937948fce2e8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a16b0da061659a06c5ede9389ad511378" id="r_a16b0da061659a06c5ede9389ad511378"><td class="memItemLeft" align="right" valign="top">static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a16b0da061659a06c5ede9389ad511378">compute_size</a> (<a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a538c567cd0cf84512ff1e0b9ddd29e00">key_size_type</a> <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a891b5c7b76c488e453319377a83e4ae3">key_size</a>, <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a09d1c7bbbdc27a74c943930e294e814c">value_size_type</a> val_size) noexcept</td></tr>
-<tr class="memdesc:a16b0da061659a06c5ede9389ad511378"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the required byte size of the leaf to hold the header, key, and value.  <br /></td></tr>
+<tr class="memdesc:a16b0da061659a06c5ede9389ad511378"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute required byte size of leaf for given key and value.  <br /></td></tr>
 <tr class="separator:a16b0da061659a06c5ede9389ad511378"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
@@ -195,9 +191,64 @@ const <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a09d1c7bbbdc2
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;class Key, class Header&gt;<br />
-class unodb::detail::basic_leaf&lt; Key, Header &gt;</div><p>The <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html" title="The basic_leaf handles most of the behavior of a leaf in the index.">basic_leaf</a> handles most of the behavior of a leaf in the index. </p>
-<p>It is specialized for OLC which includes additional information in the header. The leaf contains a copy of the key and a copy of the value. </p>
-</div><h2 class="groupheader">Member Function Documentation</h2>
+class unodb::detail::basic_leaf&lt; Key, Header &gt;</div><p>Leaf node storing key-value pair. </p>
+<p>Handles most leaf behavior for the index. Specialized for OLC which includes additional information in the header. The leaf contains a copy of the key and a copy of the value.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">Key</td><td>Key type (fixed-width integral or <code>key_view</code>) </td></tr>
+    <tr><td class="paramname">Header</td><td>Node header type (varies between plain and OLC variants) </td></tr>
+  </table>
+  </dd>
+</dl>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a2708c966884c7b9feab50af3e1958ad2" name="a2708c966884c7b9feab50af3e1958ad2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2708c966884c7b9feab50af3e1958ad2">&#9670;&#160;</a></span>basic_leaf()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Key , class Header &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">unodb::detail::basic_leaf</a>&lt; Key, Header &gt;::basic_leaf </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a320fd0e04a9e76c044927d815051b319">art_key_type</a>&#160;</td>
+          <td class="paramname"><em>k</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">value_view</a>&#160;</td>
+          <td class="paramname"><em>v</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Construct leaf with key and value. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">k</td><td>Key to store (will be copied) </td></tr>
+    <tr><td class="paramname">v</td><td>Value to store (will be copied) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
 <a id="a83845cef7d07d2f4e99eddc1ef05e3ec" name="a83845cef7d07d2f4e99eddc1ef05e3ec"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a83845cef7d07d2f4e99eddc1ef05e3ec">&#9670;&#160;</a></span>cmp()</h2>
 
@@ -212,7 +263,7 @@ template&lt;class Key , class Header &gt; </div>
         <tr>
           <td class="memname">constexpr auto <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">unodb::detail::basic_leaf</a>&lt; Key, Header &gt;::cmp </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a320fd0e04a9e76c044927d815051b319">art_key_type</a>&#160;</td>
           <td class="paramname"><em>k</em></td><td>)</td>
           <td> const</td>
         </tr>
@@ -224,8 +275,8 @@ template&lt;class Key , class Header &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Return LT ZERO (0) if this key is less than the caller's key. </p>
-<p>Return GT ZERO (0) if this key is greater than the caller's key. Return ZERO (0) if the two keys are the same. </p>
+<p>Compare leaf key with given key <em>k</em>. </p>
+<dl class="section return"><dt>Returns</dt><dd>Negative if this &lt; <em>k</em>, positive if this &gt; <em>k</em>, zero if equal </dd></dl>
 
 </div>
 </div>
@@ -265,14 +316,212 @@ template&lt;class Key , class Header &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Compute the required byte size of the leaf to hold the header, key, and value. </p>
+<p>Compute required byte size of leaf for given key and value. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">key_size</td><td>The size in bytes of the portion of the key stored in the leaf.</td></tr>
-    <tr><td class="paramname">val_size</td><td>The size in bytes of the the value stored in the leaf. </td></tr>
+    <tr><td class="paramname">key_size</td><td>Size in bytes of key portion stored in leaf </td></tr>
+    <tr><td class="paramname">val_size</td><td>Size in bytes of value stored in leaf </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Total allocation size in bytes </dd></dl>
+
+</div>
+</div>
+<a id="ac0cafb1e0be7f524adb937948fce2e8b" name="ac0cafb1e0be7f524adb937948fce2e8b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac0cafb1e0be7f524adb937948fce2e8b">&#9670;&#160;</a></span>dump()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Key , class Header &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">unodb::detail::basic_leaf</a>&lt; Key, Header &gt;::dump </td>
+          <td>(</td>
+          <td class="paramtype">std::ostream &amp;&#160;</td>
+          <td class="paramname"><em>os</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Dump leaf contents to stream for debugging. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">os</td><td>Output stream </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a25f0e5829d662bfe0d8d505d7497493c" name="a25f0e5829d662bfe0d8d505d7497493c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a25f0e5829d662bfe0d8d505d7497493c">&#9670;&#160;</a></span>get_key()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Key , class Header &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">unodb::detail::basic_leaf</a>&lt; Key, Header &gt;::get_key </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return binary comparable key stored in leaf. </p>
+<dl class="section return"><dt>Returns</dt><dd>ART key wrapping stored key bytes </dd></dl>
+
+</div>
+</div>
+<a id="a3faee12b17a4a4b9134c2c4fd81a688b" name="a3faee12b17a4a4b9134c2c4fd81a688b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3faee12b17a4a4b9134c2c4fd81a688b">&#9670;&#160;</a></span>get_key_view()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Key , class Header &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">unodb::detail::basic_leaf</a>&lt; Key, Header &gt;::get_key_view </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return view onto key stored in leaf. </p>
+<dl class="section return"><dt>Returns</dt><dd>Key view of stored key bytes </dd></dl>
+
+</div>
+</div>
+<a id="a65bf9368b0a37a32ec3903aa3d463778" name="a65bf9368b0a37a32ec3903aa3d463778"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a65bf9368b0a37a32ec3903aa3d463778">&#9670;&#160;</a></span>get_size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Key , class Header &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">unodb::detail::basic_leaf</a>&lt; Key, Header &gt;::get_size </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return byte size of leaf data structure. </p>
+<dl class="section return"><dt>Returns</dt><dd>Size in bytes </dd></dl>
+
+</div>
+</div>
+<a id="a88d3ef305a3e3e8eae77002f433fd73d" name="a88d3ef305a3e3e8eae77002f433fd73d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a88d3ef305a3e3e8eae77002f433fd73d">&#9670;&#160;</a></span>get_value_view()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Key , class Header &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">unodb::detail::basic_leaf</a>&lt; Key, Header &gt;::get_value_view </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return view onto value stored in leaf. </p>
+<dl class="section return"><dt>Returns</dt><dd>Value view of stored value bytes </dd></dl>
+
+</div>
+</div>
+<a id="a3fb5bc240211394284d1880d0e512cbe" name="a3fb5bc240211394284d1880d0e512cbe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3fb5bc240211394284d1880d0e512cbe">&#9670;&#160;</a></span>matches()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Key , class Header &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">unodb::detail::basic_leaf</a>&lt; Key, Header &gt;::matches </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a320fd0e04a9e76c044927d815051b319">art_key_type</a>&#160;</td>
+          <td class="paramname"><em>k</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Check if leaf key matches given key <em>k</em>. </p>
+<dl class="section return"><dt>Returns</dt><dd>True if keys are equal </dd></dl>
 
 </div>
 </div>

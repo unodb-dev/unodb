@@ -104,7 +104,7 @@ $(document).ready(function(){initNavTree('structunodb_1_1detail_1_1iter__result.
 </div><!--header-->
 <div class="contents">
 
-<p>A struct that is returned by the iterator visitation pattern which represents a path in the tree for an internal node.  
+<p>Iterator traversal result representing tree path element.  
  <a href="structunodb_1_1detail_1_1iter__result.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a>&gt;</code></p>
@@ -122,37 +122,76 @@ Inheritance diagram for unodb::detail::iter_result&lt; NodeHeader &gt;:</div>
 Public Types</h2></td></tr>
 <tr class="memitem:ab22270fae893b795cee9f4d663950f41" id="r_ab22270fae893b795cee9f4d663950f41"><td class="memItemLeft" align="right" valign="top"><a id="ab22270fae893b795cee9f4d663950f41" name="ab22270fae893b795cee9f4d663950f41"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>node_ptr</b> = <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">basic_node_ptr</a>&lt; NodeHeader &gt;</td></tr>
+<tr class="memdesc:ab22270fae893b795cee9f4d663950f41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Node pointer type. <br /></td></tr>
 <tr class="separator:ab22270fae893b795cee9f4d663950f41"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a854585e8656a3b42ae0e48a97d2f970a" id="r_a854585e8656a3b42ae0e48a97d2f970a"><td class="memItemLeft" align="right" valign="top"><a id="a854585e8656a3b42ae0e48a97d2f970a" name="a854585e8656a3b42ae0e48a97d2f970a"></a>
-<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">node_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><b>node</b></td></tr>
+<a class="el" href="structunodb_1_1detail_1_1iter__result.html#ab22270fae893b795cee9f4d663950f41">node_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><b>node</b></td></tr>
+<tr class="memdesc:a854585e8656a3b42ae0e48a97d2f970a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Node pointer (internal or leaf). <br /></td></tr>
 <tr class="separator:a854585e8656a3b42ae0e48a97d2f970a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af629f13328e6b7ebd271a9939d7559a8" id="r_af629f13328e6b7ebd271a9939d7559a8"><td class="memItemLeft" align="right" valign="top"><a id="af629f13328e6b7ebd271a9939d7559a8" name="af629f13328e6b7ebd271a9939d7559a8"></a>
-std::byte&#160;</td><td class="memItemRight" valign="bottom"><b>key_byte</b></td></tr>
-<tr class="memdesc:af629f13328e6b7ebd271a9939d7559a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">node pointer <br /></td></tr>
+<tr class="memitem:af629f13328e6b7ebd271a9939d7559a8" id="r_af629f13328e6b7ebd271a9939d7559a8"><td class="memItemLeft" align="right" valign="top">std::byte&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1iter__result.html#af629f13328e6b7ebd271a9939d7559a8">key_byte</a></td></tr>
+<tr class="memdesc:af629f13328e6b7ebd271a9939d7559a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Key byte consumed at this level when stepping down to the child node.  <br /></td></tr>
 <tr class="separator:af629f13328e6b7ebd271a9939d7559a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a985b95e52360b47cc69e53c0ab48946e" id="r_a985b95e52360b47cc69e53c0ab48946e"><td class="memItemLeft" align="right" valign="top"><a id="a985b95e52360b47cc69e53c0ab48946e" name="a985b95e52360b47cc69e53c0ab48946e"></a>
-std::uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>child_index</b></td></tr>
-<tr class="memdesc:a985b95e52360b47cc69e53c0ab48946e"><td class="mdescLeft">&#160;</td><td class="mdescRight">key byte <br /></td></tr>
+<tr class="memitem:a985b95e52360b47cc69e53c0ab48946e" id="r_a985b95e52360b47cc69e53c0ab48946e"><td class="memItemLeft" align="right" valign="top">std::uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1iter__result.html#a985b95e52360b47cc69e53c0ab48946e">child_index</a></td></tr>
+<tr class="memdesc:a985b95e52360b47cc69e53c0ab48946e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Child index within parent node (except for <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html" title="Internal node with 17-48 children (N48).">basic_inode_48</a>, where it indexes into <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#a733c51620437f23e6b970454c975d192" title="Maps key byte to index in children array (256 entries).">basic_inode_48::child_indexes</a> and equals key_byte).  <br /></td></tr>
 <tr class="separator:a985b95e52360b47cc69e53c0ab48946e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a567edf1377659f0138ac433674cf6091" id="r_a567edf1377659f0138ac433674cf6091"><td class="memItemLeft" align="right" valign="top"><a id="a567edf1377659f0138ac433674cf6091" name="a567edf1377659f0138ac433674cf6091"></a>
 <a class="el" href="unionunodb_1_1detail_1_1key__prefix__snapshot.html">key_prefix_snapshot</a>&#160;</td><td class="memItemRight" valign="bottom"><b>prefix</b></td></tr>
-<tr class="memdesc:a567edf1377659f0138ac433674cf6091"><td class="mdescLeft">&#160;</td><td class="mdescRight">child-index <br /></td></tr>
+<tr class="memdesc:a567edf1377659f0138ac433674cf6091"><td class="mdescLeft">&#160;</td><td class="mdescRight">Snapshot of key prefix for node. <br /></td></tr>
 <tr class="separator:a567edf1377659f0138ac433674cf6091"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;class NodeHeader&gt;<br />
-struct unodb::detail::iter_result&lt; NodeHeader &gt;</div><p>A struct that is returned by the iterator visitation pattern which represents a path in the tree for an internal node. </p>
-<dl class="section note"><dt>Note</dt><dd>The node is a pointer to either an internal node or a leaf.</dd>
-<dd>
-The <a class="el" href="structunodb_1_1detail_1_1iter__result.html#af629f13328e6b7ebd271a9939d7559a8" title="node pointer">iter_result::key_byte</a> is the byte from the key that was consumed as you step down to the child node. This is the same as the child index (if you convert <code>std::uint8_t</code> to <code>std::byte</code>) for N48 and N256, but it is different for N4 and N16 since they use a sparse encoding of the keys. It is represented explicitly to avoid searching for the key byte in the N48 and N256 cases.</dd>
-<dd>
-The <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a985b95e52360b47cc69e53c0ab48946e" title="key byte">iter_result::child_index</a> is the index of the child node within that internal node (except for N48, where it is the index into the unodb::detail::basic_inode_48::child_indexes[] and is in fact the same data as the key byte). Overflow for the <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a985b95e52360b47cc69e53c0ab48946e" title="key byte">iter_result::child_index</a> can only occur for N48 and N256. When overflow happens, the <a class="el" href="structunodb_1_1detail_1_1iter__result.html" title="A struct that is returned by the iterator visitation pattern which represents a path in the tree for ...">iter_result</a> is not defined and the outer std::optional will return false.</dd>
-<dd>
-The <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a567edf1377659f0138ac433674cf6091" title="child-index">iter_result::prefix</a> is a snapshot of the key prefix for node. </dd></dl>
-</div><hr/>The documentation for this struct was generated from the following file:<ul>
+struct unodb::detail::iter_result&lt; NodeHeader &gt;</div><p>Iterator traversal result representing tree path element. </p>
+<p>Returned by iterator visitation pattern to represent a position in the tree.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">NodeHeader</td><td>Node header type </td></tr>
+  </table>
+  </dd>
+</dl>
+</div><h2 class="groupheader">Member Data Documentation</h2>
+<a id="a985b95e52360b47cc69e53c0ab48946e" name="a985b95e52360b47cc69e53c0ab48946e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a985b95e52360b47cc69e53c0ab48946e">&#9670;&#160;</a></span>child_index</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class NodeHeader &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">std::uint8_t <a class="el" href="structunodb_1_1detail_1_1iter__result.html">unodb::detail::iter_result</a>&lt; NodeHeader &gt;::child_index</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Child index within parent node (except for <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html" title="Internal node with 17-48 children (N48).">basic_inode_48</a>, where it indexes into <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#a733c51620437f23e6b970454c975d192" title="Maps key byte to index in children array (256 entries).">basic_inode_48::child_indexes</a> and equals key_byte). </p>
+<p>Overflow for child_index can occur for <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html" title="Internal node with 17-48 children (N48).">basic_inode_48</a> and <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html" title="Internal node with 49-256 children (N256).">basic_inode_256</a>. When overflow happens, the <a class="el" href="structunodb_1_1detail_1_1iter__result.html" title="Iterator traversal result representing tree path element.">iter_result</a> is undefined and the wrapping std::optional returns false. </p>
+
+</div>
+</div>
+<a id="af629f13328e6b7ebd271a9939d7559a8" name="af629f13328e6b7ebd271a9939d7559a8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af629f13328e6b7ebd271a9939d7559a8">&#9670;&#160;</a></span>key_byte</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class NodeHeader &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">std::byte <a class="el" href="structunodb_1_1detail_1_1iter__result.html">unodb::detail::iter_result</a>&lt; NodeHeader &gt;::key_byte</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Key byte consumed at this level when stepping down to the child node. </p>
+<p>For <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html" title="Internal node with 17-48 children (N48).">basic_inode_48</a> and <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html" title="Internal node with 49-256 children (N256).">basic_inode_256</a>, this equals the child index; for <a class="el" href="classunodb_1_1detail_1_1basic__inode__4.html" title="Internal node with 2-4 children (N4).">basic_inode_4</a> and <a class="el" href="classunodb_1_1detail_1_1basic__inode__16.html" title="Internal node with 5-16 children (N16).">basic_inode_16</a> it differs due to sparse key encoding. Explicit representation avoids searching for key byte in <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html" title="Internal node with 17-48 children (N48).">basic_inode_48</a> and <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html" title="Internal node with 49-256 children (N256).">basic_inode_256</a> cases. </p>
+
+</div>
+</div>
+<hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a></li>
 </ul>
 </div><!-- contents -->

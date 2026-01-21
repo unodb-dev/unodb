@@ -1,13 +1,19 @@
 var searchData=
 [
-  ['next_0',['next',['../structunodb_1_1detail_1_1dealloc__vector__list__node.html#adb97856268b00e592400068336a02c37',1,'unodb::detail::dealloc_vector_list_node::next'],['../classunodb_1_1db_1_1iterator.html#af7d2feb5a3634d7b28153017adb46eb0',1,'unodb::db::iterator::next()'],['../classunodb_1_1detail_1_1basic__inode__impl.html#ab5b30c90837a6b5f9db79d13a17cfdaf',1,'unodb::detail::basic_inode_impl::next()'],['../classunodb_1_1olc__db_1_1iterator.html#a2d564c77523ca1caabbd2ea75ac8035f',1,'unodb::olc_db::iterator::next()']]],
-  ['node_5fheader_1',['node_header',['../structunodb_1_1detail_1_1node__header.html',1,'unodb::detail']]],
-  ['node_5fptr_5flock_2',['node_ptr_lock',['../namespaceunodb_1_1detail.html#a13ca7f940a88b617002ae98db439ff94',1,'unodb::detail']]],
-  ['node_5ftype_3',['node_type',['../namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3',1,'unodb']]],
-  ['node_5ftype_2ehpp_4',['node_type.hpp',['../node__type_8hpp.html',1,'']]],
-  ['node_5ftype_5fcount_5',['node_type_count',['../namespaceunodb_1_1detail.html#ad81082c8f2c103492eb9f6917f0483bc',1,'unodb::detail']]],
-  ['node_5ftype_5fcounter_5farray_6',['node_type_counter_array',['../namespaceunodb.html#a8105523dd9adff845377f54dd034b838',1,'unodb']]],
-  ['nominmax_7',['NOMINMAX',['../group__internal.html#ga9f918755b601cf4bffca775992e6fb90',1,'global.hpp']]],
-  ['notes_8',['Platform-Specific Notes',['../index.html#autotoc_md29',1,'']]],
-  ['notify_9',['notify',['../classunodb_1_1detail_1_1thread__sync.html#ac49b6f0f0180abea03a8759296279ea8',1,'unodb::detail::thread_sync']]]
+  ['n16_0',['n16',['../structunodb_1_1detail_1_1basic__inode__def.html#af2ec7ed6cda6a58563aaf28100a0d55c',1,'unodb::detail::basic_inode_def']]],
+  ['n256_1',['n256',['../structunodb_1_1detail_1_1basic__inode__def.html#ad4e3a227067ccac8312b1c1f6a21a9b5',1,'unodb::detail::basic_inode_def']]],
+  ['n4_2',['n4',['../structunodb_1_1detail_1_1basic__inode__def.html#acc5b301fdfffce5e00014d6d460e8cbb',1,'unodb::detail::basic_inode_def']]],
+  ['n48_3',['n48',['../structunodb_1_1detail_1_1basic__inode__def.html#ad3736f113e2712c04eb5d77520187740',1,'unodb::detail::basic_inode_def']]],
+  ['next_4',['next',['../structunodb_1_1detail_1_1dealloc__vector__list__node.html#adb97856268b00e592400068336a02c37',1,'unodb::detail::dealloc_vector_list_node::next'],['../classunodb_1_1db_1_1iterator.html#af7d2feb5a3634d7b28153017adb46eb0',1,'unodb::db::iterator::next()'],['../classunodb_1_1detail_1_1basic__inode__impl.html#ab5b30c90837a6b5f9db79d13a17cfdaf',1,'unodb::detail::basic_inode_impl::next()'],['../classunodb_1_1detail_1_1basic__inode__4.html#aaea377e443c41dc9ce68f37e9edb82c9',1,'unodb::detail::basic_inode_4::next()'],['../classunodb_1_1detail_1_1basic__inode__16.html#a2ed248a0bfd95bc8f7d9033b9dcf8bc7',1,'unodb::detail::basic_inode_16::next()'],['../classunodb_1_1detail_1_1basic__inode__48.html#a3ec4eec3bea2cabd3049291f8c0aac53',1,'unodb::detail::basic_inode_48::next()'],['../classunodb_1_1detail_1_1basic__inode__256.html#a6930b829ffd40f24362f016d41af6fea',1,'unodb::detail::basic_inode_256::next()'],['../classunodb_1_1olc__db_1_1iterator.html#a2d564c77523ca1caabbd2ea75ac8035f',1,'unodb::olc_db::iterator::next()']]],
+  ['node_5',['node',['../structunodb_1_1detail_1_1iter__result.html#a854585e8656a3b42ae0e48a97d2f970a',1,'unodb::detail::iter_result']]],
+  ['node_5fheader_6',['node_header',['../structunodb_1_1detail_1_1node__header.html',1,'unodb::detail']]],
+  ['node_5fptr_7',['node_ptr',['../structunodb_1_1detail_1_1basic__art__policy.html#a8cd97a2445cf3bf1b445c3dd82614dba',1,'unodb::detail::basic_art_policy::node_ptr'],['../structunodb_1_1detail_1_1iter__result.html#ab22270fae893b795cee9f4d663950f41',1,'unodb::detail::iter_result::node_ptr'],['../classunodb_1_1detail_1_1basic__inode__impl.html#af470045f63b1888c85166604c3d8a6be',1,'unodb::detail::basic_inode_impl::node_ptr'],['../structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html#a569bfd7f059d88dbfe65bf5998c61b2c',1,'unodb::detail::basic_art_policy::delete_db_node_ptr_at_scope_exit::node_ptr'],['../classunodb_1_1detail_1_1basic__inode.html#af470045f63b1888c85166604c3d8a6be',1,'unodb::detail::basic_inode::node_ptr'],['../classunodb_1_1detail_1_1basic__inode__4.html#af470045f63b1888c85166604c3d8a6be',1,'unodb::detail::basic_inode_4::node_ptr'],['../classunodb_1_1detail_1_1basic__inode__16.html#af470045f63b1888c85166604c3d8a6be',1,'unodb::detail::basic_inode_16::node_ptr'],['../classunodb_1_1detail_1_1basic__inode__48.html#af470045f63b1888c85166604c3d8a6be',1,'unodb::detail::basic_inode_48::node_ptr'],['../classunodb_1_1detail_1_1basic__inode__256.html#af470045f63b1888c85166604c3d8a6be',1,'unodb::detail::basic_inode_256::node_ptr']]],
+  ['node_5fptr_5flock_8',['node_ptr_lock',['../namespaceunodb_1_1detail.html#a13ca7f940a88b617002ae98db439ff94',1,'unodb::detail']]],
+  ['node_5ftype_9',['node_type',['../namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3',1,'unodb']]],
+  ['node_5ftype_2ehpp_10',['node_type.hpp',['../node__type_8hpp.html',1,'']]],
+  ['node_5ftype_5fcount_11',['node_type_count',['../namespaceunodb_1_1detail.html#ad81082c8f2c103492eb9f6917f0483bc',1,'unodb::detail']]],
+  ['node_5ftype_5fcounter_5farray_12',['node_type_counter_array',['../namespaceunodb.html#a8105523dd9adff845377f54dd034b838',1,'unodb']]],
+  ['nominmax_13',['NOMINMAX',['../group__internal.html#ga9f918755b601cf4bffca775992e6fb90',1,'global.hpp']]],
+  ['notes_14',['Platform-Specific Notes',['../index.html#autotoc_md29',1,'']]],
+  ['notify_15',['notify',['../classunodb_1_1detail_1_1thread__sync.html#ac49b6f0f0180abea03a8759296279ea8',1,'unodb::detail::thread_sync']]]
 ];

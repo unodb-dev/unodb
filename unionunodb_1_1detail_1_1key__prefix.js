@@ -1,9 +1,27 @@
 var unionunodb_1_1detail_1_1key__prefix =
 [
-    [ "inode_fields", "structunodb_1_1detail_1_1key__prefix_1_1inode__fields.html", null ],
+    [ "inode_fields", "structunodb_1_1detail_1_1key__prefix_1_1inode__fields.html", "structunodb_1_1detail_1_1key__prefix_1_1inode__fields" ],
+    [ "critical_section_policy", "unionunodb_1_1detail_1_1key__prefix.html#a226df62814cb46d0c014fba5e635bd57", null ],
+    [ "key_prefix_data", "unionunodb_1_1detail_1_1key__prefix.html#a87360cc8f398353f47fedf785bfcf399", null ],
+    [ "key_prefix", "unionunodb_1_1detail_1_1key__prefix.html#a328ddc5f0d3da389a637ce56afbdfcc4", null ],
+    [ "key_prefix", "unionunodb_1_1detail_1_1key__prefix.html#a9917771ebe6ba952f6745a7e02c9d7ea", null ],
+    [ "key_prefix", "unionunodb_1_1detail_1_1key__prefix.html#ae693d162743f7b58689b8ab22e36b0ec", null ],
+    [ "~key_prefix", "unionunodb_1_1detail_1_1key__prefix.html#a6051ae53979f60d48223a6d98f650f0d", null ],
+    [ "key_prefix", "unionunodb_1_1detail_1_1key__prefix.html#aa67a6a7a205082d8a8b19f6a407d2376", null ],
+    [ "cut", "unionunodb_1_1detail_1_1key__prefix.html#af56bc91de90f16ff7fc53d4e44163ca4", null ],
+    [ "dump", "unionunodb_1_1detail_1_1key__prefix.html#a014416012cec9c0067cb531aa0fedbcc", null ],
     [ "get_shared_length", "unionunodb_1_1detail_1_1key__prefix.html#a8126bc99eb3bf3406082174d7c29a78d", null ],
     [ "get_shared_length", "unionunodb_1_1detail_1_1key__prefix.html#a752028af2617cf5509d186efa47198f6", null ],
     [ "get_snapshot", "unionunodb_1_1detail_1_1key__prefix.html#ad4ab58d4a80c408fd2bcd1be5785c668", null ],
     [ "length", "unionunodb_1_1detail_1_1key__prefix.html#a1d31b770d7e0abae46cd627722b4c86e", null ],
-    [ "operator[]", "unionunodb_1_1detail_1_1key__prefix.html#acfc012138d604be22be519fd3c8828b6", null ]
+    [ "length_to_word", "unionunodb_1_1detail_1_1key__prefix.html#ae3af7f0dc30167f49ab5a1dc9e224dcf", null ],
+    [ "make_u64", "unionunodb_1_1detail_1_1key__prefix.html#a1d1165407e3eddb03cba9962d8be2685", null ],
+    [ "operator=", "unionunodb_1_1detail_1_1key__prefix.html#a4c9f16a2de88e3206d19ef02a5780531", null ],
+    [ "operator=", "unionunodb_1_1detail_1_1key__prefix.html#a38f8c4bf69a3d167db9a3e70c1ddbcfc", null ],
+    [ "operator[]", "unionunodb_1_1detail_1_1key__prefix.html#acfc012138d604be22be519fd3c8828b6", null ],
+    [ "prepend", "unionunodb_1_1detail_1_1key__prefix.html#a5a42a86045a0d76da96aa2ed0ab7863a", null ],
+    [ "shared_len", "unionunodb_1_1detail_1_1key__prefix.html#a22f5e3b38d809435bb6d7832d0e8e9ca", null ],
+    [ "f", "unionunodb_1_1detail_1_1key__prefix.html#a3e5f35da46711dadff1e6c9bb1dd64dc", null ],
+    [ "key_bytes_mask", "unionunodb_1_1detail_1_1key__prefix.html#a9b07ac198d7bc0437c16c685af8a59c3", null ],
+    [ "u64", "unionunodb_1_1detail_1_1key__prefix.html#a2866197edfbf076586ccdc781aacb0f1", null ]
 ];

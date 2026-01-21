@@ -1,4 +1,7 @@
 var searchData=
 [
-  ['pointer_0',['pointer',['../classunodb_1_1qsbr__ptr.html#ae524b9b919d524677d4892210775040f',1,'unodb::qsbr_ptr']]]
+  ['larger_5fderived_5ftype_0',['larger_derived_type',['../classunodb_1_1detail_1_1basic__inode.html#a22a3c943325fab4e46f48d9de5d203b5',1,'unodb::detail::basic_inode::larger_derived_type'],['../classunodb_1_1detail_1_1basic__inode__4.html#a22a3c943325fab4e46f48d9de5d203b5',1,'unodb::detail::basic_inode_4::larger_derived_type']]],
+  ['leaf_5freclaimable_5fptr_1',['leaf_reclaimable_ptr',['../structunodb_1_1detail_1_1basic__art__policy.html#a0aa20e2df7a50325318103be2429a418',1,'unodb::detail::basic_art_policy']]],
+  ['leaf_5ftype_2',['leaf_type',['../classunodb_1_1detail_1_1basic__db__leaf__deleter.html#a6f33ce4114f2fa50cf1e487f53f80e4a',1,'unodb::detail::basic_db_leaf_deleter::leaf_type'],['../structunodb_1_1detail_1_1basic__art__policy.html#aea417ed6f98e209c3e0958bd064915d6',1,'unodb::detail::basic_art_policy::leaf_type'],['../classunodb_1_1detail_1_1basic__inode__impl.html#a4d31e4b60b23deaebc789fdf496e9e9c',1,'unodb::detail::basic_inode_impl::leaf_type']]],
+  ['lock_5fpolicy_3',['lock_policy',['../structunodb_1_1detail_1_1basic__art__policy.html#aa249160507ae5df97ba1dc4e40fa5596',1,'unodb::detail::basic_art_policy::lock_policy'],['../classunodb_1_1detail_1_1basic__inode__impl.html#a91da5ec522508c11bae73040b13b74fe',1,'unodb::detail::basic_inode_impl::lock_policy']]]
 ];

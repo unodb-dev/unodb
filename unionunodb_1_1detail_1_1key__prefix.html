@@ -108,7 +108,7 @@ $(document).ready(function(){initNavTree('unionunodb_1_1detail_1_1key__prefix.ht
 </div><!--header-->
 <div class="contents">
 
-<p>The <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html" title="The unodb::detail::key_prefix is a sequence of zero or more bytes for a given node that are a common ...">unodb::detail::key_prefix</a> is a sequence of zero or more bytes for a given node that are a common prefix shared by all children of that node and supports prefix compression in the index.  
+<p>Key prefix for prefix compression in internal nodes.  
  <a href="unionunodb_1_1detail_1_1key__prefix.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a>&gt;</code></p>
@@ -116,55 +116,60 @@ $(document).ready(function(){initNavTree('unionunodb_1_1detail_1_1key__prefix.ht
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1key__prefix_1_1inode__fields.html">inode_fields</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structured view of prefix data.  <a href="structunodb_1_1detail_1_1key__prefix_1_1inode__fields.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a328ddc5f0d3da389a637ce56afbdfcc4" id="r_a328ddc5f0d3da389a637ce56afbdfcc4"><td class="memItemLeft" align="right" valign="top"><a id="a328ddc5f0d3da389a637ce56afbdfcc4" name="a328ddc5f0d3da389a637ce56afbdfcc4"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix</b> (<a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> k1, ArtKey shifted_k2, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; ArtKey &gt; depth) noexcept</td></tr>
+<tr class="memitem:a328ddc5f0d3da389a637ce56afbdfcc4" id="r_a328ddc5f0d3da389a637ce56afbdfcc4"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionunodb_1_1detail_1_1key__prefix.html#a328ddc5f0d3da389a637ce56afbdfcc4">key_prefix</a> (<a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> k1, ArtKey shifted_k2, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; ArtKey &gt; depth) noexcept</td></tr>
+<tr class="memdesc:a328ddc5f0d3da389a637ce56afbdfcc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct from two keys sharing common prefix.  <br /></td></tr>
 <tr class="separator:a328ddc5f0d3da389a637ce56afbdfcc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9917771ebe6ba952f6745a7e02c9d7ea" id="r_a9917771ebe6ba952f6745a7e02c9d7ea"><td class="memItemLeft" align="right" valign="top"><a id="a9917771ebe6ba952f6745a7e02c9d7ea" name="a9917771ebe6ba952f6745a7e02c9d7ea"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix</b> (unsigned key_prefix_len, const <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;source_key_prefix) noexcept</td></tr>
+<tr class="memitem:a9917771ebe6ba952f6745a7e02c9d7ea" id="r_a9917771ebe6ba952f6745a7e02c9d7ea"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionunodb_1_1detail_1_1key__prefix.html#a9917771ebe6ba952f6745a7e02c9d7ea">key_prefix</a> (unsigned key_prefix_len, const <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;source_key_prefix) noexcept</td></tr>
+<tr class="memdesc:a9917771ebe6ba952f6745a7e02c9d7ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct with truncated length from source.  <br /></td></tr>
 <tr class="separator:a9917771ebe6ba952f6745a7e02c9d7ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae693d162743f7b58689b8ab22e36b0ec" id="r_ae693d162743f7b58689b8ab22e36b0ec"><td class="memItemLeft" align="right" valign="top"><a id="ae693d162743f7b58689b8ab22e36b0ec" name="ae693d162743f7b58689b8ab22e36b0ec"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix</b> (const <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;other) noexcept</td></tr>
+<tr class="memdesc:ae693d162743f7b58689b8ab22e36b0ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy constructor. <br /></td></tr>
 <tr class="separator:ae693d162743f7b58689b8ab22e36b0ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8126bc99eb3bf3406082174d7c29a78d" id="r_a8126bc99eb3bf3406082174d7c29a78d"><td class="memItemLeft" align="right" valign="top"><a id="a8126bc99eb3bf3406082174d7c29a78d" name="a8126bc99eb3bf3406082174d7c29a78d"></a>
-constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>get_shared_length</b> (ArtKey shifted_key) const noexcept</td></tr>
-<tr class="memdesc:a8126bc99eb3bf3406082174d7c29a78d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of bytes in common between this prefix and a view of the next 64-bits (max) of some the <em>shifted_key</em> from which any leading bytes already matched by the traversal path have been discarded. <br /></td></tr>
+<tr class="memitem:a6051ae53979f60d48223a6d98f650f0d" id="r_a6051ae53979f60d48223a6d98f650f0d"><td class="memItemLeft" align="right" valign="top"><a id="a6051ae53979f60d48223a6d98f650f0d" name="a6051ae53979f60d48223a6d98f650f0d"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>~key_prefix</b> () noexcept=default</td></tr>
+<tr class="memdesc:a6051ae53979f60d48223a6d98f650f0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor. <br /></td></tr>
+<tr class="separator:a6051ae53979f60d48223a6d98f650f0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8126bc99eb3bf3406082174d7c29a78d" id="r_a8126bc99eb3bf3406082174d7c29a78d"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionunodb_1_1detail_1_1key__prefix.html#a8126bc99eb3bf3406082174d7c29a78d">get_shared_length</a> (ArtKey shifted_key) const noexcept</td></tr>
+<tr class="memdesc:a8126bc99eb3bf3406082174d7c29a78d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return shared prefix length with shifted key.  <br /></td></tr>
 <tr class="separator:a8126bc99eb3bf3406082174d7c29a78d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a752028af2617cf5509d186efa47198f6" id="r_a752028af2617cf5509d186efa47198f6"><td class="memItemLeft" align="right" valign="top"><a id="a752028af2617cf5509d186efa47198f6" name="a752028af2617cf5509d186efa47198f6"></a>
-constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>get_shared_length</b> (std::uint64_t shifted_key_u64) const noexcept</td></tr>
-<tr class="memdesc:a752028af2617cf5509d186efa47198f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of bytes in common between this prefix and a view of the next 64-bits (max) of some the <em>shifted_key</em> from which any leading bytes already matched by the traversal path have been discarded. <br /></td></tr>
+<tr class="memitem:a752028af2617cf5509d186efa47198f6" id="r_a752028af2617cf5509d186efa47198f6"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionunodb_1_1detail_1_1key__prefix.html#a752028af2617cf5509d186efa47198f6">get_shared_length</a> (std::uint64_t shifted_key_u64) const noexcept</td></tr>
+<tr class="memdesc:a752028af2617cf5509d186efa47198f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return shared prefix length with raw key value.  <br /></td></tr>
 <tr class="separator:a752028af2617cf5509d186efa47198f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad4ab58d4a80c408fd2bcd1be5785c668" id="r_ad4ab58d4a80c408fd2bcd1be5785c668"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="unionunodb_1_1detail_1_1key__prefix__snapshot.html">key_prefix_snapshot</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionunodb_1_1detail_1_1key__prefix.html#ad4ab58d4a80c408fd2bcd1be5785c668">get_snapshot</a> () const noexcept</td></tr>
-<tr class="memdesc:ad4ab58d4a80c408fd2bcd1be5785c668"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a snapshot of the <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html" title="The unodb::detail::key_prefix is a sequence of zero or more bytes for a given node that are a common ...">unodb::detail::key_prefix</a> data.  <br /></td></tr>
+<tr class="memdesc:ad4ab58d4a80c408fd2bcd1be5785c668"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return atomic snapshot of prefix data.  <br /></td></tr>
 <tr class="separator:ad4ab58d4a80c408fd2bcd1be5785c668"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1d31b770d7e0abae46cd627722b4c86e" id="r_a1d31b770d7e0abae46cd627722b4c86e"><td class="memItemLeft" align="right" valign="top"><a id="a1d31b770d7e0abae46cd627722b4c86e" name="a1d31b770d7e0abae46cd627722b4c86e"></a>
-constexpr key_prefix_size&#160;</td><td class="memItemRight" valign="bottom"><b>length</b> () const noexcept</td></tr>
-<tr class="memdesc:a1d31b770d7e0abae46cd627722b4c86e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The number of prefix bytes. <br /></td></tr>
+<tr class="memitem:a1d31b770d7e0abae46cd627722b4c86e" id="r_a1d31b770d7e0abae46cd627722b4c86e"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="namespaceunodb_1_1detail.html#a2a48856979c828fe6f91a83b8b43e0be">key_prefix_size</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionunodb_1_1detail_1_1key__prefix.html#a1d31b770d7e0abae46cd627722b4c86e">length</a> () const noexcept</td></tr>
+<tr class="memdesc:a1d31b770d7e0abae46cd627722b4c86e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return number of prefix bytes.  <br /></td></tr>
 <tr class="separator:a1d31b770d7e0abae46cd627722b4c86e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af56bc91de90f16ff7fc53d4e44163ca4" id="r_af56bc91de90f16ff7fc53d4e44163ca4"><td class="memItemLeft" align="right" valign="top"><a id="af56bc91de90f16ff7fc53d4e44163ca4" name="af56bc91de90f16ff7fc53d4e44163ca4"></a>
-constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>cut</b> (key_prefix_size cut_len) noexcept</td></tr>
+<tr class="memitem:af56bc91de90f16ff7fc53d4e44163ca4" id="r_af56bc91de90f16ff7fc53d4e44163ca4"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionunodb_1_1detail_1_1key__prefix.html#af56bc91de90f16ff7fc53d4e44163ca4">cut</a> (<a class="el" href="namespaceunodb_1_1detail.html#a2a48856979c828fe6f91a83b8b43e0be">key_prefix_size</a> cut_len) noexcept</td></tr>
+<tr class="memdesc:af56bc91de90f16ff7fc53d4e44163ca4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove leading bytes from prefix.  <br /></td></tr>
 <tr class="separator:af56bc91de90f16ff7fc53d4e44163ca4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5a42a86045a0d76da96aa2ed0ab7863a" id="r_a5a42a86045a0d76da96aa2ed0ab7863a"><td class="memItemLeft" align="right" valign="top"><a id="a5a42a86045a0d76da96aa2ed0ab7863a" name="a5a42a86045a0d76da96aa2ed0ab7863a"></a>
-constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>prepend</b> (const <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;prefix1, std::byte prefix2) noexcept</td></tr>
+<tr class="memitem:a5a42a86045a0d76da96aa2ed0ab7863a" id="r_a5a42a86045a0d76da96aa2ed0ab7863a"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionunodb_1_1detail_1_1key__prefix.html#a5a42a86045a0d76da96aa2ed0ab7863a">prepend</a> (const <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;prefix1, std::byte prefix2) noexcept</td></tr>
+<tr class="memdesc:a5a42a86045a0d76da96aa2ed0ab7863a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prepend prefix and single byte to current prefix.  <br /></td></tr>
 <tr class="separator:a5a42a86045a0d76da96aa2ed0ab7863a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acfc012138d604be22be519fd3c8828b6" id="r_acfc012138d604be22be519fd3c8828b6"><td class="memItemLeft" align="right" valign="top"><a id="acfc012138d604be22be519fd3c8828b6" name="acfc012138d604be22be519fd3c8828b6"></a>
-constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>operator[]</b> (std::size_t i) const noexcept</td></tr>
-<tr class="memdesc:acfc012138d604be22be519fd3c8828b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the byte at the specified index. <br /></td></tr>
+<tr class="memitem:acfc012138d604be22be519fd3c8828b6" id="r_acfc012138d604be22be519fd3c8828b6"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionunodb_1_1detail_1_1key__prefix.html#acfc012138d604be22be519fd3c8828b6">operator[]</a> (std::size_t i) const noexcept</td></tr>
+<tr class="memdesc:acfc012138d604be22be519fd3c8828b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return byte at specified index.  <br /></td></tr>
 <tr class="separator:acfc012138d604be22be519fd3c8828b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a014416012cec9c0067cb531aa0fedbcc" id="r_a014416012cec9c0067cb531aa0fedbcc"><td class="memItemLeft" align="right" valign="top"><a id="a014416012cec9c0067cb531aa0fedbcc" name="a014416012cec9c0067cb531aa0fedbcc"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os) const</td></tr>
+<tr class="memitem:a014416012cec9c0067cb531aa0fedbcc" id="r_a014416012cec9c0067cb531aa0fedbcc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionunodb_1_1detail_1_1key__prefix.html#a014416012cec9c0067cb531aa0fedbcc">dump</a> (std::ostream &amp;os) const</td></tr>
+<tr class="memdesc:a014416012cec9c0067cb531aa0fedbcc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dump prefix contents to stream for debugging.  <br /></td></tr>
 <tr class="separator:a014416012cec9c0067cb531aa0fedbcc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa67a6a7a205082d8a8b19f6a407d2376" id="r_aa67a6a7a205082d8a8b19f6a407d2376"><td class="memItemLeft" align="right" valign="top"><a id="aa67a6a7a205082d8a8b19f6a407d2376" name="aa67a6a7a205082d8a8b19f6a407d2376"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix</b> (<a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;&amp;)=delete</td></tr>
+<tr class="memdesc:aa67a6a7a205082d8a8b19f6a407d2376"><td class="mdescLeft">&#160;</td><td class="mdescRight">Non-movable. <br /></td></tr>
 <tr class="separator:aa67a6a7a205082d8a8b19f6a407d2376"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4c9f16a2de88e3206d19ef02a5780531" id="r_a4c9f16a2de88e3206d19ef02a5780531"><td class="memItemLeft" align="right" valign="top"><a id="a4c9f16a2de88e3206d19ef02a5780531" name="a4c9f16a2de88e3206d19ef02a5780531"></a>
 <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;)=delete</td></tr>
+<tr class="memdesc:a4c9f16a2de88e3206d19ef02a5780531"><td class="mdescLeft">&#160;</td><td class="mdescRight">Non-copy-assignable. <br /></td></tr>
 <tr class="separator:a4c9f16a2de88e3206d19ef02a5780531"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a38f8c4bf69a3d167db9a3e70c1ddbcfc" id="r_a38f8c4bf69a3d167db9a3e70c1ddbcfc"><td class="memItemLeft" align="right" valign="top"><a id="a38f8c4bf69a3d167db9a3e70c1ddbcfc" name="a38f8c4bf69a3d167db9a3e70c1ddbcfc"></a>
 <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a> &amp;&amp;)=delete</td></tr>
+<tr class="memdesc:a38f8c4bf69a3d167db9a3e70c1ddbcfc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Non-move-assignable. <br /></td></tr>
 <tr class="separator:a38f8c4bf69a3d167db9a3e70c1ddbcfc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-types" name="pri-types"></a>
@@ -172,42 +177,305 @@ Private Types</h2></td></tr>
 <tr class="memitem:a226df62814cb46d0c014fba5e635bd57" id="r_a226df62814cb46d0c014fba5e635bd57"><td class="memTemplParams" colspan="2"><a id="a226df62814cb46d0c014fba5e635bd57" name="a226df62814cb46d0c014fba5e635bd57"></a>
 template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a226df62814cb46d0c014fba5e635bd57"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>critical_section_policy</b> = CriticalSectionPolicy&lt; T &gt;</td></tr>
+<tr class="memdesc:a226df62814cb46d0c014fba5e635bd57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Critical section wrapper for type T. <br /></td></tr>
 <tr class="separator:a226df62814cb46d0c014fba5e635bd57"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a87360cc8f398353f47fedf785bfcf399" id="r_a87360cc8f398353f47fedf785bfcf399"><td class="memItemLeft" align="right" valign="top"><a id="a87360cc8f398353f47fedf785bfcf399" name="a87360cc8f398353f47fedf785bfcf399"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix_data</b> = std::array&lt; critical_section_policy&lt; std::byte &gt;, key_prefix_capacity &gt;</td></tr>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix_data</b> = std::array&lt; <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html#a226df62814cb46d0c014fba5e635bd57">critical_section_policy</a>&lt; std::byte &gt;, <a class="el" href="namespaceunodb_1_1detail.html#a6affb48b09460b87dbcb8ab404f26263">key_prefix_capacity</a> &gt;</td></tr>
+<tr class="memdesc:a87360cc8f398353f47fedf785bfcf399"><td class="mdescLeft">&#160;</td><td class="mdescRight">Storage type for prefix bytes with thread-safety wrapper. <br /></td></tr>
 <tr class="separator:a87360cc8f398353f47fedf785bfcf399"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-methods" name="pri-static-methods"></a>
 Static Private Member Functions</h2></td></tr>
 <tr class="memitem:ae3af7f0dc30167f49ab5a1dc9e224dcf" id="r_ae3af7f0dc30167f49ab5a1dc9e224dcf"><td class="memItemLeft" align="right" valign="top"><a id="ae3af7f0dc30167f49ab5a1dc9e224dcf" name="ae3af7f0dc30167f49ab5a1dc9e224dcf"></a>
 static constexpr std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>length_to_word</b> (unsigned <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html#a1d31b770d7e0abae46cd627722b4c86e">length</a>)</td></tr>
+<tr class="memdesc:ae3af7f0dc30167f49ab5a1dc9e224dcf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert length to 64-bit word with length in high byte. <br /></td></tr>
 <tr class="separator:ae3af7f0dc30167f49ab5a1dc9e224dcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a22f5e3b38d809435bb6d7832d0e8e9ca" id="r_a22f5e3b38d809435bb6d7832d0e8e9ca"><td class="memItemLeft" align="right" valign="top"><a id="a22f5e3b38d809435bb6d7832d0e8e9ca" name="a22f5e3b38d809435bb6d7832d0e8e9ca"></a>
 static constexpr unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>shared_len</b> (std::uint64_t k1, std::uint64_t k2, unsigned clamp_byte_pos) noexcept</td></tr>
+<tr class="memdesc:a22f5e3b38d809435bb6d7832d0e8e9ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute shared prefix length between two 64-bit values. <br /></td></tr>
 <tr class="separator:a22f5e3b38d809435bb6d7832d0e8e9ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1d1165407e3eddb03cba9962d8be2685" id="r_a1d1165407e3eddb03cba9962d8be2685"><td class="memItemLeft" align="right" valign="top"><a id="a1d1165407e3eddb03cba9962d8be2685" name="a1d1165407e3eddb03cba9962d8be2685"></a>
-static constexpr std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>make_u64</b> (<a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> k1, ArtKey shifted_k2, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; ArtKey &gt; depth) noexcept</td></tr>
+<tr class="memitem:a1d1165407e3eddb03cba9962d8be2685" id="r_a1d1165407e3eddb03cba9962d8be2685"><td class="memItemLeft" align="right" valign="top">static constexpr std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionunodb_1_1detail_1_1key__prefix.html#a1d1165407e3eddb03cba9962d8be2685">make_u64</a> (<a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> k1, ArtKey shifted_k2, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; ArtKey &gt; depth) noexcept</td></tr>
+<tr class="memdesc:a1d1165407e3eddb03cba9962d8be2685"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create packed u64 representation from two keys at given depth.  <br /></td></tr>
 <tr class="separator:a1d1165407e3eddb03cba9962d8be2685"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:a005d322592e512a895e2a2c2413b8414" id="r_a005d322592e512a895e2a2c2413b8414"><td class="memItemLeft" align="right" valign="top"><a id="a005d322592e512a895e2a2c2413b8414" name="a005d322592e512a895e2a2c2413b8414"></a>
-struct <a class="el" href="structunodb_1_1detail_1_1key__prefix_1_1inode__fields.html">unodb::detail::key_prefix::inode_fields</a>&#160;</td><td class="memItemRight" valign="bottom"><b>f</b></td></tr>
-<tr class="separator:a005d322592e512a895e2a2c2413b8414"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e5f35da46711dadff1e6c9bb1dd64dc" id="r_a3e5f35da46711dadff1e6c9bb1dd64dc"><td class="memItemLeft" align="right" valign="top"><a id="a3e5f35da46711dadff1e6c9bb1dd64dc" name="a3e5f35da46711dadff1e6c9bb1dd64dc"></a>
+<a class="el" href="structunodb_1_1detail_1_1key__prefix_1_1inode__fields.html">inode_fields</a>&#160;</td><td class="memItemRight" valign="bottom"><b>f</b></td></tr>
+<tr class="memdesc:a3e5f35da46711dadff1e6c9bb1dd64dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structured access to prefix. <br /></td></tr>
+<tr class="separator:a3e5f35da46711dadff1e6c9bb1dd64dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2866197edfbf076586ccdc781aacb0f1" id="r_a2866197edfbf076586ccdc781aacb0f1"><td class="memItemLeft" align="right" valign="top"><a id="a2866197edfbf076586ccdc781aacb0f1" name="a2866197edfbf076586ccdc781aacb0f1"></a>
-critical_section_policy&lt; std::uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>u64</b></td></tr>
+<a class="el" href="unionunodb_1_1detail_1_1key__prefix.html#a226df62814cb46d0c014fba5e635bd57">critical_section_policy</a>&lt; std::uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>u64</b></td></tr>
+<tr class="memdesc:a2866197edfbf076586ccdc781aacb0f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Raw 64-bit access. <br /></td></tr>
 <tr class="separator:a2866197edfbf076586ccdc781aacb0f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-attribs" name="pri-static-attribs"></a>
 Static Private Attributes</h2></td></tr>
 <tr class="memitem:a9b07ac198d7bc0437c16c685af8a59c3" id="r_a9b07ac198d7bc0437c16c685af8a59c3"><td class="memItemLeft" align="right" valign="top"><a id="a9b07ac198d7bc0437c16c685af8a59c3" name="a9b07ac198d7bc0437c16c685af8a59c3"></a>
 static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><b>key_bytes_mask</b> = 0x00FF'FFFF'FFFF'FFFFULL</td></tr>
+<tr class="memdesc:a9b07ac198d7bc0437c16c685af8a59c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mask for extracting key bytes from 64-bit word. <br /></td></tr>
 <tr class="separator:a9b07ac198d7bc0437c16c685af8a59c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename ArtKey, template&lt; class &gt; class CriticalSectionPolicy&gt;<br />
-union unodb::detail::key_prefix&lt; ArtKey, CriticalSectionPolicy &gt;</div><p>The <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html" title="The unodb::detail::key_prefix is a sequence of zero or more bytes for a given node that are a common ...">unodb::detail::key_prefix</a> is a sequence of zero or more bytes for a given node that are a common prefix shared by all children of that node and supports prefix compression in the index. </p>
-</div><h2 class="groupheader">Member Function Documentation</h2>
+union unodb::detail::key_prefix&lt; ArtKey, CriticalSectionPolicy &gt;</div><p>Key prefix for prefix compression in internal nodes. </p>
+<p>Stores zero or more bytes that are common prefix shared by all children of a node, supporting prefix compression in the index.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">ArtKey</td><td>Internal ART key type </td></tr>
+    <tr><td class="paramname">CriticalSectionPolicy</td><td>Policy for thread-safe access </td></tr>
+  </table>
+  </dd>
+</dl>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a328ddc5f0d3da389a637ce56afbdfcc4" name="a328ddc5f0d3da389a637ce56afbdfcc4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a328ddc5f0d3da389a637ce56afbdfcc4">&#9670;&#160;</a></span>key_prefix() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename ArtKey , template&lt; class &gt; class CriticalSectionPolicy&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">unodb::detail::key_prefix</a>&lt; ArtKey, CriticalSectionPolicy &gt;::key_prefix </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a>&#160;</td>
+          <td class="paramname"><em>k1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ArtKey&#160;</td>
+          <td class="paramname"><em>shifted_k2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; ArtKey &gt;&#160;</td>
+          <td class="paramname"><em>depth</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Construct from two keys sharing common prefix. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">k1</td><td>First key view </td></tr>
+    <tr><td class="paramname">shifted_k2</td><td>Second key already shifted </td></tr>
+    <tr><td class="paramname">depth</td><td>Current tree depth </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a9917771ebe6ba952f6745a7e02c9d7ea" name="a9917771ebe6ba952f6745a7e02c9d7ea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9917771ebe6ba952f6745a7e02c9d7ea">&#9670;&#160;</a></span>key_prefix() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename ArtKey , template&lt; class &gt; class CriticalSectionPolicy&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">unodb::detail::key_prefix</a>&lt; ArtKey, CriticalSectionPolicy &gt;::key_prefix </td>
+          <td>(</td>
+          <td class="paramtype">unsigned&#160;</td>
+          <td class="paramname"><em>key_prefix_len</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a>&lt; ArtKey, CriticalSectionPolicy &gt; &amp;&#160;</td>
+          <td class="paramname"><em>source_key_prefix</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Construct with truncated length from source. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">key_prefix_len</td><td>New prefix length (must not exceed capacity) </td></tr>
+    <tr><td class="paramname">source_key_prefix</td><td>Source to copy bytes from </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="af56bc91de90f16ff7fc53d4e44163ca4" name="af56bc91de90f16ff7fc53d4e44163ca4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af56bc91de90f16ff7fc53d4e44163ca4">&#9670;&#160;</a></span>cut()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename ArtKey , template&lt; class &gt; class CriticalSectionPolicy&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr void <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">unodb::detail::key_prefix</a>&lt; ArtKey, CriticalSectionPolicy &gt;::cut </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#a2a48856979c828fe6f91a83b8b43e0be">key_prefix_size</a>&#160;</td>
+          <td class="paramname"><em>cut_len</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Remove leading bytes from prefix. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cut_len</td><td>Number of bytes to remove (must be positive and &lt;= length) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a014416012cec9c0067cb531aa0fedbcc" name="a014416012cec9c0067cb531aa0fedbcc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a014416012cec9c0067cb531aa0fedbcc">&#9670;&#160;</a></span>dump()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename ArtKey , template&lt; class &gt; class CriticalSectionPolicy&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">unodb::detail::key_prefix</a>&lt; ArtKey, CriticalSectionPolicy &gt;::dump </td>
+          <td>(</td>
+          <td class="paramtype">std::ostream &amp;&#160;</td>
+          <td class="paramname"><em>os</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Dump prefix contents to stream for debugging. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">os</td><td>Output stream </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a8126bc99eb3bf3406082174d7c29a78d" name="a8126bc99eb3bf3406082174d7c29a78d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8126bc99eb3bf3406082174d7c29a78d">&#9670;&#160;</a></span>get_shared_length() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename ArtKey , template&lt; class &gt; class CriticalSectionPolicy&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">unodb::detail::key_prefix</a>&lt; ArtKey, CriticalSectionPolicy &gt;::get_shared_length </td>
+          <td>(</td>
+          <td class="paramtype">ArtKey&#160;</td>
+          <td class="paramname"><em>shifted_key</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return shared prefix length with shifted key. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">shifted_key</td><td>Shifted key to compare </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Number of common bytes </dd></dl>
+
+</div>
+</div>
+<a id="a752028af2617cf5509d186efa47198f6" name="a752028af2617cf5509d186efa47198f6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a752028af2617cf5509d186efa47198f6">&#9670;&#160;</a></span>get_shared_length() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename ArtKey , template&lt; class &gt; class CriticalSectionPolicy&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">unodb::detail::key_prefix</a>&lt; ArtKey, CriticalSectionPolicy &gt;::get_shared_length </td>
+          <td>(</td>
+          <td class="paramtype">std::uint64_t&#160;</td>
+          <td class="paramname"><em>shifted_key_u64</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return shared prefix length with raw key value. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">shifted_key_u64</td><td>Shifted key as 64-bit integer </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Number of common bytes </dd></dl>
+
+</div>
+</div>
 <a id="ad4ab58d4a80c408fd2bcd1be5785c668" name="ad4ab58d4a80c408fd2bcd1be5785c668"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad4ab58d4a80c408fd2bcd1be5785c668">&#9670;&#160;</a></span>get_snapshot()</h2>
 
@@ -233,8 +501,179 @@ template&lt;typename ArtKey , template&lt; class &gt; class CriticalSectionPolic
 </table>
 </div><div class="memdoc">
 
-<p>Return a snapshot of the <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html" title="The unodb::detail::key_prefix is a sequence of zero or more bytes for a given node that are a common ...">unodb::detail::key_prefix</a> data. </p>
-<dl class="section note"><dt>Note</dt><dd>This method is required when we need to have a consistent view of the state of the <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html" title="The unodb::detail::key_prefix is a sequence of zero or more bytes for a given node that are a common ...">unodb::detail::key_prefix</a> as of some momement in time, e.g., for the OLC iterator when we can verify that the RCS is valid after obtaining the data. </dd></dl>
+<p>Return atomic snapshot of prefix data. </p>
+<dl class="section return"><dt>Returns</dt><dd>Snapshot for consistent access in OLC iterators</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Required when consistent view of prefix state is needed, e.g., for OLC iterator to verify RCS validity after obtaining data. </dd></dl>
+
+</div>
+</div>
+<a id="a1d31b770d7e0abae46cd627722b4c86e" name="a1d31b770d7e0abae46cd627722b4c86e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1d31b770d7e0abae46cd627722b4c86e">&#9670;&#160;</a></span>length()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename ArtKey , template&lt; class &gt; class CriticalSectionPolicy&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="namespaceunodb_1_1detail.html#a2a48856979c828fe6f91a83b8b43e0be">key_prefix_size</a> <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">unodb::detail::key_prefix</a>&lt; ArtKey, CriticalSectionPolicy &gt;::length </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return number of prefix bytes. </p>
+<dl class="section return"><dt>Returns</dt><dd>Prefix length </dd></dl>
+
+</div>
+</div>
+<a id="a1d1165407e3eddb03cba9962d8be2685" name="a1d1165407e3eddb03cba9962d8be2685"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1d1165407e3eddb03cba9962d8be2685">&#9670;&#160;</a></span>make_u64()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename ArtKey , template&lt; class &gt; class CriticalSectionPolicy&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static constexpr std::uint64_t <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">unodb::detail::key_prefix</a>&lt; ArtKey, CriticalSectionPolicy &gt;::make_u64 </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a>&#160;</td>
+          <td class="paramname"><em>k1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ArtKey&#160;</td>
+          <td class="paramname"><em>shifted_k2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; ArtKey &gt;&#160;</td>
+          <td class="paramname"><em>depth</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">constexpr</span><span class="mlabel">private</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Create packed u64 representation from two keys at given depth. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">k1</td><td>First key view </td></tr>
+    <tr><td class="paramname">shifted_k2</td><td>Second key (already shifted) </td></tr>
+    <tr><td class="paramname">depth</td><td>Current tree depth</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Packed u64 containing shared prefix bytes and length </dd></dl>
+
+</div>
+</div>
+<a id="acfc012138d604be22be519fd3c8828b6" name="acfc012138d604be22be519fd3c8828b6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acfc012138d604be22be519fd3c8828b6">&#9670;&#160;</a></span>operator[]()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename ArtKey , template&lt; class &gt; class CriticalSectionPolicy&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">unodb::detail::key_prefix</a>&lt; ArtKey, CriticalSectionPolicy &gt;::operator[] </td>
+          <td>(</td>
+          <td class="paramtype">std::size_t&#160;</td>
+          <td class="paramname"><em>i</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return byte at specified index. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">i</td><td>Index (must be less than <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html#a1d31b770d7e0abae46cd627722b4c86e" title="Return number of prefix bytes.">length()</a>) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Byte at position <em>i</em> </dd></dl>
+
+</div>
+</div>
+<a id="a5a42a86045a0d76da96aa2ed0ab7863a" name="a5a42a86045a0d76da96aa2ed0ab7863a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a42a86045a0d76da96aa2ed0ab7863a">&#9670;&#160;</a></span>prepend()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename ArtKey , template&lt; class &gt; class CriticalSectionPolicy&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr void <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">unodb::detail::key_prefix</a>&lt; ArtKey, CriticalSectionPolicy &gt;::prepend </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="unionunodb_1_1detail_1_1key__prefix.html">key_prefix</a>&lt; ArtKey, CriticalSectionPolicy &gt; &amp;&#160;</td>
+          <td class="paramname"><em>prefix1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::byte&#160;</td>
+          <td class="paramname"><em>prefix2</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Prepend prefix and single byte to current prefix. </p>
+<p>Result is: <em>prefix1</em> + <em>prefix2</em> + current_prefix.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">prefix1</td><td>Prefix to prepend at start </td></tr>
+    <tr><td class="paramname">prefix2</td><td>Single byte between <em>prefix1</em> and current prefix </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

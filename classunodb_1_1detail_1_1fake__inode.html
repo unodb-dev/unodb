@@ -97,17 +97,27 @@ $(document).ready(function(){initNavTree('classunodb_1_1detail_1_1fake__inode.ht
 
 <div class="header">
   <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="classunodb_1_1detail_1_1fake__inode-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">unodb::detail::fake_inode Class Reference<span class="mlabels"><span class="mlabel">final</span></span></div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>A class used as a sentinel for <a class="el" href="classunodb_1_1detail_1_1basic__inode.html" title="The last common ancestor (both for templates and inheritance) for all inode types for both OLC and re...">unodb::detail::basic_inode</a> template args: the larger node type for the largest node type and the smaller node type for the smallest node type.  
+<p>Sentinel type for template arguments in <a class="el" href="classunodb_1_1detail_1_1basic__inode.html" title="CRTP base class for concrete internal node types.">basic_inode</a>.  
  <a href="classunodb_1_1detail_1_1fake__inode.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:adb83d4dfd3ca245a6d0703ae2cc6c16e" id="r_adb83d4dfd3ca245a6d0703ae2cc6c16e"><td class="memItemLeft" align="right" valign="top"><a id="adb83d4dfd3ca245a6d0703ae2cc6c16e" name="adb83d4dfd3ca245a6d0703ae2cc6c16e"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>fake_inode</b> ()=delete</td></tr>
+<tr class="memdesc:adb83d4dfd3ca245a6d0703ae2cc6c16e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Not instantiable. <br /></td></tr>
+<tr class="separator:adb83d4dfd3ca245a6d0703ae2cc6c16e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>A class used as a sentinel for <a class="el" href="classunodb_1_1detail_1_1basic__inode.html" title="The last common ancestor (both for templates and inheritance) for all inode types for both OLC and re...">unodb::detail::basic_inode</a> template args: the larger node type for the largest node type and the smaller node type for the smallest node type. </p>
+<div class="textblock"><p>Sentinel type for template arguments in <a class="el" href="classunodb_1_1detail_1_1basic__inode.html" title="CRTP base class for concrete internal node types.">basic_inode</a>. </p>
+<p>Used as the larger node type for <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html" title="Internal node with 49-256 children (N256).">basic_inode_256</a> and smaller node type for <a class="el" href="classunodb_1_1detail_1_1basic__inode__4.html" title="Internal node with 2-4 children (N4).">basic_inode_4</a>. </p>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a></li>
 </ul>

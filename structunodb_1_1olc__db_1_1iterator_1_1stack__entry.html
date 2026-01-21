@@ -111,7 +111,7 @@ Inheritance diagram for unodb::olc_db&lt; Key, Value &gt;::iterator::stack_entry
  <div class="center">
   <img src="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.png" usemap="#unodb::olc_5Fdb_3C_20Key_2C_20Value_20_3E::iterator::stack_5Fentry_map" alt=""/>
   <map id="unodb::olc_5Fdb_3C_20Key_2C_20Value_20_3E::iterator::stack_5Fentry_map" name="unodb::olc_5Fdb_3C_20Key_2C_20Value_20_3E::iterator::stack_5Fentry_map">
-<area href="structunodb_1_1detail_1_1iter__result.html" title="A struct that is returned by the iterator visitation pattern which represents a path in the tree for ..." alt="unodb::detail::iter_result&lt; NodeHeader &gt;" shape="rect" coords="0,0,296,24"/>
+<area href="structunodb_1_1detail_1_1iter__result.html" title="Iterator traversal result representing tree path element." alt="unodb::detail::iter_result&lt; NodeHeader &gt;" shape="rect" coords="0,0,296,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -122,19 +122,18 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a1f949b04c733017ac581722d90edcd27"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_structunodb_1_1detail_1_1iter__result"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_structunodb_1_1detail_1_1iter__result')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="structunodb_1_1detail_1_1iter__result.html">unodb::detail::iter_result&lt; NodeHeader &gt;</a></td></tr>
 <tr class="memitem:a854585e8656a3b42ae0e48a97d2f970a inherit pub_attribs_structunodb_1_1detail_1_1iter__result" id="r_a854585e8656a3b42ae0e48a97d2f970a"><td class="memItemLeft" align="right" valign="top">
-<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">node_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><b>node</b></td></tr>
+<a class="el" href="structunodb_1_1detail_1_1iter__result.html#ab22270fae893b795cee9f4d663950f41">node_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><b>node</b></td></tr>
+<tr class="memdesc:a854585e8656a3b42ae0e48a97d2f970a inherit pub_attribs_structunodb_1_1detail_1_1iter__result"><td class="mdescLeft">&#160;</td><td class="mdescRight">Node pointer (internal or leaf). <br /></td></tr>
 <tr class="separator:a854585e8656a3b42ae0e48a97d2f970a inherit pub_attribs_structunodb_1_1detail_1_1iter__result"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af629f13328e6b7ebd271a9939d7559a8 inherit pub_attribs_structunodb_1_1detail_1_1iter__result" id="r_af629f13328e6b7ebd271a9939d7559a8"><td class="memItemLeft" align="right" valign="top">
-std::byte&#160;</td><td class="memItemRight" valign="bottom"><b>key_byte</b></td></tr>
-<tr class="memdesc:af629f13328e6b7ebd271a9939d7559a8 inherit pub_attribs_structunodb_1_1detail_1_1iter__result"><td class="mdescLeft">&#160;</td><td class="mdescRight">node pointer <br /></td></tr>
+<tr class="memitem:af629f13328e6b7ebd271a9939d7559a8 inherit pub_attribs_structunodb_1_1detail_1_1iter__result" id="r_af629f13328e6b7ebd271a9939d7559a8"><td class="memItemLeft" align="right" valign="top">std::byte&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1iter__result.html#af629f13328e6b7ebd271a9939d7559a8">key_byte</a></td></tr>
+<tr class="memdesc:af629f13328e6b7ebd271a9939d7559a8 inherit pub_attribs_structunodb_1_1detail_1_1iter__result"><td class="mdescLeft">&#160;</td><td class="mdescRight">Key byte consumed at this level when stepping down to the child node.  <br /></td></tr>
 <tr class="separator:af629f13328e6b7ebd271a9939d7559a8 inherit pub_attribs_structunodb_1_1detail_1_1iter__result"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a985b95e52360b47cc69e53c0ab48946e inherit pub_attribs_structunodb_1_1detail_1_1iter__result" id="r_a985b95e52360b47cc69e53c0ab48946e"><td class="memItemLeft" align="right" valign="top">
-std::uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>child_index</b></td></tr>
-<tr class="memdesc:a985b95e52360b47cc69e53c0ab48946e inherit pub_attribs_structunodb_1_1detail_1_1iter__result"><td class="mdescLeft">&#160;</td><td class="mdescRight">key byte <br /></td></tr>
+<tr class="memitem:a985b95e52360b47cc69e53c0ab48946e inherit pub_attribs_structunodb_1_1detail_1_1iter__result" id="r_a985b95e52360b47cc69e53c0ab48946e"><td class="memItemLeft" align="right" valign="top">std::uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1iter__result.html#a985b95e52360b47cc69e53c0ab48946e">child_index</a></td></tr>
+<tr class="memdesc:a985b95e52360b47cc69e53c0ab48946e inherit pub_attribs_structunodb_1_1detail_1_1iter__result"><td class="mdescLeft">&#160;</td><td class="mdescRight">Child index within parent node (except for <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html" title="Internal node with 17-48 children (N48).">basic_inode_48</a>, where it indexes into <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#a733c51620437f23e6b970454c975d192" title="Maps key byte to index in children array (256 entries).">basic_inode_48::child_indexes</a> and equals key_byte).  <br /></td></tr>
 <tr class="separator:a985b95e52360b47cc69e53c0ab48946e inherit pub_attribs_structunodb_1_1detail_1_1iter__result"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a567edf1377659f0138ac433674cf6091 inherit pub_attribs_structunodb_1_1detail_1_1iter__result" id="r_a567edf1377659f0138ac433674cf6091"><td class="memItemLeft" align="right" valign="top">
 <a class="el" href="unionunodb_1_1detail_1_1key__prefix__snapshot.html">key_prefix_snapshot</a>&#160;</td><td class="memItemRight" valign="bottom"><b>prefix</b></td></tr>
-<tr class="memdesc:a567edf1377659f0138ac433674cf6091 inherit pub_attribs_structunodb_1_1detail_1_1iter__result"><td class="mdescLeft">&#160;</td><td class="mdescRight">child-index <br /></td></tr>
+<tr class="memdesc:a567edf1377659f0138ac433674cf6091 inherit pub_attribs_structunodb_1_1detail_1_1iter__result"><td class="mdescLeft">&#160;</td><td class="mdescRight">Snapshot of key prefix for node. <br /></td></tr>
 <tr class="separator:a567edf1377659f0138ac433674cf6091 inherit pub_attribs_structunodb_1_1detail_1_1iter__result"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
@@ -142,6 +141,7 @@ Additional Inherited Members</h2></td></tr>
 <tr class="inherit_header pub_types_structunodb_1_1detail_1_1iter__result"><td colspan="2" onclick="javascript:toggleInherit('pub_types_structunodb_1_1detail_1_1iter__result')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="structunodb_1_1detail_1_1iter__result.html">unodb::detail::iter_result&lt; NodeHeader &gt;</a></td></tr>
 <tr class="memitem:ab22270fae893b795cee9f4d663950f41 inherit pub_types_structunodb_1_1detail_1_1iter__result" id="r_ab22270fae893b795cee9f4d663950f41"><td class="memItemLeft" align="right" valign="top">
 using&#160;</td><td class="memItemRight" valign="bottom"><b>node_ptr</b> = <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">basic_node_ptr</a>&lt; NodeHeader &gt;</td></tr>
+<tr class="memdesc:ab22270fae893b795cee9f4d663950f41 inherit pub_types_structunodb_1_1detail_1_1iter__result"><td class="mdescLeft">&#160;</td><td class="mdescRight">Node pointer type. <br /></td></tr>
 <tr class="separator:ab22270fae893b795cee9f4d663950f41 inherit pub_types_structunodb_1_1detail_1_1iter__result"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>

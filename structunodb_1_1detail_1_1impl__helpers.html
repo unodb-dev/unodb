@@ -105,15 +105,87 @@ $(document).ready(function(){initNavTree('structunodb_1_1detail_1_1impl__helpers
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a4cc51b636b4dc263e058edbb61769148" id="r_a4cc51b636b4dc263e058edbb61769148"><td class="memTemplParams" colspan="2"><a id="a4cc51b636b4dc263e058edbb61769148" name="a4cc51b636b4dc263e058edbb61769148"></a>
-template&lt;typename Key , typename Value , class INode &gt; </td></tr>
-<tr class="memitem:a4cc51b636b4dc263e058edbb61769148"><td class="memTemplItemLeft" align="right" valign="top">static <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a> *&#160;</td><td class="memTemplItemRight" valign="bottom"><b>add_or_choose_subtree</b> (INode &amp;<a class="el" href="classunodb_1_1detail_1_1inode.html">inode</a>, std::byte key_byte, <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; k, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">value_view</a> v, <a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt; &amp;db_instance, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; &gt; depth, <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a> *node_in_parent)</td></tr>
+<tr class="memitem:a4cc51b636b4dc263e058edbb61769148" id="r_a4cc51b636b4dc263e058edbb61769148"><td class="memTemplParams" colspan="2">template&lt;typename Key , typename Value , class INode &gt; </td></tr>
+<tr class="memitem:a4cc51b636b4dc263e058edbb61769148"><td class="memTemplItemLeft" align="right" valign="top">static <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a> *&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1impl__helpers.html#a4cc51b636b4dc263e058edbb61769148">add_or_choose_subtree</a> (INode &amp;<a class="el" href="classunodb_1_1detail_1_1inode.html">inode</a>, std::byte key_byte, <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; k, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">value_view</a> v, <a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt; &amp;db_instance, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; &gt; depth, <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a> *node_in_parent)</td></tr>
+<tr class="memdesc:a4cc51b636b4dc263e058edbb61769148"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the correct child node for insertion operation (i.e.  <br /></td></tr>
 <tr class="separator:a4cc51b636b4dc263e058edbb61769148"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad032e3674d95560a77416547727c00cd" id="r_ad032e3674d95560a77416547727c00cd"><td class="memTemplParams" colspan="2"><a id="ad032e3674d95560a77416547727c00cd" name="ad032e3674d95560a77416547727c00cd"></a>
 template&lt;typename Key , typename Value , class INode &gt; </td></tr>
 <tr class="memitem:ad032e3674d95560a77416547727c00cd"><td class="memTemplItemLeft" align="right" valign="top">static std::optional&lt; <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a> * &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>remove_or_choose_subtree</b> (INode &amp;<a class="el" href="classunodb_1_1detail_1_1inode.html">inode</a>, std::byte key_byte, <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; k, <a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt; &amp;db_instance, <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a> *node_in_parent)</td></tr>
 <tr class="separator:ad032e3674d95560a77416547727c00cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a4cc51b636b4dc263e058edbb61769148" name="a4cc51b636b4dc263e058edbb61769148"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4cc51b636b4dc263e058edbb61769148">&#9670;&#160;</a></span>add_or_choose_subtree()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value , class INode &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a> * unodb::detail::impl_helpers::add_or_choose_subtree </td>
+          <td>(</td>
+          <td class="paramtype">INode &amp;&#160;</td>
+          <td class="paramname"><em>inode</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::byte&#160;</td>
+          <td class="paramname"><em>key_byte</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt;&#160;</td>
+          <td class="paramname"><em>k</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">value_view</a>&#160;</td>
+          <td class="paramname"><em>v</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt; &amp;&#160;</td>
+          <td class="paramname"><em>db_instance</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; &gt;&#160;</td>
+          <td class="paramname"><em>depth</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a> *&#160;</td>
+          <td class="paramname"><em>node_in_parent</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return the correct child node for insertion operation (i.e. </p>
+<p>having the matching next key byte value). If there is no child node for the next key byte, create the leaf and insert it in the current node. </p>
+
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="art_8hpp_source.html">art.hpp</a></li>
 </ul>

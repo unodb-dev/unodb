@@ -97,22 +97,38 @@ $(document).ready(function(){initNavTree('unionunodb_1_1detail_1_1basic__inode__
 
 <div class="header">
   <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="unionunodb_1_1detail_1_1basic__inode__48_1_1children__union-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">unodb::detail::basic_inode_48&lt; ArtPolicy &gt;::children_union Union Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Union for child pointer storage with SIMD vector access.  
+ <a href="unionunodb_1_1detail_1_1basic__inode__48_1_1children__union.html#details">More...</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a6bab265880cdf4ac61587616bc0ed186" id="r_a6bab265880cdf4ac61587616bc0ed186"><td class="memItemLeft" align="right" valign="top"><a id="a6bab265880cdf4ac61587616bc0ed186" name="a6bab265880cdf4ac61587616bc0ed186"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>children_union</b> () noexcept</td></tr>
+<tr class="memdesc:a6bab265880cdf4ac61587616bc0ed186"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default constructor. <br /></td></tr>
+<tr class="separator:a6bab265880cdf4ac61587616bc0ed186"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:ac290f8e0a4fa5714e5a448181eeb9b0b" id="r_ac290f8e0a4fa5714e5a448181eeb9b0b"><td class="memItemLeft" align="right" valign="top"><a id="ac290f8e0a4fa5714e5a448181eeb9b0b" name="ac290f8e0a4fa5714e5a448181eeb9b0b"></a>
-std::array&lt; critical_section_policy&lt; node_ptr &gt;, basic_inode_48::capacity &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>pointer_array</b></td></tr>
+std::array&lt; <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#a5746647717698cb39c280e100b8cea2e">critical_section_policy</a>&lt; <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#af470045f63b1888c85166604c3d8a6be">node_ptr</a> &gt;, <a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a8a9f7cf8d7ee999fd402894bcc04a28f">basic_inode_48::capacity</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>pointer_array</b></td></tr>
+<tr class="memdesc:ac290f8e0a4fa5714e5a448181eeb9b0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Array access to child pointers. <br /></td></tr>
 <tr class="separator:ac290f8e0a4fa5714e5a448181eeb9b0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a896e2a7db1c19e714b4c934fa7c181c3" id="r_a896e2a7db1c19e714b4c934fa7c181c3"><td class="memItemLeft" align="right" valign="top"><a id="a896e2a7db1c19e714b4c934fa7c181c3" name="a896e2a7db1c19e714b4c934fa7c181c3"></a>
-__m128i&#160;</td><td class="memItemRight" valign="bottom"><b>pointer_vector</b> [basic_inode_48::capacity/2]</td></tr>
+__m128i&#160;</td><td class="memItemRight" valign="bottom"><b>pointer_vector</b> [<a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a8a9f7cf8d7ee999fd402894bcc04a28f">basic_inode_48::capacity</a>/2]</td></tr>
+<tr class="memdesc:a896e2a7db1c19e714b4c934fa7c181c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">SSE vector for SIMD operations. <br /></td></tr>
 <tr class="separator:a896e2a7db1c19e714b4c934fa7c181c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this union was generated from the following file:<ul>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><div class="compoundTemplParams">template&lt;class ArtPolicy&gt;<br />
+union unodb::detail::basic_inode_48&lt; ArtPolicy &gt;::children_union</div><p>Union for child pointer storage with SIMD vector access. </p>
+</div><hr/>The documentation for this union was generated from the following file:<ul>
 <li><a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a></li>
 </ul>
 </div><!-- contents -->

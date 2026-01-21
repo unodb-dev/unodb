@@ -162,8 +162,10 @@ Documentation style guide</h2>
 <li>Doxygen is used to produce source code documentation. To build the local HTML docs, run <code>doxygen Doxyfile</code> from the root source directory.</li>
 <li>Doxygen commands should use <code>\foo</code> (and not <code>@foo</code>) syntax.</li>
 <li>The preferred location of the comments is next to the declarations. An exception is declarations with multiple conditionally compiled declarations, in which case a Doxygen comment with a <code>\def</code>, <code>\var</code>, or another suitable tag for the declaration should appear at the top of its section or source file, and it should also have a <code>\hideinitializer</code> tag.</li>
+<li>Trailing Doxygen comments (<code>///&lt;</code>, <code>/**&lt;</code>) should be avoided; place documentation before declarations instead.</li>
 <li>Doxygen automatic brief description detection is enabled, thus explicit <code>\brief</code> tags are not required, rather the first sentence in the Doxygen comment block will be interpreted as the brief description. It should use a headline-like style without articles.</li>
 <li>Markdown markup is preferred, i.e. <code>`foo`</code> instead of <code>\c foo</code>.</li>
+<li>Private class members should be documented too.</li>
 </ul>
 <h2><a class="anchor" id="autotoc_md7"></a>
 Linting and static analysis</h2>
