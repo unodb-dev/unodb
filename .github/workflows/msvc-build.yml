@@ -103,6 +103,12 @@ jobs:
               -split ';' -notmatch 'C:\\Program Files\\LLVM\\bin' -join ';'
           cmake --preset "${{matrix.preset}}"
 
+      - name: Dump CMake logs on failure
+        if: failure()
+        run: |
+             dir ./build/${{ matrix.preset }}/CMakeFiles/CMakeTmp
+             cat ./build/${{ matrix.preset }}/CMakeFiles/CMakeConfigureLog.yaml
+
       - name: Build
         run: |
           cmake --build --preset "${{matrix.preset}}" -- -k 0
