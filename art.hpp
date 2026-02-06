@@ -1,4 +1,12 @@
-// Copyright 2019-2025 UnoDB contributors
+// Copyright 2019-2026 UnoDB contributors
+
+/// \file
+/// Non-thread-safe Adaptive Radix Tree (ART) implementation.
+///
+/// Provides unodb::db, a single-threaded ART index supporting get, insert,
+/// remove, and scan operations. For thread-safe alternatives, see
+/// unodb::olc_db.
+
 #ifndef UNODB_DETAIL_ART_HPP
 #define UNODB_DETAIL_ART_HPP
 
@@ -38,22 +46,38 @@ class inode_48;
 template <typename Key, typename Value>
 class inode_256;
 
+/// Node header type for non-thread-safe ART implementation.
+///
+/// Has no extra fields. Used as the header type parameter for basic_node_ptr
+/// and basic_leaf.
 struct [[nodiscard]] node_header {};
 
 static_assert(std::is_empty_v<node_header>);
 
+/// Node pointer type for non-thread-safe ART.
 using node_ptr = basic_node_ptr<node_header>;
 
 struct impl_helpers;
 
+/// Type definitions bundle for all internal node types.
+///
+/// Packages inode, inode_4, inode_16, inode_48, and inode_256 for use by the
+/// ART policy configuration.
 template <typename Key, typename Value>
 using inode_defs = basic_inode_def<inode<Key, Value>, inode_4<Key, Value>,
                                    inode_16<Key, Value>, inode_48<Key, Value>,
                                    inode_256<Key, Value>>;
 
+/// Custom deleter for internal nodes in non-thread-safe ART.
+///
+/// Manages cleanup of internal nodes when they are removed from the tree.
 template <typename Key, typename Value, class INode>
 using db_inode_deleter = basic_db_inode_deleter<INode, unodb::db<Key, Value>>;
 
+/// Policy configuration for non-thread-safe ART implementation.
+///
+/// Bundles type definitions and synchronization primitives (fake locks for
+/// single-threaded access) used throughout the ART implementation.
 template <typename Key, typename Value>
 using art_policy =
     basic_art_policy<Key, Value, unodb::db, unodb::in_fake_critical_section,
@@ -61,12 +85,23 @@ using art_policy =
                      node_ptr, inode_defs, db_inode_deleter,
                      basic_db_leaf_deleter>;
 
+/// Base class for all internal nodes in non-thread-safe ART.
+///
+/// Provides common functionality for inode_4, inode_16, inode_48, and
+/// inode_256.
 template <typename Key, typename Value>
 using inode_base = basic_inode_impl<art_policy<Key, Value>>;
 
+/// Leaf node type for non-thread-safe ART.
+///
+/// Stores a key-value pair at the leaf level of the tree.
 template <typename Key>
 using leaf_type = basic_leaf<Key, node_header>;
 
+/// Internal node base class for non-thread-safe ART.
+///
+/// Serves as a common base for all internal node types, allowing polymorphic
+/// access to inode_4, inode_16, inode_48, and inode_256.
 template <typename Key, typename Value>
 class inode : public inode_base<Key, Value> {};
 
@@ -77,33 +112,51 @@ class mutex_db;
 
 /// A non-thread-safe implementation of the Adaptive Radix Tree (ART).
 ///
-/// \sa olc_art for a highly concurrent thread-safe ART implementation.
+/// \sa unodb::olc_db for a highly concurrent thread-safe ART implementation.
 template <typename Key, typename Value>
 class db final {
+  /// Allow mutex_db to access private members for thread-safe wrapper.
   friend class mutex_db<Key, Value>;
 
  public:
   /// The type of the keys in the index.
   using key_type = Key;
+
   /// The type of the value associated with the keys in the index.
   using value_type = Value;
+
+  /// View type for values stored in the index.
   using value_view = unodb::value_view;
+
+  /// Result type for get operations.
+  ///
+  /// Contains value_view if key was found, otherwise empty.
   using get_result = std::optional<value_view>;
+
+  /// Base class type for internal nodes.
   using inode_base = detail::inode_base<Key, Value>;
 
   // TODO(laurynas): added temporarily during development
   static_assert(std::is_same_v<value_type, unodb::value_view>);
 
  private:
+  /// Internal encoded key type used for tree operations.
   using art_key_type = detail::basic_art_key<Key>;
+
+  /// Leaf node type storing key-value pairs.
   using leaf_type = detail::leaf_type<Key>;
+
+  /// Database type (self-reference for template instantiation).
   using db_type = db<Key, Value>;
 
-  /// Query for a value associated with an encoded key.
+  /// Query for a value associated with an encoded \a search_key.
   [[nodiscard, gnu::pure]] get_result get_internal(
       art_key_type search_key) const noexcept;
 
   /// Insert a value under an encoded key iff there is no entry for that key.
+  ///
+  /// \param insert_key Encoded key to insert
+  /// \param v Value to associate with the key
   ///
   /// \note Cannot be called during stack unwinding with
   /// `std::uncaught_exceptions() > 0`.
@@ -111,7 +164,7 @@ class db final {
   /// \return true iff the key value pair was inserted.
   [[nodiscard]] bool insert_internal(art_key_type insert_key, value_type v);
 
-  /// Remove the entry associated with the encoded key.
+  /// Remove the entry associated with the encoded key \a remove_key.
   ///
   /// \return true if the delete was successful (i.e. the key was found in the
   /// tree and the associated index entry was removed).
@@ -119,14 +172,25 @@ class db final {
 
  public:
   // Creation and destruction
+
+  /// Construct empty ART index.
   db() noexcept = default;
 
+  /// Destroy ART index, freeing all tree nodes.
   ~db() noexcept;
 
   // TODO(laurynas): implement copy and move operations
+
+  /// Copy constructor (deleted).
   db(const db&) = delete;
+
+  /// Move constructor (deleted).
   db(db&&) = delete;
+
+  /// Copy assignment operator (deleted).
   db& operator=(const db&) = delete;
+
+  /// Move assignment operator (deleted).
   db& operator=(db&&) = delete;
 
   /// Query for a value associated with a key.
@@ -147,9 +211,6 @@ class db final {
 
   /// Insert a value under a key iff there is no entry for that key.
   ///
-  /// \note Cannot be called during stack unwinding with
-  /// `std::uncaught_exceptions() > 0`.
-  ///
   /// \param insert_key If Key is a simple primitive type, then it is converted
   /// into a binary comparable key.  If Key is unodb::key_view, then it is
   /// assumed to already be a binary comparable key, e.g., as produced by
@@ -158,6 +219,9 @@ class db final {
   /// \param v The value of type `value_type` to be inserted under that key.
   ///
   /// \return true iff the key value pair was inserted.
+  ///
+  /// \note Cannot be called during stack unwinding with
+  /// `std::uncaught_exceptions() > 0`.
   ///
   /// \sa key_encoder, which provides for encoding text and multi-field records
   /// when Key is unodb::key_view.
@@ -180,17 +244,24 @@ class db final {
     return remove_internal(k);
   }
 
-  // Removes all entries in the index.
+  /// Removes all entries in the index.
+  ///
+  /// After this operation, empty() returns true and all memory used by tree
+  /// nodes is freed.
   void clear() noexcept;
 
+  /// Internal iterator for tree traversal.
   ///
-  /// iterator (the iterator is an internal API, the public API is scan()).
-  ///
+  /// Iterator is an internal API. Use scan() for the public API.
   class iterator {
     // Note: The iterator is backed by a std::stack. This means that
     // the iterator methods accessing the stack can not be declared as
     // [[noexcept]].
+
+    /// unodb::db
     friend class db;
+
+    /// Allow visitor to access iterator for tree traversal operations.
     template <class>
     friend class visitor;
 
@@ -204,18 +275,32 @@ class db final {
         : db_(tree) {}
 
     // iterator is not flyweight. disallow copy and move.
+
+    /// Copy constructor (deleted).
     iterator(const iterator&) = delete;
+
+    /// Move constructor (deleted).
     iterator(iterator&&) = delete;
+
+    /// Copy assignment operator (deleted).
     iterator& operator=(const iterator&) = delete;
     // iterator& operator=(iterator&&) = delete; // test_only_iterator()
 
    public:
+    /// Key type of the index entries.
     using key_type = Key;
+
+    /// Value type of the index entries.
     using value_type = Value;
 
     // EXPOSED TO THE TESTS
 
     /// Position the iterator on the first entry in the index.
+    ///
+    /// Traverse to the left-most leaf. The stack is cleared first and then
+    /// re-populated as we step down along the path to the left-most leaf.
+    ///
+    /// \return Reference to this iterator
     iterator& first();
 
     /// Advance the iterator to next entry in the index.
@@ -223,18 +308,24 @@ class db final {
 
     /// Position the iterator on the last entry in the index, which
     /// can be used to initiate a reverse traversal.
+    ///
+    /// Traverse to the right-most leaf. The stack is cleared first and then
+    /// re-populated as we step down along the path to the right-most leaf.
+    ///
+    /// \return Reference to this iterator
     iterator& last();
 
     /// Position the iterator on the previous entry in the index.
     iterator& prior();
 
-    /// Position the iterator on, before, or after the caller's key.  If the
-    /// iterator can not be positioned, it will be invalidated.  For example, if
-    /// `fwd:=true` and the \a search_key is GT any key in the index then the
-    /// iterator will be invalidated since there is no index entry greater than
-    /// the search key.  Likewise, if `fwd:=false` and the \a search_key is LT
-    /// any key in the index, then the iterator will be invalidated since there
-    /// is no index entry LT the \a search_key.
+    /// Position the iterator on, before, or after the caller's key. If the
+    /// iterator can not be positioned, it will be invalidated. For example, if
+    /// \a fwd is true and the \a search_key is greater than any key in the
+    /// index then the iterator will be invalidated since there is no index
+    /// entry greater than the search key. Likewise, if \a fwd is false and the
+    /// \a search_key is less than any key in the index, then the iterator will
+    /// be invalidated since there is no index entry less than the \a
+    /// search_key.
     ///
     /// \param search_key The internal key used to position the iterator.
     ///
@@ -260,7 +351,7 @@ class db final {
     /// \pre The iterator MUST be valid().
     [[nodiscard, gnu::pure]] value_view get_val() const noexcept;
 
-    /// Debugging
+    /// Output iterator state to stream \a os for debugging.
     // LCOV_EXCL_START
     [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream& os) const {
       if (empty()) {
@@ -271,9 +362,9 @@ class db final {
       os << "keybuf=";
       detail::dump_key(os, keybuf_.get_key_view());
       os << "\n";
-      // Create a new stack and copy everything there.  Using the new
-      // stack, print out the stack in top-bottom order.  This avoids
-      // modifications to the existing stack for the iterator.
+      // Create a new stack and copy everything there. Using the new stack,
+      // print out the stack in top-bottom order. This avoids modifications to
+      // the existing stack for the iterator.
       auto tmp = stack_;
       auto level = tmp.size() - 1;
       while (!tmp.empty()) {
@@ -295,7 +386,10 @@ class db final {
     }
     // LCOV_EXCL_STOP
 
-    /// Debugging
+    /// Output iterator state to stderr for debugging.
+    ///
+    /// Convenience wrapper for `dump(std::cerr)`.
+    /// \note For debugging purposes only, not part of stable API
     // LCOV_EXCL_START
     [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump() const { dump(std::cerr); }
     // LCOV_EXCL_STOP
@@ -304,26 +398,32 @@ class db final {
     [[nodiscard]] bool valid() const noexcept { return !stack_.empty(); }
 
    protected:
-    /// Push the given node onto the stack and traverse from the
-    /// caller's node to the left-most leaf under that node, pushing
-    /// nodes onto the stack as they are visited.
+    /// Descend to left-most leaf from given \a node.
+    ///
+    /// Pushes visited nodes onto the stack during descent, updating the key
+    /// buffer to track the path taken. Used by first(), seek() with forward
+    /// traversal, and other iterator positioning operations.
+    ///
+    /// \return Reference to this iterator
     iterator& left_most_traversal(detail::node_ptr node);
 
-    /// Descend from the current state of the stack to the right most
-    /// child leaf, updating the state of the iterator during the
-    /// descent.
+    /// Descend to right-most leaf from given \a node.
+    ///
+    /// Pushes visited nodes onto the stack during descent, updating the key
+    /// buffer to track the path taken. Used by last(), seek() with reverse
+    /// traversal, and other iterator positioning operations.
+    ///
+    /// \return Reference to this iterator
     iterator& right_most_traversal(detail::node_ptr node);
 
-    /// Compare the given key (e.g., the to_key) to the current key in
-    /// the internal buffer.
+    /// Compare the given key \a akey to the current key in the internal buffer.
     ///
     /// \return -1, 0, or 1 if this key is LT, EQ, or GT the other
     /// key.
     [[nodiscard]] int cmp(art_key_type akey) const noexcept {
-      // TODO(thompsonbry) : variable length keys.  Explore a cheaper
-      // way to handle the exclusive bound case when developing
-      // variable length key support based on the maintained key
-      // buffer.
+      // TODO(thompsonbry) : variable length keys. Explore a cheaper way to
+      // handle the exclusive bound case when developing variable length key
+      // support based on the maintained key buffer.
       UNODB_DETAIL_ASSERT(!stack_.empty());
       auto& node = stack_.top().node;
       UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
@@ -331,29 +431,37 @@ class db final {
       return unodb::detail::compare(leaf->get_key_view(), akey.get_key_view());
     }
 
-    //
-    // stack access methods.
-    //
+    /// \name Stack access methods
+    /// \{
 
-    /// Return true iff the stack is empty.
+    /// Return true iff the iterator stack is empty.
     [[nodiscard]] bool empty() const noexcept { return stack_.empty(); }
 
-    /// Push a non-leaf entry onto the stack.
+    /// Push internal node entry onto iterator stack.
+    ///
+    /// Updates both the stack and the key buffer to reflect descent through
+    /// the given node.
+    ///
+    /// \param node Internal node pointer (must not be a leaf)
+    /// \param key_byte Byte value along which descent occurs
+    /// \param child_index Index of child in node's child array
+    /// \param prefix Snapshot of node's key prefix
     void push(detail::node_ptr node, std::byte key_byte,
               std::uint8_t child_index, detail::key_prefix_snapshot prefix) {
-      // For variable length keys we need to know the number of bytes
-      // associated with the node's key_prefix.  In addition there is
-      // one byte for the descent to the child node along the
-      // child_index.  That information needs to be stored on the
-      // stack so we can pop off the right number of bytes even for
-      // OLC where the node might be concurrently modified.
+      // For variable length keys we need to know the number of bytes associated
+      // with the node's key_prefix. In addition there is one byte for the
+      // descent to the child node along the child_index. That information needs
+      // to be stored on the stack so we can pop off the right number of bytes
+      // even for OLC where the node might be concurrently modified.
       UNODB_DETAIL_ASSERT(node.type() != node_type::LEAF);
       stack_.push({node, key_byte, child_index, prefix});
       keybuf_.push(prefix.get_key_view());
       keybuf_.push(key_byte);
     }
 
-    /// Push a leaf onto the stack.
+    /// Push leaf entry \a aleaf onto iterator stack.
+    ///
+    /// \param aleaf Leaf node pointer
     void push_leaf(detail::node_ptr aleaf) {
       // Mock up a stack entry for the leaf.
       stack_.push({
@@ -365,7 +473,7 @@ class db final {
       // No change in the key_buffer.
     }
 
-    /// Push an entry onto the stack.
+    /// Push an entry \a e onto the stack.
     void push(const typename inode_base::iter_result& e) {
       const auto node_type = e.node.type();
       if (UNODB_DETAIL_UNLIKELY(node_type == node_type::LEAF)) {
@@ -374,7 +482,7 @@ class db final {
       push(e.node, e.key_byte, e.child_index, e.prefix);
     }
 
-    /// Pop an entry from the stack and truncate the key buffer.
+    /// Pop entry from stack and truncate key buffer accordingly.
     void pop() noexcept {
       UNODB_DETAIL_ASSERT(!empty());
 
@@ -383,20 +491,26 @@ class db final {
       stack_.pop();
     }
 
-    /// Return the entry on the top of the stack.
+    /// Return entry at top of stack.
+    ///
+    /// \pre Stack must not be empty
     [[nodiscard]] const stack_entry& top() const noexcept {
       UNODB_DETAIL_ASSERT(!stack_.empty());
       return stack_.top();
     }
 
-    /// Return the node on the top of the stack and nullptr if the
-    /// stack is empty (similar to top(), but handles an empty stack).
+    /// Return node at top of stack, or nullptr if stack is empty.
     [[nodiscard]] detail::node_ptr current_node() const noexcept {
       return stack_.empty() ? detail::node_ptr(nullptr) : stack_.top().node;
     }
 
+    /// \}
+
    private:
-    /// Invalidate the iterator (pops everything off of the stack).
+    /// Invalidate iterator by clearing the stack and key buffer.
+    ///
+    /// After this operation, valid() returns false.
+    /// \return Reference to this iterator
     iterator& invalidate() noexcept {
       while (!stack_.empty()) stack_.pop();  // clear the stack
       keybuf_.reset();                       // clear the key buffer
@@ -406,69 +520,60 @@ class db final {
     /// The outer db instance.
     db& db_;
 
-    /// A stack reflecting the parent path from the root of the tree
-    /// to the current leaf.  An empty stack corresponds to a
-    /// logically empty iterator and the iterator will report
-    /// !valid().  The iterator for an empty tree is an empty stack.
+    /// A stack reflecting the parent path from the root of the tree to the
+    /// current leaf. An empty stack corresponds to a logically empty iterator
+    /// and the iterator will report ! valid(). The iterator for an empty tree
+    /// is an empty stack.
     ///
-    /// The stack is made up of (node_ptr, key, child_index) entries.
+    /// The stack is made up of `(node_ptr, key, child_index)` entries.
     ///
-    /// The [node_ptr] is never [nullptr] and points to the internal
-    /// node or leaf for that step in the path from the root to some
-    /// leaf.  For the bottom of the stack, [node_ptr] is the root.
-    /// For the top of the stack, [node_ptr] is the current leaf. In
-    /// the degenerate case where the tree is a single root leaf, then
-    /// the stack contains just that leaf.
+    /// The `node_ptr` is never `nullptr` and points to the internal node or
+    /// leaf for that step in the path from the root to some leaf. For the
+    /// bottom of the stack, `node_ptr` is the root. For the top of the stack,
+    /// `node_ptr` is the current leaf. In the degenerate case where the tree is
+    /// a single root leaf, then the stack contains just that leaf.
     ///
-    /// The [key] is the [std::byte] along which the path descends
-    /// from that [node_ptr].  The [key] has no meaning for a leaf.
-    /// The key byte may be used to reconstruct the full key (along
-    /// with any prefix bytes in the nodes along the path).  The key
-    /// byte is tracked to avoid having to search the keys of some
-    /// node types (basic_inode_48) when the [child_index] does not directly
-    /// imply the key byte.
+    /// The `key` is the `std::byte` along which the path descends from that
+    /// `node_ptr`. The `key` has no meaning for a leaf. The key byte may be
+    /// used to reconstruct the full key (along with any prefix bytes in the
+    /// nodes along the path). The key byte is tracked to avoid having to search
+    /// the keys of some node types (detail::inode_48) when the `child_index`
+    /// does not directly imply the key byte.
     ///
-    /// The [child_index] is the [std::uint8_t] index position in the parent at
-    /// which the [child_ptr] was found. The [child_index] has no meaning for a
-    /// leaf. In the special case of basic_inode_48, the [child_index] is the
-    /// index into the [child_indexes[]]. For all other internal node types, the
-    /// [child_index] is a direct index into the [children[]]. When finding the
-    /// successor (or predecessor) the [child_index] needs to be interpreted
-    /// according to the node type. For basic_inode_4 and basic_inode_16, you
-    /// just look at the next slot in the children[] to find the successor. For
-    /// basic_inode_256, you look at the next non-null slot in the children[].
-    /// basic_inode_48 is the oddest of the node types. For basic_inode_48, you
-    /// have to look at the child_indexes[], find the next mapped key value
-    /// greater than the current one, and then look at its entry in the
-    /// children[].
+    /// The `child_index` is the `std::uint8_t` index position in the parent at
+    /// which the `child_ptr` was found. The `child_index` has no meaning for a
+    /// leaf. In the special case of detail::inode_48, the `child_index` is the
+    /// index into the `child_indexes[]`. For all other internal node types, the
+    /// `child_index` is a direct index into the `children[]`. When finding the
+    /// successor (or predecessor) the `child_index` needs to be interpreted
+    /// according to the node type. For detail::inode_4 and detail::inode_16,
+    /// you just look at the next slot in the `children[]` to find the
+    /// successor. For detail::inode_256, you look at the next non-null slot in
+    /// the `children[]`. detail::inode_48 is the oddest of the node types. For
+    /// it, you have to look at the `child_indexes[]`, find the next mapped key
+    /// value greater than the current one, and then look at its entry in the
+    /// `children[]`.
     std::stack<stack_entry> stack_{};
 
-    /// A buffer into which visited encoded (binary comparable) keys
-    /// are materialized by during the iterator traversal.  Bytes are
-    /// pushed onto this buffer when we push something onto the
-    /// iterator stack and popped off of this buffer when we pop
-    /// something off of the iterator stack.
+    /// A buffer into which visited encoded (binary comparable) keys are
+    /// materialized during the iterator traversal. Bytes are pushed onto this
+    /// buffer when we push something onto the iterator stack and popped off of
+    /// this buffer when we pop something off of the iterator stack.
     detail::key_buffer keybuf_{};
   };  // class iterator
 
-  //
-  // end of the iterator API, which is an internal API.
-  //
+  /// \name Public scan API
+  /// \{
 
-  //
-  // public scan API
-  //
-
-  // Note: The scan() interface is public.  The iterator and the
-  // methods to obtain an iterator are protected (except for tests).
-  // This encapsulation makes it easier to define methods which
-  // operate on external keys (scan()) and those which operate on
-  // internal keys (seek() and the iterator). It also makes life
-  // easier for mutex_db since scan() can take the lock.
+  // Note: The scan() interface is public. The iterator and the methods to
+  // obtain an iterator are protected (except for tests). This encapsulation
+  // makes it easier to define methods which operate on external keys (scan())
+  // and those which operate on internal keys (seek() and the iterator). It also
+  // makes life easier for mutex_db since scan() can take the lock.
 
   /// Scan the tree, applying the caller's lambda to each visited leaf.
   ///
-  /// \param fn A function `f(unodb::visitor<unodb::db::iterator>&)' returning
+  /// \param fn A function `f(unodb::visitor<unodb::db::iterator>&)` returning
   /// `bool`.  The traversal will halt if the function returns \c true.
   ///
   /// \param fwd When \c true perform a forward scan, otherwise perform a
@@ -507,86 +612,164 @@ class db final {
   template <typename FN>
   void scan_range(Key from_key, Key to_key, FN fn);
 
-  //
-  // TEST ONLY METHODS
-  //
+  /// \}
 
-  // Used to write the iterator tests.
+  // Used to write the iterator tests. Use only in tests.
   iterator test_only_iterator() noexcept { return iterator(*this); }
-
-  // Stats
 
 #ifdef UNODB_DETAIL_WITH_STATS
 
-  // Return current memory use by tree nodes in bytes.
+  /// \name Statistics
+  /// \{
+
+  /// Return current memory use by tree nodes in bytes.
+  ///
+  /// \note Only available when compiled with UNODB_DETAIL_WITH_STATS defined.
   [[nodiscard, gnu::pure]] constexpr std::size_t get_current_memory_use()
       const noexcept {
     return current_memory_use;
   }
 
+  /// Return count of nodes of given type.
+  ///
+  /// \tparam NodeType Node type to count (node_type::LEAF, node_type::I4,
+  /// node_type::I16, node_type::I48, or node_type::I256)
+  /// \note Only available when compiled with UNODB_DETAIL_WITH_STATS defined.
   template <node_type NodeType>
   [[nodiscard, gnu::pure]] constexpr std::uint64_t get_node_count()
       const noexcept {
     return node_counts[as_i<NodeType>];
   }
 
+  /// Return counts of all node types.
+  ///
+  /// \return Array indexed by node_type containing counts
+  /// \note Only available when compiled with UNODB_DETAIL_WITH_STATS defined.
   [[nodiscard, gnu::pure]] constexpr node_type_counter_array get_node_counts()
       const noexcept {
     return node_counts;
   }
 
+  /// Return count of growing operations for given inode type.
+  ///
+  /// Growing operations occur when an internal node reaches capacity and is
+  /// replaced with a larger node type (e.g., detail::inode_4 to
+  /// detail::inode_16).
+  ///
+  /// \tparam NodeType Internal node type (node_type::I4, node_type::I16,
+  /// node_type::I48, or node_type::I256)
+  /// \return Number of times this node type was grown to a larger type
+  /// \note Only available when compiled with UNODB_DETAIL_WITH_STATS defined.
   template <node_type NodeType>
   [[nodiscard, gnu::pure]] constexpr std::uint64_t get_growing_inode_count()
       const noexcept {
     return growing_inode_counts[internal_as_i<NodeType>];
   }
 
+  /// Return counts of all growing inode operations.
+  ///
+  /// \return Array indexed by internal node type containing growth counts
+  /// \note Only available when compiled with UNODB_DETAIL_WITH_STATS defined.
   [[nodiscard, gnu::pure]] constexpr inode_type_counter_array
   get_growing_inode_counts() const noexcept {
     return growing_inode_counts;
   }
 
+  /// Return count of shrinking operations for given inode type.
+  ///
+  /// Shrinking operations occur when an internal node falls below minimum
+  /// occupancy and is replaced with a smaller node type (e.g., detail::inode_16
+  /// to detail::inode_4).
+  ///
+  /// \tparam NodeType Internal node type (node_type::I4, node_type::I16,
+  /// node_type::I48, or node_type::I256)
+  /// \return Number of times this node type was shrunk to a smaller type
+  /// \note Only available when compiled with UNODB_DETAIL_WITH_STATS defined.
   template <node_type NodeType>
   [[nodiscard, gnu::pure]] constexpr std::uint64_t get_shrinking_inode_count()
       const noexcept {
     return shrinking_inode_counts[internal_as_i<NodeType>];
   }
 
+  /// Return counts of all shrinking inode operations.
+  ///
+  /// \return Array indexed by internal node type containing shrink counts
+  /// \note Only available when compiled with UNODB_DETAIL_WITH_STATS defined.
   [[nodiscard, gnu::pure]] constexpr inode_type_counter_array
   get_shrinking_inode_counts() const noexcept {
     return shrinking_inode_counts;
   }
 
+  /// Return count of key prefix split operations.
+  ///
+  /// Key prefix splits occur when inserting a key that differs from an
+  /// existing node's key prefix, requiring the node to be split into a
+  /// new internal node with two children.
+  ///
+  /// \note Only available when compiled with UNODB_DETAIL_WITH_STATS defined.
   [[nodiscard, gnu::pure]] constexpr std::uint64_t get_key_prefix_splits()
       const noexcept {
     return key_prefix_splits;
   }
 
+  /// \}
+
 #endif  // UNODB_DETAIL_WITH_STATS
 
-  // Public utils
+  /// Check if get operation found a key.
+  ///
+  /// \param result Result from get() operation
+  /// \return true if the key was found, false otherwise
   [[nodiscard, gnu::const]] static constexpr bool key_found(
       const get_result& result) noexcept {
     return static_cast<bool>(result);
   }
 
-  // Debugging
+  /// \name Debugging
+  /// \{
+
+  /// Output tree structure to stream for debugging.
+  ///
+  /// \param os Output stream to write tree representation
+  /// \note For debugging purposes only, not part of stable API
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream& os) const;
+
+  /// Output tree structure to stderr for debugging.
+  ///
+  /// Convenience wrapper for `dump(std::cerr)`.
+  /// \note For debugging purposes only, not part of stable API
   [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump() const;
 
+  /// \}
+
  private:
+  /// Policy type for ART implementation.
   using art_policy = detail::art_policy<Key, Value>;
+
+  /// Node header type.
   using header_type = typename art_policy::header_type;
+
+  /// Internal node base type.
   using inode_type = detail::inode<Key, Value>;
+
+  /// Node type with 4 children.
   using inode_4 = detail::inode_4<Key, Value>;
+
+  /// Tree depth tracking type.
   using tree_depth_type = detail::tree_depth<art_key_type>;
+
+  /// Visitor type for scan operations.
   using visitor_type = visitor<db_type::iterator>;
+
+  /// Internal node definitions bundle.
   using inode_defs_type = detail::inode_defs<Key, Value>;
 
+  /// Delete entire tree starting from root.
   void delete_root_subtree() noexcept;
 
 #ifdef UNODB_DETAIL_WITH_STATS
 
+  /// Increase tracked memory usage by \a delta bytes.
   constexpr void increase_memory_use(std::size_t delta) noexcept {
     UNODB_DETAIL_ASSERT(delta > 0);
     UNODB_DETAIL_ASSERT(
@@ -596,6 +779,7 @@ class db final {
     current_memory_use += delta;
   }
 
+  /// Decrease tracked memory usage by \a delta bytes.
   constexpr void decrease_memory_use(std::size_t delta) noexcept {
     UNODB_DETAIL_ASSERT(delta > 0);
     UNODB_DETAIL_ASSERT(delta <= current_memory_use);
@@ -603,11 +787,13 @@ class db final {
     current_memory_use -= delta;
   }
 
+  /// Increment leaf node count and bump memory usage by \a leaf_size bytes.
   constexpr void increment_leaf_count(std::size_t leaf_size) noexcept {
     increase_memory_use(leaf_size);
     ++node_counts[as_i<node_type::LEAF>];
   }
 
+  /// Decrement leaf node count and decrease memory usage by \a leaf_size bytes.
   constexpr void decrement_leaf_count(std::size_t leaf_size) noexcept {
     decrease_memory_use(leaf_size);
 
@@ -615,40 +801,63 @@ class db final {
     --node_counts[as_i<node_type::LEAF>];
   }
 
+  /// Increment internal node count for given type.
+  ///
+  /// \tparam INode Internal node class
   template <class INode>
   constexpr void increment_inode_count() noexcept;
 
+  /// Decrement internal node count for given type.
+  ///
+  /// \tparam INode Internal node class
   template <class INode>
   constexpr void decrement_inode_count() noexcept;
 
+  /// Record node growth operation.
+  ///
+  /// \tparam NodeType Node type that was grown
   template <node_type NodeType>
   constexpr void account_growing_inode() noexcept;
 
+  /// Record node shrink operation.
+  ///
+  /// \tparam NodeType Node type that was shrunk
   template <node_type NodeType>
   constexpr void account_shrinking_inode() noexcept;
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
+  /// Root of the tree (nullptr if empty).
   detail::node_ptr root{nullptr};
 
 #ifdef UNODB_DETAIL_WITH_STATS
 
+  /// Current memory use by all tree nodes in bytes.
   std::size_t current_memory_use{0};
 
+  /// Count of nodes by type.
   node_type_counter_array node_counts{};
+
+  /// Count of node growth operations by internal node type.
   inode_type_counter_array growing_inode_counts{};
+
+  /// Count of node shrink operations by internal node type.
   inode_type_counter_array shrinking_inode_counts{};
 
+  /// Count of key prefix split operations.
   std::uint64_t key_prefix_splits{0};
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
+  /// detail::make_db_leaf_ptr
   friend auto detail::make_db_leaf_ptr<Key, Value, db>(art_key_type, value_view,
                                                        db&);
 
+  /// detail::basic_db_leaf_deleter
   template <class>
   friend class detail::basic_db_leaf_deleter;
 
+  /// detail::basic_art_policy
   template <typename,                             // Key
             typename,                             // Value
             template <typename, typename> class,  // Db
@@ -661,19 +870,42 @@ class db final {
             template <class> class>                      // LeafReclamator
   friend struct detail::basic_art_policy;
 
+  /// detail::basic_db_inode_deleter
   template <typename, class>
   friend class detail::basic_db_inode_deleter;
 
+  /// detail::impl_helpers
   friend struct detail::impl_helpers;
 };
 
 namespace detail {
 
+/// Helper functions for node insertion and removal operations.
+///
+/// Provides static methods used by inode_4, inode_16, inode_48, and inode_256
+/// to handle child addition and removal, including node growth and shrinkage.
 struct impl_helpers {
   // GCC 10 diagnoses parameters that are present only in uninstantiated if
   // constexpr branch, such as node_in_parent for inode_256.
   UNODB_DETAIL_DISABLE_GCC_10_WARNING("-Wunused-parameter")
 
+  /// Add child to internal node or choose subtree for insertion.
+  ///
+  /// Handles node growth when capacity is reached.
+  ///
+  /// \tparam Key Key type
+  /// \tparam Value Value type
+  /// \tparam INode Internal node type
+  ///
+  /// \param inode Internal node to modify
+  /// \param key_byte Byte value for child lookup
+  /// \param k Complete encoded key being inserted
+  /// \param v Value to insert
+  /// \param db_instance Database instance
+  /// \param depth Current tree depth
+  /// \param node_in_parent Pointer to this node in parent's children array
+  ///
+  /// \return Pointer to location for further descent or insertion
   template <typename Key, typename Value, class INode>
   [[nodiscard]] static detail::node_ptr* add_or_choose_subtree(
       INode& inode, std::byte key_byte, basic_art_key<Key> k, value_view v,
@@ -682,30 +914,62 @@ struct impl_helpers {
 
   UNODB_DETAIL_RESTORE_GCC_10_WARNINGS()
 
+  /// Remove child from internal node or choose subtree for removal.
+  ///
+  /// Handles node shrinkage when occupancy falls below minimum.
+  ///
+  /// \tparam Key Key type
+  /// \tparam Value Value type
+  /// \tparam INode Internal node type
+  ///
+  /// \param inode Internal node to modify
+  /// \param key_byte Byte value for child lookup
+  /// \param k Complete encoded key being removed
+  /// \param db_instance Database instance
+  /// \param node_in_parent Pointer to this node in parent's children array
+  ///
+  /// \return Optional pointer to location for further descent, or empty if key
+  /// not found
   template <typename Key, typename Value, class INode>
   [[nodiscard]] static std::optional<detail::node_ptr*>
   remove_or_choose_subtree(INode& inode, std::byte key_byte,
                            basic_art_key<Key> k, db<Key, Value>& db_instance,
                            detail::node_ptr* node_in_parent);
 
+  /// Deleted constructor (static-only helper class).
   impl_helpers() = delete;
 };
 
+/// Base class for inode_4
 template <typename Key, typename Value>
 using inode_4_parent = basic_inode_4<art_policy<Key, Value>>;
 
+/// Internal node with 4 children for non-thread-safe ART.
+///
+/// Smallest internal node type, used when a leaf needs to be split or when
+/// a larger node shrinks below minimum occupancy.
 template <typename Key, typename Value>
 class [[nodiscard]] inode_4 final : public inode_4_parent<Key, Value> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
   using inode_4_parent<Key, Value>::inode_4_parent;
 
+  /// Add child or choose subtree for insertion.
+  ///
+  /// Forwards to impl_helpers::add_or_choose_subtree.
+  ///
+  /// \param args Arguments forwarded to impl_helpers
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args&&... args) {
     return impl_helpers::add_or_choose_subtree(*this,
                                                std::forward<Args>(args)...);
   }
 
+  /// Remove child or choose subtree for removal.
+  ///
+  /// Forwards to impl_helpers::remove_or_choose_subtree.
+  ///
+  /// \param args Arguments forwarded to impl_helpers
   template <typename... Args>
   [[nodiscard]] auto remove_or_choose_subtree(Args&&... args) {
     return impl_helpers::remove_or_choose_subtree(*this,
@@ -713,6 +977,7 @@ class [[nodiscard]] inode_4 final : public inode_4_parent<Key, Value> {
   }
 };
 
+/// Test instantiation of inode_4 for size verification.
 using inode_4_test_type = inode_4<std::uint64_t, unodb::value_view>;
 #ifndef _MSC_VER
 static_assert(sizeof(inode_4_test_type) == 48);
@@ -722,21 +987,36 @@ static_assert(sizeof(inode_4_test_type) == 48);
 static_assert(sizeof(inode_4_test_type) == 56);
 #endif
 
+/// Base class for inode_16
 template <typename Key, typename Value>
 using inode_16_parent = basic_inode_16<art_policy<Key, Value>>;
 
+/// Internal node with 16 children for non-thread-safe ART.
+///
+/// Used when inode_4 grows beyond capacity or when inode_48 shrinks below
+/// minimum occupancy.
 template <typename Key, typename Value>
 class [[nodiscard]] inode_16 final : public inode_16_parent<Key, Value> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
   using inode_16_parent<Key, Value>::inode_16_parent;
 
+  /// Add child or choose subtree for insertion.
+  ///
+  /// Forwards to impl_helpers::add_or_choose_subtree.
+  ///
+  /// \param args Arguments forwarded to impl_helpers
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args&&... args) {
     return impl_helpers::add_or_choose_subtree(*this,
                                                std::forward<Args>(args)...);
   }
 
+  /// Remove child or choose subtree for removal.
+  ///
+  /// Forwards to impl_helpers::remove_or_choose_subtree.
+  ///
+  /// \param args Arguments forwarded to impl_helpers
   template <typename... Args>
   [[nodiscard]] auto remove_or_choose_subtree(Args&&... args) {
     return impl_helpers::remove_or_choose_subtree(*this,
@@ -746,21 +1026,36 @@ class [[nodiscard]] inode_16 final : public inode_16_parent<Key, Value> {
 
 static_assert(sizeof(inode_16<std::uint64_t, unodb ::value_view>) == 160);
 
+/// Base class for inode_48
 template <typename Key, typename Value>
 using inode_48_parent = basic_inode_48<art_policy<Key, Value>>;
 
+/// Internal node with 48 children for non-thread-safe ART.
+///
+/// Used when inode_16 grows beyond capacity or when inode_256 shrinks below
+/// minimum occupancy.
 template <typename Key, typename Value>
 class [[nodiscard]] inode_48 final : public inode_48_parent<Key, Value> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
   using inode_48_parent<Key, Value>::inode_48_parent;
 
+  /// Add child or choose subtree for insertion.
+  ///
+  /// Forwards to impl_helpers::add_or_choose_subtree.
+  ///
+  /// \param args Arguments forwarded to impl_helpers
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args&&... args) {
     return impl_helpers::add_or_choose_subtree(*this,
                                                std::forward<Args>(args)...);
   }
 
+  /// Remove child or choose subtree for removal.
+  ///
+  /// Forwards to impl_helpers::remove_or_choose_subtree.
+  ///
+  /// \param args Arguments forwarded to impl_helpers
   template <typename... Args>
   [[nodiscard]] auto remove_or_choose_subtree(Args&&... args) {
     return impl_helpers::remove_or_choose_subtree(*this,
@@ -768,6 +1063,7 @@ class [[nodiscard]] inode_48 final : public inode_48_parent<Key, Value> {
   }
 };
 
+/// Test instantiation of inode_48 for size verification.
 using inode_48_test_type = inode_48<std::uint64_t, unodb::value_view>;
 #ifdef UNODB_DETAIL_AVX2
 static_assert(sizeof(inode_48_test_type) == 672);
@@ -775,21 +1071,36 @@ static_assert(sizeof(inode_48_test_type) == 672);
 static_assert(sizeof(inode_48_test_type) == 656);
 #endif
 
+/// Base class for inode_256
 template <typename Key, typename Value>
 using inode_256_parent = basic_inode_256<art_policy<Key, Value>>;
 
+/// Internal node with 256 children for non-thread-safe ART.
+///
+/// Largest internal node type, used when inode_48 grows beyond capacity.
+/// Has direct mapping from byte values to children.
 template <typename Key, typename Value>
 class [[nodiscard]] inode_256 final : public inode_256_parent<Key, Value> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
   using inode_256_parent<Key, Value>::inode_256_parent;
 
+  /// Add child or choose subtree for insertion.
+  ///
+  /// Forwards to impl_helpers::add_or_choose_subtree.
+  ///
+  /// \param args Arguments forwarded to impl_helpers
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args&&... args) {
     return impl_helpers::add_or_choose_subtree(*this,
                                                std::forward<Args>(args)...);
   }
 
+  /// Remove child or choose subtree for removal.
+  ///
+  /// Forwards to impl_helpers::remove_or_choose_subtree.
+  ///
+  /// \param args Arguments forwarded to impl_helpers
   template <typename... Args>
   [[nodiscard]] auto remove_or_choose_subtree(Args&&... args) {
     return impl_helpers::remove_or_choose_subtree(*this,
@@ -799,8 +1110,15 @@ class [[nodiscard]] inode_256 final : public inode_256_parent<Key, Value> {
 
 static_assert(sizeof(inode_256<std::uint64_t, unodb::value_view>) == 2064);
 
-// Because we cannot dereference, load(), & take address of - it is a temporary
-// by then
+/// Unwrap fake critical section wrapper to access underlying node pointer.
+///
+/// Converts from in_fake_critical_section wrapper to raw node_ptr for
+/// non-thread-safe ART where critical sections are no-ops. Uses
+/// reinterpret_cast because we cannot dereference, load(), or take the address
+/// of the wrapper directly (it is a temporary by then).
+///
+/// \param ptr Pointer to wrapped node pointer
+/// \return Pointer to unwrapped node pointer
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
 inline auto* unwrap_fake_critical_section(
     unodb::in_fake_critical_section<unodb::detail::node_ptr>* ptr) noexcept {
@@ -1049,13 +1367,10 @@ bool db<Key, Value>::remove_internal(art_key_type remove_key) {
   }
 }
 
-///
-/// ART Iterator Implementation
-///
+//
+// ART Iterator Implementation
+//
 
-// Traverse to the left-most leaf. The stack is cleared first and then
-// re-populated as we step down along the path to the left-most leaf.
-// If the tree is empty, then the result is the same as end().
 // TODO(laurynas): the method pairs first, last; next, prior;
 // left_most_traversal, right_most_traversal are identical except for a couple
 // lines. Extract helper methods templatized on the differences.
@@ -1067,9 +1382,6 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::first() {
   return left_most_traversal(node);
 }
 
-// Traverse to the right-most leaf. The stack is cleared first and then
-// re-populated as we step down along the path to the right-most leaf.
-// If the tree is empty, then the result is the same as end().
 template <typename Key, typename Value>
 typename db<Key, Value>::iterator& db<Key, Value>::iterator::last() {
   invalidate();  // clear the stack
@@ -1078,7 +1390,6 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::last() {
   return right_most_traversal(node);
 }
 
-// Position the iterator on the next leaf in the index.
 template <typename Key, typename Value>
 typename db<Key, Value>::iterator& db<Key, Value>::iterator::next() {
   while (!empty()) {
@@ -1105,10 +1416,9 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::next() {
     const auto child = inode->get_child(node_type, e2.child_index);  // descend
     return left_most_traversal(child);
   }
-  return *this;  // stack is empty, so iterator == end().
+  return *this;  // stack is empty, so iterator is at the end
 }
 
-// Position the iterator on the prior leaf in the index.
 template <typename Key, typename Value>
 typename db<Key, Value>::iterator& db<Key, Value>::iterator::prior() {
   while (!empty()) {
@@ -1135,12 +1445,9 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::prior() {
     auto child = inode->get_child(node_type, e2.child_index);  // descend
     return right_most_traversal(child);
   }
-  return *this;  // stack is empty, so iterator == end().
+  return *this;  // stack is empty, so iterator is at the end.
 }
 
-// Push the given node onto the stack and traverse from the caller's
-// node to the left-most leaf under that node, pushing nodes onto the
-// stack as they are visited.
 template <typename Key, typename Value>
 typename db<Key, Value>::iterator&
 db<Key, Value>::iterator::left_most_traversal(detail::node_ptr node) {
@@ -1161,9 +1468,6 @@ db<Key, Value>::iterator::left_most_traversal(detail::node_ptr node) {
   UNODB_DETAIL_CANNOT_HAPPEN();
 }
 
-// Push the given node onto the stack and traverse from the caller's
-// node to the right-most leaf under that node, pushing nodes onto the
-// stack as they are visited.
 template <typename Key, typename Value>
 typename db<Key, Value>::iterator&
 db<Key, Value>::iterator::right_most_traversal(detail::node_ptr node) {
@@ -1184,19 +1488,12 @@ db<Key, Value>::iterator::right_most_traversal(detail::node_ptr node) {
   UNODB_DETAIL_CANNOT_HAPPEN();
 }
 
-// Note: The basic seek() logic is similar to ::get() as long as the
-// search_key exists in the data.  However, the iterator is positioned
-// instead of returning the value for the key.  Life gets a lot more
-// complicated when the search_key is not in the data and we have to
-// consider the cases for both forward traversal and reverse traversal
-// from a key that is not in the data.  See method declartion for
-// details.
 template <typename Key, typename Value>
 typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
     art_key_type search_key, bool& match, bool fwd) {
   invalidate();   // invalidate the iterator (clear the stack).
   match = false;  // unless we wind up with an exact match.
-  if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // aka end()
+  if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // aka end
 
   auto node{db_.root};
   const auto k = search_key;
@@ -1280,7 +1577,7 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
           // right-sibling of the path we took to this node and then
           // do a left-most descent under that right-sibling. If there
           // is no such parent, we will wind up with an empty stack
-          // (aka the end() iterator) and return that state.
+          // (iterator at the end) and return that state.
           if (!empty()) pop();
           while (!empty()) {
             const auto& centry = top();
@@ -1294,7 +1591,7 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
             }
             pop();
           }
-          return *this;  // stack is empty (aka end()).
+          return *this;  // stack is empty (aka end iterator).
         }
         const auto& tmp = nxt.value();  // unwrap.
         const auto child_index = tmp.child_index;
@@ -1324,7 +1621,7 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
           }
           pop();
         }
-        return *this;  // stack is empty (aka end()).
+        return *this;  // stack is empty (aka end iterator).
       }
       const auto& tmp = nxt.value();  // unwrap.
       const auto child_index{tmp.child_index};
@@ -1370,9 +1667,9 @@ value_view db<Key, Value>::iterator::get_val() const noexcept {
   return leaf->get_value_view();
 }
 
-///
-/// ART scan implementations.
-///
+//
+// ART scan implementations.
+//
 
 template <typename Key, typename Value>
 template <typename FN>
