@@ -2326,7 +2326,7 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l02376" name="l02376"></a><span class="lineno"> 2376</span>      <span class="comment">// reverse traversal</span></div>
 <div class="line"><a id="l02377" name="l02377"></a><span class="lineno"> 2377</span>      <span class="keywordflow">if</span> (cmp_ &lt; 0) {</div>
 <div class="line"><a id="l02378" name="l02378"></a><span class="lineno"> 2378</span>        <span class="comment">// REV and the search key is ordered before this node.  We</span></div>
-<div class="line"><a id="l02379" name="l02379"></a><span class="lineno"> 2379</span>        <span class="comment">// want the preceeding key.</span></div>
+<div class="line"><a id="l02379" name="l02379"></a><span class="lineno"> 2379</span>        <span class="comment">// want the preceding key.</span></div>
 <div class="line"><a id="l02380" name="l02380"></a><span class="lineno"> 2380</span>        <span class="keywordflow">return</span> unlock_and_return(</div>
 <div class="line"><a id="l02381" name="l02381"></a><span class="lineno"> 2381</span>                   node_critical_section,</div>
 <div class="line"><a id="l02382" name="l02382"></a><span class="lineno"> 2382</span>                   try_left_most_traversal(node, parent_critical_section)) &amp;&amp;</div>
@@ -2411,7 +2411,7 @@ $(document).ready(function(){initNavTree('olc__art_8hpp_source.html',''); initRe
 <div class="line"><a id="l02461" name="l02461"></a><span class="lineno"> 2461</span>      }</div>
 <div class="line"><a id="l02462" name="l02462"></a><span class="lineno"> 2462</span>      <span class="comment">// REV: Take the prior child_index that is mapped and then do</span></div>
 <div class="line"><a id="l02463" name="l02463"></a><span class="lineno"> 2463</span>      <span class="comment">// a right-most descent to land on the key that is the</span></div>
-<div class="line"><a id="l02464" name="l02464"></a><span class="lineno"> 2464</span>      <span class="comment">// immediate precessor of the desired key in the data.</span></div>
+<div class="line"><a id="l02464" name="l02464"></a><span class="lineno"> 2464</span>      <span class="comment">// immediate predecessor of the desired key in the data.</span></div>
 <div class="line"><a id="l02465" name="l02465"></a><span class="lineno"> 2465</span>      <span class="keyword">auto</span> nxt = inode-&gt;lte_key_byte(<a class="code hl_enumeration" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a>, remaining_key[0]);</div>
 <div class="line"><a id="l02466" name="l02466"></a><span class="lineno"> 2466</span>      <span class="keywordflow">if</span> (!nxt) {</div>
 <div class="line"><a id="l02467" name="l02467"></a><span class="lineno"> 2467</span>        <span class="comment">// Pop off the current entry until we find one with a</span></div>
