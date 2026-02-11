@@ -24,12 +24,13 @@ var searchData=
   ['min_5fsize_21',['min_size',['../classunodb_1_1detail_1_1basic__inode.html#a87dc5686f6c4ded6672e3c1deefabba3',1,'unodb::detail::basic_inode']]],
   ['model_22',['Memory model',['../group__optimistic-lock.html#autotoc_md21',1,'']]],
   ['msb_23',['msb',['../namespaceunodb_1_1detail.html#aa11dfd956f06126308971d516d631d85',1,'unodb::detail']]],
-  ['msb16_24',['msb16',['../classunodb_1_1key__decoder.html#aefc1a2ce62e49da6b7c7c17c2842a0fd',1,'unodb::key_decoder::msb16'],['../classunodb_1_1key__encoder.html#abfc674f94f24dd67301ba6f03773973b',1,'unodb::key_encoder::msb16']]],
+  ['msb16_24',['msb16',['../classunodb_1_1key__encoder.html#abfc674f94f24dd67301ba6f03773973b',1,'unodb::key_encoder::msb16'],['../classunodb_1_1key__decoder.html#aefc1a2ce62e49da6b7c7c17c2842a0fd',1,'unodb::key_decoder::msb16']]],
   ['msb32_25',['msb32',['../classunodb_1_1key__decoder.html#a3ae263d165a40a0f3089c1c3908955d3',1,'unodb::key_decoder::msb32'],['../classunodb_1_1key__encoder.html#ae4421b780422e13353b52d1bd2a83324',1,'unodb::key_encoder::msb32']]],
-  ['msb64_26',['msb64',['../classunodb_1_1key__decoder.html#a2d37e21695104a6630264b30a45c2d81',1,'unodb::key_decoder::msb64'],['../classunodb_1_1key__encoder.html#adb1f0e51db840fcf0249035ff4f3aa2f',1,'unodb::key_encoder::msb64']]],
-  ['msb8_27',['msb8',['../classunodb_1_1key__encoder.html#a38cb81c43056442a3c98755280ac8ad0',1,'unodb::key_encoder::msb8'],['../classunodb_1_1key__decoder.html#a20aa43d8bece0c675cfbc7ad7b762629',1,'unodb::key_decoder::msb8']]],
+  ['msb64_26',['msb64',['../classunodb_1_1key__encoder.html#adb1f0e51db840fcf0249035ff4f3aa2f',1,'unodb::key_encoder::msb64'],['../classunodb_1_1key__decoder.html#a2d37e21695104a6630264b30a45c2d81',1,'unodb::key_decoder::msb64']]],
+  ['msb8_27',['msb8',['../classunodb_1_1key__decoder.html#a20aa43d8bece0c675cfbc7ad7b762629',1,'unodb::key_decoder::msb8'],['../classunodb_1_1key__encoder.html#a38cb81c43056442a3c98755280ac8ad0',1,'unodb::key_encoder::msb8']]],
   ['msg_5fstacktrace_5fabort_28',['msg_stacktrace_abort',['../namespaceunodb_1_1detail.html#aa70778153d340954b6f2718fd7f018a2',1,'unodb::detail']]],
   ['must_5fnot_5fallocate_29',['must_not_allocate',['../namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f',1,'unodb::test']]],
-  ['must_5frestart_30',['must_restart',['../classunodb_1_1fake__read__critical__section.html#a3519c8982ff793ce2731ae85816c6f96',1,'unodb::fake_read_critical_section::must_restart()'],['../classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160',1,'unodb::optimistic_lock::read_critical_section::must_restart()'],['../classunodb_1_1optimistic__lock_1_1write__guard.html#a78944bd2ee4e432ec03659fbdcb4c435',1,'unodb::optimistic_lock::write_guard::must_restart()']]],
-  ['mutex_5fdb_31',['mutex_db',['../classunodb_1_1mutex__db.html',1,'unodb']]]
+  ['must_5frestart_30',['must_restart',['../classunodb_1_1optimistic__lock_1_1write__guard.html#a78944bd2ee4e432ec03659fbdcb4c435',1,'unodb::optimistic_lock::write_guard::must_restart()'],['../classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160',1,'unodb::optimistic_lock::read_critical_section::must_restart()'],['../classunodb_1_1fake__read__critical__section.html#a3519c8982ff793ce2731ae85816c6f96',1,'unodb::fake_read_critical_section::must_restart()']]],
+  ['mutex_5fdb_31',['mutex_db',['../classunodb_1_1mutex__db.html',1,'unodb']]],
+  ['mutex_5fdb_3c_20key_2c_20value_20_3e_32',['mutex_db&lt; Key, Value &gt;',['../classunodb_1_1db.html#ac95537d22e30cfb9415ea8b86b94cacc',1,'unodb::db']]]
 ];

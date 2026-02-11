@@ -97,24 +97,38 @@ $(document).ready(function(){initNavTree('structunodb_1_1detail_1_1impl__helpers
 
 <div class="header">
   <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="structunodb_1_1detail_1_1impl__helpers-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">unodb::detail::impl_helpers Struct Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Helper functions for node insertion and removal operations.  
+ <a href="structunodb_1_1detail_1_1impl__helpers.html#details">More...</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:ac9838cdd5901664279033acb01d713d1" id="r_ac9838cdd5901664279033acb01d713d1"><td class="memItemLeft" align="right" valign="top"><a id="ac9838cdd5901664279033acb01d713d1" name="ac9838cdd5901664279033acb01d713d1"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>impl_helpers</b> ()=delete</td></tr>
+<tr class="memdesc:ac9838cdd5901664279033acb01d713d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deleted constructor (static-only helper class). <br /></td></tr>
+<tr class="separator:ac9838cdd5901664279033acb01d713d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a4cc51b636b4dc263e058edbb61769148" id="r_a4cc51b636b4dc263e058edbb61769148"><td class="memTemplParams" colspan="2">template&lt;typename Key , typename Value , class INode &gt; </td></tr>
-<tr class="memitem:a4cc51b636b4dc263e058edbb61769148"><td class="memTemplItemLeft" align="right" valign="top">static <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a> *&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1impl__helpers.html#a4cc51b636b4dc263e058edbb61769148">add_or_choose_subtree</a> (INode &amp;<a class="el" href="classunodb_1_1detail_1_1inode.html">inode</a>, std::byte key_byte, <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; k, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">value_view</a> v, <a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt; &amp;db_instance, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; &gt; depth, <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a> *node_in_parent)</td></tr>
-<tr class="memdesc:a4cc51b636b4dc263e058edbb61769148"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the correct child node for insertion operation (i.e.  <br /></td></tr>
+<tr class="memitem:a4cc51b636b4dc263e058edbb61769148"><td class="memTemplItemLeft" align="right" valign="top">static <a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a> *&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1impl__helpers.html#a4cc51b636b4dc263e058edbb61769148">add_or_choose_subtree</a> (INode &amp;<a class="el" href="classunodb_1_1detail_1_1inode.html">inode</a>, std::byte key_byte, <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; k, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">value_view</a> v, <a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt; &amp;db_instance, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; &gt; depth, <a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a> *node_in_parent)</td></tr>
+<tr class="memdesc:a4cc51b636b4dc263e058edbb61769148"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add child to internal node or choose subtree for insertion.  <br /></td></tr>
 <tr class="separator:a4cc51b636b4dc263e058edbb61769148"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad032e3674d95560a77416547727c00cd" id="r_ad032e3674d95560a77416547727c00cd"><td class="memTemplParams" colspan="2"><a id="ad032e3674d95560a77416547727c00cd" name="ad032e3674d95560a77416547727c00cd"></a>
-template&lt;typename Key , typename Value , class INode &gt; </td></tr>
-<tr class="memitem:ad032e3674d95560a77416547727c00cd"><td class="memTemplItemLeft" align="right" valign="top">static std::optional&lt; <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a> * &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>remove_or_choose_subtree</b> (INode &amp;<a class="el" href="classunodb_1_1detail_1_1inode.html">inode</a>, std::byte key_byte, <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; k, <a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt; &amp;db_instance, <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a> *node_in_parent)</td></tr>
+<tr class="memitem:ad032e3674d95560a77416547727c00cd" id="r_ad032e3674d95560a77416547727c00cd"><td class="memTemplParams" colspan="2">template&lt;typename Key , typename Value , class INode &gt; </td></tr>
+<tr class="memitem:ad032e3674d95560a77416547727c00cd"><td class="memTemplItemLeft" align="right" valign="top">static std::optional&lt; <a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a> * &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1impl__helpers.html#ad032e3674d95560a77416547727c00cd">remove_or_choose_subtree</a> (INode &amp;<a class="el" href="classunodb_1_1detail_1_1inode.html">inode</a>, std::byte key_byte, <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; k, <a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt; &amp;db_instance, <a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a> *node_in_parent)</td></tr>
+<tr class="memdesc:ad032e3674d95560a77416547727c00cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove child from internal node or choose subtree for removal.  <br /></td></tr>
 <tr class="separator:ad032e3674d95560a77416547727c00cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Function Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Helper functions for node insertion and removal operations. </p>
+<p>Provides static methods used by <a class="el" href="classunodb_1_1detail_1_1inode__4.html" title="Internal node with 4 children for non-thread-safe ART.">inode_4</a>, <a class="el" href="classunodb_1_1detail_1_1inode__16.html" title="Internal node with 16 children for non-thread-safe ART.">inode_16</a>, <a class="el" href="classunodb_1_1detail_1_1inode__48.html" title="Internal node with 48 children for non-thread-safe ART.">inode_48</a>, and <a class="el" href="classunodb_1_1detail_1_1inode__256.html" title="Internal node with 256 children for non-thread-safe ART.">inode_256</a> to handle child addition and removal, including node growth and shrinkage. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a4cc51b636b4dc263e058edbb61769148" name="a4cc51b636b4dc263e058edbb61769148"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4cc51b636b4dc263e058edbb61769148">&#9670;&#160;</a></span>add_or_choose_subtree()</h2>
 
@@ -127,7 +141,7 @@ template&lt;typename Key , typename Value , class INode &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a> * unodb::detail::impl_helpers::add_or_choose_subtree </td>
+          <td class="memname"><a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a> * unodb::detail::impl_helpers::add_or_choose_subtree </td>
           <td>(</td>
           <td class="paramtype">INode &amp;&#160;</td>
           <td class="paramname"><em>inode</em>, </td>
@@ -165,7 +179,7 @@ template&lt;typename Key , typename Value , class INode &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a> *&#160;</td>
           <td class="paramname"><em>node_in_parent</em>&#160;</td>
         </tr>
         <tr>
@@ -181,8 +195,109 @@ template&lt;typename Key , typename Value , class INode &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Return the correct child node for insertion operation (i.e. </p>
+<p>Add child to internal node or choose subtree for insertion. </p>
+<p>Return the correct child node for insertion operation (i.e.</p>
+<p>Handles node growth when capacity is reached.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">Key</td><td>Key type </td></tr>
+    <tr><td class="paramname">Value</td><td>Value type </td></tr>
+    <tr><td class="paramname">INode</td><td>Internal node type</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">inode</td><td>Internal node to modify </td></tr>
+    <tr><td class="paramname">key_byte</td><td>Byte value for child lookup </td></tr>
+    <tr><td class="paramname">k</td><td>Complete encoded key being inserted </td></tr>
+    <tr><td class="paramname">v</td><td>Value to insert </td></tr>
+    <tr><td class="paramname">db_instance</td><td>Database instance </td></tr>
+    <tr><td class="paramname">depth</td><td>Current tree depth </td></tr>
+    <tr><td class="paramname">node_in_parent</td><td>Pointer to this node in parent's children array</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Pointer to location for further descent or insertion</dd></dl>
 <p>having the matching next key byte value). If there is no child node for the next key byte, create the leaf and insert it in the current node. </p>
+
+</div>
+</div>
+<a id="ad032e3674d95560a77416547727c00cd" name="ad032e3674d95560a77416547727c00cd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad032e3674d95560a77416547727c00cd">&#9670;&#160;</a></span>remove_or_choose_subtree()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value , class INode &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::optional&lt; <a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a> * &gt; unodb::detail::impl_helpers::remove_or_choose_subtree </td>
+          <td>(</td>
+          <td class="paramtype">INode &amp;&#160;</td>
+          <td class="paramname"><em>inode</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::byte&#160;</td>
+          <td class="paramname"><em>key_byte</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt;&#160;</td>
+          <td class="paramname"><em>k</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt; &amp;&#160;</td>
+          <td class="paramname"><em>db_instance</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a> *&#160;</td>
+          <td class="paramname"><em>node_in_parent</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Remove child from internal node or choose subtree for removal. </p>
+<p>Handles node shrinkage when occupancy falls below minimum.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">Key</td><td>Key type </td></tr>
+    <tr><td class="paramname">Value</td><td>Value type </td></tr>
+    <tr><td class="paramname">INode</td><td>Internal node type</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">inode</td><td>Internal node to modify </td></tr>
+    <tr><td class="paramname">key_byte</td><td>Byte value for child lookup </td></tr>
+    <tr><td class="paramname">k</td><td>Complete encoded key being removed </td></tr>
+    <tr><td class="paramname">db_instance</td><td>Database instance </td></tr>
+    <tr><td class="paramname">node_in_parent</td><td>Pointer to this node in parent's children array</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Optional pointer to location for further descent, or empty if key not found </dd></dl>
 
 </div>
 </div>

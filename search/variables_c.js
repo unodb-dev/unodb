@@ -1,11 +1,8 @@
 var searchData=
 [
-  ['obsolete_5flock_5fword_0',['obsolete_lock_word',['../classunodb_1_1optimistic__lock_1_1version__type.html#abee2b619b121ae96f36699bfc0c5f704',1,'unodb::optimistic_lock::version_type']]],
-  ['obsoleter_5fthread_1',['obsoleter_thread',['../classunodb_1_1optimistic__lock.html#a7feae095aa3b9f62d93da82d4ce6909e',1,'unodb::optimistic_lock']]],
-  ['off_2',['off',['../classunodb_1_1key__encoder.html#aa18f5a324c9f8866cc233f1872b56857',1,'unodb::key_encoder::off'],['../classunodb_1_1key__decoder.html#a5ec1f8082194487f053da1c876b71fd4',1,'unodb::key_decoder::off'],['../classunodb_1_1detail_1_1key__buffer.html#a593cdae2ea041561e5b57240a70a6983',1,'unodb::detail::key_buffer::off']]],
-  ['one_5fthread_5fand_5fone_5fin_5fprevious_3',['one_thread_and_one_in_previous',['../structunodb_1_1qsbr__state.html#a6a4dd4a202cfc58c779cbbae947b4b5d',1,'unodb::qsbr_state']]],
-  ['one_5fthread_5fin_5fcount_4',['one_thread_in_count',['../structunodb_1_1qsbr__state.html#a89c75e71ef87b01b2e958dfe7d7b88ce',1,'unodb::qsbr_state']]],
-  ['orphaned_5fcurrent_5finterval_5fdealloc_5frequests_5',['orphaned_current_interval_dealloc_requests',['../classunodb_1_1qsbr.html#aa4be949c57da4d0d59bfe2651f4b741c',1,'unodb::qsbr']]],
-  ['orphaned_5fprevious_5finterval_5fdealloc_5frequests_6',['orphaned_previous_interval_dealloc_requests',['../classunodb_1_1qsbr.html#aa23d57ccaec3e73c3f9bf5cd412c69ed',1,'unodb::qsbr']]],
-  ['orphaned_5frequests_7',['orphaned_requests',['../classunodb_1_1detail_1_1deferred__requests.html#a361f2b2af74eff0112a4890d5ef07481',1,'unodb::detail::deferred_requests']]]
+  ['next_0',['next',['../structunodb_1_1detail_1_1dealloc__vector__list__node.html#adb97856268b00e592400068336a02c37',1,'unodb::detail::dealloc_vector_list_node']]],
+  ['node_1',['node',['../structunodb_1_1detail_1_1iter__result.html#a854585e8656a3b42ae0e48a97d2f970a',1,'unodb::detail::iter_result']]],
+  ['node_5fcounts_2',['node_counts',['../classunodb_1_1db.html#ae7e63a8c86777d87993e01f70b8c78e1',1,'unodb::db']]],
+  ['node_5fptr_3',['node_ptr',['../structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html#a569bfd7f059d88dbfe65bf5998c61b2c',1,'unodb::detail::basic_art_policy::delete_db_node_ptr_at_scope_exit']]],
+  ['node_5ftype_5fcount_4',['node_type_count',['../namespaceunodb_1_1detail.html#ad81082c8f2c103492eb9f6917f0483bc',1,'unodb::detail']]]
 ];

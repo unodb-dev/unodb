@@ -109,7 +109,7 @@ $(document).ready(function(){initNavTree('classunodb_1_1db_1_1iterator.html','')
 </div><!--header-->
 <div class="contents">
 
-<p>iterator (the iterator is an internal API, the public API is <a class="el" href="classunodb_1_1db.html#a27a69c736ca0405bc8eaed20cf875a09" title="Scan the tree, applying the caller&#39;s lambda to each visited leaf.">scan()</a>).  
+<p>Internal iterator for tree traversal.  
  <a href="classunodb_1_1db_1_1iterator.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="art_8hpp_source.html">art.hpp</a>&gt;</code></p>
@@ -118,9 +118,11 @@ $(document).ready(function(){initNavTree('classunodb_1_1db_1_1iterator.html','')
 Public Types</h2></td></tr>
 <tr class="memitem:aa528130c72932f5e1cb4f3b442d202da" id="r_aa528130c72932f5e1cb4f3b442d202da"><td class="memItemLeft" align="right" valign="top"><a id="aa528130c72932f5e1cb4f3b442d202da" name="aa528130c72932f5e1cb4f3b442d202da"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>key_type</b> = Key</td></tr>
+<tr class="memdesc:aa528130c72932f5e1cb4f3b442d202da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Key type of the index entries. <br /></td></tr>
 <tr class="separator:aa528130c72932f5e1cb4f3b442d202da"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4839e9e424e83bb670e2bef82c71255a" id="r_a4839e9e424e83bb670e2bef82c71255a"><td class="memItemLeft" align="right" valign="top"><a id="a4839e9e424e83bb670e2bef82c71255a" name="a4839e9e424e83bb670e2bef82c71255a"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>value_type</b> = Value</td></tr>
+<tr class="memdesc:a4839e9e424e83bb670e2bef82c71255a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value type of the index entries. <br /></td></tr>
 <tr class="separator:a4839e9e424e83bb670e2bef82c71255a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -132,30 +134,28 @@ Public Member Functions</h2></td></tr>
 <a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>next</b> ()</td></tr>
 <tr class="memdesc:af7d2feb5a3634d7b28153017adb46eb0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advance the iterator to next entry in the index. <br /></td></tr>
 <tr class="separator:af7d2feb5a3634d7b28153017adb46eb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a73c3f611163534ea29ca3fb3958c97e3" id="r_a73c3f611163534ea29ca3fb3958c97e3"><td class="memItemLeft" align="right" valign="top"><a id="a73c3f611163534ea29ca3fb3958c97e3" name="a73c3f611163534ea29ca3fb3958c97e3"></a>
-<a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>last</b> ()</td></tr>
-<tr class="memdesc:a73c3f611163534ea29ca3fb3958c97e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Position the iterator on the last entry in the index, which can be used to initiate a reverse traversal. <br /></td></tr>
+<tr class="memitem:a73c3f611163534ea29ca3fb3958c97e3" id="r_a73c3f611163534ea29ca3fb3958c97e3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#a73c3f611163534ea29ca3fb3958c97e3">last</a> ()</td></tr>
+<tr class="memdesc:a73c3f611163534ea29ca3fb3958c97e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Position the iterator on the last entry in the index, which can be used to initiate a reverse traversal.  <br /></td></tr>
 <tr class="separator:a73c3f611163534ea29ca3fb3958c97e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7185f8a53c2a16d45bf4ddd7ca18e668" id="r_a7185f8a53c2a16d45bf4ddd7ca18e668"><td class="memItemLeft" align="right" valign="top"><a id="a7185f8a53c2a16d45bf4ddd7ca18e668" name="a7185f8a53c2a16d45bf4ddd7ca18e668"></a>
 <a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>prior</b> ()</td></tr>
 <tr class="memdesc:a7185f8a53c2a16d45bf4ddd7ca18e668"><td class="mdescLeft">&#160;</td><td class="mdescRight">Position the iterator on the previous entry in the index. <br /></td></tr>
 <tr class="separator:a7185f8a53c2a16d45bf4ddd7ca18e668"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9e51dd50dad8e7c8657f59dfa275ea38" id="r_a9e51dd50dad8e7c8657f59dfa275ea38"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#a9e51dd50dad8e7c8657f59dfa275ea38">seek</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> search_key, bool &amp;match, bool fwd=true)</td></tr>
+<tr class="memitem:a9e51dd50dad8e7c8657f59dfa275ea38" id="r_a9e51dd50dad8e7c8657f59dfa275ea38"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#a9e51dd50dad8e7c8657f59dfa275ea38">seek</a> (<a class="el" href="classunodb_1_1db.html#aa6414555472551bb85db668441cccfae">art_key_type</a> search_key, bool &amp;match, bool fwd=true)</td></tr>
 <tr class="memdesc:a9e51dd50dad8e7c8657f59dfa275ea38"><td class="mdescLeft">&#160;</td><td class="mdescRight">Position the iterator on, before, or after the caller's key.  <br /></td></tr>
 <tr class="separator:a9e51dd50dad8e7c8657f59dfa275ea38"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acae8e334fe120174e36f71bbe4b39956" id="r_acae8e334fe120174e36f71bbe4b39956"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#acae8e334fe120174e36f71bbe4b39956">get_key</a> () noexcept</td></tr>
 <tr class="memdesc:acae8e334fe120174e36f71bbe4b39956"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the key_view associated with the current position of the iterator.  <br /></td></tr>
 <tr class="separator:acae8e334fe120174e36f71bbe4b39956"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a68ae5c43a1b17c6cbb39d8574e6acd1a" id="r_a68ae5c43a1b17c6cbb39d8574e6acd1a"><td class="memItemLeft" align="right" valign="top">value_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#a68ae5c43a1b17c6cbb39d8574e6acd1a">get_val</a> () const noexcept</td></tr>
+<tr class="memitem:a68ae5c43a1b17c6cbb39d8574e6acd1a" id="r_a68ae5c43a1b17c6cbb39d8574e6acd1a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1db.html#a9217d27d320c8d140a52bfd05031248e">value_view</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#a68ae5c43a1b17c6cbb39d8574e6acd1a">get_val</a> () const noexcept</td></tr>
 <tr class="memdesc:a68ae5c43a1b17c6cbb39d8574e6acd1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the value_view associated with the current position of the iterator.  <br /></td></tr>
 <tr class="separator:a68ae5c43a1b17c6cbb39d8574e6acd1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adcd3e85bcd9052fc406b0632e4b46fea" id="r_adcd3e85bcd9052fc406b0632e4b46fea"><td class="memItemLeft" align="right" valign="top"><a id="adcd3e85bcd9052fc406b0632e4b46fea" name="adcd3e85bcd9052fc406b0632e4b46fea"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os) const</td></tr>
-<tr class="memdesc:adcd3e85bcd9052fc406b0632e4b46fea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Debugging. <br /></td></tr>
+<tr class="memdesc:adcd3e85bcd9052fc406b0632e4b46fea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Output iterator state to stream <em>os</em> for debugging. <br /></td></tr>
 <tr class="separator:adcd3e85bcd9052fc406b0632e4b46fea"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa6a6776f254ab54fc4ef405abd1eadf9" id="r_aa6a6776f254ab54fc4ef405abd1eadf9"><td class="memItemLeft" align="right" valign="top"><a id="aa6a6776f254ab54fc4ef405abd1eadf9" name="aa6a6776f254ab54fc4ef405abd1eadf9"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> () const</td></tr>
-<tr class="memdesc:aa6a6776f254ab54fc4ef405abd1eadf9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Debugging. <br /></td></tr>
+<tr class="memitem:aa6a6776f254ab54fc4ef405abd1eadf9" id="r_aa6a6776f254ab54fc4ef405abd1eadf9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#aa6a6776f254ab54fc4ef405abd1eadf9">dump</a> () const</td></tr>
+<tr class="memdesc:aa6a6776f254ab54fc4ef405abd1eadf9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Output iterator state to stderr for debugging.  <br /></td></tr>
 <tr class="separator:aa6a6776f254ab54fc4ef405abd1eadf9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af11f8c62f2367d9bfa72abff5dd847c4" id="r_af11f8c62f2367d9bfa72abff5dd847c4"><td class="memItemLeft" align="right" valign="top"><a id="af11f8c62f2367d9bfa72abff5dd847c4" name="af11f8c62f2367d9bfa72abff5dd847c4"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>valid</b> () const noexcept</td></tr>
@@ -170,51 +170,50 @@ Protected Member Functions</h2></td></tr>
 <tr class="separator:ac92ace17e87447215c0c9d0bce25d693"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3b8a7300df10e9957750ed2bfe029ef0" id="r_a3b8a7300df10e9957750ed2bfe029ef0"><td class="memItemLeft" align="right" valign="top"><a id="a3b8a7300df10e9957750ed2bfe029ef0" name="a3b8a7300df10e9957750ed2bfe029ef0"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>iterator</b> (const <a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;)=delete</td></tr>
+<tr class="memdesc:a3b8a7300df10e9957750ed2bfe029ef0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy constructor (deleted). <br /></td></tr>
 <tr class="separator:a3b8a7300df10e9957750ed2bfe029ef0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a183fbec499bd2aee9b4f67275fcf4099" id="r_a183fbec499bd2aee9b4f67275fcf4099"><td class="memItemLeft" align="right" valign="top"><a id="a183fbec499bd2aee9b4f67275fcf4099" name="a183fbec499bd2aee9b4f67275fcf4099"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>iterator</b> (<a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;&amp;)=delete</td></tr>
+<tr class="memdesc:a183fbec499bd2aee9b4f67275fcf4099"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move constructor (deleted). <br /></td></tr>
 <tr class="separator:a183fbec499bd2aee9b4f67275fcf4099"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afdf21f0d5aec971ad0e186e95b05471e" id="r_afdf21f0d5aec971ad0e186e95b05471e"><td class="memItemLeft" align="right" valign="top"><a id="afdf21f0d5aec971ad0e186e95b05471e" name="afdf21f0d5aec971ad0e186e95b05471e"></a>
 <a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;)=delete</td></tr>
+<tr class="memdesc:afdf21f0d5aec971ad0e186e95b05471e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy assignment operator (deleted). <br /></td></tr>
 <tr class="separator:afdf21f0d5aec971ad0e186e95b05471e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab321c79625f90d6363aaaa752bf92add" id="r_ab321c79625f90d6363aaaa752bf92add"><td class="memItemLeft" align="right" valign="top"><a id="ab321c79625f90d6363aaaa752bf92add" name="ab321c79625f90d6363aaaa752bf92add"></a>
-<a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>left_most_traversal</b> (<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a> node)</td></tr>
-<tr class="memdesc:ab321c79625f90d6363aaaa752bf92add"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push the given node onto the stack and traverse from the caller's node to the left-most leaf under that node, pushing nodes onto the stack as they are visited. <br /></td></tr>
+<tr class="memitem:ab321c79625f90d6363aaaa752bf92add" id="r_ab321c79625f90d6363aaaa752bf92add"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#ab321c79625f90d6363aaaa752bf92add">left_most_traversal</a> (<a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a> node)</td></tr>
+<tr class="memdesc:ab321c79625f90d6363aaaa752bf92add"><td class="mdescLeft">&#160;</td><td class="mdescRight">Descend to left-most leaf from given <em>node</em>.  <br /></td></tr>
 <tr class="separator:ab321c79625f90d6363aaaa752bf92add"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad89770f43fc20103dc5458fa4d9cbc39" id="r_ad89770f43fc20103dc5458fa4d9cbc39"><td class="memItemLeft" align="right" valign="top"><a id="ad89770f43fc20103dc5458fa4d9cbc39" name="ad89770f43fc20103dc5458fa4d9cbc39"></a>
-<a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>right_most_traversal</b> (<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a> node)</td></tr>
-<tr class="memdesc:ad89770f43fc20103dc5458fa4d9cbc39"><td class="mdescLeft">&#160;</td><td class="mdescRight">Descend from the current state of the stack to the right most child leaf, updating the state of the iterator during the descent. <br /></td></tr>
+<tr class="memitem:ad89770f43fc20103dc5458fa4d9cbc39" id="r_ad89770f43fc20103dc5458fa4d9cbc39"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#ad89770f43fc20103dc5458fa4d9cbc39">right_most_traversal</a> (<a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a> node)</td></tr>
+<tr class="memdesc:ad89770f43fc20103dc5458fa4d9cbc39"><td class="mdescLeft">&#160;</td><td class="mdescRight">Descend to right-most leaf from given <em>node</em>.  <br /></td></tr>
 <tr class="separator:ad89770f43fc20103dc5458fa4d9cbc39"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8f6d2107b7184fa1126dc174cc0ec270" id="r_a8f6d2107b7184fa1126dc174cc0ec270"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#a8f6d2107b7184fa1126dc174cc0ec270">cmp</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> akey) const noexcept</td></tr>
-<tr class="memdesc:a8f6d2107b7184fa1126dc174cc0ec270"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare the given key (e.g., the to_key) to the current key in the internal buffer.  <br /></td></tr>
+<tr class="memitem:a8f6d2107b7184fa1126dc174cc0ec270" id="r_a8f6d2107b7184fa1126dc174cc0ec270"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#a8f6d2107b7184fa1126dc174cc0ec270">cmp</a> (<a class="el" href="classunodb_1_1db.html#aa6414555472551bb85db668441cccfae">art_key_type</a> akey) const noexcept</td></tr>
+<tr class="memdesc:a8f6d2107b7184fa1126dc174cc0ec270"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare the given key <em>akey</em> to the current key in the internal buffer.  <br /></td></tr>
 <tr class="separator:a8f6d2107b7184fa1126dc174cc0ec270"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Stack access methods</div></td></tr>
 <tr class="memitem:acc188622a505572e8a25b008bf0396e2" id="r_acc188622a505572e8a25b008bf0396e2"><td class="memItemLeft" align="right" valign="top"><a id="acc188622a505572e8a25b008bf0396e2" name="acc188622a505572e8a25b008bf0396e2"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>empty</b> () const noexcept</td></tr>
-<tr class="memdesc:acc188622a505572e8a25b008bf0396e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true iff the stack is empty. <br /></td></tr>
+<tr class="memdesc:acc188622a505572e8a25b008bf0396e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true iff the iterator stack is empty. <br /></td></tr>
 <tr class="separator:acc188622a505572e8a25b008bf0396e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a25149b069bf9338b8d04117fa8f9d0cd" id="r_a25149b069bf9338b8d04117fa8f9d0cd"><td class="memItemLeft" align="right" valign="top"><a id="a25149b069bf9338b8d04117fa8f9d0cd" name="a25149b069bf9338b8d04117fa8f9d0cd"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>push</b> (<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a> node, std::byte key_byte, std::uint8_t child_index, <a class="el" href="unionunodb_1_1detail_1_1key__prefix__snapshot.html">detail::key_prefix_snapshot</a> prefix)</td></tr>
-<tr class="memdesc:a25149b069bf9338b8d04117fa8f9d0cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push a non-leaf entry onto the stack. <br /></td></tr>
+<tr class="memitem:a25149b069bf9338b8d04117fa8f9d0cd" id="r_a25149b069bf9338b8d04117fa8f9d0cd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#a25149b069bf9338b8d04117fa8f9d0cd">push</a> (<a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a> node, std::byte key_byte, std::uint8_t child_index, <a class="el" href="unionunodb_1_1detail_1_1key__prefix__snapshot.html">detail::key_prefix_snapshot</a> prefix)</td></tr>
+<tr class="memdesc:a25149b069bf9338b8d04117fa8f9d0cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push internal node entry onto iterator stack.  <br /></td></tr>
 <tr class="separator:a25149b069bf9338b8d04117fa8f9d0cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1199f5eb7bca7ebd78dbcea6a32596a8" id="r_a1199f5eb7bca7ebd78dbcea6a32596a8"><td class="memItemLeft" align="right" valign="top"><a id="a1199f5eb7bca7ebd78dbcea6a32596a8" name="a1199f5eb7bca7ebd78dbcea6a32596a8"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>push_leaf</b> (<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a> aleaf)</td></tr>
-<tr class="memdesc:a1199f5eb7bca7ebd78dbcea6a32596a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push a leaf onto the stack. <br /></td></tr>
+<tr class="memitem:a1199f5eb7bca7ebd78dbcea6a32596a8" id="r_a1199f5eb7bca7ebd78dbcea6a32596a8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#a1199f5eb7bca7ebd78dbcea6a32596a8">push_leaf</a> (<a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a> aleaf)</td></tr>
+<tr class="memdesc:a1199f5eb7bca7ebd78dbcea6a32596a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push leaf entry <em>aleaf</em> onto iterator stack.  <br /></td></tr>
 <tr class="separator:a1199f5eb7bca7ebd78dbcea6a32596a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a52a782379325463af95a227e5f58cfea" id="r_a52a782379325463af95a227e5f58cfea"><td class="memItemLeft" align="right" valign="top"><a id="a52a782379325463af95a227e5f58cfea" name="a52a782379325463af95a227e5f58cfea"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>push</b> (const typename <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a5e989cf901f1b719e9b482fd2f61e9a6">inode_base::iter_result</a> &amp;e)</td></tr>
-<tr class="memdesc:a52a782379325463af95a227e5f58cfea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push an entry onto the stack. <br /></td></tr>
+<tr class="memdesc:a52a782379325463af95a227e5f58cfea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push an entry <em>e</em> onto the stack. <br /></td></tr>
 <tr class="separator:a52a782379325463af95a227e5f58cfea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb3ea0dabfb00a6eae568cedad4c215f" id="r_abb3ea0dabfb00a6eae568cedad4c215f"><td class="memItemLeft" align="right" valign="top"><a id="abb3ea0dabfb00a6eae568cedad4c215f" name="abb3ea0dabfb00a6eae568cedad4c215f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>pop</b> () noexcept</td></tr>
-<tr class="memdesc:abb3ea0dabfb00a6eae568cedad4c215f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pop an entry from the stack and truncate the key buffer. <br /></td></tr>
+<tr class="memdesc:abb3ea0dabfb00a6eae568cedad4c215f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pop entry from stack and truncate key buffer accordingly. <br /></td></tr>
 <tr class="separator:abb3ea0dabfb00a6eae568cedad4c215f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aecb940fb56d1e59ee778a6135dc5193e" id="r_aecb940fb56d1e59ee778a6135dc5193e"><td class="memItemLeft" align="right" valign="top"><a id="aecb940fb56d1e59ee778a6135dc5193e" name="aecb940fb56d1e59ee778a6135dc5193e"></a>
-const <a class="el" href="classunodb_1_1db_1_1iterator.html#a9166f2a1d9fcc47bc1c9f09da8806919">stack_entry</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>top</b> () const noexcept</td></tr>
-<tr class="memdesc:aecb940fb56d1e59ee778a6135dc5193e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the entry on the top of the stack. <br /></td></tr>
+<tr class="memitem:aecb940fb56d1e59ee778a6135dc5193e" id="r_aecb940fb56d1e59ee778a6135dc5193e"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classunodb_1_1db_1_1iterator.html#a9166f2a1d9fcc47bc1c9f09da8806919">stack_entry</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#aecb940fb56d1e59ee778a6135dc5193e">top</a> () const noexcept</td></tr>
+<tr class="memdesc:aecb940fb56d1e59ee778a6135dc5193e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return entry at top of stack.  <br /></td></tr>
 <tr class="separator:aecb940fb56d1e59ee778a6135dc5193e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac0f79ce27b9b1c5efb409ffb5454b161" id="r_ac0f79ce27b9b1c5efb409ffb5454b161"><td class="memItemLeft" align="right" valign="top"><a id="ac0f79ce27b9b1c5efb409ffb5454b161" name="ac0f79ce27b9b1c5efb409ffb5454b161"></a>
-<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::node_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><b>current_node</b> () const noexcept</td></tr>
-<tr class="memdesc:ac0f79ce27b9b1c5efb409ffb5454b161"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the node on the top of the stack and nullptr if the stack is empty (similar to <a class="el" href="classunodb_1_1db_1_1iterator.html#aecb940fb56d1e59ee778a6135dc5193e" title="Return the entry on the top of the stack.">top()</a>, but handles an empty stack). <br /></td></tr>
+<a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><b>current_node</b> () const noexcept</td></tr>
+<tr class="memdesc:ac0f79ce27b9b1c5efb409ffb5454b161"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return node at top of stack, or nullptr if stack is empty. <br /></td></tr>
 <tr class="separator:ac0f79ce27b9b1c5efb409ffb5454b161"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-types" name="pri-types"></a>
@@ -226,9 +225,8 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>stack_entry</b> = ty
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
-<tr class="memitem:ab9fa414f12d5d5d4a57bebb8800ca92c" id="r_ab9fa414f12d5d5d4a57bebb8800ca92c"><td class="memItemLeft" align="right" valign="top"><a id="ab9fa414f12d5d5d4a57bebb8800ca92c" name="ab9fa414f12d5d5d4a57bebb8800ca92c"></a>
-<a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>invalidate</b> () noexcept</td></tr>
-<tr class="memdesc:ab9fa414f12d5d5d4a57bebb8800ca92c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Invalidate the iterator (pops everything off of the stack). <br /></td></tr>
+<tr class="memitem:ab9fa414f12d5d5d4a57bebb8800ca92c" id="r_ab9fa414f12d5d5d4a57bebb8800ca92c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#ab9fa414f12d5d5d4a57bebb8800ca92c">invalidate</a> () noexcept</td></tr>
+<tr class="memdesc:ab9fa414f12d5d5d4a57bebb8800ca92c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Invalidate iterator by clearing the stack and key buffer.  <br /></td></tr>
 <tr class="separator:ab9fa414f12d5d5d4a57bebb8800ca92c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
@@ -241,22 +239,25 @@ Private Attributes</h2></td></tr>
 <tr class="memdesc:a6653e19363aa0aaa8747510bfd1c6e30"><td class="mdescLeft">&#160;</td><td class="mdescRight">A stack reflecting the parent path from the root of the tree to the current leaf.  <br /></td></tr>
 <tr class="separator:a6653e19363aa0aaa8747510bfd1c6e30"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6396d761c7e6abb971fe1508bb4e3e38" id="r_a6396d761c7e6abb971fe1508bb4e3e38"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1detail_1_1key__buffer.html">detail::key_buffer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db_1_1iterator.html#a6396d761c7e6abb971fe1508bb4e3e38">keybuf_</a> {}</td></tr>
-<tr class="memdesc:a6396d761c7e6abb971fe1508bb4e3e38"><td class="mdescLeft">&#160;</td><td class="mdescRight">A buffer into which visited encoded (binary comparable) keys are materialized by during the iterator traversal.  <br /></td></tr>
+<tr class="memdesc:a6396d761c7e6abb971fe1508bb4e3e38"><td class="mdescLeft">&#160;</td><td class="mdescRight">A buffer into which visited encoded (binary comparable) keys are materialized during the iterator traversal.  <br /></td></tr>
 <tr class="separator:a6396d761c7e6abb971fe1508bb4e3e38"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>
 <tr class="memitem:afaa85f6d069fcff5be399f829fe8f1d5" id="r_afaa85f6d069fcff5be399f829fe8f1d5"><td class="memItemLeft" align="right" valign="top"><a id="afaa85f6d069fcff5be399f829fe8f1d5" name="afaa85f6d069fcff5be399f829fe8f1d5"></a>
 class&#160;</td><td class="memItemRight" valign="bottom"><b>db</b></td></tr>
+<tr class="memdesc:afaa85f6d069fcff5be399f829fe8f1d5"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classunodb_1_1db.html" title="A non-thread-safe implementation of the Adaptive Radix Tree (ART).">unodb::db</a> <br /></td></tr>
 <tr class="separator:afaa85f6d069fcff5be399f829fe8f1d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a69425d2551186ea0330b08fc394bd0f9" id="r_a69425d2551186ea0330b08fc394bd0f9"><td class="memTemplParams" colspan="2"><a id="a69425d2551186ea0330b08fc394bd0f9" name="a69425d2551186ea0330b08fc394bd0f9"></a>
 template&lt;class &gt; </td></tr>
 <tr class="memitem:a69425d2551186ea0330b08fc394bd0f9"><td class="memTemplItemLeft" align="right" valign="top">class&#160;</td><td class="memTemplItemRight" valign="bottom"><b>visitor</b></td></tr>
+<tr class="memdesc:a69425d2551186ea0330b08fc394bd0f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allow visitor to access iterator for tree traversal operations. <br /></td></tr>
 <tr class="separator:a69425d2551186ea0330b08fc394bd0f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename Key, typename Value&gt;<br />
-class unodb::db&lt; Key, Value &gt;::iterator</div><p>iterator (the iterator is an internal API, the public API is <a class="el" href="classunodb_1_1db.html#a27a69c736ca0405bc8eaed20cf875a09" title="Scan the tree, applying the caller&#39;s lambda to each visited leaf.">scan()</a>). </p>
+class unodb::db&lt; Key, Value &gt;::iterator</div><p>Internal iterator for tree traversal. </p>
+<p>Iterator is an internal API. Use <a class="el" href="classunodb_1_1db.html#a27a69c736ca0405bc8eaed20cf875a09" title="Scan the tree, applying the caller&#39;s lambda to each visited leaf.">scan()</a> for the public API. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a8f6d2107b7184fa1126dc174cc0ec270" name="a8f6d2107b7184fa1126dc174cc0ec270"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8f6d2107b7184fa1126dc174cc0ec270">&#9670;&#160;</a></span>cmp()</h2>
@@ -272,7 +273,7 @@ template&lt;typename Key , typename Value &gt; </div>
         <tr>
           <td class="memname">int <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key, Value &gt;::iterator::cmp </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1db.html#aa6414555472551bb85db668441cccfae">art_key_type</a>&#160;</td>
           <td class="paramname"><em>akey</em></td><td>)</td>
           <td> const</td>
         </tr>
@@ -284,8 +285,38 @@ template&lt;typename Key , typename Value &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Compare the given key (e.g., the to_key) to the current key in the internal buffer. </p>
+<p>Compare the given key <em>akey</em> to the current key in the internal buffer. </p>
 <dl class="section return"><dt>Returns</dt><dd>-1, 0, or 1 if this key is LT, EQ, or GT the other key. </dd></dl>
+
+</div>
+</div>
+<a id="aa6a6776f254ab54fc4ef405abd1eadf9" name="aa6a6776f254ab54fc4ef405abd1eadf9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa6a6776f254ab54fc4ef405abd1eadf9">&#9670;&#160;</a></span>dump()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key, Value &gt;::iterator::dump </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Output iterator state to stderr for debugging. </p>
+<p>Convenience wrapper for <code>dump(std::cerr)</code>. </p><dl class="section note"><dt>Note</dt><dd>For debugging purposes only, not part of stable API </dd></dl>
 
 </div>
 </div>
@@ -307,7 +338,8 @@ template&lt;typename Key , typename Value &gt; </div>
 </div><div class="memdoc">
 
 <p>Position the iterator on the first entry in the index. </p>
-<p>ART Iterator Implementation. </p>
+<p>Traverse to the left-most leaf. The stack is cleared first and then re-populated as we step down along the path to the left-most leaf.</p>
+<dl class="section return"><dt>Returns</dt><dd>Reference to this iterator </dd></dl>
 
 </div>
 </div>
@@ -353,7 +385,7 @@ template&lt;typename Key , typename Value &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">value_view <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key, Value &gt;::iterator::get_val </td>
+          <td class="memname"><a class="el" href="classunodb_1_1db.html#a9217d27d320c8d140a52bfd05031248e">value_view</a> <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key, Value &gt;::iterator::get_val </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -371,6 +403,221 @@ template&lt;typename Key , typename Value &gt; </div>
 
 </div>
 </div>
+<a id="ab9fa414f12d5d5d4a57bebb8800ca92c" name="ab9fa414f12d5d5d4a57bebb8800ca92c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab9fa414f12d5d5d4a57bebb8800ca92c">&#9670;&#160;</a></span>invalidate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1db_1_1iterator.html">iterator</a> &amp; <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key, Value &gt;::iterator::invalidate </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">private</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Invalidate iterator by clearing the stack and key buffer. </p>
+<p>After this operation, <a class="el" href="classunodb_1_1db_1_1iterator.html#af11f8c62f2367d9bfa72abff5dd847c4" title="Return true unless the stack is empty (exposed to tests).">valid()</a> returns false. </p><dl class="section return"><dt>Returns</dt><dd>Reference to this iterator </dd></dl>
+
+</div>
+</div>
+<a id="a73c3f611163534ea29ca3fb3958c97e3" name="a73c3f611163534ea29ca3fb3958c97e3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a73c3f611163534ea29ca3fb3958c97e3">&#9670;&#160;</a></span>last()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt;<a class="el" href="classunodb_1_1db_1_1iterator.html#ac92ace17e87447215c0c9d0bce25d693">::iterator</a> &amp; <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key, Value &gt;::iterator::last </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Position the iterator on the last entry in the index, which can be used to initiate a reverse traversal. </p>
+<p>Traverse to the right-most leaf. The stack is cleared first and then re-populated as we step down along the path to the right-most leaf.</p>
+<dl class="section return"><dt>Returns</dt><dd>Reference to this iterator </dd></dl>
+
+</div>
+</div>
+<a id="ab321c79625f90d6363aaaa752bf92add" name="ab321c79625f90d6363aaaa752bf92add"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab321c79625f90d6363aaaa752bf92add">&#9670;&#160;</a></span>left_most_traversal()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt;<a class="el" href="classunodb_1_1db_1_1iterator.html#ac92ace17e87447215c0c9d0bce25d693">::iterator</a> &amp; <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key, Value &gt;::iterator::left_most_traversal </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a>&#160;</td>
+          <td class="paramname"><em>node</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Descend to left-most leaf from given <em>node</em>. </p>
+<p>Pushes visited nodes onto the stack during descent, updating the key buffer to track the path taken. Used by <a class="el" href="classunodb_1_1db_1_1iterator.html#ae7140da77bdaddcb5412a67ac4dbb28d" title="Position the iterator on the first entry in the index.">first()</a>, <a class="el" href="classunodb_1_1db_1_1iterator.html#a9e51dd50dad8e7c8657f59dfa275ea38" title="Position the iterator on, before, or after the caller&#39;s key.">seek()</a> with forward traversal, and other iterator positioning operations.</p>
+<dl class="section return"><dt>Returns</dt><dd>Reference to this iterator </dd></dl>
+
+</div>
+</div>
+<a id="a25149b069bf9338b8d04117fa8f9d0cd" name="a25149b069bf9338b8d04117fa8f9d0cd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a25149b069bf9338b8d04117fa8f9d0cd">&#9670;&#160;</a></span>push()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key, Value &gt;::iterator::push </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a>&#160;</td>
+          <td class="paramname"><em>node</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::byte&#160;</td>
+          <td class="paramname"><em>key_byte</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::uint8_t&#160;</td>
+          <td class="paramname"><em>child_index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="unionunodb_1_1detail_1_1key__prefix__snapshot.html">detail::key_prefix_snapshot</a>&#160;</td>
+          <td class="paramname"><em>prefix</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Push internal node entry onto iterator stack. </p>
+<p>Updates both the stack and the key buffer to reflect descent through the given node.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">node</td><td>Internal node pointer (must not be a leaf) </td></tr>
+    <tr><td class="paramname">key_byte</td><td>Byte value along which descent occurs </td></tr>
+    <tr><td class="paramname">child_index</td><td>Index of child in node's child array </td></tr>
+    <tr><td class="paramname">prefix</td><td>Snapshot of node's key prefix </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a1199f5eb7bca7ebd78dbcea6a32596a8" name="a1199f5eb7bca7ebd78dbcea6a32596a8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1199f5eb7bca7ebd78dbcea6a32596a8">&#9670;&#160;</a></span>push_leaf()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key, Value &gt;::iterator::push_leaf </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a>&#160;</td>
+          <td class="paramname"><em>aleaf</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Push leaf entry <em>aleaf</em> onto iterator stack. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">aleaf</td><td>Leaf node pointer </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ad89770f43fc20103dc5458fa4d9cbc39" name="ad89770f43fc20103dc5458fa4d9cbc39"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad89770f43fc20103dc5458fa4d9cbc39">&#9670;&#160;</a></span>right_most_traversal()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt;<a class="el" href="classunodb_1_1db_1_1iterator.html#ac92ace17e87447215c0c9d0bce25d693">::iterator</a> &amp; <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key, Value &gt;::iterator::right_most_traversal </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a>&#160;</td>
+          <td class="paramname"><em>node</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Descend to right-most leaf from given <em>node</em>. </p>
+<p>Pushes visited nodes onto the stack during descent, updating the key buffer to track the path taken. Used by <a class="el" href="classunodb_1_1db_1_1iterator.html#a73c3f611163534ea29ca3fb3958c97e3" title="Position the iterator on the last entry in the index, which can be used to initiate a reverse travers...">last()</a>, <a class="el" href="classunodb_1_1db_1_1iterator.html#a9e51dd50dad8e7c8657f59dfa275ea38" title="Position the iterator on, before, or after the caller&#39;s key.">seek()</a> with reverse traversal, and other iterator positioning operations.</p>
+<dl class="section return"><dt>Returns</dt><dd>Reference to this iterator </dd></dl>
+
+</div>
+</div>
 <a id="a9e51dd50dad8e7c8657f59dfa275ea38" name="a9e51dd50dad8e7c8657f59dfa275ea38"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9e51dd50dad8e7c8657f59dfa275ea38">&#9670;&#160;</a></span>seek()</h2>
 
@@ -382,7 +629,7 @@ template&lt;typename Key , typename Value &gt; </div>
         <tr>
           <td class="memname"><a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt;<a class="el" href="classunodb_1_1db_1_1iterator.html#ac92ace17e87447215c0c9d0bce25d693">::iterator</a> &amp; <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key, Value &gt;::iterator::seek </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1db.html#aa6414555472551bb85db668441cccfae">art_key_type</a>&#160;</td>
           <td class="paramname"><em>search_key</em>, </td>
         </tr>
         <tr>
@@ -406,7 +653,7 @@ template&lt;typename Key , typename Value &gt; </div>
 </div><div class="memdoc">
 
 <p>Position the iterator on, before, or after the caller's key. </p>
-<p>If the iterator can not be positioned, it will be invalidated. For example, if <code>fwd:=true</code> and the <em>search_key</em> is GT any key in the index then the iterator will be invalidated since there is no index entry greater than the search key. Likewise, if <code>fwd:=false</code> and the <em>search_key</em> is LT any key in the index, then the iterator will be invalidated since there is no index entry LT the <em>search_key</em>.</p>
+<p>If the iterator can not be positioned, it will be invalidated. For example, if <em>fwd</em> is true and the <em>search_key</em> is greater than any key in the index then the iterator will be invalidated since there is no index entry greater than the search key. Likewise, if <em>fwd</em> is false and the <em>search_key</em> is less than any key in the index, then the iterator will be invalidated since there is no index entry less than the <em>search_key</em>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">search_key</td><td>The internal key used to position the iterator.</td></tr>
@@ -415,6 +662,36 @@ template&lt;typename Key , typename Value &gt; </div>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="aecb940fb56d1e59ee778a6135dc5193e" name="aecb940fb56d1e59ee778a6135dc5193e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aecb940fb56d1e59ee778a6135dc5193e">&#9670;&#160;</a></span>top()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="classunodb_1_1db_1_1iterator.html#a9166f2a1d9fcc47bc1c9f09da8806919">stack_entry</a> &amp; <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key, Value &gt;::iterator::top </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">protected</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return entry at top of stack. </p>
+<dl class="section pre"><dt>Precondition</dt><dd>Stack must not be empty </dd></dl>
 
 </div>
 </div>
@@ -441,7 +718,7 @@ template&lt;typename Key , typename Value &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>A buffer into which visited encoded (binary comparable) keys are materialized by during the iterator traversal. </p>
+<p>A buffer into which visited encoded (binary comparable) keys are materialized during the iterator traversal. </p>
 <p>Bytes are pushed onto this buffer when we push something onto the iterator stack and popped off of this buffer when we pop something off of the iterator stack. </p>
 
 </div>
@@ -469,11 +746,11 @@ template&lt;typename Key , typename Value &gt; </div>
 </div><div class="memdoc">
 
 <p>A stack reflecting the parent path from the root of the tree to the current leaf. </p>
-<p>An empty stack corresponds to a logically empty iterator and the iterator will report !valid(). The iterator for an empty tree is an empty stack.</p>
-<p>The stack is made up of (node_ptr, key, child_index) entries.</p>
-<p>The [node_ptr] is never [nullptr] and points to the internal node or leaf for that step in the path from the root to some leaf. For the bottom of the stack, [node_ptr] is the root. For the top of the stack, [node_ptr] is the current leaf. In the degenerate case where the tree is a single root leaf, then the stack contains just that leaf.</p>
-<p>The [key] is the [std::byte] along which the path descends from that [node_ptr]. The [key] has no meaning for a leaf. The key byte may be used to reconstruct the full key (along with any prefix bytes in the nodes along the path). The key byte is tracked to avoid having to search the keys of some node types (basic_inode_48) when the [child_index] does not directly imply the key byte.</p>
-<p>The [child_index] is the [std::uint8_t] index position in the parent at which the [child_ptr] was found. The [child_index] has no meaning for a leaf. In the special case of basic_inode_48, the [child_index] is the index into the [child_indexes[]]. For all other internal node types, the [child_index] is a direct index into the [children[]]. When finding the successor (or predecessor) the [child_index] needs to be interpreted according to the node type. For basic_inode_4 and basic_inode_16, you just look at the next slot in the children[] to find the successor. For basic_inode_256, you look at the next non-null slot in the children[]. basic_inode_48 is the oddest of the node types. For basic_inode_48, you have to look at the child_indexes[], find the next mapped key value greater than the current one, and then look at its entry in the children[]. </p>
+<p>An empty stack corresponds to a logically empty iterator and the iterator will report ! <a class="el" href="classunodb_1_1db_1_1iterator.html#af11f8c62f2367d9bfa72abff5dd847c4" title="Return true unless the stack is empty (exposed to tests).">valid()</a>. The iterator for an empty tree is an empty stack.</p>
+<p>The stack is made up of <code>(node_ptr, key, child_index)</code> entries.</p>
+<p>The <code>node_ptr</code> is never <code>nullptr</code> and points to the internal node or leaf for that step in the path from the root to some leaf. For the bottom of the stack, <code>node_ptr</code> is the root. For the top of the stack, <code>node_ptr</code> is the current leaf. In the degenerate case where the tree is a single root leaf, then the stack contains just that leaf.</p>
+<p>The <code>key</code> is the <code>std::byte</code> along which the path descends from that <code>node_ptr</code>. The <code>key</code> has no meaning for a leaf. The key byte may be used to reconstruct the full key (along with any prefix bytes in the nodes along the path). The key byte is tracked to avoid having to search the keys of some node types (<a class="el" href="classunodb_1_1detail_1_1inode__48.html" title="Internal node with 48 children for non-thread-safe ART.">detail::inode_48</a>) when the <code>child_index</code> does not directly imply the key byte.</p>
+<p>The <code>child_index</code> is the <code>std::uint8_t</code> index position in the parent at which the <code>child_ptr</code> was found. The <code>child_index</code> has no meaning for a leaf. In the special case of <a class="el" href="classunodb_1_1detail_1_1inode__48.html" title="Internal node with 48 children for non-thread-safe ART.">detail::inode_48</a>, the <code>child_index</code> is the index into the <code>child_indexes[]</code>. For all other internal node types, the <code>child_index</code> is a direct index into the <code>children[]</code>. When finding the successor (or predecessor) the <code>child_index</code> needs to be interpreted according to the node type. For <a class="el" href="classunodb_1_1detail_1_1inode__4.html" title="Internal node with 4 children for non-thread-safe ART.">detail::inode_4</a> and <a class="el" href="classunodb_1_1detail_1_1inode__16.html" title="Internal node with 16 children for non-thread-safe ART.">detail::inode_16</a>, you just look at the next slot in the <code>children[]</code> to find the successor. For <a class="el" href="classunodb_1_1detail_1_1inode__256.html" title="Internal node with 256 children for non-thread-safe ART.">detail::inode_256</a>, you look at the next non-null slot in the <code>children[]</code>. <a class="el" href="classunodb_1_1detail_1_1inode__48.html" title="Internal node with 48 children for non-thread-safe ART.">detail::inode_48</a> is the oddest of the node types. For it, you have to look at the <code>child_indexes[]</code>, find the next mapped key value greater than the current one, and then look at its entry in the <code>children[]</code>. </p>
 
 </div>
 </div>

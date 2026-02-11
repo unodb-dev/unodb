@@ -102,6 +102,9 @@ $(document).ready(function(){initNavTree('classunodb_1_1detail_1_1inode__256.htm
   <div class="headertitle"><div class="title">unodb::detail::inode_256&lt; Key, Value &gt; Class Template Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Internal node with 256 children for non-thread-safe ART.  
+ <a href="classunodb_1_1detail_1_1inode__256.html#details">More...</a></p>
 <div class="dynheader">
 Inheritance diagram for unodb::detail::inode_256&lt; Key, Value &gt;:</div>
 <div class="dyncontent">
@@ -116,13 +119,13 @@ Inheritance diagram for unodb::detail::inode_256&lt; Key, Value &gt;:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a05cfc901dacd2f7619c1fad166d9acf0" id="r_a05cfc901dacd2f7619c1fad166d9acf0"><td class="memTemplParams" colspan="2"><a id="a05cfc901dacd2f7619c1fad166d9acf0" name="a05cfc901dacd2f7619c1fad166d9acf0"></a>
-template&lt;typename... Args&gt; </td></tr>
-<tr class="memitem:a05cfc901dacd2f7619c1fad166d9acf0"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>add_or_choose_subtree</b> (Args &amp;&amp;... args)</td></tr>
+<tr class="memitem:a05cfc901dacd2f7619c1fad166d9acf0" id="r_a05cfc901dacd2f7619c1fad166d9acf0"><td class="memTemplParams" colspan="2">template&lt;typename... Args&gt; </td></tr>
+<tr class="memitem:a05cfc901dacd2f7619c1fad166d9acf0"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1inode__256.html#a05cfc901dacd2f7619c1fad166d9acf0">add_or_choose_subtree</a> (Args &amp;&amp;... args)</td></tr>
+<tr class="memdesc:a05cfc901dacd2f7619c1fad166d9acf0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add child or choose subtree for insertion.  <br /></td></tr>
 <tr class="separator:a05cfc901dacd2f7619c1fad166d9acf0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a375a453c685f131b6202d002f05d56ef" id="r_a375a453c685f131b6202d002f05d56ef"><td class="memTemplParams" colspan="2"><a id="a375a453c685f131b6202d002f05d56ef" name="a375a453c685f131b6202d002f05d56ef"></a>
-template&lt;typename... Args&gt; </td></tr>
-<tr class="memitem:a375a453c685f131b6202d002f05d56ef"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>remove_or_choose_subtree</b> (Args &amp;&amp;... args)</td></tr>
+<tr class="memitem:a375a453c685f131b6202d002f05d56ef" id="r_a375a453c685f131b6202d002f05d56ef"><td class="memTemplParams" colspan="2">template&lt;typename... Args&gt; </td></tr>
+<tr class="memitem:a375a453c685f131b6202d002f05d56ef"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1inode__256.html#a375a453c685f131b6202d002f05d56ef">remove_or_choose_subtree</a> (Args &amp;&amp;... args)</td></tr>
+<tr class="memdesc:a375a453c685f131b6202d002f05d56ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove child or choose subtree for removal.  <br /></td></tr>
 <tr class="separator:a375a453c685f131b6202d002f05d56ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classunodb_1_1detail_1_1basic__inode__256"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classunodb_1_1detail_1_1basic__inode__256')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html">unodb::detail::basic_inode_256&lt; ArtPolicy &gt;</a></td></tr>
 <tr class="memitem:aa2558240f2771fde3ce7ace922d8a711 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__256" id="r_aa2558240f2771fde3ce7ace922d8a711"><td class="memItemLeft" align="right" valign="top">
@@ -413,6 +416,89 @@ static constexpr <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.
 <tr class="memdesc:a309951d14c3d09aff0f0fc8be224a6e9 inherit pro_static_attribs_classunodb_1_1detail_1_1basic__inode__impl"><td class="mdescLeft">&#160;</td><td class="mdescRight">Iterator result value at the end of iteration. <br /></td></tr>
 <tr class="separator:a309951d14c3d09aff0f0fc8be224a6e9 inherit pro_static_attribs_classunodb_1_1detail_1_1basic__inode__impl"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><div class="compoundTemplParams">template&lt;typename Key, typename Value&gt;<br />
+class unodb::detail::inode_256&lt; Key, Value &gt;</div><p>Internal node with 256 children for non-thread-safe ART. </p>
+<p>Largest internal node type, used when <a class="el" href="classunodb_1_1detail_1_1inode__48.html" title="Internal node with 48 children for non-thread-safe ART.">inode_48</a> grows beyond capacity. Has direct mapping from byte values to children. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a05cfc901dacd2f7619c1fad166d9acf0" name="a05cfc901dacd2f7619c1fad166d9acf0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a05cfc901dacd2f7619c1fad166d9acf0">&#9670;&#160;</a></span>add_or_choose_subtree()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+<div class="memtemplate">
+template&lt;typename... Args&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">auto <a class="el" href="classunodb_1_1detail_1_1inode__256.html">unodb::detail::inode_256</a>&lt; Key, Value &gt;::add_or_choose_subtree </td>
+          <td>(</td>
+          <td class="paramtype">Args &amp;&amp;...&#160;</td>
+          <td class="paramname"><em>args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Add child or choose subtree for insertion. </p>
+<p>Forwards to <a class="el" href="structunodb_1_1detail_1_1impl__helpers.html#a4cc51b636b4dc263e058edbb61769148" title="Add child to internal node or choose subtree for insertion.">impl_helpers::add_or_choose_subtree</a>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">args</td><td>Arguments forwarded to <a class="el" href="structunodb_1_1detail_1_1impl__helpers.html" title="Helper functions for node insertion and removal operations.">impl_helpers</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a375a453c685f131b6202d002f05d56ef" name="a375a453c685f131b6202d002f05d56ef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a375a453c685f131b6202d002f05d56ef">&#9670;&#160;</a></span>remove_or_choose_subtree()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+<div class="memtemplate">
+template&lt;typename... Args&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">auto <a class="el" href="classunodb_1_1detail_1_1inode__256.html">unodb::detail::inode_256</a>&lt; Key, Value &gt;::remove_or_choose_subtree </td>
+          <td>(</td>
+          <td class="paramtype">Args &amp;&amp;...&#160;</td>
+          <td class="paramname"><em>args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Remove child or choose subtree for removal. </p>
+<p>Forwards to <a class="el" href="structunodb_1_1detail_1_1impl__helpers.html#ad032e3674d95560a77416547727c00cd" title="Remove child from internal node or choose subtree for removal.">impl_helpers::remove_or_choose_subtree</a>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">args</td><td>Arguments forwarded to <a class="el" href="structunodb_1_1detail_1_1impl__helpers.html" title="Helper functions for node insertion and removal operations.">impl_helpers</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="art_8hpp_source.html">art.hpp</a></li>
 </ul>

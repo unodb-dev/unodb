@@ -1,7 +1,11 @@
 var classunodb_1_1db_1_1iterator =
 [
+    [ "key_type", "classunodb_1_1db_1_1iterator.html#aa528130c72932f5e1cb4f3b442d202da", null ],
     [ "stack_entry", "classunodb_1_1db_1_1iterator.html#a9166f2a1d9fcc47bc1c9f09da8806919", null ],
+    [ "value_type", "classunodb_1_1db_1_1iterator.html#a4839e9e424e83bb670e2bef82c71255a", null ],
     [ "iterator", "classunodb_1_1db_1_1iterator.html#ac92ace17e87447215c0c9d0bce25d693", null ],
+    [ "iterator", "classunodb_1_1db_1_1iterator.html#a3b8a7300df10e9957750ed2bfe029ef0", null ],
+    [ "iterator", "classunodb_1_1db_1_1iterator.html#a183fbec499bd2aee9b4f67275fcf4099", null ],
     [ "cmp", "classunodb_1_1db_1_1iterator.html#a8f6d2107b7184fa1126dc174cc0ec270", null ],
     [ "current_node", "classunodb_1_1db_1_1iterator.html#ac0f79ce27b9b1c5efb409ffb5454b161", null ],
     [ "dump", "classunodb_1_1db_1_1iterator.html#aa6a6776f254ab54fc4ef405abd1eadf9", null ],
@@ -14,6 +18,7 @@ var classunodb_1_1db_1_1iterator =
     [ "last", "classunodb_1_1db_1_1iterator.html#a73c3f611163534ea29ca3fb3958c97e3", null ],
     [ "left_most_traversal", "classunodb_1_1db_1_1iterator.html#ab321c79625f90d6363aaaa752bf92add", null ],
     [ "next", "classunodb_1_1db_1_1iterator.html#af7d2feb5a3634d7b28153017adb46eb0", null ],
+    [ "operator=", "classunodb_1_1db_1_1iterator.html#afdf21f0d5aec971ad0e186e95b05471e", null ],
     [ "pop", "classunodb_1_1db_1_1iterator.html#abb3ea0dabfb00a6eae568cedad4c215f", null ],
     [ "prior", "classunodb_1_1db_1_1iterator.html#a7185f8a53c2a16d45bf4ddd7ca18e668", null ],
     [ "push", "classunodb_1_1db_1_1iterator.html#a52a782379325463af95a227e5f58cfea", null ],
@@ -23,6 +28,8 @@ var classunodb_1_1db_1_1iterator =
     [ "seek", "classunodb_1_1db_1_1iterator.html#a9e51dd50dad8e7c8657f59dfa275ea38", null ],
     [ "top", "classunodb_1_1db_1_1iterator.html#aecb940fb56d1e59ee778a6135dc5193e", null ],
     [ "valid", "classunodb_1_1db_1_1iterator.html#af11f8c62f2367d9bfa72abff5dd847c4", null ],
+    [ "db", "classunodb_1_1db_1_1iterator.html#afaa85f6d069fcff5be399f829fe8f1d5", null ],
+    [ "visitor", "classunodb_1_1db_1_1iterator.html#a69425d2551186ea0330b08fc394bd0f9", null ],
     [ "db_", "classunodb_1_1db_1_1iterator.html#aa094c5e39d773de49bd5466645c7f50a", null ],
     [ "keybuf_", "classunodb_1_1db_1_1iterator.html#a6396d761c7e6abb971fe1508bb4e3e38", null ],
     [ "stack_", "classunodb_1_1db_1_1iterator.html#a6653e19363aa0aaa8747510bfd1c6e30", null ]
