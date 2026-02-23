@@ -1488,9 +1488,9 @@ class [[nodiscard]] olc_inode_256 final
 using olc_inode_256_test_type = olc_inode_256<std::uint64_t, unodb::value_view>;
 // 2064 == sizeof(inode_256)
 #ifdef NDEBUG
-static_assert(sizeof(olc_inode_256_test_type) == 2064 + 8);
+static_assert(sizeof(olc_inode_256_test_type) == 2096 + 8);
 #else
-static_assert(sizeof(olc_inode_256_test_type) == 2064 + 24);
+static_assert(sizeof(olc_inode_256_test_type) == 2096 + 24);
 #endif
 
 template <typename Key, typename Value>

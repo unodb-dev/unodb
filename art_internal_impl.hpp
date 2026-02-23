@@ -2598,6 +2598,10 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   };
 
+  /// Bitmask: 1 bit per child slot. Set if slot holds a value rather
+  /// than a child pointer.  Only meaningful when value_in_slot is true.
+  std::uint8_t value_bitmask{0};
+
   /// Key bytes for child lookup.
   key_union keys;
 
@@ -3113,6 +3117,10 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     key_union() noexcept {}
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   };
+
+  /// Bitmask: 1 bit per child slot. Set if slot holds a value rather
+  /// than a child pointer.  Only meaningful when value_in_slot is true.
+  std::uint16_t value_bitmask{0};
 
   /// Key bytes for child lookup.
   key_union keys;
@@ -3667,6 +3675,11 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   /// Sentinel value for empty child slot.
   static constexpr std::uint8_t empty_child = 0xFF;
 
+  /// Bitmask: 1 bit per child slot (48 bits used). Set if slot holds a
+  /// value rather than a child pointer.  Only meaningful when
+  /// value_in_slot is true.
+  std::array<std::uint8_t, 6> value_bitmask{};
+
   /// Maps key byte to index in children array (256 entries).
   // The only way I found to initialize this array so that everyone is happy and
   // efficient. In the case of OLC, a std::fill compiles to a loop doing a
@@ -4097,6 +4110,12 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   }
 
  private:
+  /// Bitmask: 1 bit per child slot (256 bits). Set if slot holds a
+  /// value rather than a child pointer.  Only meaningful when
+  /// value_in_slot is true.  Placed before children so it resides in
+  /// the first cache line (release builds).
+  alignas(std::uint64_t) std::array<std::uint8_t, 32> value_bitmask{};
+
   /// Child pointers indexed directly by key byte.
   std::array<critical_section_policy<node_ptr>, basic_inode_256::capacity>
       children;
