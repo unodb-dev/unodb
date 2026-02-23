@@ -133,7 +133,7 @@ class db final {
   /// Result type for get operations.
   ///
   /// Contains value_view if key was found, otherwise empty.
-  using get_result = std::optional<value_view>;
+  using get_result = std::optional<value_type>;
 
   /// Base class type for internal nodes.
   using inode_base = detail::inode_base<Key, Value>;
