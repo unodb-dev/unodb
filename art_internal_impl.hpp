@@ -450,6 +450,12 @@ struct basic_art_policy final {
   /// Tree depth wrapper.
   using tree_depth_type = tree_depth<art_key_type>;
 
+  /// Whether values are stored directly in inode child slots rather than
+  /// in separate leaf nodes.  True when the value fits in a uint64_t.
+  static constexpr bool value_in_slot = (sizeof(Value) <= sizeof(std::uint64_t));
+  static_assert(sizeof(std::uintptr_t) <= sizeof(std::uint64_t),
+                "node_ptr must fit in a uint64_t slot");
+
   /// Leaf type.
   using leaf_type = basic_leaf<Key, header_type>;
 

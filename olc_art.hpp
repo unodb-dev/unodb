@@ -167,9 +167,6 @@ class olc_db final {
   using leaf_type = detail::olc_leaf_type<Key, Value>;
   using db_type = olc_db<Key, Value>;
 
-  // TODO(laurynas): added temporarily during development
-  static_assert(std::is_same_v<value_type, unodb::value_view>);
-
  private:
   using art_key_type = detail::basic_art_key<Key>;
 
