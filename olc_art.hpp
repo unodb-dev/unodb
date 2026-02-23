@@ -162,7 +162,7 @@ class olc_db final {
   /// The type of the value associated with the key in the index.
   using value_type = Value;
   using value_view = unodb::qsbr_value_view;
-  using get_result = std::optional<value_view>;
+  using get_result = std::optional<value_type>;
   using inode_base = detail::olc_inode_base<Key, Value>;
   using leaf_type = detail::olc_leaf_type<Key, Value>;
   using db_type = olc_db<Key, Value>;

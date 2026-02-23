@@ -32,7 +32,7 @@ class mutex_db final {
   /// then the second member is a locked tree mutex which must be released ASAP
   /// after reading the first pair member. Otherwise, the second member is
   /// undefined.
-  using get_result = std::pair<typename db<Key, value_view>::get_result,
+  using get_result = std::pair<typename db<Key, Value>::get_result,
                                std::unique_lock<std::mutex>>;
 
  private:
