@@ -138,9 +138,6 @@ class db final {
   /// Base class type for internal nodes.
   using inode_base = detail::inode_base<Key, Value>;
 
-  // TODO(laurynas): added temporarily during development
-  static_assert(std::is_same_v<value_type, unodb::value_view>);
-
  private:
   /// Internal encoded key type used for tree operations.
   using art_key_type = detail::basic_art_key<Key>;

@@ -35,9 +35,6 @@ class mutex_db final {
   using get_result = std::pair<typename db<Key, value_view>::get_result,
                                std::unique_lock<std::mutex>>;
 
-  // TODO(laurynas): added temporarily during development
-  static_assert(std::is_same_v<value_type, unodb::value_view>);
-
  private:
   using art_key_type = detail::basic_art_key<Key>;
 
