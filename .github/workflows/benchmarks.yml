@@ -68,7 +68,7 @@ jobs:
             benchmark_n48.json benchmark_n256.json > benchmark_results.json
 
       - name: Analyze benchmark results with Nyrkiö
-        uses: nyrkio/change-detection@v2 # zizmor: ignore[unpinned-uses]
+        uses: nyrkio/change-detection@v2.0.3-pre # zizmor: ignore[unpinned-uses]
         with:
           name: UnoDB Benchmarks (${{matrix.arch}})
           tool: "googlecpp"
