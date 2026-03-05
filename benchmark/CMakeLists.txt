@@ -88,6 +88,7 @@ function(ADD_CONCURRENT_BENCHMARK_TARGET TARGET)
 endfunction()
 
 add_benchmark_target(micro_benchmark_key_prefix)
+add_benchmark_target(micro_benchmark_key_view)
 add_node_benchmark_target(micro_benchmark_n4)
 add_node_benchmark_target(micro_benchmark_n16)
 add_node_benchmark_target(micro_benchmark_n48)
