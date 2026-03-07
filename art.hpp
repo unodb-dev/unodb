@@ -20,6 +20,8 @@
 #include <stack>
 #include <type_traits>
 
+#include <boost/container/small_vector.hpp>
+
 #include "art_common.hpp"
 #include "art_internal.hpp"
 #include "art_internal_impl.hpp"
@@ -164,11 +166,25 @@ class db final {
   /// \return true iff the key value pair was inserted.
   [[nodiscard]] bool insert_internal(art_key_type insert_key, value_type v);
 
+  /// Insert for fixed-width keys (no chain nodes needed).
+  [[nodiscard]] bool insert_internal_fixed(art_key_type insert_key,
+                                           value_type v);
+
+  /// Insert for variable-length keys (may create chain I4 nodes).
+  [[nodiscard]] bool insert_internal_key_view(art_key_type insert_key,
+                                              value_type v);
+
   /// Remove the entry associated with the encoded key \a remove_key.
   ///
   /// \return true if the delete was successful (i.e. the key was found in the
   /// tree and the associated index entry was removed).
   [[nodiscard]] bool remove_internal(art_key_type remove_key);
+
+  /// Two-pass removal with chain cleanup for variable-length keys.
+  [[nodiscard]] bool remove_internal_key_view(art_key_type remove_key);
+
+  /// Single-pass removal for fixed-width keys (no chain nodes).
+  [[nodiscard]] bool remove_internal_fixed(art_key_type remove_key);
 
  public:
   // Creation and destruction
@@ -1256,6 +1272,16 @@ bool db<Key, Value>::insert_internal(art_key_type insert_key, value_type v) {
     return true;
   }
 
+  if constexpr (std::is_same_v<Key, key_view>) {
+    return insert_internal_key_view(insert_key, v);
+  } else {
+    return insert_internal_fixed(insert_key, v);
+  }
+}
+
+template <typename Key, typename Value>
+bool db<Key, Value>::insert_internal_fixed(art_key_type insert_key,
+                                           value_type v) {
   auto* node = &root;
   tree_depth_type depth{};
   auto remaining_key{insert_key};
@@ -1269,9 +1295,6 @@ bool db<Key, Value>::insert_internal(art_key_type insert_key, value_type v) {
       if (UNODB_DETAIL_UNLIKELY(cmp == 0)) {
         return false;  // exists
       }
-      // Replace the existing leaf with a new N4 and put the existing
-      // leaf and the leaf for the caller's key and value under the
-      // new inode as its direct children.
       auto new_leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
       auto new_node{inode_4::create(*this, existing_key, remaining_key, depth,
                                     leaf, std::move(new_leaf))};
@@ -1289,10 +1312,6 @@ bool db<Key, Value>::insert_internal(art_key_type insert_key, value_type v) {
     const auto key_prefix_length{key_prefix.length()};
     const auto shared_prefix_len{key_prefix.get_shared_length(remaining_key)};
     if (shared_prefix_len < key_prefix_length) {
-      // We have reached an existing inode whose key_prefix is greater
-      // than the desired match.  We need to split this inode into a
-      // new N4 whose children are the existing inode and a new child
-      // leaf.
       auto leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
       auto new_node = inode_4::create(*this, *node, shared_prefix_len, depth,
                                       std::move(leaf));
@@ -1305,8 +1324,81 @@ bool db<Key, Value>::insert_internal(art_key_type insert_key, value_type v) {
 #endif  // UNODB_DETAIL_WITH_STATS
       return true;
     }
-    // key_prefix bytes were absorbed during the descent.  Now we need
-    // to either descend along an existing child or create a new child.
+    UNODB_DETAIL_ASSERT(shared_prefix_len == key_prefix_length);
+    depth += key_prefix_length;
+    remaining_key.shift_right(key_prefix_length);
+
+    node = inode->template add_or_choose_subtree<detail::node_ptr*>(
+        node_type, remaining_key[0], insert_key, v, *this, depth, node);
+
+    if (node == nullptr) return true;
+
+    ++depth;
+    remaining_key.shift_right(1);
+  }
+}
+
+template <typename Key, typename Value>
+bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
+                                              value_type v) {
+  auto* node = &root;
+  tree_depth_type depth{};
+  auto remaining_key{insert_key};
+
+  while (true) {
+    const auto node_type = node->type();
+    if (node_type == node_type::LEAF) {
+      auto* const leaf{node->template ptr<leaf_type*>()};
+      const auto existing_key{leaf->get_key_view()};
+      const auto cmp = insert_key.cmp(existing_key);
+      if (UNODB_DETAIL_UNLIKELY(cmp == 0)) {
+        return false;  // exists
+      }
+      constexpr auto cap = detail::key_prefix_capacity;
+      const auto remaining_existing = existing_key.subspan(depth);
+      const auto shared = detail::key_prefix_snapshot::shared_len(
+          detail::get_u64(remaining_existing), remaining_key.get_u64(), cap);
+      if (shared >= cap && remaining_existing.size() > cap &&
+          remaining_key.size() > cap &&
+          remaining_existing[cap] == remaining_key[cap]) {
+        const auto dispatch = remaining_existing[cap];
+        auto chain{inode_4::create(*this, existing_key, remaining_key, depth,
+                                   dispatch, *node)};
+        *node = detail::node_ptr{chain.release(), node_type::I4};
+#ifdef UNODB_DETAIL_WITH_STATS
+        account_growing_inode<node_type::I4>();
+#endif  // UNODB_DETAIL_WITH_STATS
+        continue;
+      }
+      auto new_leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
+      auto new_node{inode_4::create(*this, existing_key, remaining_key, depth,
+                                    leaf, std::move(new_leaf))};
+      *node = detail::node_ptr{new_node.release(), node_type::I4};
+#ifdef UNODB_DETAIL_WITH_STATS
+      account_growing_inode<node_type::I4>();
+#endif  // UNODB_DETAIL_WITH_STATS
+      return true;
+    }
+
+    UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
+
+    auto* const inode{node->template ptr<inode_type*>()};
+    const auto& key_prefix{inode->get_key_prefix()};
+    const auto key_prefix_length{key_prefix.length()};
+    const auto shared_prefix_len{key_prefix.get_shared_length(remaining_key)};
+    if (shared_prefix_len < key_prefix_length) {
+      auto leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
+      auto new_node = inode_4::create(*this, *node, shared_prefix_len, depth,
+                                      std::move(leaf));
+      *node = detail::node_ptr{new_node.release(), node_type::I4};
+#ifdef UNODB_DETAIL_WITH_STATS
+      account_growing_inode<node_type::I4>();
+      ++key_prefix_splits;
+      UNODB_DETAIL_ASSERT(growing_inode_counts[internal_as_i<node_type::I4>] >
+                          key_prefix_splits);
+#endif  // UNODB_DETAIL_WITH_STATS
+      return true;
+    }
     UNODB_DETAIL_ASSERT(shared_prefix_len == key_prefix_length);
     depth += key_prefix_length;
     remaining_key.shift_right(key_prefix_length);
@@ -1337,8 +1429,16 @@ bool db<Key, Value>::remove_internal(art_key_type remove_key) {
     return false;
   }
 
+  if constexpr (std::is_same_v<Key, key_view>) {
+    return remove_internal_key_view(remove_key);
+  } else {
+    return remove_internal_fixed(remove_key);
+  }
+}
+
+template <typename Key, typename Value>
+bool db<Key, Value>::remove_internal_fixed(art_key_type remove_key) {
   auto* node = &root;
-  tree_depth_type depth{};
   auto remaining_key{remove_key};
 
   while (true) {
@@ -1352,7 +1452,6 @@ bool db<Key, Value>::remove_internal(art_key_type remove_key) {
     if (shared_prefix_len < key_prefix_length) return false;
 
     UNODB_DETAIL_ASSERT(shared_prefix_len == key_prefix_length);
-    depth += key_prefix_length;
     remaining_key.shift_right(key_prefix_length);
 
     const auto remove_result{inode->template remove_or_choose_subtree<
@@ -1364,10 +1463,159 @@ bool db<Key, Value>::remove_internal(art_key_type remove_key) {
     if (child_ptr == nullptr) return true;
 
     node = child_ptr;
-    ++depth;
     remaining_key.shift_right(1);
   }
 }
+
+template <typename Key, typename Value>
+// MSVC C26815 false positive: ptr<>() on local node_ptr values
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
+    Key, Value>::remove_internal_key_view(art_key_type remove_key) {
+  struct stack_entry {
+    detail::node_ptr* slot;
+    std::uint8_t child_i;
+  };
+
+  boost::container::small_vector<stack_entry, 32> stack;
+  auto* slot = &root;
+  auto remaining_key{remove_key};
+
+  // --- Downward pass: find the leaf ---
+  while (true) {
+    const auto node_val = *slot;
+    const auto ntype = node_val.type();
+    UNODB_DETAIL_ASSERT(ntype != node_type::LEAF);
+
+    auto* const inode{node_val.template ptr<inode_type*>()};
+    const auto& kp{inode->get_key_prefix()};
+    const auto kp_len{kp.length()};
+    if (kp.get_shared_length(remaining_key) < kp_len) return false;
+    remaining_key.shift_right(kp_len);
+
+    const auto [child_i, child_ptr]{inode->find_child(ntype, remaining_key[0])};
+    if (child_ptr == nullptr) return false;
+
+    const auto child_val{child_ptr->load()};
+    if (child_val.type() != node_type::LEAF) {
+      stack.push_back({slot, child_i});
+      slot = detail::unwrap_fake_critical_section(child_ptr);
+      remaining_key.shift_right(1);
+      continue;
+    }
+
+    // Found a leaf — verify it matches.
+    auto* const leaf{child_val.template ptr<leaf_type*>()};
+    if (!leaf->matches(remove_key)) return false;
+
+    // --- Upward pass ---
+    const auto count = inode->get_children_count();
+
+    if (count > 1 || ntype != node_type::I4) {
+      const auto remove_result
+          UNODB_DETAIL_USED_IN_DEBUG{inode->template remove_or_choose_subtree<
+              std::optional<detail::node_ptr*>>(ntype, remaining_key[0],
+                                                remove_key, *this, slot)};
+      UNODB_DETAIL_ASSERT(remove_result.has_value());
+      UNODB_DETAIL_ASSERT(*remove_result == nullptr);
+      return true;
+    }
+
+    // Single-child inode (chain node).  Reclaim leaf and chain,
+    // then walk up cleaning any further empty chains.
+    {
+      const auto rl{art_policy::reclaim_leaf_on_scope_exit(leaf, *this)};
+    }
+    {
+      const auto ri{art_policy::make_db_inode_unique_ptr(
+          node_val.template ptr<inode_4*>(), *this)};
+    }
+#ifdef UNODB_DETAIL_WITH_STATS
+    account_shrinking_inode<node_type::I4>();
+#endif
+
+    while (!stack.empty()) {
+      const auto entry = stack.back();
+      stack.pop_back();
+      const auto parent_val = *entry.slot;
+      const auto ptype = parent_val.type();
+      auto* const pinode{parent_val.template ptr<inode_type*>()};
+      const auto pcount = pinode->get_children_count();
+
+      if (pcount == 1 && ptype == node_type::I4) {
+        {
+          const auto ri{art_policy::make_db_inode_unique_ptr(
+              parent_val.template ptr<inode_4*>(), *this)};
+        }
+#ifdef UNODB_DETAIL_WITH_STATS
+        account_shrinking_inode<node_type::I4>();
+#endif
+        continue;
+      }
+
+      if (ptype == node_type::I4 &&
+          pcount == detail::basic_inode_4<art_policy>::min_size) {
+        pinode->remove_child_entry(ptype, entry.child_i);
+        auto* const pi4{parent_val.template ptr<inode_4*>()};
+        const auto remaining_iter = pi4->begin();
+        const auto remaining = pi4->get_child(0);
+        if (remaining.type() != node_type::LEAF) {
+          auto* const remaining_inode{remaining.template ptr<inode_type*>()};
+          const auto child_prefix_len =
+              remaining_inode->get_key_prefix().length();
+          const auto parent_prefix_len = pi4->get_key_prefix().length();
+          if (child_prefix_len + parent_prefix_len + 1 >=
+              detail::key_prefix_capacity) {
+            return true;
+          }
+          remaining_inode->get_key_prefix().prepend(pi4->get_key_prefix(),
+                                                    remaining_iter.key_byte);
+        }
+        *entry.slot = remaining;
+        {
+          const auto ri{art_policy::make_db_inode_unique_ptr(pi4, *this)};
+        }
+#ifdef UNODB_DETAIL_WITH_STATS
+        account_shrinking_inode<node_type::I4>();
+#endif
+      } else if (ptype == node_type::I16 &&
+                 pcount == detail::basic_inode_16<art_policy>::min_size) {
+        auto new_node{inode_4::create(
+            *this, *parent_val.template ptr<detail::inode_16<Key, Value>*>(),
+            entry.child_i)};
+        *entry.slot = detail::node_ptr{new_node.release(), node_type::I4};
+#ifdef UNODB_DETAIL_WITH_STATS
+        account_shrinking_inode<node_type::I16>();
+#endif
+      } else if (ptype == node_type::I48 &&
+                 pcount == detail::basic_inode_48<art_policy>::min_size) {
+        auto new_node{detail::inode_16<Key, Value>::create(
+            *this, *parent_val.template ptr<detail::inode_48<Key, Value>*>(),
+            entry.child_i)};
+        *entry.slot = detail::node_ptr{new_node.release(), node_type::I16};
+#ifdef UNODB_DETAIL_WITH_STATS
+        account_shrinking_inode<node_type::I48>();
+#endif
+      } else if (ptype == node_type::I256 &&
+                 pcount == detail::basic_inode_256<art_policy>::min_size) {
+        auto new_node{detail::inode_48<Key, Value>::create(
+            *this, *parent_val.template ptr<detail::inode_256<Key, Value>*>(),
+            entry.child_i)};
+        *entry.slot = detail::node_ptr{new_node.release(), node_type::I48};
+#ifdef UNODB_DETAIL_WITH_STATS
+        account_shrinking_inode<node_type::I256>();
+#endif
+      } else {
+        pinode->remove_child_entry(ptype, entry.child_i);
+      }
+      return true;
+    }
+
+    // Stack empty — chain was the root.
+    root = nullptr;
+    return true;
+  }
+}
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 //
 // ART Iterator Implementation

@@ -475,6 +475,10 @@ class [[nodiscard]] optimistic_lock final {
 
     /// Move \a other RCS into this one.
     read_critical_section& operator=(read_critical_section&& other) noexcept {
+#ifndef NDEBUG
+      // Release the old RCS if it was still valid.
+      if (lock != nullptr) std::ignore = lock->try_read_unlock(version);
+#endif
       lock = other.lock;
       // The current implementation does not need lock == nullptr in the
       // destructor, thus only reset other.lock in debug builds
@@ -598,6 +602,9 @@ class [[nodiscard]] optimistic_lock final {
     explicit write_guard(read_critical_section&& critical_section) noexcept
         : lock{try_lock_upgrade(std::move(critical_section))} {}
 
+    /// Create an inactive write guard (no lock held).
+    write_guard() noexcept : lock{nullptr} {}
+
     /// Unlock if needed and destruct the write guard.
     ~write_guard() noexcept {
       if (lock == nullptr) return;
@@ -640,9 +647,18 @@ class [[nodiscard]] optimistic_lock final {
 #endif
 
     write_guard(const write_guard&) = delete;
-    write_guard(write_guard&&) = delete;
+    write_guard(write_guard&& other) noexcept : lock{other.lock} {
+      other.lock = nullptr;
+    }
     write_guard& operator=(const write_guard&) = delete;
-    write_guard& operator=(write_guard&&) = delete;
+    write_guard& operator=(write_guard&& other) noexcept {
+      if (this != &other) {
+        if (lock != nullptr) lock->write_unlock();
+        lock = other.lock;
+        other.lock = nullptr;
+      }
+      return *this;
+    }
 
    private:
     /// Attempt to upgrade the underlying lock of \a critical_section to

@@ -360,13 +360,8 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 find_package(Threads REQUIRED)
 
-find_package(Boost
+find_package(Boost REQUIRED
   OPTIONAL_COMPONENTS stacktrace_basic stacktrace_backtrace stacktrace_windbg)
-
-if(STATS AND NOT Boost_FOUND)
-  message(FATAL_ERROR
-    "Building with stats requires Boost, install it or use -DSTATS=OFF")
-endif()
 
 if(Boost_STACKTRACE_BACKTRACE_FOUND)
   message(STATUS "Boost.Stacktrace built with libbacktrace support, using it.")

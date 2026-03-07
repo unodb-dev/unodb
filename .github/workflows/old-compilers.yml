@@ -21,7 +21,6 @@ jobs:
     runs-on: ubuntu-22.04
 
     env:
-      BOOST: ${{matrix.BOOST}}
       BUILD_TYPE: ${{matrix.BUILD_TYPE}}
       COMPILER: ${{matrix.COMPILER}}
       VERSION: ${{matrix.VERSION}}
@@ -193,7 +192,6 @@ jobs:
             COMPILER: clang
             VERSION: 14
             STATS: OFF
-            BOOST: OFF
 
           - name: clang 14 Release with TSan
             BUILD_TYPE: Release
@@ -208,7 +206,6 @@ jobs:
             COMPILER: clang
             VERSION: 14
             STATS: OFF
-            BOOST: OFF
 
           - name: clang 14 Debug
             BUILD_TYPE: Debug
@@ -222,7 +219,6 @@ jobs:
             COMPILER: clang
             VERSION: 14
             STATS: OFF
-            BOOST: OFF
 
           - name: clang 14 Debug with TSan
             BUILD_TYPE: Debug
@@ -237,7 +233,6 @@ jobs:
             COMPILER: clang
             VERSION: 14
             STATS: OFF
-            BOOST: OFF
 
           - name: clang 15 Release
             BUILD_TYPE: Release
@@ -620,7 +615,6 @@ jobs:
             COMPILER: gcc
             VERSION: 12
             STATS: OFF
-            BOOST: OFF
 
           - name: GCC 12 Release with ASan
             BUILD_TYPE: Release
@@ -635,7 +629,6 @@ jobs:
             COMPILER: gcc
             VERSION: 12
             STATS: OFF
-            BOOST: OFF
 
           - name: GCC 12 Release with UBSan
             BUILD_TYPE: Release
@@ -649,7 +642,6 @@ jobs:
             COMPILER: gcc
             VERSION: 12
             STATS: OFF
-            BOOST: OFF
 
           - name: GCC 12 Debug with ASan
             BUILD_TYPE: Debug
@@ -664,7 +656,6 @@ jobs:
             COMPILER: gcc
             VERSION: 12
             STATS: OFF
-            BOOST: OFF
 
           - name: GCC 12 Debug with UBSan
             BUILD_TYPE: Debug
@@ -678,7 +669,6 @@ jobs:
             COMPILER: gcc
             VERSION: 13
             STATS: OFF
-            BOOST: OFF
 
           - name: GCC 13 Release with ASan
             BUILD_TYPE: Release
@@ -693,7 +683,6 @@ jobs:
             COMPILER: gcc
             VERSION: 13
             STATS: OFF
-            BOOST: OFF
 
           - name: GCC 13 Release with UBSan
             BUILD_TYPE: Release
@@ -707,7 +696,6 @@ jobs:
             COMPILER: gcc
             VERSION: 13
             STATS: OFF
-            BOOST: OFF
 
           - name: GCC 13 Debug with ASan
             BUILD_TYPE: Debug
@@ -722,7 +710,6 @@ jobs:
             COMPILER: gcc
             VERSION: 13
             STATS: OFF
-            BOOST: OFF
 
           - name: GCC 13 Debug with UBSan
             BUILD_TYPE: Debug
@@ -742,9 +729,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libc6-dev-i386
 
-      - name: Setup optional Boost
+      - name: Setup Boost
         run: sudo apt-get install -y libboost-dev
-        if: env.BOOST != 'OFF'
 
       - name: Setup LLVM 16+ repo
         run: |

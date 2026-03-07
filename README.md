@@ -36,9 +36,9 @@ platform-specific features:
 - Earliest versions of supported compilers: GCC 10, LLVM 11, Xcode 16.1,
   MSVC 2022. Open an issue if you require support for an older version.
 - CMake, at least 3.16.
-- Boost library. If building with statistics counters, then it is a mandatory
-  dependency for Boost.Accumulator. It is also an optional dependency for
-  Boost.Stacktrace.
+- Boost library. It is a mandatory dependency for Boost.Container
+  (small_vector). If building with statistics counters, Boost.Accumulator is
+  also required. Boost.Stacktrace is an optional dependency.
 
 ### Optional vendored dependencies, bundled as Git submodules
 

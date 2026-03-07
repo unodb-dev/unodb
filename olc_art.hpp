@@ -18,6 +18,8 @@
 #include <tuple>
 #include <type_traits>
 
+#include <boost/container/small_vector.hpp>
+
 #include "art_common.hpp"
 #include "art_internal.hpp"
 #include "art_internal_impl.hpp"
@@ -27,6 +29,7 @@
 #include "portability_arch.hpp"
 #include "qsbr.hpp"
 #include "qsbr_ptr.hpp"
+#include "sync.hpp"
 
 namespace unodb {
 
@@ -34,6 +37,12 @@ template <typename Key, typename Value>
 class olc_db;
 
 namespace detail {
+
+/// Sync point: fires after chain locked, before acquiring cut_point_parent.
+inline sync_point sync_after_chain_locked;
+
+/// Sync point: fires inside Step 2 loop between chain node locks.
+inline sync_point sync_between_chain_locks;
 
 /// OLC ART node header contains an unodb::optimistic_lock object for this node.
 ///
@@ -768,6 +777,9 @@ class olc_db final {
   using header_type = typename art_policy::header_type;
   using inode_type = detail::olc_inode<Key, Value>;
   using inode_4 = detail::olc_inode_4<Key, Value>;
+  using inode_16 = detail::olc_inode_16<Key, Value>;
+  using inode_48 = detail::olc_inode_48<Key, Value>;
+  using inode_256 = detail::olc_inode_256<Key, Value>;
   using tree_depth_type = detail::tree_depth<art_key_type>;
   using visitor_type = visitor<db_type::iterator>;
   using olc_db_leaf_unique_ptr_type =
@@ -781,10 +793,70 @@ class olc_db final {
 
   [[nodiscard]] try_get_result_type try_get(art_key_type k) const noexcept;
 
+  /// Single-attempt insert.
+  ///
+  /// For variable-length keys (key_view) only, two keys may share more than
+  /// key_prefix_capacity (7) bytes at a given depth, causing their dispatch
+  /// bytes to collide.  When this happens, a single-child "chain" I4 node is
+  /// created that consumes 7 prefix bytes + 1 dispatch byte, advancing depth
+  /// by 8.  The insert then restarts from the root.  Subsequent attempts
+  /// descend through the chain and either extend it (if keys still collide)
+  /// or complete a normal two-child split.
   [[nodiscard]] try_update_result_type try_insert(
       art_key_type k, value_type v, olc_db_leaf_unique_ptr_type& cached_leaf);
 
   [[nodiscard]] try_update_result_type try_remove(art_key_type k);
+
+  /// Stack entry for key_view remove traversal.
+  struct remove_entry {
+    detail::olc_node_ptr node;
+    std::uint8_t child_i;  // child index within this node we descended through
+    std::byte key_byte;    // dispatch byte used to descend FROM this node
+    version_tag_type version;
+    in_critical_section<detail::olc_node_ptr>* slot;
+  };
+  using remove_stack_type = boost::container::small_vector<remove_entry, 32>;
+
+  /// Two-pass removal with chain cleanup for variable-length keys.
+  ///
+  /// Pass 1 (downward): traverses from root to the target leaf, building
+  /// a stack of inode entries with cached versions.  Single-child I4
+  /// nodes are identified as chain members.
+  ///
+  /// Pass 2 (upward / chain cut): if the leaf is under a chain, delegates
+  /// to try_chain_cut for atomic disconnection.  Otherwise, uses the
+  /// standard remove_or_choose_subtree path.
+  [[nodiscard]] try_update_result_type try_remove_key_view(art_key_type k);
+
+  /// Atomic chain cut: remove a leaf under a chain of single-child I4 nodes.
+  ///
+  /// Locks the chain bottom-up, then atomically disconnects the entire chain
+  /// from its parent (the "cut point") in a single child-pointer update.
+  /// If a concurrent modification invalidates a chain node during locking,
+  /// the cut point is adjusted downward.  If the cut-point parent's version
+  /// has changed, the operation restarts without modifying the tree.
+  /// After the cut, the cut-point parent is shrunk or collapsed as needed
+  /// to maintain well-formedness (no single-child I4 except during chain
+  /// insert).  Disconnected nodes are reclaimed via QSBR.
+  [[nodiscard]] try_update_result_type try_chain_cut(
+      detail::olc_node_ptr chain_bottom, detail::olc_node_ptr leaf_ptr,
+      optimistic_lock::write_guard parent_guard,
+      optimistic_lock::write_guard chain_bottom_guard,
+      optimistic_lock::write_guard leaf_guard, remove_stack_type& stk,
+      std::size_t stk_n);
+
+  /// Collapse an I4 after removing one of its two children.
+  /// Removes del_ci, checks prefix overflow, and if the merge fits,
+  /// promotes the remaining child into *slot (or root if slot==nullptr).
+  /// Returns true if the I4 was collapsed and reclaimed.
+  [[nodiscard]] bool try_collapse_i4(
+      detail::olc_node_ptr i4_node, std::uint8_t del_ci,
+      in_critical_section<detail::olc_node_ptr>* slot,
+      optimistic_lock::write_guard& guard);
+
+  /// Single-pass removal for fixed-width keys (no chain nodes).
+  [[nodiscard]] try_update_result_type try_remove_fixed_width_key(
+      art_key_type k);
 
   void delete_root_subtree() noexcept;
 
@@ -1567,6 +1639,25 @@ template <typename Key, typename Value, class INode>
         std::move(*child_critical_section)};
     if (UNODB_DETAIL_UNLIKELY(child_guard.must_restart())) return {};
 
+    // For variable-length keys, check leave_last_child precondition:
+    // prefix merge must not overflow key_prefix_capacity.
+    if constexpr (std::is_same_v<Key, key_view>) {
+      const std::uint8_t child_to_leave = (child_i == 0) ? 1U : 0U;
+      const auto remaining = inode.get_child(child_to_leave);
+      if (remaining.type() != node_type::LEAF) {
+        const auto* const ri{
+            remaining
+                .template ptr<detail::olc_inode_base<Key, Value> const*>()};
+        if (ri->get_key_prefix().length() + inode.get_key_prefix().length() +
+                1 >
+            detail::key_prefix_capacity) {
+          child_guard.unlock_and_obsolete();
+          inode.remove(child_i, db_instance);
+          *child_in_parent = nullptr;
+          return true;
+        }
+      }
+    }
     auto current_node{olc_art_policy<Key, Value>::make_db_inode_reclaimable_ptr(
         &inode, db_instance)};
     node_guard.unlock_and_obsolete();
@@ -1837,6 +1928,39 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
         return false;  // exists
       }
 
+      // When the keys share more than key_prefix_capacity bytes at
+      // this depth, the dispatch bytes collide and we cannot create a
+      // two-child inode_4 directly.  Instead, create a single-child
+      // chain inode_4 and restart — the next attempt will descend
+      // through the chain and repeat until the keys diverge.
+      constexpr auto cap = detail::key_prefix_capacity;
+      const auto remaining_existing = existing_key.subspan(depth);
+      const auto shared = detail::key_prefix_snapshot::shared_len(
+          detail::get_u64(remaining_existing), remaining_key.get_u64(), cap);
+      if (shared >= cap && remaining_existing.size() > cap &&
+          remaining_key.size() > cap &&
+          remaining_existing[cap] == remaining_key[cap]) {
+        const auto dispatch = remaining_existing[cap];
+        auto chain{inode_4::create(*this, existing_key, remaining_key, depth,
+                                   dispatch, node)};
+        {
+          const optimistic_lock::write_guard parent_guard{
+              std::move(parent_critical_section)};
+          if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
+
+          const optimistic_lock::write_guard node_guard{
+              std::move(node_critical_section)};
+          if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
+
+          *node_in_parent =
+              detail::olc_node_ptr{chain.release(), node_type::I4};
+        }
+#ifdef UNODB_DETAIL_WITH_STATS
+        account_growing_inode<node_type::I4>();
+#endif              // UNODB_DETAIL_WITH_STATS
+        return {};  // restart to descend through the new chain node
+      }
+
       create_leaf_if_needed(cached_leaf, k, v, *this);
       auto new_node{inode_4::create(*this, existing_key, remaining_key, depth)};
 
@@ -1939,6 +2063,210 @@ bool olc_db<Key, Value>::remove_internal(art_key_type remove_key) {
 template <typename Key, typename Value>
 typename olc_db<Key, Value>::try_update_result_type
 olc_db<Key, Value>::try_remove(art_key_type k) {
+  if constexpr (std::is_same_v<Key, key_view>) {
+    return try_remove_key_view(k);
+  } else {
+    return try_remove_fixed_width_key(k);
+  }
+}
+
+template <typename Key, typename Value>
+typename olc_db<Key, Value>::try_update_result_type
+olc_db<Key, Value>::try_remove_key_view(art_key_type k) {
+  auto parent_critical_section = root_pointer_lock.try_read_lock();
+  if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) {
+    // LCOV_EXCL_START
+    spin_wait_loop_body();
+    return {};
+    // LCOV_EXCL_STOP
+  }
+
+  auto node{root.load()};
+
+  if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) {
+    // LCOV_EXCL_START
+    spin_wait_loop_body();
+    return {};
+    // LCOV_EXCL_STOP
+  }
+
+  if (UNODB_DETAIL_UNLIKELY(node == nullptr)) return false;
+
+  auto node_critical_section = node_ptr_lock(node).try_read_lock();
+  if (UNODB_DETAIL_UNLIKELY(node_critical_section.must_restart())) {
+    // LCOV_EXCL_START
+    spin_wait_loop_body();
+    return {};
+    // LCOV_EXCL_STOP
+  }
+
+  auto node_type = node.type();
+
+  if (node_type == node_type::LEAF) {
+    auto* const leaf{node.template ptr<leaf_type*>()};
+    if (leaf->matches(k)) {
+      const optimistic_lock::write_guard parent_guard{
+          std::move(parent_critical_section)};
+      // Do not call spin_wait_loop_body from this point on - assume
+      // the above took enough time.
+      if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
+
+      optimistic_lock::write_guard node_guard{std::move(node_critical_section)};
+      if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
+
+      node_guard.unlock_and_obsolete();
+
+      const auto r{art_policy::reclaim_leaf_on_scope_exit(leaf, *this)};
+      root = detail::olc_node_ptr{nullptr};
+      return true;
+    }
+
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+      return {};  // LCOV_EXCL_LINE
+
+    return false;
+  }
+
+  auto* node_in_parent{&root};
+  tree_depth_type depth{};
+  auto remaining_key{k};
+
+  remove_stack_type stk;
+  std::size_t stk_n = 0;
+
+  while (true) {
+    UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
+
+    auto* const inode{node.template ptr<inode_type*>()};
+    const auto& key_prefix{inode->get_key_prefix()};
+    const auto key_prefix_length{key_prefix.length()};
+    const auto shared_prefix_length{
+        key_prefix.get_shared_length(remaining_key)};
+
+    if (shared_prefix_length < key_prefix_length) {
+      if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+        return {};  // LCOV_EXCL_LINE
+      if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+        return {};  // LCOV_EXCL_LINE
+      return false;
+    }
+
+    UNODB_DETAIL_ASSERT(shared_prefix_length == key_prefix_length);
+    depth += key_prefix_length;
+    remaining_key.shift_right(key_prefix_length);
+
+    // --- Chain I4 detection ---
+    if (node_type == node_type::I4 && inode->get_children_count() == 1) {
+      const auto [ci, cp]{inode->find_child(node_type, remaining_key[0])};
+      if (cp == nullptr) {
+        // LCOV_EXCL_START — single-child I4: if the prefix matched,
+        // the dispatch byte is determined by the shared key bytes, so
+        // find_child always succeeds.  nullptr only via concurrent race.
+        if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+          return {};
+        if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+          return {};
+        return false;
+        // LCOV_EXCL_STOP
+      }
+      const auto cv{cp->load()};
+      if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return {};
+
+      if (cv.type() == node_type::LEAF) {
+        // Leaf under chain I4.  Verify match.
+        UNODB_DETAIL_DISABLE_MSVC_WARNING(26462)
+        const auto* const leaf{cv.template ptr<leaf_type*>()};
+        UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+        if (!leaf->matches(k)) {
+          if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+            return {};  // LCOV_EXCL_LINE
+          if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+            return {};  // LCOV_EXCL_LINE
+          return false;
+        }
+
+        // Write-lock parent, chain, and leaf.
+        optimistic_lock::write_guard pg{std::move(parent_critical_section)};
+        if (UNODB_DETAIL_UNLIKELY(pg.must_restart())) return {};
+        optimistic_lock::write_guard ng{std::move(node_critical_section)};
+        if (UNODB_DETAIL_UNLIKELY(ng.must_restart())) return {};
+        auto lcs = node_ptr_lock(cv).try_read_lock();
+        if (UNODB_DETAIL_UNLIKELY(lcs.must_restart())) return {};
+        optimistic_lock::write_guard lg{std::move(lcs)};
+        if (UNODB_DETAIL_UNLIKELY(lg.must_restart())) return {};
+
+        // ============================================================
+        return try_chain_cut(node, cv, std::move(pg), std::move(ng),
+                             std::move(lg), stk, stk_n);
+      }
+
+      // Chain child is not a leaf — push and descend.
+      stk.push_back({node, ci, remaining_key[0], node_critical_section.get(),
+                     node_in_parent});
+      ++stk_n;
+
+      auto ccs = node_ptr_lock(cv).try_read_lock();
+      if (UNODB_DETAIL_UNLIKELY(ccs.must_restart())) return {};
+
+      parent_critical_section = std::move(node_critical_section);
+      node = cv;
+      node_in_parent = cp;
+      node_critical_section = std::move(ccs);
+      node_type = cv.type();
+      ++depth;
+      remaining_key.shift_right(1);
+      if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) return {};
+      continue;
+    }
+
+    // --- Non-chain: delegate to existing remove_or_choose_subtree ---
+    // Capture stack entry BEFORE remove_or_choose_subtree consumes
+    // the critical sections (it may move them into write guards).
+    const auto pre_version = node_critical_section.get();
+    const auto pre_key_byte = remaining_key[0];
+    const auto [pre_ci, pre_cp]{inode->find_child(node_type, remaining_key[0])};
+
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26494)
+    in_critical_section<detail::olc_node_ptr>* child_in_parent;
+    enum node_type child_type;
+    detail::olc_node_ptr child;
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+    optimistic_lock::read_critical_section child_critical_section;
+
+    const auto opt_remove_result{
+        inode->template remove_or_choose_subtree<std::optional<bool>>(
+            node_type, remaining_key[0], k, *this, parent_critical_section,
+            node_critical_section, node_in_parent, &child_in_parent,
+            &child_critical_section, &child_type, &child)};
+
+    if (UNODB_DETAIL_UNLIKELY(!opt_remove_result)) return {};
+
+    if (const auto remove_result{*opt_remove_result}; !remove_result)
+      return false;
+
+    if (child_in_parent == nullptr) return true;
+
+    // Push stack entry for the non-chain node we just traversed.
+    if (pre_cp != nullptr) {
+      stk.push_back({node, pre_ci, pre_key_byte, pre_version, node_in_parent});
+      ++stk_n;
+    }
+
+    parent_critical_section = std::move(node_critical_section);
+    node = child;
+    node_in_parent = child_in_parent;
+    node_critical_section = std::move(child_critical_section);
+    node_type = child_type;
+
+    ++depth;
+    remaining_key.shift_right(1);
+  }
+}
+
+template <typename Key, typename Value>
+typename olc_db<Key, Value>::try_update_result_type
+olc_db<Key, Value>::try_remove_fixed_width_key(art_key_type k) {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
   if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) {
     // LCOV_EXCL_START
@@ -2019,12 +2347,9 @@ olc_db<Key, Value>::try_remove(art_key_type k) {
     depth += key_prefix_length;
     remaining_key.shift_right(key_prefix_length);
 
-    UNODB_DETAIL_DISABLE_MSVC_WARNING(26494)
-    in_critical_section<detail::olc_node_ptr>* child_in_parent;
-    enum node_type child_type;
-    detail::olc_node_ptr child;
-    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-
+    in_critical_section<detail::olc_node_ptr>* child_in_parent{nullptr};
+    enum node_type child_type {};
+    detail::olc_node_ptr child{nullptr};
     optimistic_lock::read_critical_section child_critical_section;
 
     const auto opt_remove_result{
@@ -2759,6 +3084,279 @@ void olc_db<Key, Value>::dump() const {
 }
 // LCOV_EXCL_STOP
 
+template <typename Key, typename Value>
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
+bool olc_db<Key, Value>::try_collapse_i4(
+    detail::olc_node_ptr i4_node, std::uint8_t del_ci,
+    in_critical_section<detail::olc_node_ptr>* slot,
+    optimistic_lock::write_guard& guard) {
+  auto* const i4{i4_node.template ptr<inode_4*>()};
+  i4->remove_child_entry(del_ci);
+  const auto rem_iter = i4->begin();
+  const auto rem = i4->get_child(0);
+  if (rem.type() != node_type::LEAF) {
+    auto* const ri{rem.template ptr<inode_type*>()};
+    if (ri->get_key_prefix().length() + i4->get_key_prefix().length() + 1 >
+        detail::key_prefix_capacity) {
+      return false;  // prefix overflow — leave as single-child I4
+    }
+    ri->get_key_prefix().prepend(i4->get_key_prefix(), rem_iter.key_byte);
+  }
+  if (slot != nullptr)
+    *slot = rem;
+  else
+    root = rem;
+  guard.unlock_and_obsolete();
+  {
+    const auto r{
+        art_policy::template make_db_inode_reclaimable_ptr<inode_4>(i4, *this)};
+  }
+#ifdef UNODB_DETAIL_WITH_STATS
+  account_shrinking_inode<node_type::I4>();
+#endif
+  return true;
+}
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+template <typename Key, typename Value>
+typename olc_db<Key, Value>::try_update_result_type
+olc_db<Key, Value>::try_chain_cut(
+    detail::olc_node_ptr chain_bottom, detail::olc_node_ptr leaf_ptr,
+    optimistic_lock::write_guard parent_guard,
+    optimistic_lock::write_guard chain_bottom_guard,
+    optimistic_lock::write_guard leaf_guard, remove_stack_type& stk,
+    std::size_t stk_n) {
+  auto* const leaf{leaf_ptr.template ptr<detail::olc_leaf_type<Key, Value>*>()};
+  // Atomic Chain Cut — remove leaf under a single-child chain I4.
+  // Parameters are self-documenting; chain_bottom is NOT on the stack.
+  //
+  // Stack entry semantics (same as iterator):
+  //   stk[i].child_i  = child index within stk[i] for descent
+  //   stk[i].key_byte = dispatch byte used FROM stk[i] to stk[i+1]
+  // ============================================================
+
+  // --- Identify chain_top ---
+  std::size_t chain_top = stk_n;  // = no chain on stack
+  if (stk_n > 0) {
+    const auto& top_e = stk[stk_n - 1];
+    if (top_e.node.type() == node_type::I4 &&
+        top_e.node.template ptr<inode_type*>()->get_children_count() == 1) {
+      chain_top = stk_n - 1;
+      while (chain_top > 0) {
+        const auto& e = stk[chain_top - 1];
+        if (e.node.type() != node_type::I4) break;
+        if (e.node.template ptr<inode_type*>()->get_children_count() != 1)
+          break;
+        --chain_top;
+      }
+    }
+  }
+
+  // --- Step 2: Lock the chain bottom-up ---
+  boost::container::small_vector<optimistic_lock::write_guard, 16> chain_guards;
+  std::size_t cut_level = stk_n;
+
+  if (stk_n > 0 && chain_top < stk_n) {
+    chain_guards.push_back(std::move(parent_guard));
+    cut_level = stk_n - 1;
+    detail::sync(detail::sync_between_chain_locks);
+
+    for (std::size_t i = stk_n - 2; i + 1 > chain_top && i < stk_n; --i) {
+      const auto& entry = stk[i];
+      auto rcs = node_ptr_lock(entry.node).rehydrate_read_lock(entry.version);
+      if (UNODB_DETAIL_UNLIKELY(!rcs.check())) {
+        rcs = node_ptr_lock(entry.node).try_read_lock();
+        if (UNODB_DETAIL_UNLIKELY(rcs.must_restart())) break;
+        const auto etype = entry.node.type();
+        const auto ecount =
+            entry.node.template ptr<inode_type*>()->get_children_count();
+        if (UNODB_DETAIL_UNLIKELY(!rcs.check())) break;
+        if (!(etype == node_type::I4 && ecount == 1)) break;
+      }
+      optimistic_lock::write_guard wg{std::move(rcs)};
+      if (UNODB_DETAIL_UNLIKELY(wg.must_restart())) break;
+      chain_guards.push_back(std::move(wg));
+      cut_level = i;
+    }
+  }
+
+  detail::sync(detail::sync_after_chain_locked);
+
+  // --- Step 3: Acquire the cut_point_parent ---
+  optimistic_lock::write_guard cpp_guard;
+
+  if (chain_top >= stk_n) {
+    cpp_guard = std::move(parent_guard);
+  } else {
+    for (;;) {
+      if (cut_level == 0) {
+        auto rcs = root_pointer_lock.try_read_lock();
+        if (UNODB_DETAIL_UNLIKELY(rcs.must_restart())) return {};
+        cpp_guard = optimistic_lock::write_guard{std::move(rcs)};
+        if (UNODB_DETAIL_UNLIKELY(cpp_guard.must_restart())) return {};
+        break;
+      }
+      const auto& pe = stk[cut_level - 1];
+      auto rcs = node_ptr_lock(pe.node).rehydrate_read_lock(pe.version);
+      if (!rcs.check()) {
+        rcs = node_ptr_lock(pe.node).try_read_lock();
+        if (UNODB_DETAIL_UNLIKELY(rcs.must_restart())) return {};
+      }
+      auto* const pi{pe.node.template ptr<inode_type*>()};
+      const auto ptype = pe.node.type();
+      const auto pcount = pi->get_children_count();
+      const auto [pci, pcp]{pi->find_child(ptype, stk[cut_level - 1].key_byte)};
+      if (UNODB_DETAIL_UNLIKELY(!rcs.check())) continue;
+      if (pcp == nullptr || pcp->load() != stk[cut_level].node)
+        return {};  // Child gone, restart.
+
+      // LCOV_EXCL_START — Case B: a chain_bottom that was multi-child during
+      // the downward pass became single-child due to a concurrent
+      // remove.  Extend the chain by locking it.
+      if (ptype == node_type::I4 && pcount == 1) {
+        optimistic_lock::write_guard wg{std::move(rcs)};
+        if (UNODB_DETAIL_UNLIKELY(wg.must_restart())) continue;
+        chain_guards.push_back(std::move(wg));
+        --cut_level;
+        continue;
+      }
+      // LCOV_EXCL_STOP
+      cpp_guard = optimistic_lock::write_guard{std::move(rcs)};
+      if (UNODB_DETAIL_UNLIKELY(cpp_guard.must_restart())) continue;
+      break;
+    }
+  }
+
+  // --- Step 4.1: Pre-acquire grandparent if shrinkage needed ---
+  const bool cpp_is_root =
+      (cut_level == 0) || (chain_top >= stk_n && stk_n == 0);
+  const std::size_t cpp_idx = cpp_is_root ? 0 : (cut_level - 1);
+
+  bool needs_shrink = false;
+  optimistic_lock::write_guard gp_guard;
+
+  if (!cpp_is_root) {
+    const auto& cpe = stk[cpp_idx];
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26462)
+    auto* const cpi{cpe.node.template ptr<inode_type*>()};
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+    const auto cpt = cpe.node.type();
+    const auto cpc = cpi->get_children_count();
+
+    needs_shrink = (cpt == node_type::I4 && cpc <= 2) ||
+                   (cpt == node_type::I16 &&
+                    cpc == detail::basic_inode_16<art_policy>::min_size) ||
+                   (cpt == node_type::I48 &&
+                    cpc == detail::basic_inode_48<art_policy>::min_size) ||
+                   (cpt == node_type::I256 &&
+                    cpc == detail::basic_inode_256<art_policy>::min_size);
+
+    if (needs_shrink) {
+      if (cpp_idx >= 1) {
+        const auto& gpe = stk[cpp_idx - 1];
+        auto gp_rcs = node_ptr_lock(gpe.node).rehydrate_read_lock(gpe.version);
+        if (UNODB_DETAIL_UNLIKELY(!gp_rcs.check())) return {};
+        gp_guard = optimistic_lock::write_guard{std::move(gp_rcs)};
+        if (UNODB_DETAIL_UNLIKELY(gp_guard.must_restart())) return {};
+      } else {
+        auto rcs = root_pointer_lock.try_read_lock();
+        if (UNODB_DETAIL_UNLIKELY(rcs.must_restart())) return {};
+        gp_guard = optimistic_lock::write_guard{std::move(rcs)};
+        if (UNODB_DETAIL_UNLIKELY(gp_guard.must_restart())) return {};
+      }
+    }
+  }
+
+  // --- Step 4.2: Point of no return — cut and shrink ---
+  if (cpp_is_root) {
+    root = detail::olc_node_ptr{nullptr};
+  } else {
+    const auto& cpe = stk[cpp_idx];
+    auto* const cpi{cpe.node.template ptr<inode_type*>()};
+    const auto cpt = cpe.node.type();
+
+    const std::uint8_t del_ci = (chain_top >= stk_n)
+                                    ? stk[cpp_idx].child_i
+                                    : stk[cut_level - 1].child_i;
+
+    if (!needs_shrink) {
+      cpi->remove_child_entry(cpt, del_ci);
+    } else if (cpt == node_type::I4) {
+      // I4 collapse: remove entry, promote remaining child if
+      // prefix merge fits.
+      auto* slot = (cpp_idx >= 1) ? cpe.slot : nullptr;
+      std::ignore = try_collapse_i4(cpe.node, del_ci, slot, cpp_guard);
+    } else {
+      // I16/I48/I256 shrink via shrink constructors.
+      UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
+      detail::olc_node_ptr replacement{};
+      if (cpt == node_type::I16) {
+        auto* const src = cpe.node.template ptr<inode_16*>();
+        auto s{inode_4::create(*this, *src)};
+        s->init(*this, *src, cpp_guard, del_ci, chain_bottom_guard);
+        replacement = detail::olc_node_ptr{s.release(), node_type::I4};
+      } else if (cpt == node_type::I48) {
+        auto* const src = cpe.node.template ptr<inode_48*>();
+        auto s{inode_16::create(*this, *src)};
+        s->init(*this, *src, cpp_guard, del_ci, chain_bottom_guard);
+        replacement = detail::olc_node_ptr{s.release(), node_type::I16};
+      } else {
+        UNODB_DETAIL_ASSERT(cpt == node_type::I256);
+        auto* const src = cpe.node.template ptr<inode_256*>();
+        auto s{inode_48::create(*this, *src)};
+        s->init(*this, *src, cpp_guard, del_ci, chain_bottom_guard);
+        replacement = detail::olc_node_ptr{s.release(), node_type::I48};
+      }
+      UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+      if (cpp_idx >= 1)
+        *cpe.slot = replacement;
+      else
+        root = replacement;
+#ifdef UNODB_DETAIL_WITH_STATS
+      if (cpt == node_type::I16)
+        account_shrinking_inode<node_type::I16>();
+      else if (cpt == node_type::I48)
+        account_shrinking_inode<node_type::I48>();
+      else
+        account_shrinking_inode<node_type::I256>();
+#endif
+    }
+  }
+
+  // --- Step 4.4: Reclaim leaf and chain nodes ---
+  leaf_guard.unlock_and_obsolete();
+  {
+    const auto r{art_policy::reclaim_leaf_on_scope_exit(leaf, *this)};
+  }
+
+  // chain_bottom_guard may have been consumed by init() in the shrink path.
+  // must_restart() returns true when the guard is inactive (no lock).
+  if (!chain_bottom_guard.must_restart()) {
+    chain_bottom_guard.unlock_and_obsolete();
+  }
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) {
+    const auto r{art_policy::template make_db_inode_reclaimable_ptr<inode_4>(
+        chain_bottom.template ptr<inode_4*>(), *this)};
+  }
+#ifdef UNODB_DETAIL_WITH_STATS
+  account_shrinking_inode<node_type::I4>();
+#endif
+
+  for (std::size_t gi = 0; gi < chain_guards.size(); ++gi) {
+    const std::size_t si = (stk_n - 1) - gi;
+    chain_guards[gi].unlock_and_obsolete();
+    {
+      const auto r{art_policy::template make_db_inode_reclaimable_ptr<inode_4>(
+          stk[si].node.template ptr<inode_4*>(), *this)};
+    }
+#ifdef UNODB_DETAIL_WITH_STATS
+    account_shrinking_inode<node_type::I4>();
+#endif
+  }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+  return true;
+}
 }  // namespace unodb
 
 #endif  // UNODB_DETAIL_OLC_ART_HPP

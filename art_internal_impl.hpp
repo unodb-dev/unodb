@@ -236,8 +236,8 @@ class [[nodiscard]] basic_leaf final : public Header {
   /// Dump leaf contents to stream for debugging.
   ///
   /// \param os Output stream
-  [[gnu::cold]]
-  UNODB_DETAIL_NOINLINE void dump(std::ostream& os, bool /*recursive*/) const {
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream& os,
+                                                bool /*recursive*/) const {
     os << ", ";
     ::unodb::detail::dump_key(os, get_key_view());
     os << ", ";
@@ -528,6 +528,26 @@ struct basic_art_policy final {
       leaf_type* leaf UNODB_DETAIL_LIFETIMEBOUND,
       db_type& db_instance UNODB_DETAIL_LIFETIMEBOUND) noexcept {
     return leaf_reclaimable_ptr{leaf, LeafReclamator<db_type>{db_instance}};
+  }
+
+  /// Reclaim a child node if it is a leaf; ignore if it is an inode.
+  ///
+  /// Used by shrink constructors where the deleted child may be a
+  /// dead chain inode (already freed) rather than a leaf.  The type
+  /// tag is embedded in the pointer value, so checking type() is safe
+  /// even if the pointed-to memory has been freed.
+  ///
+  /// \param child Tagged node pointer to conditionally reclaim
+  /// \param db_instance Database for memory reclamation
+  /// \return Reclaimable pointer (no-op if child is not a leaf)
+  [[nodiscard]] static auto reclaim_if_leaf(
+      node_ptr child,
+      db_type& db_instance UNODB_DETAIL_LIFETIMEBOUND) noexcept {
+    if (child.type() == node_type::LEAF) {
+      return leaf_reclaimable_ptr{child.template ptr<leaf_type*>(),
+                                  LeafReclamator<db_type>{db_instance}};
+    }
+    return leaf_reclaimable_ptr{nullptr, LeafReclamator<db_type>{db_instance}};
   }
 
   /// Create new internal node.
@@ -830,8 +850,12 @@ union [[nodiscard]] key_prefix_snapshot {
     return f.key_prefix[i];
   }
 
- private:
-  /// Compute shared prefix length between two 64-bit values.
+  /// Compute shared prefix length between two 64-bit key values.
+  ///
+  /// \param k1 First key as u64 (from get_u64)
+  /// \param k2 Second key as u64 (from get_u64)
+  /// \param clamp_byte_pos Maximum prefix length to consider
+  /// \return Number of leading bytes in common (at most \a clamp_byte_pos)
   [[nodiscard, gnu::const]] static constexpr unsigned shared_len(
       std::uint64_t k1, std::uint64_t k2, unsigned clamp_byte_pos) noexcept {
     UNODB_DETAIL_ASSERT(clamp_byte_pos < 8);
@@ -1297,6 +1321,33 @@ class basic_inode_impl : public ArtPolicy::header_type {
     // LCOV_EXCL_STOP
   }
 
+  /// Remove child entry without reclaiming the child, dispatching by type.
+  ///
+  /// \param type Current node type
+  /// \param child_index Child index to remove
+  constexpr void remove_child_entry(node_type type,
+                                    std::uint8_t child_index) noexcept {
+    switch (type) {
+      case node_type::I4:
+        static_cast<inode4_type*>(this)->remove_child_entry(child_index);
+        return;
+      case node_type::I16:
+        static_cast<inode16_type*>(this)->remove_child_entry(child_index);
+        return;
+      case node_type::I48:
+        static_cast<inode48_type*>(this)->remove_child_entry(child_index);
+        return;
+      case node_type::I256:
+        static_cast<inode256_type*>(this)->remove_child_entry(child_index);
+        return;
+        // LCOV_EXCL_START
+      case node_type::LEAF:
+        UNODB_DETAIL_CANNOT_HAPPEN();
+    }
+    UNODB_DETAIL_CANNOT_HAPPEN();
+    // LCOV_EXCL_STOP
+  }
+
   /// Return child node at specified child index.
   ///
   /// \param type Current node type
@@ -1678,6 +1729,23 @@ class [[nodiscard]] basic_inode : public basic_inode_impl<ArtPolicy> {
     // node optimistically in the case of OLC.
     UNODB_DETAIL_ASSERT(is_full_for_add());
   }
+
+  /// Tag type to select the single-child chain constructor.
+  struct single_child_tag {};
+
+  /// Construct single-child node with prefix from two identical keys.
+  ///
+  /// Used to create chain nodes when keys share more than
+  /// key_prefix_capacity bytes. The prefix is computed from the keys
+  /// at the given depth, and children_count is set to 1.
+  ///
+  /// \param k1 First key for prefix computation
+  /// \param shifted_k2 Second key shifted to current depth
+  /// \param depth Current tree depth
+  constexpr basic_inode(unodb::key_view k1, art_key_type shifted_k2,
+                        tree_depth<art_key_type> depth,
+                        single_child_tag) noexcept
+      : parent{1, k1, shifted_k2, depth} {}
 };
 
 /// Type alias for basic_inode_4 parent class.
@@ -1787,6 +1855,27 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     init(db_instance, source_node, child_to_delete);
   }
 
+  /// Construct single-child chain node for long shared prefixes.
+  ///
+  /// Creates an inode_4 with one child, used when two keys share more
+  /// than key_prefix_capacity bytes. The prefix is the first 7 bytes
+  /// of the key at \a depth, and the single child is placed under
+  /// \a key_byte.
+  ///
+  /// \param k1 Key for prefix computation
+  /// \param remaining_key Same key shifted to current depth
+  /// \param depth Current tree depth
+  /// \param key_byte Dispatch byte for the single child
+  /// \param child The single child node
+  constexpr basic_inode_4(db_type&, key_view k1, art_key_type remaining_key,
+                          // cppcheck-suppress passedByValue
+                          tree_depth_type depth, std::byte key_byte,
+                          node_ptr child) noexcept
+      : parent_class{k1, remaining_key, depth,
+                     typename parent_class::single_child_tag{}} {
+    init(key_byte, child);
+  }
+
   /// \}
 
   /// \name Initialization methods
@@ -1836,8 +1925,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
       *children_itr++ = *source_children_itr++;
     }
 
-    const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
-        source_children_itr->load().template ptr<leaf_type*>(), db_instance)};
+    const auto r{
+        ArtPolicy::reclaim_if_leaf(source_children_itr->load(), db_instance)};
 
     ++source_keys_itr;
     ++source_children_itr;
@@ -1870,6 +1959,22 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     const auto k1_next_byte_depth = k2_next_byte_depth + depth;
     add_two_to_empty(k1[k1_next_byte_depth], node_ptr{child1, node_type::LEAF},
                      shifted_k2[k2_next_byte_depth], std::move(child2));
+  }
+
+  /// Initialize single-child node.
+  ///
+  /// \param key_byte Dispatch byte for the child
+  /// \param child The single child node
+  constexpr void init(std::byte key_byte, node_ptr child) noexcept {
+    UNODB_DETAIL_ASSERT(this->children_count == 1);
+
+    keys.byte_array[0] = key_byte;
+    children[0] = child;
+#ifndef UNODB_DETAIL_X86_64
+    keys.byte_array[1] = unused_key_byte;
+    keys.byte_array[2] = unused_key_byte;
+    keys.byte_array[3] = unused_key_byte;
+#endif
   }
 
   /// \}
@@ -1930,14 +2035,26 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
   constexpr void remove(std::uint8_t child_index,
                         db_type& db_instance) noexcept {
+    UNODB_DETAIL_ASSERT(child_index < this->children_count.load());
+
+    const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
+        children[child_index].load().template ptr<leaf_type*>(), db_instance)};
+
+    remove_child_entry(child_index);
+  }
+
+  /// Remove child entry without reclaiming the child.
+  ///
+  /// Used during upward walk to remove empty chain inodes from their
+  /// parent.  The caller is responsible for reclaiming the child.
+  ///
+  /// \param child_index Index of child to remove
+  constexpr void remove_child_entry(std::uint8_t child_index) noexcept {
     auto children_count_ = this->children_count.load();
 
     UNODB_DETAIL_ASSERT(child_index < children_count_);
     UNODB_DETAIL_ASSERT(std::is_sorted(
         keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
-
-    const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
-        children[child_index].load().template ptr<leaf_type*>(), db_instance)};
 
     typename decltype(keys.byte_array)::size_type i = child_index;
     for (; i < static_cast<unsigned>(children_count_ - 1); ++i) {
@@ -2484,13 +2601,22 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
   constexpr void remove(std::uint8_t child_index,
                         db_type& db_instance) noexcept {
+    UNODB_DETAIL_ASSERT(child_index < this->children_count.load());
+
+    const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
+        children[child_index].load().template ptr<leaf_type*>(), db_instance)};
+
+    remove_child_entry(child_index);
+  }
+
+  /// Remove child entry without reclaiming the child.
+  ///
+  /// \param child_index Index of child to remove
+  constexpr void remove_child_entry(std::uint8_t child_index) noexcept {
     auto children_count_ = this->children_count.load();
     UNODB_DETAIL_ASSERT(child_index < children_count_);
     UNODB_DETAIL_ASSERT(std::is_sorted(
         keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
-
-    const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
-        children[child_index].load().template ptr<leaf_type*>(), db_instance)};
 
     for (unsigned i = child_index + 1U; i < children_count_; ++i) {
       keys.byte_array[i - 1] = keys.byte_array[i];
@@ -2883,9 +3009,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     const auto reclaim_source_node{
         ArtPolicy::template make_db_inode_reclaimable_ptr<inode256_type>(
             &source_node, db_instance)};
-    const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
-        source_node.children[child_to_delete].load().template ptr<leaf_type*>(),
-        db_instance)};
+    const auto r{ArtPolicy::reclaim_if_leaf(
+        source_node.children[child_to_delete].load(), db_instance)};
 
     source_node.children[child_to_delete] = node_ptr{nullptr};
 
@@ -3043,6 +3168,13 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   constexpr void remove(std::uint8_t child_index,
                         db_type& db_instance) noexcept {
     remove_child_pointer(child_index, db_instance);
+    remove_child_entry(child_index);
+  }
+
+  /// Remove child entry without reclaiming the child.
+  ///
+  /// \param child_index Key byte of child to remove
+  constexpr void remove_child_entry(std::uint8_t child_index) noexcept {
     children.pointer_array[child_indexes[child_index]] = node_ptr{nullptr};
     child_indexes[child_index] = empty_child;
     --this->children_count;
@@ -3286,9 +3418,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
                                              db_type& db_instance) noexcept {
     UNODB_DETAIL_ASSERT(children_i != empty_child);
 
-    const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
-        children.pointer_array[children_i].load().template ptr<leaf_type*>(),
-        db_instance)};
+    const auto r{ArtPolicy::reclaim_if_leaf(
+        children.pointer_array[children_i].load(), db_instance)};
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
@@ -3515,6 +3646,13 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
         children[child_index].load().template ptr<leaf_type*>(), db_instance)};
 
+    remove_child_entry(child_index);
+  }
+
+  /// Remove child entry without reclaiming the child.
+  ///
+  /// \param child_index Key byte of child to remove
+  constexpr void remove_child_entry(std::uint8_t child_index) noexcept {
     children[child_index] = node_ptr{nullptr};
     --this->children_count;
   }

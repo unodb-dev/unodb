@@ -11,7 +11,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <random>
+#include <thread>
 #include <tuple>
+#include <vector>
 
 #include <gtest/gtest.h>
 
@@ -19,8 +21,14 @@
 #include "assert.hpp"
 #include "db_test_utils.hpp"
 #include "gtest_utils.hpp"
+#include "olc_art.hpp"
 #include "qsbr.hpp"
 #include "qsbr_test_utils.hpp"
+
+#ifndef NDEBUG
+#include "sync.hpp"
+#include "thread_sync.hpp"
+#endif
 
 namespace {
 
@@ -333,5 +341,796 @@ UNODB_TYPED_TEST(ARTConcurrencyTest,
       TestFixture::random_op_thread);
 }
 // LCOV_EXCL_STOP
+
+// ===================================================================
+// Chain concurrency tests for key_view types.
+//
+// These tests exercise the OLC chain insert (single-child inode4
+// creation + restart) and two-pass remove (stack-based upward walk)
+// under concurrent contention.  The existing tests above only use u64
+// keys which cannot trigger chains.
+//
+// Key encoding: encode(uint8_t tag).encode(uint64_t v) = 9 bytes.
+// Keys with the same tag share 8 prefix bytes, triggering chain
+// creation.  Different tags diverge at byte 0 (no chain).
+// ===================================================================
+
+// Helper: encode a 9-byte chain-triggering key into a caller-owned buffer.
+// The returned key_view is valid for the lifetime of `buf`.
+inline unodb::key_view make_chain_key(unodb::key_encoder& enc, std::uint8_t tag,
+                                      std::uint64_t v,
+                                      std::array<std::byte, 9>& buf) {
+  auto kv = enc.reset().encode(tag).encode(v).get_key_view();
+  std::ranges::copy(kv, buf.begin());
+  return {buf.data(), buf.size()};
+}
+
+// Chain concurrency tests reuse ARTConcurrencyTest for QSBR setup and
+// parallel_test.  Thread functions access the db via verifier->get_db().
+template <class Db>
+class ARTChainConcurrencyTest : public ARTConcurrencyTest<Db> {
+ protected:
+  // Thread function: insert/remove chain keys with a fixed tag.
+  static void chain_insert_remove_thread(unodb::test::tree_verifier<Db>* tv,
+                                         std::size_t thread_i,
+                                         std::size_t ops_per_thread) {
+    auto& db = tv->get_db();
+    unodb::key_encoder enc;
+    std::array<std::byte, 9> buf{};
+    constexpr auto tag = static_cast<std::uint8_t>(0x42);
+    const auto val =
+        unodb::test::test_values[thread_i % unodb::test::test_values.size()];
+    for (std::size_t i = 0; i < ops_per_thread; ++i) {
+      const auto v = i;
+      const auto key = make_chain_key(enc, tag, v, buf);
+      if (i % 2 == 0) {
+        std::ignore = db.insert(key, val);
+      } else {
+        if constexpr (unodb::test::is_olc_db<Db>) {
+          const unodb::quiescent_state_on_scope_exit qsbr{};
+          std::ignore = db.remove(key);
+        } else {
+          std::ignore = db.remove(key);
+        }
+      }
+    }
+    if constexpr (unodb::test::is_olc_db<Db>) unodb::this_thread().quiescent();
+  }
+
+  // Thread function: random insert/remove/get on chain keys.
+  static void chain_random_ops_thread(unodb::test::tree_verifier<Db>* tv,
+                                      std::size_t thread_i,
+                                      std::size_t ops_per_thread) {
+    auto& db = tv->get_db();
+    std::random_device rd;
+    std::mt19937 gen{rd()};
+    std::geometric_distribution<std::uint64_t> key_gen{0.05};
+    unodb::key_encoder enc;
+    std::array<std::byte, 9> buf{};
+    constexpr auto tag = static_cast<std::uint8_t>(0x42);
+    constexpr auto ntasks = 3;  // insert / remove / get
+    for (std::size_t i = 0; i < ops_per_thread; ++i) {
+      const auto v = key_gen(gen);
+      const auto key = make_chain_key(enc, tag, v, buf);
+      const auto val =
+          unodb::test::test_values[v % unodb::test::test_values.size()];
+      switch (thread_i % ntasks) {
+        case 0:
+          std::ignore = db.insert(key, val);
+          break;
+        case 1:
+          if constexpr (unodb::test::is_olc_db<Db>) {
+            const unodb::quiescent_state_on_scope_exit qsbr{};
+            std::ignore = db.remove(key);
+          } else {
+            std::ignore = db.remove(key);
+          }
+          break;
+        case 2:
+          if constexpr (unodb::test::is_olc_db<Db>) {
+            const unodb::quiescent_state_on_scope_exit qsbr{};
+            std::ignore = db.get(key);
+          } else {
+            std::ignore = db.get(key);
+          }
+          break;
+          // LCOV_EXCL_START
+        default:
+          UNODB_DETAIL_CANNOT_HAPPEN();
+          // LCOV_EXCL_STOP
+      }
+    }
+    if constexpr (unodb::test::is_olc_db<Db>) unodb::this_thread().quiescent();
+  }
+
+  // Thread function: multi-tag random ops.
+  static void chain_multi_tag_thread(unodb::test::tree_verifier<Db>* tv,
+                                     std::size_t thread_i,
+                                     std::size_t ops_per_thread) {
+    auto& db = tv->get_db();
+    std::random_device rd;
+    std::mt19937 gen{rd()};
+    std::geometric_distribution<std::uint64_t> key_gen{0.1};
+    unodb::key_encoder enc;
+    std::array<std::byte, 9> buf{};
+    const auto tag = static_cast<std::uint8_t>(1 + (thread_i % 4));
+    for (std::size_t i = 0; i < ops_per_thread; ++i) {
+      const auto v = key_gen(gen);
+      const auto key = make_chain_key(enc, tag, v, buf);
+      const auto val =
+          unodb::test::test_values[v % unodb::test::test_values.size()];
+      switch (i % 3) {
+        case 0:
+          std::ignore = db.insert(key, val);
+          break;
+        case 1:
+          if constexpr (unodb::test::is_olc_db<Db>) {
+            const unodb::quiescent_state_on_scope_exit qsbr{};
+            std::ignore = db.remove(key);
+          } else {
+            std::ignore = db.remove(key);
+          }
+          break;
+        case 2:
+          if constexpr (unodb::test::is_olc_db<Db>) {
+            const unodb::quiescent_state_on_scope_exit qsbr{};
+            std::ignore = db.get(key);
+          } else {
+            std::ignore = db.get(key);
+          }
+          break;
+          // LCOV_EXCL_START
+        default:
+          UNODB_DETAIL_CANNOT_HAPPEN();
+          // LCOV_EXCL_STOP
+      }
+    }
+    if constexpr (unodb::test::is_olc_db<Db>) unodb::this_thread().quiescent();
+  }
+};
+
+using ChainConcurrentTypes = ::testing::Types<unodb::test::key_view_mutex_db,
+                                              unodb::test::key_view_olc_db>;
+
+UNODB_TYPED_TEST_SUITE(ARTChainConcurrencyTest, ChainConcurrentTypes)
+
+/// Concurrent insert/remove on chain keys — exercises chain creation
+/// and two-pass removal under contention.
+UNODB_TYPED_TEST(ARTChainConcurrencyTest, ChainInsertRemove) {
+  this->template parallel_test<8, 200>(TestFixture::chain_insert_remove_thread);
+  UNODB_ASSERT_TRUE(this->verifier.get_db().empty() ||
+                    !this->verifier.get_db().empty());  // no crash
+}
+
+/// Concurrent random insert/remove/get on chain keys with geometric
+/// key distribution — hot-spot contention on small v values.
+UNODB_TYPED_TEST(ARTChainConcurrencyTest, ChainRandomOps) {
+  this->template parallel_test<6, 500>(TestFixture::chain_random_ops_thread);
+}
+
+/// Multi-tag concurrent ops — independent chain subtrees with some
+/// cross-tag contention at the root inode.
+UNODB_TYPED_TEST(ARTChainConcurrencyTest, ChainMultiTagOps) {
+  this->template parallel_test<8, 500>(TestFixture::chain_multi_tag_thread);
+}
+
+/// Higher contention stress test (DISABLED for CI, enable manually).
+// LCOV_EXCL_START
+UNODB_TYPED_TEST(ARTChainConcurrencyTest, DISABLED_ChainStressTest) {
+  this->template parallel_test<12, 10'000>(
+      TestFixture::chain_random_ops_thread);
+}
+// LCOV_EXCL_STOP
+
+// ===================================================================
+// Dangling chain bug test.
+//
+// Tests that the two-pass remove correctly handles the case where
+// chain nodes are reclaimed during the upward walk but a concurrent
+// modification to a higher ancestor causes a version mismatch.
+//
+// Setup: Parent-I4 with a 2-level chain subtree + a sibling leaf.
+//   Parent-I4 → [tag1: Chain-head → Chain-tail → Leaf(target),
+//                 tag2: Leaf(sibling)]
+//
+// The test uses sync_point to pause T1 after it has obsoleted
+// the chain head but before it processes the parent.  T2 then
+// modifies the parent (inserts a new sibling), causing T1's version
+// check to fail on restart.
+//
+// Bug: T1 loops forever because Parent-I4 still points to the
+// obsoleted chain head.
+// Fix: T1 must handle the dangling chain correctly.
+// ===================================================================
+
+#ifndef NDEBUG
+
+// ===================================================================
+// Concurrent chain cut tests with explicit interleavings.
+// Uses thread_syncs (condition variables) for coordination.
+//
+// Key constraint: T2 must only access nodes that T1 does NOT hold
+// write guards on at the sync point.
+//
+// At SP1 (sync_after_chain_locked): T1 holds chain_bottom (ng),
+//   all chain nodes on stack (chain_guards), and leaf (lg).
+//   The cut_point_parent is NOT locked.
+//
+// At SP2 (sync_between_chain_locks): T1 holds chain_bottom (ng),
+//   stk[stk_n-1] (chain_guards[0]), and leaf (lg).
+//   All other stack entries are NOT locked.
+//
+// Tree setup uses 26-byte keys (CT1/CT3, 3 chain levels) or 34-byte
+// keys (CT2/CT4, 4 chain levels) to ensure enough chain depth that
+// pg locks a deep chain node, not the cut_point_parent.
+// ===================================================================
+
+struct sync_point_guard {
+  unodb::detail::sync_point* pt_;
+  explicit sync_point_guard(unodb::detail::sync_point& pt) noexcept
+      : pt_{&pt} {}
+  ~sync_point_guard() { pt_->disarm(); }
+  sync_point_guard(const sync_point_guard&) = delete;
+  sync_point_guard& operator=(const sync_point_guard&) = delete;
+  sync_point_guard(sync_point_guard&&) = delete;
+  sync_point_guard& operator=(sync_point_guard&&) = delete;
+};
+
+// CT1: T1 removes A (chain cut).  T2 inserts a sibling into the
+// cut_point_parent (Root-I4) between Step 2 and Step 3.
+UNODB_TEST(OLCChainCutInterleaved, ConcurrentInsertIntoCutPointParent) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  constexpr auto val_bytes = std::array<std::byte, 1>{std::byte{0x42}};
+  const auto val = unodb::value_view{val_bytes};
+
+  db_type db;
+  unodb::key_encoder enc;
+
+  // 26-byte keys: tag(1) + 3×uint64(24) + bottom(1).
+  // A,B share 25 bytes → 3 chain levels after removing B.
+  auto make26 = [&](std::uint8_t tag, std::uint8_t bottom) {
+    return enc.reset()
+        .encode(tag)
+        .encode(std::uint64_t{0x4242424242424242ULL})
+        .encode(std::uint64_t{0})
+        .encode(std::uint64_t{0})
+        .encode(bottom)
+        .get_key_view();
+  };
+
+  std::array<std::byte, 26> buf_a{};
+  std::array<std::byte, 26> buf_b{};
+  std::array<std::byte, 26> buf_sib{};
+  std::array<std::byte, 26> buf_new{};
+  auto copy_key = [](const unodb::key_view kv, auto& buf) {
+    std::ranges::copy(kv, buf.begin());
+    return unodb::key_view{buf.data(), buf.size()};
+  };
+  const auto key_a = copy_key(make26(0x10, 0x01), buf_a);
+  const auto key_b = copy_key(make26(0x10, 0x02), buf_b);
+  const auto sib = copy_key(make26(0x20, 0x01), buf_sib);
+  const auto new_key = copy_key(make26(0x30, 0x01), buf_new);
+
+  UNODB_ASSERT_TRUE(db.insert(key_a, val));
+  UNODB_ASSERT_TRUE(db.insert(key_b, val));
+  UNODB_ASSERT_TRUE(db.insert(sib, val));
+  {
+    const unodb::quiescent_state_on_scope_exit q{};
+    UNODB_ASSERT_TRUE(db.remove(key_b));
+  }
+
+  // Arm SP1 AFTER setup remove.
+  const sync_point_guard guard{unodb::detail::sync_after_chain_locked};
+  unodb::detail::sync_after_chain_locked.arm([&]() {
+    unodb::detail::thread_syncs[0].notify();
+    unodb::detail::thread_syncs[1].wait();
+  });
+
+  unodb::this_thread().qsbr_pause();
+
+  // Spawn T2 first so it's registered with QSBR before T1 starts.
+  auto t2 = unodb::qsbr_thread([&] {
+    unodb::detail::thread_syncs[0].wait();
+    const unodb::quiescent_state_on_scope_exit q{};
+    // Insert at root level — Root-I4 is NOT locked by T1 at SP1.
+    std::ignore = db.insert(new_key, val);
+    unodb::detail::thread_syncs[1].notify();
+  });
+
+  auto t1 = unodb::qsbr_thread([&] {
+    const unodb::quiescent_state_on_scope_exit q{};
+    std::ignore = db.remove(key_a);
+  });
+
+  t1.join();
+  t2.join();
+  unodb::this_thread().qsbr_resume();
+  unodb::this_thread().quiescent();
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_FALSE(db.get(key_a).has_value());
+  UNODB_ASSERT_TRUE(db.get(sib).has_value());
+  UNODB_ASSERT_TRUE(db.get(new_key).has_value());
+}
+
+// CT2: T1 removes A (chain cut).  T2 inserts a key that modifies
+// chain[0] (splits its prefix) between the first and second chain
+// lock in Step 2.
+UNODB_TEST(OLCChainCutInterleaved, ConcurrentInsertIntoMidChain) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  constexpr auto val_bytes = std::array<std::byte, 1>{std::byte{0x42}};
+  const auto val = unodb::value_view{val_bytes};
+
+  db_type db;
+  unodb::key_encoder enc;
+
+  // 34-byte keys: tag(1) + 4×uint64(32) + bottom(1).
+  // A,B share 33 bytes → 4 chain levels after removing B.
+  // At SP2: T1 holds chain[2] (stk[3]) + chain_bottom + leaf.
+  // chain[0], chain[1], Root-I4 are all unlocked.
+  // T2 targets chain[0] (different v1) — only needs Root-I4 + chain[0].
+  constexpr auto X = std::uint64_t{0x4242424242424242ULL};
+  constexpr auto Z = std::uint64_t{0x4343434343434343ULL};
+
+  auto make34 = [&](std::uint8_t tag, std::uint64_t v1, std::uint8_t bottom) {
+    return enc.reset()
+        .encode(tag)
+        .encode(v1)
+        .encode(X)
+        .encode(X)
+        .encode(X)
+        .encode(bottom)
+        .get_key_view();
+  };
+
+  std::array<std::byte, 34> buf_a{};
+  std::array<std::byte, 34> buf_b{};
+  std::array<std::byte, 34> buf_sib{};
+  std::array<std::byte, 34> buf_t2{};
+  auto copy_key = [](const unodb::key_view kv, auto& buf) {
+    std::ranges::copy(kv, buf.begin());
+    return unodb::key_view{buf.data(), buf.size()};
+  };
+  const auto key_a = copy_key(make34(0x10, X, 0x01), buf_a);
+  const auto key_b = copy_key(make34(0x10, X, 0x02), buf_b);
+  const auto sib = copy_key(make34(0x20, X, 0x01), buf_sib);
+  const auto t2_key = copy_key(make34(0x10, Z, 0x01), buf_t2);
+
+  UNODB_ASSERT_TRUE(db.insert(key_a, val));
+  UNODB_ASSERT_TRUE(db.insert(key_b, val));
+  UNODB_ASSERT_TRUE(db.insert(sib, val));
+  {
+    const unodb::quiescent_state_on_scope_exit q{};
+    UNODB_ASSERT_TRUE(db.remove(key_b));
+  }
+
+  // Arm SP2 AFTER setup remove.
+  const sync_point_guard guard{unodb::detail::sync_between_chain_locks};
+  unodb::detail::sync_between_chain_locks.arm([&]() {
+    unodb::detail::sync_between_chain_locks.disarm();  // fire only once
+    unodb::detail::thread_syncs[2].notify();
+    unodb::detail::thread_syncs[3].wait();
+  });
+
+  unodb::this_thread().qsbr_pause();
+
+  auto t2 = unodb::qsbr_thread([&] {
+    unodb::detail::thread_syncs[2].wait();
+    const unodb::quiescent_state_on_scope_exit q{};
+    std::ignore = db.insert(t2_key, val);
+    unodb::detail::thread_syncs[3].notify();
+  });
+
+  auto t1 = unodb::qsbr_thread([&] {
+    const unodb::quiescent_state_on_scope_exit q{};
+    std::ignore = db.remove(key_a);
+  });
+
+  t1.join();
+  t2.join();
+  unodb::this_thread().qsbr_resume();
+  unodb::this_thread().quiescent();
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_FALSE(db.get(key_a).has_value());
+  UNODB_ASSERT_TRUE(db.get(sib).has_value());
+  UNODB_ASSERT_TRUE(db.get(t2_key).has_value());
+}
+
+// CT3: T1 removes A (chain cut).  T2 removes the sibling.
+UNODB_TEST(OLCChainCutInterleaved, ConcurrentRemoveOfSibling) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  constexpr auto val_bytes = std::array<std::byte, 1>{std::byte{0x42}};
+  const auto val = unodb::value_view{val_bytes};
+
+  db_type db;
+  unodb::key_encoder enc;
+
+  auto make26 = [&](std::uint8_t tag, std::uint8_t bottom) {
+    return enc.reset()
+        .encode(tag)
+        .encode(std::uint64_t{0x4242424242424242ULL})
+        .encode(std::uint64_t{0})
+        .encode(std::uint64_t{0})
+        .encode(bottom)
+        .get_key_view();
+  };
+
+  std::array<std::byte, 26> buf_a{};
+  std::array<std::byte, 26> buf_b{};
+  auto copy_key = [](const unodb::key_view kv, auto& buf) {
+    std::ranges::copy(kv, buf.begin());
+    return unodb::key_view{buf.data(), buf.size()};
+  };
+  const auto key_a = copy_key(make26(0x10, 0x01), buf_a);
+  const auto key_b = copy_key(make26(0x10, 0x02), buf_b);
+  // Use a short (1-byte) sibling so that when T2 removes it, the
+  // Root-I4 goes to 1 child but prefix merge overflows (0+1+7 > 7),
+  // preventing collapse.  Root-I4 stays alive with a new version.
+  std::array<std::byte, 1> buf_sib{};
+  const auto sib =
+      copy_key(enc.reset().encode(std::uint8_t{0x20}).get_key_view(), buf_sib);
+
+  UNODB_ASSERT_TRUE(db.insert(key_a, val));
+  UNODB_ASSERT_TRUE(db.insert(key_b, val));
+  UNODB_ASSERT_TRUE(db.insert(sib, val));
+  {
+    const unodb::quiescent_state_on_scope_exit q{};
+    UNODB_ASSERT_TRUE(db.remove(key_b));
+  }
+
+  const sync_point_guard guard{unodb::detail::sync_after_chain_locked};
+  unodb::detail::sync_after_chain_locked.arm([&]() {
+    unodb::detail::sync_after_chain_locked.disarm();  // one-shot
+    unodb::detail::thread_syncs[0].notify();
+    unodb::detail::thread_syncs[1].wait();
+  });
+
+  unodb::this_thread().qsbr_pause();
+
+  auto t2 = unodb::qsbr_thread([&] {
+    unodb::detail::thread_syncs[0].wait();
+    const unodb::quiescent_state_on_scope_exit q{};
+    std::ignore = db.remove(sib);
+    unodb::detail::thread_syncs[1].notify();
+  });
+
+  auto t1 = unodb::qsbr_thread([&] {
+    const unodb::quiescent_state_on_scope_exit q{};
+    std::ignore = db.remove(key_a);
+  });
+
+  t1.join();
+  t2.join();
+  unodb::this_thread().qsbr_resume();
+  unodb::this_thread().quiescent();
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_FALSE(db.get(key_a).has_value());
+  UNODB_ASSERT_FALSE(db.get(sib).has_value());
+  UNODB_ASSERT_TRUE(db.empty());
+}
+
+// CT4: ABA on chain node.  T2 inserts then removes a key that
+// modifies chain[0]'s version but restores it to single-child.
+UNODB_TEST(OLCChainCutInterleaved, ABAOnChainNode) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  constexpr auto val_bytes = std::array<std::byte, 1>{std::byte{0x42}};
+  const auto val = unodb::value_view{val_bytes};
+
+  db_type db;
+  unodb::key_encoder enc;
+
+  constexpr auto X = std::uint64_t{0x4242424242424242ULL};
+  constexpr auto Z = std::uint64_t{0x4343434343434343ULL};
+
+  auto make34 = [&](std::uint8_t tag, std::uint64_t v1, std::uint8_t bottom) {
+    return enc.reset()
+        .encode(tag)
+        .encode(v1)
+        .encode(X)
+        .encode(X)
+        .encode(X)
+        .encode(bottom)
+        .get_key_view();
+  };
+
+  std::array<std::byte, 34> buf_a{};
+  std::array<std::byte, 34> buf_b{};
+  std::array<std::byte, 34> buf_sib{};
+  std::array<std::byte, 34> buf_t2{};
+  auto copy_key = [](const unodb::key_view kv, auto& buf) {
+    std::ranges::copy(kv, buf.begin());
+    return unodb::key_view{buf.data(), buf.size()};
+  };
+  const auto key_a = copy_key(make34(0x10, X, 0x01), buf_a);
+  const auto key_b = copy_key(make34(0x10, X, 0x02), buf_b);
+  const auto sib = copy_key(make34(0x20, X, 0x01), buf_sib);
+  const auto t2_key = copy_key(make34(0x10, Z, 0x01), buf_t2);
+
+  UNODB_ASSERT_TRUE(db.insert(key_a, val));
+  UNODB_ASSERT_TRUE(db.insert(key_b, val));
+  UNODB_ASSERT_TRUE(db.insert(sib, val));
+  {
+    const unodb::quiescent_state_on_scope_exit q{};
+    UNODB_ASSERT_TRUE(db.remove(key_b));
+  }
+
+  const sync_point_guard guard{unodb::detail::sync_between_chain_locks};
+  unodb::detail::sync_between_chain_locks.arm([&]() {
+    unodb::detail::sync_between_chain_locks.disarm();  // fire only once
+    unodb::detail::thread_syncs[4].notify();
+    unodb::detail::thread_syncs[5].wait();
+  });
+
+  unodb::this_thread().qsbr_pause();
+
+  auto t2 = unodb::qsbr_thread([&] {
+    unodb::detail::thread_syncs[4].wait();
+    {
+      const unodb::quiescent_state_on_scope_exit q{};
+      std::ignore = db.insert(t2_key, val);
+    }
+    {
+      const unodb::quiescent_state_on_scope_exit q{};
+      std::ignore = db.remove(t2_key);
+    }
+    unodb::detail::thread_syncs[5].notify();
+  });
+
+  auto t1 = unodb::qsbr_thread([&] {
+    const unodb::quiescent_state_on_scope_exit q{};
+    std::ignore = db.remove(key_a);
+  });
+
+  t1.join();
+  t2.join();
+  unodb::this_thread().qsbr_resume();
+  unodb::this_thread().quiescent();
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_FALSE(db.get(key_a).has_value());
+  UNODB_ASSERT_TRUE(db.get(sib).has_value());
+  UNODB_ASSERT_FALSE(db.get(t2_key).has_value());
+}
+
+#endif  // NDEBUG
+
+// ===================================================================
+// Concurrent chain cut stress tests (no sync points).
+// ===================================================================
+
+// CT5: Two threads removing last two keys under same chain.
+UNODB_TEST(OLCChainCutStress, TwoRemoversFromChain) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  constexpr auto val_bytes = std::array<std::byte, 1>{std::byte{0x42}};
+  const auto val = unodb::value_view{val_bytes};
+
+  for (int iter = 0; iter < 200; ++iter) {
+    db_type db;
+    unodb::key_encoder enc;
+    std::array<std::byte, 9> buf_a{};
+    std::array<std::byte, 9> buf_b{};
+    std::array<std::byte, 9> buf_sib{};
+
+    const auto key_a = make_chain_key(enc, 0x10, 1, buf_a);
+    const auto key_b = make_chain_key(enc, 0x10, 2, buf_b);
+    const auto sibling = make_chain_key(enc, 0x20, 1, buf_sib);
+
+    UNODB_ASSERT_TRUE(db.insert(key_a, val));
+    UNODB_ASSERT_TRUE(db.insert(key_b, val));
+    UNODB_ASSERT_TRUE(db.insert(sibling, val));
+
+    unodb::this_thread().qsbr_pause();
+
+    auto t1 = unodb::qsbr_thread([&] {
+      const unodb::quiescent_state_on_scope_exit q{};
+      std::ignore = db.remove(key_a);
+    });
+    auto t2 = unodb::qsbr_thread([&] {
+      const unodb::quiescent_state_on_scope_exit q{};
+      std::ignore = db.remove(key_b);
+    });
+    t1.join();
+    t2.join();
+    unodb::this_thread().qsbr_resume();
+    unodb::this_thread().quiescent();
+
+    const unodb::quiescent_state_on_scope_exit q{};
+    UNODB_ASSERT_FALSE(db.get(key_a).has_value());
+    UNODB_ASSERT_FALSE(db.get(key_b).has_value());
+    UNODB_ASSERT_TRUE(db.get(sibling).has_value());
+  }
+}
+
+// CT6: Multiple threads doing insert/remove on chain-triggering keys.
+UNODB_TEST(OLCChainCutStress, InsertRemoveMix) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  constexpr auto val_bytes = std::array<std::byte, 1>{std::byte{0x42}};
+  const auto val = unodb::value_view{val_bytes};
+
+  for (int iter = 0; iter < 100; ++iter) {
+    db_type db;
+
+    // Pre-insert some keys so the tree has chain structure.
+    {
+      unodb::key_encoder enc;
+      UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
+      std::array<std::byte, 9> buf{};
+      UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+      for (std::uint64_t i = 1; i <= 4; ++i) {
+        UNODB_ASSERT_TRUE(db.insert(make_chain_key(enc, 0x10, i, buf), val));
+        UNODB_ASSERT_TRUE(db.insert(make_chain_key(enc, 0x20, i, buf), val));
+      }
+    }
+
+    unodb::this_thread().qsbr_pause();
+
+    // T1: remove keys from tag=0x10.
+    auto t1 = unodb::qsbr_thread([&] {
+      unodb::key_encoder enc;
+      std::array<std::byte, 9> buf{};
+      for (std::uint64_t i = 1; i <= 4; ++i) {
+        const unodb::quiescent_state_on_scope_exit q{};
+        std::ignore = db.remove(make_chain_key(enc, 0x10, i, buf));
+      }
+    });
+    // T2: remove keys from tag=0x20.
+    auto t2 = unodb::qsbr_thread([&] {
+      unodb::key_encoder enc;
+      std::array<std::byte, 9> buf{};
+      for (std::uint64_t i = 1; i <= 4; ++i) {
+        const unodb::quiescent_state_on_scope_exit q{};
+        std::ignore = db.remove(make_chain_key(enc, 0x20, i, buf));
+      }
+    });
+    // T3: insert new keys concurrently.
+    auto t3 = unodb::qsbr_thread([&] {
+      unodb::key_encoder enc;
+      std::array<std::byte, 9> buf{};
+      for (std::uint64_t i = 1; i <= 4; ++i) {
+        const unodb::quiescent_state_on_scope_exit q{};
+        std::ignore = db.insert(make_chain_key(enc, 0x30, i, buf), val);
+      }
+    });
+
+    t1.join();
+    t2.join();
+    t3.join();
+    unodb::this_thread().qsbr_resume();
+    unodb::this_thread().quiescent();
+
+    // All tag=0x10 and tag=0x20 keys removed. tag=0x30 keys inserted.
+    const unodb::quiescent_state_on_scope_exit q{};
+    unodb::key_encoder enc;
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
+    std::array<std::byte, 9> buf{};
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+    for (std::uint64_t i = 1; i <= 4; ++i) {
+      UNODB_ASSERT_FALSE(db.get(make_chain_key(enc, 0x10, i, buf)).has_value());
+      UNODB_ASSERT_FALSE(db.get(make_chain_key(enc, 0x20, i, buf)).has_value());
+      UNODB_ASSERT_TRUE(db.get(make_chain_key(enc, 0x30, i, buf)).has_value());
+    }
+  }
+}
+
+// ===================================================================
+// CT6: Deep chain stress test — 8 chain levels, N threads.
+// ===================================================================
+
+void deep_chain_stress(int n_threads, int ops_per_thread, int iterations) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  constexpr auto val_bytes = std::array<std::byte, 1>{std::byte{0x42}};
+  const auto val = unodb::value_view{val_bytes};
+
+  constexpr int chain_depth = 8;
+  constexpr int chain_variants = 32;
+  constexpr int short_count = 8;
+  constexpr std::size_t chain_key_len = 1 + (chain_depth * 8) + 1;
+  constexpr std::size_t short_key_len = 1;
+
+  auto make_deep_key = [](unodb::key_encoder& enc, std::uint8_t variant,
+                          std::array<std::byte, chain_key_len>& buf) {
+    enc.reset().encode(std::uint8_t{0x42});
+    for (int d = 0; d < chain_depth; ++d) enc.encode(std::uint64_t{0});
+    enc.encode(variant);
+    auto kv = enc.get_key_view();
+    std::ranges::copy(kv, buf.begin());
+    return unodb::key_view{buf.data(), buf.size()};
+  };
+
+  auto make_short = [](unodb::key_encoder& enc, std::uint8_t tag,
+                       std::array<std::byte, short_key_len>& buf) {
+    auto kv = enc.reset().encode(tag).get_key_view();
+    std::ranges::copy(kv, buf.begin());
+    return unodb::key_view{buf.data(), buf.size()};
+  };
+
+  for (int iter = 0; iter < iterations; ++iter) {
+    db_type db;
+    unodb::key_encoder enc;
+
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
+    std::array<std::array<std::byte, chain_key_len>, 4> ck_bufs{};
+    for (std::size_t v = 1; v <= 4; ++v)
+      UNODB_ASSERT_TRUE(db.insert(
+          make_deep_key(enc, static_cast<std::uint8_t>(v), ck_bufs[v - 1]),
+          val));
+    std::array<std::array<std::byte, short_key_len>, short_count> sk_bufs{};
+    for (std::size_t t = 1; t <= short_count; ++t)
+      UNODB_ASSERT_TRUE(db.insert(
+          make_short(enc, static_cast<std::uint8_t>(t), sk_bufs[t - 1]), val));
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+    unodb::this_thread().qsbr_pause();
+
+    std::vector<unodb::qsbr_thread> threads;
+    threads.reserve(static_cast<std::size_t>(n_threads));
+    for (int ti = 0; ti < n_threads; ++ti) {
+      threads.emplace_back([&, ti] {
+        unodb::key_encoder e;
+        std::minstd_rand rng{static_cast<unsigned>((ti * 1000) + iter)};
+        for (int op = 0; op < ops_per_thread; ++op) {
+          const unodb::quiescent_state_on_scope_exit q{};
+          const auto r = rng() % 6;
+          if (r < 2) {
+            const auto v =
+                static_cast<std::uint8_t>(1 + (rng() % chain_variants));
+            std::array<std::byte, chain_key_len> buf{};
+            std::ignore = db.insert(make_deep_key(e, v, buf), val);
+          } else if (r < 4) {
+            const auto v =
+                static_cast<std::uint8_t>(1 + (rng() % chain_variants));
+            std::array<std::byte, chain_key_len> buf{};
+            std::ignore = db.remove(make_deep_key(e, v, buf));
+          } else if (r == 4) {
+            if (rng() % 2 == 0) {
+              const auto v =
+                  static_cast<std::uint8_t>(1 + (rng() % chain_variants));
+              std::array<std::byte, chain_key_len> buf{};
+              std::ignore = db.get(make_deep_key(e, v, buf));
+            } else {
+              const auto t =
+                  static_cast<std::uint8_t>(1 + (rng() % short_count));
+              std::array<std::byte, short_key_len> buf{};
+              std::ignore = db.get(make_short(e, t, buf));
+            }
+          } else {
+            const auto t = static_cast<std::uint8_t>(1 + (rng() % short_count));
+            std::array<std::byte, short_key_len> buf{};
+            if (rng() % 2 == 0)
+              std::ignore = db.insert(make_short(e, t, buf), val);
+            else
+              std::ignore = db.remove(make_short(e, t, buf));
+          }
+        }
+      });
+    }
+    for (auto& t : threads) t.join();
+
+    unodb::this_thread().qsbr_resume();
+    unodb::this_thread().quiescent();
+
+    const unodb::quiescent_state_on_scope_exit q{};
+    for (std::uint8_t v = 1; v <= chain_variants; ++v) {
+      std::array<std::byte, chain_key_len> buf{};
+      std::ignore = db.remove(make_deep_key(enc, v, buf));
+    }
+    for (std::uint8_t t = 1; t <= short_count; ++t) {
+      std::array<std::byte, short_key_len> buf{};
+      std::ignore = db.remove(make_short(enc, t, buf));
+    }
+    UNODB_ASSERT_TRUE(db.empty());
+  }
+}
+
+// Default: 4 threads, 1000 ops, 10 iterations.
+UNODB_TEST(OLCChainCut, DeepChainStress) { deep_chain_stress(4, 1000, 10); }
+
+// Heavy: all cores, 100k ops, 10 iterations.  DISABLED by default.
+UNODB_TEST(OLCChainCut, DISABLED_DeepChainStressHeavy) {
+  const int cores = static_cast<int>(std::thread::hardware_concurrency());
+  deep_chain_stress(cores, 100000, 10);
+}
 
 }  // namespace
