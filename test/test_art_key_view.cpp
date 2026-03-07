@@ -1601,4 +1601,28 @@ UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, ScanChainMixedLengths) {
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
+// -------------------------------------------------------------------
+// Zero-length key
+// -------------------------------------------------------------------
+
+/// A zero-length key_view should work as a root leaf (no prefix bytes
+/// to encode in an inode chain).
+UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, ZeroLengthKey) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+  const auto empty_key = unodb::key_view{};
+  constexpr auto val = unodb::test::test_values[0];
+
+  verifier.insert(empty_key, val);
+  verifier.check_present_values();
+#ifdef UNODB_DETAIL_WITH_STATS
+  verifier.assert_node_counts({1, 0, 0, 0, 0});
+#endif
+
+  verifier.remove(empty_key);
+  verifier.assert_empty();
+#ifdef UNODB_DETAIL_WITH_STATS
+  verifier.assert_node_counts({0, 0, 0, 0, 0});
+#endif
+}
+
 }  // namespace
