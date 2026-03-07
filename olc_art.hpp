@@ -393,7 +393,7 @@ class olc_db final {
       }
       // Dump the key buffer maintained by the iterator.
       os << "keybuf=";
-      detail::dump_key(os, keybuf_.get_key_view());
+      detail::dump_key(os, keybuf_[keybuf_ix_].get_key_view());
       os << "\n";
       // Create a new stack and copy everything there.  Using the new
       // stack, print out the stack in top-bottom order.  This avoids
@@ -455,8 +455,8 @@ class olc_db final {
       // OLC where the node might be concurrently modified.
       UNODB_DETAIL_ASSERT(node.type() != node_type::LEAF);
       stack_.push({{node, key_byte, child_index, prefix}, rcs.get()});
-      keybuf_.push(prefix.get_key_view());
-      keybuf_.push(key_byte);
+      keybuf_[keybuf_ix_].push(prefix.get_key_view());
+      keybuf_[keybuf_ix_].push(key_byte);
       return true;
     }
 
@@ -493,7 +493,7 @@ class olc_db final {
       // sync with one another.  So we can just do a simple POP for
       // each of them.
       const auto prefix_len = top().prefix.length();
-      keybuf_.pop(prefix_len);
+      keybuf_[keybuf_ix_].pop(prefix_len);
       stack_.pop();
     }
 
@@ -515,7 +515,7 @@ class olc_db final {
     /// post-condition: The iterator is !valid().
     iterator& invalidate() noexcept {
       while (!stack_.empty()) stack_.pop();  // clear the stack
-      keybuf_.reset();                       // clear the key buffer
+      keybuf_[keybuf_ix_].reset();                       // clear the key buffer
       return *this;
     }
 
@@ -559,7 +559,8 @@ class olc_db final {
     /// pushed onto this buffer when we push something onto the
     /// iterator stack and popped off of this buffer when we pop
     /// something off of the iterator stack.
-    detail::key_buffer keybuf_{};
+    detail::key_buffer keybuf_[2]{};
+    unsigned keybuf_ix_{0};
   };  // class iterator
 
   //
@@ -2965,12 +2966,11 @@ key_view olc_db<Key, Value>::iterator::get_key() noexcept {
   // leaf regardless of whether the leaf has been deleted.  This is
   // part of the design semantics for the OLC ART scan.
   //
-  // TODO(thompsonbry) : variable length keys. The simplest case
-  // where this does not work today is a single root leaf.  In that
-  // case, there is no inode path and we can not properly track the
-  // key in the key_buffer.
-  //
-  // return keybuf_.get_key_view();
+  // TODO(thompsonbry) : Switch to keybuf_[keybuf_ix_].get_key_view()
+  // once D1 (no root leaf for key_view) is implemented.  With no root
+  // leaf, every leaf has an inode path and keybuf_ is always populated.
+  // The dual key_buffer (keybuf_[2] + keybuf_ix_) is already in place
+  // for OLC restart safety in next()/prior().
   const auto& e = stack_.top();
   const auto& node = e.node;
   UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);      // On a leaf.
