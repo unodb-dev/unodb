@@ -171,6 +171,21 @@ class db final {
   [[nodiscard]] bool insert_internal_key_view(art_key_type insert_key,
                                               value_type v);
 
+  /// Build an inode chain for the first key_view insert into an empty tree.
+  ///
+  /// For key_view keys, the tree must always have at least one inode above
+  /// every leaf so that the iterator's key buffer (keybuf_) is populated
+  /// during traversal.  This method wraps \a child in a chain of single-child
+  /// I4 nodes, each consuming up to key_prefix_capacity prefix bytes + 1
+  /// dispatch byte from the key.  Built bottom-up: the last I4 created
+  /// (with prefix from the start of the key) becomes the root.
+  ///
+  /// \param k The full encoded key
+  /// \param child The leaf node to place at the bottom of the chain
+  /// \return The chain top node, or \a child itself if the key is empty
+  [[nodiscard]] detail::node_ptr build_chain(art_key_type k,
+                                             detail::node_ptr child);
+
   /// Remove the entry associated with the encoded key \a remove_key.
   ///
   /// \return true if the delete was successful (i.e. the key was found in the
@@ -1196,9 +1211,15 @@ std::optional<detail::node_ptr*> impl_helpers::remove_or_choose_subtree(
 
   if (UNODB_DETAIL_UNLIKELY(inode.is_min_size())) {
     if constexpr (std::is_same_v<INode, inode_4<Key, Value>>) {
-      auto current_node{art_policy<Key, Value>::make_db_inode_unique_ptr(
-          &inode, db_instance)};
-      *node_in_parent = current_node->leave_last_child(child_i, db_instance);
+      if (UNODB_DETAIL_LIKELY(inode.can_collapse(child_i))) {
+        auto current_node{art_policy<Key, Value>::make_db_inode_unique_ptr(
+            &inode, db_instance)};
+        *node_in_parent =
+            current_node->leave_last_child(child_i, db_instance);
+      } else {
+        // Prefix overflow — cannot collapse.  Just remove the child entry.
+        inode.remove(child_i, db_instance);
+      }
     } else {
       auto new_node{
           INode::smaller_derived_type::create(db_instance, inode, child_i)};
@@ -1265,7 +1286,12 @@ template <typename Key, typename Value>
 bool db<Key, Value>::insert_internal(art_key_type insert_key, value_type v) {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) {
     auto leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
-    root = detail::node_ptr{leaf.release(), node_type::LEAF};
+    if constexpr (std::is_same_v<Key, key_view>) {
+      root = build_chain(insert_key,
+                         detail::node_ptr{leaf.release(), node_type::LEAF});
+    } else {
+      root = detail::node_ptr{leaf.release(), node_type::LEAF};
+    }
     return true;
   }
 
@@ -1333,6 +1359,38 @@ bool db<Key, Value>::insert_internal_fixed(art_key_type insert_key,
     ++depth;
     remaining_key.shift_right(1);
   }
+}
+
+template <typename Key, typename Value>
+detail::node_ptr db<Key, Value>::build_chain(art_key_type k,
+                                             detail::node_ptr child) {
+  constexpr std::size_t cap = detail::key_prefix_capacity;
+  const auto full_key = k.get_key_view();
+  const auto key_len = k.size();
+  auto current = child;
+  // Build bottom-up: start from end of key, work toward root.
+  // Each chain I4 consumes up to cap prefix bytes + 1 dispatch byte.
+  // The last I4 created (with prefix from key[0..]) becomes the root.
+  std::size_t pos = key_len;
+  while (pos > cap) {
+    const auto depth = pos - cap - 1;
+    const auto dispatch = full_key[pos - 1];
+    auto remaining = k;
+    remaining.shift_right(depth);
+    auto chain{inode_4::create(*this, full_key, remaining,
+                               tree_depth_type{depth}, dispatch, current)};
+    current = detail::node_ptr{chain.release(), node_type::I4};
+    pos = depth;
+  }
+  // Tail: 1..cap bytes at the start of the key.
+  if (pos > 0) {
+    const auto dispatch = full_key[pos - 1];
+    auto chain{inode_4::create(*this, full_key, tree_depth_type{0},
+                               static_cast<detail::key_prefix_size>(pos - 1),
+                               dispatch, current)};
+    current = detail::node_ptr{chain.release(), node_type::I4};
+  }
+  return current;
 }
 
 template <typename Key, typename Value>

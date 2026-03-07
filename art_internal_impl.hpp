@@ -939,6 +939,11 @@ union [[nodiscard]] key_prefix {
   key_prefix(key_view k1, ArtKey shifted_k2, tree_depth<ArtKey> depth) noexcept
       : u64{make_u64(k1, shifted_k2, depth)} {}
 
+  /// Construct with explicit prefix length, copying bytes from k1 at depth.
+  key_prefix(detail::key_prefix_size prefix_len, key_view k1,
+             tree_depth<ArtKey> depth) noexcept
+      : u64{make_u64_explicit(prefix_len, k1, depth)} {}
+
   /// Construct with truncated length from source.
   ///
   /// \param key_prefix_len New prefix length (must not exceed capacity)
@@ -1098,6 +1103,15 @@ union [[nodiscard]] key_prefix {
 
     return k1_u64 | length_to_word(shared_len(k1_u64, shifted_k2.get_u64(),
                                               key_prefix_capacity));
+  }
+
+  /// Build u64 with explicit prefix length, copying bytes from k1 at depth.
+  [[nodiscard, gnu::const]] static constexpr std::uint64_t make_u64_explicit(
+      detail::key_prefix_size prefix_len, key_view k1,
+      tree_depth<ArtKey> depth) noexcept {
+    k1 = k1.subspan(depth);
+    const auto k1_u64 = get_u64(k1) & key_bytes_mask;
+    return k1_u64 | length_to_word(prefix_len);
   }
 };  // class key_prefix
 
@@ -1579,6 +1593,13 @@ class basic_inode_impl : public ArtPolicy::header_type {
       : k_prefix{k1, shifted_k2, depth},
         children_count{static_cast<std::uint8_t>(children_count_)} {}
 
+  /// Construct with explicit prefix length from key at depth.
+  constexpr basic_inode_impl(unsigned children_count_,
+                             detail::key_prefix_size prefix_len, key_view k1,
+                             tree_depth<art_key_type> depth) noexcept
+      : k_prefix{prefix_len, k1, depth},
+        children_count{static_cast<std::uint8_t>(children_count_)} {}
+
   /// Construct with truncated prefix from source node.
   ///
   /// \param children_count_ Initial children count
@@ -1778,6 +1799,13 @@ class [[nodiscard]] basic_inode : public basic_inode_impl<ArtPolicy> {
                         tree_depth<art_key_type> depth,
                         single_child_tag) noexcept
       : parent{1, k1, shifted_k2, depth} {}
+
+  /// Construct single-child node with explicit prefix length.
+  /// Used by build_chain when remaining key < key_prefix_capacity.
+  constexpr basic_inode(detail::key_prefix_size prefix_len, unodb::key_view k1,
+                        tree_depth<art_key_type> depth,
+                        single_child_tag) noexcept
+      : parent{1, prefix_len, k1, depth} {}
 };
 
 /// Type alias for basic_inode_4 parent class.
@@ -1904,6 +1932,31 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
                           tree_depth_type depth, std::byte key_byte,
                           node_ptr child) noexcept
       : parent_class{k1, remaining_key, depth,
+                     typename parent_class::single_child_tag{}} {
+    init(key_byte, child);
+  }
+
+  /// Check if collapsing this min-size I4 would overflow the prefix.
+  [[nodiscard]] constexpr bool can_collapse(
+      std::uint8_t child_to_delete) const noexcept {
+    UNODB_DETAIL_ASSERT(this->is_min_size());
+    const std::uint8_t child_to_leave = (child_to_delete == 0) ? 1U : 0U;
+    const auto child_ptr = children[child_to_leave].load();
+    if (child_ptr.type() == node_type::LEAF) return true;
+    const auto* const child_inode{child_ptr.template ptr<inode_type*>()};
+    return this->get_key_prefix().length() +
+               child_inode->get_key_prefix().length() <
+           detail::key_prefix_capacity;
+  }
+
+  /// Construct single-child chain node with explicit prefix length.
+  /// Used by build_chain when remaining key <= key_prefix_capacity.
+  constexpr basic_inode_4(db_type&, key_view k1,
+                          // cppcheck-suppress passedByValue
+                          tree_depth_type depth,
+                          detail::key_prefix_size prefix_len,
+                          std::byte key_byte, node_ptr child) noexcept
+      : parent_class{prefix_len, k1, depth,
                      typename parent_class::single_child_tag{}} {
     init(key_byte, child);
   }
