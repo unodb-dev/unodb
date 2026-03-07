@@ -36,7 +36,6 @@ using dynamic_value = std::vector<std::byte>;
 using values_type = std::vector<dynamic_value>;
 
 using oracle_type = std::unordered_map<std::uint64_t, unodb::value_view>;
-
 [[nodiscard]] dynamic_value make_random_value(dynamic_value::size_type length) {
   dynamic_value result{length};
   for (dynamic_value::size_type i = 0; i < length; i++) {
@@ -85,7 +84,6 @@ void dump_tree(const unodb::db<std::uint64_t, unodb::value_view>& tree) {
   std::stringstream dump_sink;
   tree.dump(dump_sink);
 }
-
 #ifdef UNODB_DETAIL_WITH_STATS
 
 void assert_unchanged_tree_after_failed_op(
@@ -201,7 +199,8 @@ void op_with_oom_test(oracle_type& oracle, std::vector<std::uint64_t>& keys,
 
 UNODB_START_DEEPSTATE_TESTS()
 
-// NOLINTBEGIN(clang-analyzer-security.ArrayBound)
+// NOLINTBEGIN(clang-analyzer-security.ArrayBound): false positive in
+// DeepState OneOf() template (DeepState.hpp:360), clang-21+.
 TEST(ART, DeepStateFuzz) {
   const auto limit_max_key = DeepState_Bool();
   const auto max_key_value =

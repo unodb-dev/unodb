@@ -108,7 +108,8 @@ template <unsigned NodeCapacity>
     return 5;
   } else if constexpr (NodeCapacity == 48) {
     return 17;
-  } else if constexpr (NodeCapacity == 256) {
+  } else {
+    static_assert(NodeCapacity == 256);
     return 49;
   }
 }
