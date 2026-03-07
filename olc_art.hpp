@@ -515,6 +515,7 @@ class olc_db final {
     /// post-condition: The iterator is !valid().
     iterator& invalidate() noexcept {
       while (!stack_.empty()) stack_.pop();  // clear the stack
+      keybuf_.reset();                       // clear the key buffer
       return *this;
     }
 
