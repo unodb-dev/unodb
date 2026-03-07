@@ -548,7 +548,7 @@ UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, MixedLengthKeysLongPrefix) {
   verifier.insert(make_key(enc, 0x42, 2), val);
   verifier.check_present_values();
 #ifdef UNODB_DETAIL_WITH_STATS
-  constexpr std::uint64_t I = unodb::test::is_olc_db<TypeParam> ? 2 : 3;
+  constexpr std::uint64_t I = 3;
   verifier.assert_node_counts({2, I, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
@@ -729,13 +729,13 @@ UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, CascadeChainUnderI4) {
   verifier.insert(make_key(enc, 0x42, 2), val);
   verifier.insert(make_short_key(enc, 0x01), val);
   // root I4(2: 0x42→chain, 0x01→leaf) + chain I4 + bottom I4 + 3 leaves
-  constexpr std::uint64_t I3 = unodb::test::is_olc_db<TypeParam> ? 3 : 2;
+  constexpr std::uint64_t I3 = 2;
   verifier.assert_node_counts({3, I3, 0, 0, 0});
 
   verifier.remove(make_key(enc, 0x42, 1));
   // Bottom I4 collapsed via leave_last_child.  Chain I4 has 1 child (leaf).
   // Root I4 still has 2 children.
-  constexpr std::uint64_t I2 = unodb::test::is_olc_db<TypeParam> ? 2 : 1;
+  constexpr std::uint64_t I2 = 1;
   verifier.assert_node_counts({2, I2, 0, 0, 0});
 
   verifier.remove(make_key(enc, 0x42, 2));
@@ -756,7 +756,7 @@ UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, CascadeChainUnderI16) {
   verifier.insert(make_key(enc, 0x42, 2), val);
   for (std::uint8_t t = 0x01; t <= 0x04; ++t)
     verifier.insert(make_short_key(enc, t), val);
-  constexpr std::uint64_t IC16 = unodb::test::is_olc_db<TypeParam> ? 2 : 1;
+  constexpr std::uint64_t IC16 = 1;
   verifier.assert_node_counts({6, IC16, 1, 0, 0});
 
   verifier.remove(make_key(enc, 0x42, 1));
@@ -778,7 +778,7 @@ UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, CascadeChainUnderI48) {
   verifier.insert(make_key(enc, 0x42, 2), val);
   for (std::uint8_t t = 0x01; t <= 0x10; ++t)
     verifier.insert(make_short_key(enc, t), val);
-  constexpr std::uint64_t IC48 = unodb::test::is_olc_db<TypeParam> ? 2 : 1;
+  constexpr std::uint64_t IC48 = 1;
   verifier.assert_node_counts({18, IC48, 0, 1, 0});
 
   verifier.remove(make_key(enc, 0x42, 1));
@@ -799,7 +799,7 @@ UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, CascadeChainUnderI256) {
   verifier.insert(make_key(enc, 0x42, 2), val);
   for (std::uint8_t t = 0x01; t <= 0x30; ++t)
     verifier.insert(make_short_key(enc, t), val);
-  constexpr std::uint64_t IC256 = unodb::test::is_olc_db<TypeParam> ? 2 : 1;
+  constexpr std::uint64_t IC256 = 1;
   verifier.assert_node_counts({50, IC256, 0, 0, 1});
 
   verifier.remove(make_key(enc, 0x42, 1));
@@ -891,7 +891,7 @@ UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, ChainParentGrowthI4ToI16) {
   for (std::uint8_t t = 0x01; t <= 0x04; ++t)
     verifier.insert(make_short_key(enc, t), val);
   verifier.check_present_values();
-  constexpr std::uint64_t IG16 = unodb::test::is_olc_db<TypeParam> ? 2 : 1;
+  constexpr std::uint64_t IG16 = 1;
   verifier.assert_node_counts({6, IG16, 1, 0, 0});
 }
 
@@ -906,7 +906,7 @@ UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, ChainParentGrowthI16ToI48) {
   for (std::uint8_t t = 0x01; t <= 0x10; ++t)
     verifier.insert(make_short_key(enc, t), val);
   verifier.check_present_values();
-  constexpr std::uint64_t IG48 = unodb::test::is_olc_db<TypeParam> ? 2 : 1;
+  constexpr std::uint64_t IG48 = 1;
   verifier.assert_node_counts({18, IG48, 0, 1, 0});
 }
 
@@ -921,7 +921,7 @@ UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, ChainParentGrowthI48ToI256) {
   for (std::uint8_t t = 0x01; t <= 0x30; ++t)
     verifier.insert(make_short_key(enc, t), val);
   verifier.check_present_values();
-  constexpr std::uint64_t IG256 = unodb::test::is_olc_db<TypeParam> ? 2 : 1;
+  constexpr std::uint64_t IG256 = 1;
   verifier.assert_node_counts({50, IG256, 0, 0, 1});
 }
 
