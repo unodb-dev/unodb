@@ -1216,6 +1216,9 @@ std::optional<detail::node_ptr*> impl_helpers::remove_or_choose_subtree(
             &inode, db_instance)};
         *node_in_parent =
             current_node->leave_last_child(child_i, db_instance);
+#ifdef UNODB_DETAIL_WITH_STATS
+        db_instance.template account_shrinking_inode<INode::type>();
+#endif
       } else {
         // Prefix overflow — cannot collapse.  Just remove the child entry.
         inode.remove(child_i, db_instance);
@@ -1225,10 +1228,10 @@ std::optional<detail::node_ptr*> impl_helpers::remove_or_choose_subtree(
           INode::smaller_derived_type::create(db_instance, inode, child_i)};
       *node_in_parent =
           node_ptr{new_node.release(), INode::smaller_derived_type::type};
-    }
 #ifdef UNODB_DETAIL_WITH_STATS
-    db_instance.template account_shrinking_inode<INode::type>();
-#endif  // UNODB_DETAIL_WITH_STATS
+      db_instance.template account_shrinking_inode<INode::type>();
+#endif
+    }
     return nullptr;
   }
 
@@ -1380,6 +1383,9 @@ detail::node_ptr db<Key, Value>::build_chain(art_key_type k,
     auto chain{inode_4::create(*this, full_key, remaining,
                                tree_depth_type{depth}, dispatch, current)};
     current = detail::node_ptr{chain.release(), node_type::I4};
+#ifdef UNODB_DETAIL_WITH_STATS
+    account_growing_inode<node_type::I4>();
+#endif
     pos = depth;
   }
   // Tail: 1..cap bytes at the start of the key.
@@ -1389,6 +1395,9 @@ detail::node_ptr db<Key, Value>::build_chain(art_key_type k,
                                static_cast<detail::key_prefix_size>(pos - 1),
                                dispatch, current)};
     current = detail::node_ptr{chain.release(), node_type::I4};
+#ifdef UNODB_DETAIL_WITH_STATS
+    account_growing_inode<node_type::I4>();
+#endif
   }
   return current;
 }
