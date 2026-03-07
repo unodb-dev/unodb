@@ -44,6 +44,10 @@ inline sync_point sync_after_chain_locked;
 /// Sync point: fires inside Step 2 loop between chain node locks.
 inline sync_point sync_between_chain_locks;
 
+/// Sync point: fires in remove_or_choose_subtree after leaf match confirmed
+/// and min_size read, before write guard acquisition.
+inline sync_point sync_before_remove_write_guard;
+
 /// OLC ART node header contains an unodb::optimistic_lock object for this node.
 ///
 /// The node type is constant throughout the node lifetime, is stored outside of
@@ -1603,6 +1607,8 @@ template <typename Key, typename Value, class INode>
   }
 
   const auto is_node_min_size{inode.is_min_size()};
+
+  detail::sync(detail::sync_before_remove_write_guard);
 
   if (UNODB_DETAIL_LIKELY(!is_node_min_size)) {
     if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
