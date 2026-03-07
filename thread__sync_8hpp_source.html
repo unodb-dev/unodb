@@ -138,14 +138,14 @@ $(document).ready(function(){initNavTree('thread__sync_8hpp_source.html',''); in
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>      <span class="keyword">const</span> std::lock_guard lock{sync_mutex};</div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>      flag = <span class="keyword">true</span>;</div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    }</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    sync.notify_one();</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <a class="code hl_function" href="namespaceunodb_1_1detail.html#a03878a8c54206e8babeb1cedd9c69a18">sync</a>.notify_one();</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>  }</div>
 </div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
 <div class="foldopen" id="foldopen00050" data-start="{" data-end="}">
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="classunodb_1_1detail_1_1thread__sync.html#a34a77e47a451242d985f7ae30c4ff37e">   50</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1detail_1_1thread__sync.html#a34a77e47a451242d985f7ae30c4ff37e">wait</a>() {</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    std::unique_lock lock{sync_mutex};</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    sync.wait(lock, [&amp;inner_flag = flag] { <span class="keywordflow">return</span> inner_flag; });</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <a class="code hl_function" href="namespaceunodb_1_1detail.html#a03878a8c54206e8babeb1cedd9c69a18">sync</a>.wait(lock, [&amp;inner_flag = flag] { <span class="keywordflow">return</span> inner_flag; });</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    flag = <span class="keyword">false</span>;</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    lock.unlock();</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>  }</div>
@@ -190,7 +190,8 @@ $(document).ready(function(){initNavTree('thread__sync_8hpp_source.html',''); in
 <div class="ttc" id="agroup__internal_html_ga143793f205c69f573831b99b3dee1b9c"><div class="ttname"><a href="group__internal.html#ga143793f205c69f573831b99b3dee1b9c">UNODB_DETAIL_ASSERT</a></div><div class="ttdeci">#define UNODB_DETAIL_ASSERT(condition)</div><div class="ttdoc">Assert a condition.</div><div class="ttdef"><b>Definition</b> assert.hpp:160</div></div>
 <div class="ttc" id="agroup__internal_html_ga6979215c90d6f2280a56d80eb67c6c83"><div class="ttname"><a href="group__internal.html#ga6979215c90d6f2280a56d80eb67c6c83">UNODB_DETAIL_DISABLE_MSVC_WARNING</a></div><div class="ttdeci">#define UNODB_DETAIL_DISABLE_MSVC_WARNING(x)</div><div class="ttdoc">Disable an MSVC warning x until UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div><div class="ttdef"><b>Definition</b> global.hpp:338</div></div>
 <div class="ttc" id="agroup__internal_html_gacd9e44918f8725b066b33afc500ce938"><div class="ttname"><a href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a></div><div class="ttdeci">#define UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div><div class="ttdoc">Re-enable the warning that was previously disabled with UNODB_DETAIL_DISABLE_MSVC_WARNING().</div><div class="ttdef"><b>Definition</b> global.hpp:339</div></div>
-<div class="ttc" id="anamespaceunodb_1_1detail_html"><div class="ttname"><a href="namespaceunodb_1_1detail.html">unodb::detail</a></div><div class="ttdoc">Namespace for the UnoDB internal implementation details.</div><div class="ttdef"><b>Definition</b> art.hpp:32</div></div>
+<div class="ttc" id="anamespaceunodb_1_1detail_html"><div class="ttname"><a href="namespaceunodb_1_1detail.html">unodb::detail</a></div><div class="ttdoc">Namespace for the UnoDB internal implementation details.</div><div class="ttdef"><b>Definition</b> art.hpp:34</div></div>
+<div class="ttc" id="anamespaceunodb_1_1detail_html_a03878a8c54206e8babeb1cedd9c69a18"><div class="ttname"><a href="namespaceunodb_1_1detail.html#a03878a8c54206e8babeb1cedd9c69a18">unodb::detail::sync</a></div><div class="ttdeci">void sync(sync_point &amp;pt)</div><div class="ttdoc">Fire a sync point (calls hook if armed).</div><div class="ttdef"><b>Definition</b> sync.hpp:36</div></div>
 <div class="ttc" id="anamespaceunodb_1_1detail_html_a04a041b47bebde8ed0f3bd97327e450c"><div class="ttname"><a href="namespaceunodb_1_1detail.html#a04a041b47bebde8ed0f3bd97327e450c">unodb::detail::thread_syncs</a></div><div class="ttdeci">std::array&lt; thread_sync, 6 &gt; thread_syncs</div><div class="ttdoc">Global array of thread synchronization objects.</div><div class="ttdef"><b>Definition</b> thread_sync.hpp:84</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->

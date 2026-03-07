@@ -125,7 +125,312 @@ Functions</h2></td></tr>
 &#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>, EncodedTextKeys)</td></tr>
 <tr class="memdesc:a0be5090b7a4ba43d1564190d789bace7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unit test inserts several string keys with proper encoding and validates the tree. <br /></td></tr>
 <tr class="separator:a0be5090b7a4ba43d1564190d789bace7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3a4ce3e9ac037c2d6194a3fd9274fccf" id="r_a3a4ce3e9ac037c2d6194a3fd9274fccf"><td class="memItemLeft" align="right" valign="top"><a id="a3a4ce3e9ac037c2d6194a3fd9274fccf" name="a3a4ce3e9ac037c2d6194a3fd9274fccf"></a>
+<a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a>&#160;</td><td class="memItemRight" valign="bottom"><b>make_key</b> (<a class="el" href="classunodb_1_1key__encoder.html">unodb::key_encoder</a> &amp;enc, std::uint8_t tag, std::uint64_t v)</td></tr>
+<tr class="separator:a3a4ce3e9ac037c2d6194a3fd9274fccf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89f98abe19db064b92f8bd8ea477c868" id="r_a89f98abe19db064b92f8bd8ea477c868"><td class="memItemLeft" align="right" valign="top"><a id="a89f98abe19db064b92f8bd8ea477c868" name="a89f98abe19db064b92f8bd8ea477c868"></a>
+<a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a>&#160;</td><td class="memItemRight" valign="bottom"><b>make_short_key</b> (<a class="el" href="classunodb_1_1key__encoder.html">unodb::key_encoder</a> &amp;enc, std::uint8_t tag)</td></tr>
+<tr class="separator:a89f98abe19db064b92f8bd8ea477c868"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1ec2b6997ab85042cdd541a0c8a35c8" id="r_aa1ec2b6997ab85042cdd541a0c8a35c8"><td class="memItemLeft" align="right" valign="top"><a id="aa1ec2b6997ab85042cdd541a0c8a35c8" name="aa1ec2b6997ab85042cdd541a0c8a35c8"></a>
+<a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a>&#160;</td><td class="memItemRight" valign="bottom"><b>make_long_key</b> (<a class="el" href="classunodb_1_1key__encoder.html">unodb::key_encoder</a> &amp;enc, std::uint8_t tag, std::uint64_t v, std::uint8_t suffix)</td></tr>
+<tr class="separator:aa1ec2b6997ab85042cdd541a0c8a35c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5707a2da6625ad7b24eb02681c67cd73" id="r_a5707a2da6625ad7b24eb02681c67cd73"><td class="memItemLeft" align="right" valign="top"><a id="a5707a2da6625ad7b24eb02681c67cd73" name="a5707a2da6625ad7b24eb02681c67cd73"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>, CompoundKeysLongSharedPrefix)</td></tr>
+<tr class="memdesc:a5707a2da6625ad7b24eb02681c67cd73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Two 9-byte keys sharing 8 bytes — dispatch byte collision. <br /></td></tr>
+<tr class="separator:a5707a2da6625ad7b24eb02681c67cd73"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe9ab476923514dbd6b7e7a0c4835a43" id="r_abe9ab476923514dbd6b7e7a0c4835a43"><td class="memItemLeft" align="right" valign="top"><a id="abe9ab476923514dbd6b7e7a0c4835a43" name="abe9ab476923514dbd6b7e7a0c4835a43"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>, ThreeCompoundKeysLongSharedPrefix)</td></tr>
+<tr class="memdesc:abe9ab476923514dbd6b7e7a0c4835a43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Three keys with the same tag byte and small uint64 values. <br /></td></tr>
+<tr class="separator:abe9ab476923514dbd6b7e7a0c4835a43"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa94acfe6e4db3f74085f88585b73d357" id="r_aa94acfe6e4db3f74085f88585b73d357"><td class="memItemLeft" align="right" valign="top"><a id="aa94acfe6e4db3f74085f88585b73d357" name="aa94acfe6e4db3f74085f88585b73d357"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>, NineByteCompoundKeysLongPrefix)</td></tr>
+<tr class="memdesc:aa94acfe6e4db3f74085f88585b73d357"><td class="mdescLeft">&#160;</td><td class="mdescRight">9-byte keys sharing 8 bytes — minimal collision case. <br /></td></tr>
+<tr class="separator:aa94acfe6e4db3f74085f88585b73d357"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab224aa823326a5425487b5c941ce2912" id="r_ab224aa823326a5425487b5c941ce2912"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html#ab224aa823326a5425487b5c941ce2912">UNODB_TYPED_TEST</a> (<a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>, CompoundKeysIdenticalExceptLastByte)</td></tr>
+<tr class="memdesc:ab224aa823326a5425487b5c941ce2912"><td class="mdescLeft">&#160;</td><td class="mdescRight">Keys identical except last byte — maximum chaining depth for 9-byte keys.  <br /></td></tr>
+<tr class="separator:ab224aa823326a5425487b5c941ce2912"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a105713bba7188352bcde79484c349df3" id="r_a105713bba7188352bcde79484c349df3"><td class="memItemLeft" align="right" valign="top"><a id="a105713bba7188352bcde79484c349df3" name="a105713bba7188352bcde79484c349df3"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>, MultiLevelChain)</td></tr>
+<tr class="memdesc:a105713bba7188352bcde79484c349df3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Two 17-byte keys sharing 16 bytes — forces two consecutive chain nodes (depth 0→8 and depth 8→16) before the normal 2-child split. <br /></td></tr>
+<tr class="separator:a105713bba7188352bcde79484c349df3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f661e2863e2d4e8626289e21f9a4e17" id="r_a0f661e2863e2d4e8626289e21f9a4e17"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html#a0f661e2863e2d4e8626289e21f9a4e17">UNODB_TYPED_TEST</a> (<a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>, InsertDivergingAtIntermediateChainDepth)</td></tr>
+<tr class="memdesc:a0f661e2863e2d4e8626289e21f9a4e17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Three 17-byte keys: A and B share 16 bytes, C diverges at byte 10.  <br /></td></tr>
+<tr class="separator:a0f661e2863e2d4e8626289e21f9a4e17"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aec7375806f87a3f918ef1e16a6fbf861" id="r_aec7375806f87a3f918ef1e16a6fbf861"><td class="memItemLeft" align="right" valign="top"><a id="aec7375806f87a3f918ef1e16a6fbf861" name="aec7375806f87a3f918ef1e16a6fbf861"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>, CompoundKeysFiveChildren)</td></tr>
+<tr class="memdesc:aec7375806f87a3f918ef1e16a6fbf861"><td class="mdescLeft">&#160;</td><td class="mdescRight">5 keys with same 8-byte prefix — forces inode4 -&gt; inode16 growth. <br /></td></tr>
+<tr class="separator:aec7375806f87a3f918ef1e16a6fbf861"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09671cfe15be272ea0f2ddcee3572f86" id="r_a09671cfe15be272ea0f2ddcee3572f86"><td class="memItemLeft" align="right" valign="top"><a id="a09671cfe15be272ea0f2ddcee3572f86" name="a09671cfe15be272ea0f2ddcee3572f86"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>, CompoundKeysSeventeenChildren)</td></tr>
+<tr class="memdesc:a09671cfe15be272ea0f2ddcee3572f86"><td class="mdescLeft">&#160;</td><td class="mdescRight">17 keys — forces inode16 -&gt; inode48 growth. <br /></td></tr>
+<tr class="separator:a09671cfe15be272ea0f2ddcee3572f86"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afebfa02efbcecc613ea41acb6e32aa69" id="r_afebfa02efbcecc613ea41acb6e32aa69"><td class="memItemLeft" align="right" valign="top"><a id="afebfa02efbcecc613ea41acb6e32aa69" name="afebfa02efbcecc613ea41acb6e32aa69"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>, CompoundKeysFiftyChildren)</td></tr>
+<tr class="memdesc:afebfa02efbcecc613ea41acb6e32aa69"><td class="mdescLeft">&#160;</td><td class="mdescRight">50 keys — forces inode48 -&gt; inode256 growth. <br /></td></tr>
+<tr class="separator:afebfa02efbcecc613ea41acb6e32aa69"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0df1624d55a4f481453a7ea20b2819f9" id="r_a0df1624d55a4f481453a7ea20b2819f9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html#a0df1624d55a4f481453a7ea20b2819f9">UNODB_TYPED_TEST</a> (<a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>, CompoundKeysInsertThenRemove)</td></tr>
+<tr class="memdesc:a0df1624d55a4f481453a7ea20b2819f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert 2 colliding keys, remove one, verify the other is still found.  <br /></td></tr>
+<tr class="separator:a0df1624d55a4f481453a7ea20b2819f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3698ae95eaa30f67d90165298e92ba03" id="r_a3698ae95eaa30f67d90165298e92ba03"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html#a3698ae95eaa30f67d90165298e92ba03">UNODB_TYPED_TEST</a> (<a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>, RemoveFromChainLeavesInode)</td></tr>
+<tr class="memdesc:a3698ae95eaa30f67d90165298e92ba03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert 3 keys: two sharing 8 bytes, one diverging earlier.  <br /></td></tr>
+<tr class="separator:a3698ae95eaa30f67d90165298e92ba03"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa8f695f962d03266c63abd1757b7cb67" id="r_aa8f695f962d03266c63abd1757b7cb67"><td class="memItemLeft" align="right" valign="top"><a id="aa8f695f962d03266c63abd1757b7cb67" name="aa8f695f962d03266c63abd1757b7cb67"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>, RemoveAllFromChainReverseOrder)</td></tr>
+<tr class="memdesc:aa8f695f962d03266c63abd1757b7cb67"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert 3 colliding keys, remove in reverse order, assert empty. <br /></td></tr>
+<tr class="separator:aa8f695f962d03266c63abd1757b7cb67"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abcfb10212ac28bbe32f9065017adb419" id="r_abcfb10212ac28bbe32f9065017adb419"><td class="memItemLeft" align="right" valign="top"><a id="abcfb10212ac28bbe32f9065017adb419" name="abcfb10212ac28bbe32f9065017adb419"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>, RemoveAllFromChainForwardOrder)</td></tr>
+<tr class="memdesc:abcfb10212ac28bbe32f9065017adb419"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert 3 colliding keys, remove in forward order, assert empty. <br /></td></tr>
+<tr class="separator:abcfb10212ac28bbe32f9065017adb419"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a389319b6b06be18d83eb23997e8e5b5f" id="r_a389319b6b06be18d83eb23997e8e5b5f"><td class="memItemLeft" align="right" valign="top"><a id="a389319b6b06be18d83eb23997e8e5b5f" name="a389319b6b06be18d83eb23997e8e5b5f"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>, ShrinkInode16InChain)</td></tr>
+<tr class="memdesc:a389319b6b06be18d83eb23997e8e5b5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert 5 keys (-&gt; inode16 at chain terminal), remove 3 (-&gt; inode4). <br /></td></tr>
+<tr class="separator:a389319b6b06be18d83eb23997e8e5b5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7732a312d6bb4ba8f4e6a9b1be974a03" id="r_a7732a312d6bb4ba8f4e6a9b1be974a03"><td class="memItemLeft" align="right" valign="top"><a id="a7732a312d6bb4ba8f4e6a9b1be974a03" name="a7732a312d6bb4ba8f4e6a9b1be974a03"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>, ShrinkInode48InChain)</td></tr>
+<tr class="memdesc:a7732a312d6bb4ba8f4e6a9b1be974a03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert 17 keys (-&gt; inode48), remove 13 (-&gt; shrink to inode4). <br /></td></tr>
+<tr class="separator:a7732a312d6bb4ba8f4e6a9b1be974a03"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4af95fecd7def5956bb56ff78b021834" id="r_a4af95fecd7def5956bb56ff78b021834"><td class="memItemLeft" align="right" valign="top"><a id="a4af95fecd7def5956bb56ff78b021834" name="a4af95fecd7def5956bb56ff78b021834"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>, ShrinkToEmptyFromInode16InChain)</td></tr>
+<tr class="memdesc:a4af95fecd7def5956bb56ff78b021834"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert 5 keys (-&gt; inode16), remove all 5, assert empty. <br /></td></tr>
+<tr class="separator:a4af95fecd7def5956bb56ff78b021834"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a773743a78d165f80a279d4c5003bd3fe" id="r_a773743a78d165f80a279d4c5003bd3fe"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html#a773743a78d165f80a279d4c5003bd3fe">UNODB_TYPED_TEST</a> (<a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>, RemoveMixedLengthFromChain)</td></tr>
+<tr class="memdesc:a773743a78d165f80a279d4c5003bd3fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert a 10-byte and 9-byte key sharing 8 bytes (same tag, different uint64 values).  <br /></td></tr>
+<tr class="separator:a773743a78d165f80a279d4c5003bd3fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab17f42536be7ef0043960f2068bac239" id="r_ab17f42536be7ef0043960f2068bac239"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html#ab17f42536be7ef0043960f2068bac239">UNODB_TYPED_TEST</a> (<a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>, StressInsertRemoveAtEveryPosition)</td></tr>
+<tr class="memdesc:ab17f42536be7ef0043960f2068bac239"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert 24 keys (divergence at positions 7..18), remove every other key, verify remaining.  <br /></td></tr>
+<tr class="separator:ab17f42536be7ef0043960f2068bac239"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5304546d9acb2b96d20b0acb9f7bd7c0" id="r_a5304546d9acb2b96d20b0acb9f7bd7c0"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html#a5304546d9acb2b96d20b0acb9f7bd7c0">UNODB_TYPED_TEST</a> (<a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>, MixedLengthKeysLongPrefix)</td></tr>
+<tr class="memdesc:a5304546d9acb2b96d20b0acb9f7bd7c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">A 10-byte key and a 9-byte key sharing 8 bytes (same tag, different uint64 values).  <br /></td></tr>
+<tr class="separator:a5304546d9acb2b96d20b0acb9f7bd7c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c3f9a05ce521ced6f912ae7f8baaa1f" id="r_a3c3f9a05ce521ced6f912ae7f8baaa1f"><td class="memItemLeft" align="right" valign="top"><a id="a3c3f9a05ce521ced6f912ae7f8baaa1f" name="a3c3f9a05ce521ced6f912ae7f8baaa1f"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>, CompoundKeyDuplicateInsert)</td></tr>
+<tr class="memdesc:a3c3f9a05ce521ced6f912ae7f8baaa1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inserting the same 9-byte key twice returns false on the second insert. <br /></td></tr>
+<tr class="separator:a3c3f9a05ce521ced6f912ae7f8baaa1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5fe26e8f41743920c6722be80e0159d2" id="r_a5fe26e8f41743920c6722be80e0159d2"><td class="memItemLeft" align="right" valign="top"><a id="a5fe26e8f41743920c6722be80e0159d2" name="a5fe26e8f41743920c6722be80e0159d2"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>, CompoundKeyGetMissing)</td></tr>
+<tr class="memdesc:a5fe26e8f41743920c6722be80e0159d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get with a key sharing 8 bytes but differing at the last byte should return empty when only one key is present. <br /></td></tr>
+<tr class="separator:a5fe26e8f41743920c6722be80e0159d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="ab224aa823326a5425487b5c941ce2912" name="ab224aa823326a5425487b5c941ce2912"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab224aa823326a5425487b5c941ce2912">&#9670;&#160;</a></span>UNODB_TYPED_TEST() <span class="overload">[1/7]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous_namespace{test_art_key_view.cpp}::UNODB_TYPED_TEST </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">CompoundKeysIdenticalExceptLastByte&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Keys identical except last byte — maximum chaining depth for 9-byte keys. </p>
+<p>9-byte keys sharing 8 bytes, differing only at byte 8. </p>
+
+</div>
+</div>
+<a id="a0df1624d55a4f481453a7ea20b2819f9" name="a0df1624d55a4f481453a7ea20b2819f9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0df1624d55a4f481453a7ea20b2819f9">&#9670;&#160;</a></span>UNODB_TYPED_TEST() <span class="overload">[2/7]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous_namespace{test_art_key_view.cpp}::UNODB_TYPED_TEST </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">CompoundKeysInsertThenRemove&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Insert 2 colliding keys, remove one, verify the other is still found. </p>
+<p>The chain of inode_4s should collapse to a single leaf. </p>
+
+</div>
+</div>
+<a id="a0f661e2863e2d4e8626289e21f9a4e17" name="a0f661e2863e2d4e8626289e21f9a4e17"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0f661e2863e2d4e8626289e21f9a4e17">&#9670;&#160;</a></span>UNODB_TYPED_TEST() <span class="overload">[3/7]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous_namespace{test_art_key_view.cpp}::UNODB_TYPED_TEST </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">InsertDivergingAtIntermediateChainDepth&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Three 17-byte keys: A and B share 16 bytes, C diverges at byte 10. </p>
+<p>After inserting A and B (two chain levels), inserting C splits the second chain node mid-prefix. </p>
+
+</div>
+</div>
+<a id="a5304546d9acb2b96d20b0acb9f7bd7c0" name="a5304546d9acb2b96d20b0acb9f7bd7c0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5304546d9acb2b96d20b0acb9f7bd7c0">&#9670;&#160;</a></span>UNODB_TYPED_TEST() <span class="overload">[4/7]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous_namespace{test_art_key_view.cpp}::UNODB_TYPED_TEST </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">MixedLengthKeysLongPrefix&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>A 10-byte key and a 9-byte key sharing 8 bytes (same tag, different uint64 values). </p>
+<p>The keys must not be in a prefix relationship. </p>
+
+</div>
+</div>
+<a id="a3698ae95eaa30f67d90165298e92ba03" name="a3698ae95eaa30f67d90165298e92ba03"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3698ae95eaa30f67d90165298e92ba03">&#9670;&#160;</a></span>UNODB_TYPED_TEST() <span class="overload">[5/7]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous_namespace{test_art_key_view.cpp}::UNODB_TYPED_TEST </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">RemoveFromChainLeavesInode&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Insert 3 keys: two sharing 8 bytes, one diverging earlier. </p>
+<p>Remove one of the 8-byte-shared pair. The surviving structure should be an inode with 2 children (the remaining keys). </p>
+
+</div>
+</div>
+<a id="a773743a78d165f80a279d4c5003bd3fe" name="a773743a78d165f80a279d4c5003bd3fe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a773743a78d165f80a279d4c5003bd3fe">&#9670;&#160;</a></span>UNODB_TYPED_TEST() <span class="overload">[6/7]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous_namespace{test_art_key_view.cpp}::UNODB_TYPED_TEST </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">RemoveMixedLengthFromChain&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Insert a 10-byte and 9-byte key sharing 8 bytes (same tag, different uint64 values). </p>
+<p>Remove the 10-byte key, verify 9-byte key. Then remove it too, assert empty.</p>
+<p>Note: the two keys must NOT be in a prefix relationship — ART does not support one key being a prefix of another. Using different uint64 values ensures they diverge within the shared bytes. </p>
+
+</div>
+</div>
+<a id="ab17f42536be7ef0043960f2068bac239" name="ab17f42536be7ef0043960f2068bac239"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab17f42536be7ef0043960f2068bac239">&#9670;&#160;</a></span>UNODB_TYPED_TEST() <span class="overload">[7/7]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous_namespace{test_art_key_view.cpp}::UNODB_TYPED_TEST </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html">ARTKeyViewCorrectnessTest</a>&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">StressInsertRemoveAtEveryPosition&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Insert 24 keys (divergence at positions 7..18), remove every other key, verify remaining. </p>
+<p>Then remove all, assert empty. </p>
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

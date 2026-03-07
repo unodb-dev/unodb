@@ -26,6 +26,7 @@ var classunodb_1_1detail_1_1basic__inode__48 =
     [ "next", "classunodb_1_1detail_1_1basic__inode__48.html#a3ec4eec3bea2cabd3049291f8c0aac53", null ],
     [ "prior", "classunodb_1_1detail_1_1basic__inode__48.html#a499c87619464b76e21f1f59a7b50b041", null ],
     [ "remove", "classunodb_1_1detail_1_1basic__inode__48.html#a1f0a79b5607d248f6e64c2b879731e66", null ],
+    [ "remove_child_entry", "classunodb_1_1detail_1_1basic__inode__48.html#ad387fbbfbfb72667303f23b451ce63f2", null ],
     [ "remove_child_pointer", "classunodb_1_1detail_1_1basic__inode__48.html#a5e45c00e025d4281c7be17649f64285f", null ],
     [ "child_indexes", "classunodb_1_1detail_1_1basic__inode__48.html#a733c51620437f23e6b970454c975d192", null ],
     [ "children", "classunodb_1_1detail_1_1basic__inode__48.html#a3c631bd9909626a9a6c2f3fc6d91f422", null ],

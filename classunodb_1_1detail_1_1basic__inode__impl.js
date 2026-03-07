@@ -39,6 +39,7 @@ var classunodb_1_1detail_1_1basic__inode__impl =
     [ "lte_key_byte", "classunodb_1_1detail_1_1basic__inode__impl.html#a925e671302e30860ff7aaf0b285744c7", null ],
     [ "next", "classunodb_1_1detail_1_1basic__inode__impl.html#ab5b30c90837a6b5f9db79d13a17cfdaf", null ],
     [ "prior", "classunodb_1_1detail_1_1basic__inode__impl.html#a9bc2a9ac06fef0b585ef78a635d430ab", null ],
+    [ "remove_child_entry", "classunodb_1_1detail_1_1basic__inode__impl.html#aa93b523e9c151828a7d71d4511d649b5", null ],
     [ "remove_or_choose_subtree", "classunodb_1_1detail_1_1basic__inode__impl.html#a6512f73291e1d2f0f4ca81b0941316f1", null ],
     [ "child_not_found", "classunodb_1_1detail_1_1basic__inode__impl.html#a6905ec23ef797ae856d05259c70385bb", null ],
     [ "child_not_found_i", "classunodb_1_1detail_1_1basic__inode__impl.html#adc6e07b0120630ba8a01da34cde094a0", null ],

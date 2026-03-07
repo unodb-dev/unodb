@@ -5,5 +5,7 @@ var searchData=
   ['start_2',['start',['../classunodb_1_1qsbr__ptr__span.html#a240f75edeb773147502f3c742bebee98',1,'unodb::qsbr_ptr_span']]],
   ['state_3',['state',['../classunodb_1_1qsbr.html#a01a260fb085274cacc7465cc0389f38e',1,'unodb::qsbr']]],
   ['sync_4',['sync',['../classunodb_1_1detail_1_1thread__sync.html#a0dc94898628d374e92b659126181290a',1,'unodb::detail::thread_sync']]],
-  ['sync_5fmutex_5',['sync_mutex',['../classunodb_1_1detail_1_1thread__sync.html#a04c33dad94dfb05725467da4a2013eba',1,'unodb::detail::thread_sync']]]
+  ['sync_5fafter_5fchain_5flocked_5',['sync_after_chain_locked',['../namespaceunodb_1_1detail.html#a4a4f19f630d67a625c508f7309e4baf1',1,'unodb::detail']]],
+  ['sync_5fbetween_5fchain_5flocks_6',['sync_between_chain_locks',['../namespaceunodb_1_1detail.html#af901b0308c5439f03f4c38539f2b946d',1,'unodb::detail']]],
+  ['sync_5fmutex_7',['sync_mutex',['../classunodb_1_1detail_1_1thread__sync.html#a04c33dad94dfb05725467da4a2013eba',1,'unodb::detail::thread_sync']]]
 ];

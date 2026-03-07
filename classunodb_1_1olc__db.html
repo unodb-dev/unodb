@@ -120,6 +120,9 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html">iterator</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The OLC <a class="el" href="classunodb_1_1olc__db.html#ac395b39faa9c4a6e8a70a0cfcb9efc8e" title="public scan API">scan()</a> logic tracks the version tag (a read_critical_section) for each node in the stack.  <a href="classunodb_1_1olc__db_1_1iterator.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1olc__db_1_1remove__entry.html">remove_entry</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stack entry for key_view remove traversal.  <a href="structunodb_1_1olc__db_1_1remove__entry.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
@@ -249,6 +252,15 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>inode_type</b> = <a 
 <tr class="memitem:a7274d3a79d7145d689e7f6f465b97ff7" id="r_a7274d3a79d7145d689e7f6f465b97ff7"><td class="memItemLeft" align="right" valign="top"><a id="a7274d3a79d7145d689e7f6f465b97ff7" name="a7274d3a79d7145d689e7f6f465b97ff7"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>inode_4</b> = <a class="el" href="classunodb_1_1detail_1_1olc__inode__4.html">detail::olc_inode_4</a>&lt; Key, Value &gt;</td></tr>
 <tr class="separator:a7274d3a79d7145d689e7f6f465b97ff7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98044acee4f9c00927c80dae39d5f102" id="r_a98044acee4f9c00927c80dae39d5f102"><td class="memItemLeft" align="right" valign="top"><a id="a98044acee4f9c00927c80dae39d5f102" name="a98044acee4f9c00927c80dae39d5f102"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>inode_16</b> = <a class="el" href="classunodb_1_1detail_1_1olc__inode__16.html">detail::olc_inode_16</a>&lt; Key, Value &gt;</td></tr>
+<tr class="separator:a98044acee4f9c00927c80dae39d5f102"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a76e9da29d591bec48533a148366a2cba" id="r_a76e9da29d591bec48533a148366a2cba"><td class="memItemLeft" align="right" valign="top"><a id="a76e9da29d591bec48533a148366a2cba" name="a76e9da29d591bec48533a148366a2cba"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>inode_48</b> = <a class="el" href="classunodb_1_1detail_1_1olc__inode__48.html">detail::olc_inode_48</a>&lt; Key, Value &gt;</td></tr>
+<tr class="separator:a76e9da29d591bec48533a148366a2cba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e50bbd92bb8637e724e9647a9a2c330" id="r_a3e50bbd92bb8637e724e9647a9a2c330"><td class="memItemLeft" align="right" valign="top"><a id="a3e50bbd92bb8637e724e9647a9a2c330" name="a3e50bbd92bb8637e724e9647a9a2c330"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>inode_256</b> = <a class="el" href="classunodb_1_1detail_1_1olc__inode__256.html">detail::olc_inode_256</a>&lt; Key, Value &gt;</td></tr>
+<tr class="separator:a3e50bbd92bb8637e724e9647a9a2c330"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4175582c217d431cf8ea1a5516caba17" id="r_a4175582c217d431cf8ea1a5516caba17"><td class="memItemLeft" align="right" valign="top"><a id="a4175582c217d431cf8ea1a5516caba17" name="a4175582c217d431cf8ea1a5516caba17"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>tree_depth_type</b> = <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">detail::tree_depth</a>&lt; <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> &gt;</td></tr>
 <tr class="separator:a4175582c217d431cf8ea1a5516caba17"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -264,6 +276,9 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>try_get_result_type<
 <tr class="memitem:a0ade5e74ff2144c7671dd7e50214eb6b" id="r_a0ade5e74ff2144c7671dd7e50214eb6b"><td class="memItemLeft" align="right" valign="top"><a id="a0ade5e74ff2144c7671dd7e50214eb6b" name="a0ade5e74ff2144c7671dd7e50214eb6b"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>try_update_result_type</b> = std::optional&lt; bool &gt;</td></tr>
 <tr class="separator:a0ade5e74ff2144c7671dd7e50214eb6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a843c2593b0fa491132d9e8e770cacac8" id="r_a843c2593b0fa491132d9e8e770cacac8"><td class="memItemLeft" align="right" valign="top"><a id="a843c2593b0fa491132d9e8e770cacac8" name="a843c2593b0fa491132d9e8e770cacac8"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>remove_stack_type</b> = boost::container::small_vector&lt; <a class="el" href="structunodb_1_1olc__db_1_1remove__entry.html">remove_entry</a>, 32 &gt;</td></tr>
+<tr class="separator:a843c2593b0fa491132d9e8e770cacac8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:add914180ce1939d1a0b4271496bba72f" id="r_add914180ce1939d1a0b4271496bba72f"><td class="memTemplParams" colspan="2"><a id="add914180ce1939d1a0b4271496bba72f" name="add914180ce1939d1a0b4271496bba72f"></a>
 template&lt;class T &gt; </td></tr>
 <tr class="memitem:add914180ce1939d1a0b4271496bba72f"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>atomic_array</b> = std::array&lt; std::atomic&lt; typename T::value_type &gt;, std::tuple_size&lt; T &gt;::value &gt;</td></tr>
@@ -284,12 +299,25 @@ get_result&#160;</td><td class="memItemRight" valign="bottom"><b>get_internal</b
 <tr class="memitem:a5c47e003c137cfca44e894db0e79894c" id="r_a5c47e003c137cfca44e894db0e79894c"><td class="memItemLeft" align="right" valign="top"><a id="a5c47e003c137cfca44e894db0e79894c" name="a5c47e003c137cfca44e894db0e79894c"></a>
 try_get_result_type&#160;</td><td class="memItemRight" valign="bottom"><b>try_get</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k) const noexcept</td></tr>
 <tr class="separator:a5c47e003c137cfca44e894db0e79894c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a654ac331a170f35e23b3599ef65dac94" id="r_a654ac331a170f35e23b3599ef65dac94"><td class="memItemLeft" align="right" valign="top"><a id="a654ac331a170f35e23b3599ef65dac94" name="a654ac331a170f35e23b3599ef65dac94"></a>
-try_update_result_type&#160;</td><td class="memItemRight" valign="bottom"><b>try_insert</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k, <a class="el" href="classunodb_1_1olc__db.html#a056d823a054f7999b3fafeac0f45cdd2">value_type</a> v, olc_db_leaf_unique_ptr_type &amp;cached_leaf)</td></tr>
+<tr class="memitem:a654ac331a170f35e23b3599ef65dac94" id="r_a654ac331a170f35e23b3599ef65dac94"><td class="memItemLeft" align="right" valign="top">try_update_result_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db.html#a654ac331a170f35e23b3599ef65dac94">try_insert</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k, <a class="el" href="classunodb_1_1olc__db.html#a056d823a054f7999b3fafeac0f45cdd2">value_type</a> v, olc_db_leaf_unique_ptr_type &amp;cached_leaf)</td></tr>
+<tr class="memdesc:a654ac331a170f35e23b3599ef65dac94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Single-attempt insert.  <br /></td></tr>
 <tr class="separator:a654ac331a170f35e23b3599ef65dac94"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a798c5cdb5ce94338de75ff227d18f1e2" id="r_a798c5cdb5ce94338de75ff227d18f1e2"><td class="memItemLeft" align="right" valign="top"><a id="a798c5cdb5ce94338de75ff227d18f1e2" name="a798c5cdb5ce94338de75ff227d18f1e2"></a>
 try_update_result_type&#160;</td><td class="memItemRight" valign="bottom"><b>try_remove</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k)</td></tr>
 <tr class="separator:a798c5cdb5ce94338de75ff227d18f1e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa24244d16dcb651d8e7d842856af49fb" id="r_aa24244d16dcb651d8e7d842856af49fb"><td class="memItemLeft" align="right" valign="top">try_update_result_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db.html#aa24244d16dcb651d8e7d842856af49fb">try_remove_key_view</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k)</td></tr>
+<tr class="memdesc:aa24244d16dcb651d8e7d842856af49fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Two-pass removal with chain cleanup for variable-length keys.  <br /></td></tr>
+<tr class="separator:aa24244d16dcb651d8e7d842856af49fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42e71fb2d0b5611d86de58502d1fbe56" id="r_a42e71fb2d0b5611d86de58502d1fbe56"><td class="memItemLeft" align="right" valign="top">try_update_result_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db.html#a42e71fb2d0b5611d86de58502d1fbe56">try_chain_cut</a> (<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::olc_node_ptr</a> chain_bottom, <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::olc_node_ptr</a> leaf_ptr, <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">optimistic_lock::write_guard</a> parent_guard, <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">optimistic_lock::write_guard</a> chain_bottom_guard, <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">optimistic_lock::write_guard</a> leaf_guard, remove_stack_type &amp;stk, std::size_t stk_n)</td></tr>
+<tr class="memdesc:a42e71fb2d0b5611d86de58502d1fbe56"><td class="mdescLeft">&#160;</td><td class="mdescRight">Atomic chain cut: remove a leaf under a chain of single-child I4 nodes.  <br /></td></tr>
+<tr class="separator:a42e71fb2d0b5611d86de58502d1fbe56"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a109c37847970bb6c5851881d6870e3c3" id="r_a109c37847970bb6c5851881d6870e3c3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db.html#a109c37847970bb6c5851881d6870e3c3">try_collapse_i4</a> (<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::olc_node_ptr</a> i4_node, std::uint8_t del_ci, <a class="el" href="classunodb_1_1in__critical__section.html">in_critical_section</a>&lt; <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::olc_node_ptr</a> &gt; *slot, <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">optimistic_lock::write_guard</a> &amp;guard)</td></tr>
+<tr class="memdesc:a109c37847970bb6c5851881d6870e3c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collapse an I4 after removing one of its two children.  <br /></td></tr>
+<tr class="separator:a109c37847970bb6c5851881d6870e3c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac07ab4b1afbbb2b903a5161780836654" id="r_ac07ab4b1afbbb2b903a5161780836654"><td class="memItemLeft" align="right" valign="top"><a id="ac07ab4b1afbbb2b903a5161780836654" name="ac07ab4b1afbbb2b903a5161780836654"></a>
+try_update_result_type&#160;</td><td class="memItemRight" valign="bottom"><b>try_remove_fixed_width_key</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k)</td></tr>
+<tr class="memdesc:ac07ab4b1afbbb2b903a5161780836654"><td class="mdescLeft">&#160;</td><td class="mdescRight">Single-pass removal for fixed-width keys (no chain nodes). <br /></td></tr>
+<tr class="separator:ac07ab4b1afbbb2b903a5161780836654"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5cbfc6902ad8045e454293b8c8d02a46" id="r_a5cbfc6902ad8045e454293b8c8d02a46"><td class="memItemLeft" align="right" valign="top"><a id="a5cbfc6902ad8045e454293b8c8d02a46" name="a5cbfc6902ad8045e454293b8c8d02a46"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>delete_root_subtree</b> () noexcept</td></tr>
 <tr class="separator:a5cbfc6902ad8045e454293b8c8d02a46"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -767,6 +795,209 @@ template&lt;typename FN &gt; </div>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="a42e71fb2d0b5611d86de58502d1fbe56" name="a42e71fb2d0b5611d86de58502d1fbe56"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a42e71fb2d0b5611d86de58502d1fbe56">&#9670;&#160;</a></span>try_chain_cut()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1olc__db.html">olc_db</a>&lt; Key, Value &gt;::try_update_result_type <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value &gt;::try_chain_cut </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::olc_node_ptr</a>&#160;</td>
+          <td class="paramname"><em>chain_bottom</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::olc_node_ptr</a>&#160;</td>
+          <td class="paramname"><em>leaf_ptr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">optimistic_lock::write_guard</a>&#160;</td>
+          <td class="paramname"><em>parent_guard</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">optimistic_lock::write_guard</a>&#160;</td>
+          <td class="paramname"><em>chain_bottom_guard</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">optimistic_lock::write_guard</a>&#160;</td>
+          <td class="paramname"><em>leaf_guard</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">remove_stack_type &amp;&#160;</td>
+          <td class="paramname"><em>stk</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::size_t&#160;</td>
+          <td class="paramname"><em>stk_n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Atomic chain cut: remove a leaf under a chain of single-child I4 nodes. </p>
+<p>Locks the chain bottom-up, then atomically disconnects the entire chain from its parent (the "cut point") in a single child-pointer update. If a concurrent modification invalidates a chain node during locking, the cut point is adjusted downward. If the cut-point parent's version has changed, the operation restarts without modifying the tree. After the cut, the cut-point parent is shrunk or collapsed as needed to maintain well-formedness (no single-child I4 except during chain insert). Disconnected nodes are reclaimed via QSBR. </p>
+
+</div>
+</div>
+<a id="a109c37847970bb6c5851881d6870e3c3" name="a109c37847970bb6c5851881d6870e3c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a109c37847970bb6c5851881d6870e3c3">&#9670;&#160;</a></span>try_collapse_i4()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value &gt;::try_collapse_i4 </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::olc_node_ptr</a>&#160;</td>
+          <td class="paramname"><em>i4_node</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::uint8_t&#160;</td>
+          <td class="paramname"><em>del_ci</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1in__critical__section.html">in_critical_section</a>&lt; <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::olc_node_ptr</a> &gt; *&#160;</td>
+          <td class="paramname"><em>slot</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">optimistic_lock::write_guard</a> &amp;&#160;</td>
+          <td class="paramname"><em>guard</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Collapse an I4 after removing one of its two children. </p>
+<p>Removes del_ci, checks prefix overflow, and if the merge fits, promotes the remaining child into *slot (or root if slot==nullptr). Returns true if the I4 was collapsed and reclaimed. </p>
+
+</div>
+</div>
+<a id="a654ac331a170f35e23b3599ef65dac94" name="a654ac331a170f35e23b3599ef65dac94"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a654ac331a170f35e23b3599ef65dac94">&#9670;&#160;</a></span>try_insert()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1olc__db.html">olc_db</a>&lt; Key, Value &gt;::try_update_result_type <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value &gt;::try_insert </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a>&#160;</td>
+          <td class="paramname"><em>k</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1olc__db.html#a056d823a054f7999b3fafeac0f45cdd2">value_type</a>&#160;</td>
+          <td class="paramname"><em>v</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">olc_db_leaf_unique_ptr_type &amp;&#160;</td>
+          <td class="paramname"><em>cached_leaf</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Single-attempt insert. </p>
+<p>For variable-length keys (key_view) only, two keys may share more than key_prefix_capacity (7) bytes at a given depth, causing their dispatch bytes to collide. When this happens, a single-child "chain" I4 node is created that consumes 7 prefix bytes + 1 dispatch byte, advancing depth by 8. The insert then restarts from the root. Subsequent attempts descend through the chain and either extend it (if keys still collide) or complete a normal two-child split. </p>
+
+</div>
+</div>
+<a id="aa24244d16dcb651d8e7d842856af49fb" name="aa24244d16dcb651d8e7d842856af49fb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa24244d16dcb651d8e7d842856af49fb">&#9670;&#160;</a></span>try_remove_key_view()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classunodb_1_1olc__db.html">olc_db</a>&lt; Key, Value &gt;::try_update_result_type <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value &gt;::try_remove_key_view </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a>&#160;</td>
+          <td class="paramname"><em>k</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Two-pass removal with chain cleanup for variable-length keys. </p>
+<p>Pass 1 (downward): traverses from root to the target leaf, building a stack of inode entries with cached versions. Single-child I4 nodes are identified as chain members.</p>
+<p>Pass 2 (upward / chain cut): if the leaf is under a chain, delegates to try_chain_cut for atomic disconnection. Otherwise, uses the standard remove_or_choose_subtree path. </p>
 
 </div>
 </div>

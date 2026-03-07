@@ -14,5 +14,6 @@ var searchData=
   ['size_5fbytes_11',['size_bytes',['../classunodb_1_1key__encoder.html#a073ecee2db9797158b058ce56b2c8a3b',1,'unodb::key_encoder::size_bytes()'],['../classunodb_1_1detail_1_1key__buffer.html#a802f979bb3d3afe56a901e57bf1aa590',1,'unodb::detail::key_buffer::size_bytes()']]],
   ['spin_5fwait_5floop_5fbody_12',['spin_wait_loop_body',['../namespaceunodb.html#adf5c8f3a365ce28271526c3ef0ca4237',1,'unodb']]],
   ['static_5fasserts_13',['static_asserts',['../structunodb_1_1detail_1_1basic__art__key.html#a7f533761914d776e97107316f117db14',1,'unodb::detail::basic_art_key::static_asserts()'],['../classunodb_1_1detail_1_1basic__node__ptr.html#ac6dc70e3915473e37377008c0a5b0e2b',1,'unodb::detail::basic_node_ptr::static_asserts()']]],
-  ['store_14',['store',['../classunodb_1_1in__critical__section.html#ad57cdf663ee959fae3d4ea595f046556',1,'unodb::in_critical_section']]]
+  ['store_14',['store',['../classunodb_1_1in__critical__section.html#ad57cdf663ee959fae3d4ea595f046556',1,'unodb::in_critical_section']]],
+  ['sync_15',['sync',['../namespaceunodb_1_1detail.html#a03878a8c54206e8babeb1cedd9c69a18',1,'unodb::detail']]]
 ];

@@ -100,7 +100,8 @@ $(document).ready(function(){initNavTree('olc__art_8hpp.html',''); initResizable
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">olc_art.hpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -117,6 +118,7 @@ $(document).ready(function(){initNavTree('olc__art_8hpp.html',''); initResizable
 <code>#include &lt;stack&gt;</code><br />
 <code>#include &lt;tuple&gt;</code><br />
 <code>#include &lt;type_traits&gt;</code><br />
+<code>#include &lt;boost/container/small_vector.hpp&gt;</code><br />
 <code>#include &quot;<a class="el" href="art__common_8hpp_source.html">art_common.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="art__internal_8hpp_source.html">art_internal.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a>&quot;</code><br />
@@ -126,6 +128,7 @@ $(document).ready(function(){initNavTree('olc__art_8hpp.html',''); initResizable
 <code>#include &quot;<a class="el" href="portability__arch_8hpp_source.html">portability_arch.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="qsbr_8hpp_source.html">qsbr.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="qsbr__ptr_8hpp_source.html">qsbr_ptr.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="sync_8hpp_source.html">sync.hpp</a>&quot;</code><br />
 </div>
 <p><a href="olc__art_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -144,6 +147,9 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html">unodb::olc_db&lt; Key, Value &gt;::iterator::stack_entry</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Alias for the elements on the stack.  <a href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1olc__db_1_1remove__entry.html">unodb::olc_db&lt; Key, Value &gt;::remove_entry</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stack entry for key_view remove traversal.  <a href="structunodb_1_1olc__db_1_1remove__entry.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1db__inode__qsbr__deleter.html">unodb::detail::db_inode_qsbr_deleter&lt; Key, Value, INode &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -269,6 +275,17 @@ template&lt;typename Key , typename Value &gt; </td></tr>
 <tr class="memitem:a7a60a32f6fea903e6de1e8d22de2eac9" id="r_a7a60a32f6fea903e6de1e8d22de2eac9"><td class="memItemLeft" align="right" valign="top"><a id="a7a60a32f6fea903e6de1e8d22de2eac9" name="a7a60a32f6fea903e6de1e8d22de2eac9"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::unlock_and_return</b> (const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">unodb::optimistic_lock::read_critical_section</a> &amp;cs, bool ret) noexcept</td></tr>
 <tr class="separator:a7a60a32f6fea903e6de1e8d22de2eac9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a4a4f19f630d67a625c508f7309e4baf1" id="r_a4a4f19f630d67a625c508f7309e4baf1"><td class="memItemLeft" align="right" valign="top"><a id="a4a4f19f630d67a625c508f7309e4baf1" name="a4a4f19f630d67a625c508f7309e4baf1"></a>
+<a class="el" href="structunodb_1_1detail_1_1sync__point.html">sync_point</a>&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::detail::sync_after_chain_locked</b></td></tr>
+<tr class="memdesc:a4a4f19f630d67a625c508f7309e4baf1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sync point: fires after chain locked, before acquiring cut_point_parent. <br /></td></tr>
+<tr class="separator:a4a4f19f630d67a625c508f7309e4baf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af901b0308c5439f03f4c38539f2b946d" id="r_af901b0308c5439f03f4c38539f2b946d"><td class="memItemLeft" align="right" valign="top"><a id="af901b0308c5439f03f4c38539f2b946d" name="af901b0308c5439f03f4c38539f2b946d"></a>
+<a class="el" href="structunodb_1_1detail_1_1sync__point.html">sync_point</a>&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::detail::sync_between_chain_locks</b></td></tr>
+<tr class="memdesc:af901b0308c5439f03f4c38539f2b946d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sync point: fires inside Step 2 loop between chain node locks. <br /></td></tr>
+<tr class="separator:af901b0308c5439f03f4c38539f2b946d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Concurrent Adaptive Radix Tree based on Optimistic Lock Coupling. </p>

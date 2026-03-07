@@ -12,6 +12,7 @@ var art__internal__impl_8hpp =
     [ "unodb::detail::fake_inode", "classunodb_1_1detail_1_1fake__inode.html", "classunodb_1_1detail_1_1fake__inode" ],
     [ "unodb::detail::basic_inode_impl< ArtPolicy >", "classunodb_1_1detail_1_1basic__inode__impl.html", "classunodb_1_1detail_1_1basic__inode__impl" ],
     [ "unodb::detail::basic_inode< ArtPolicy, MinSize, Capacity, NodeType, SmallerDerived, LargerDerived, Derived >", "classunodb_1_1detail_1_1basic__inode.html", "classunodb_1_1detail_1_1basic__inode" ],
+    [ "unodb::detail::basic_inode< ArtPolicy, MinSize, Capacity, NodeType, SmallerDerived, LargerDerived, Derived >::single_child_tag", "structunodb_1_1detail_1_1basic__inode_1_1single__child__tag.html", null ],
     [ "unodb::detail::basic_inode_4< ArtPolicy >", "classunodb_1_1detail_1_1basic__inode__4.html", "classunodb_1_1detail_1_1basic__inode__4" ],
     [ "unodb::detail::basic_inode_4< ArtPolicy >::key_union", "unionunodb_1_1detail_1_1basic__inode__4_1_1key__union.html", "unionunodb_1_1detail_1_1basic__inode__4_1_1key__union" ],
     [ "unodb::detail::basic_inode_16< ArtPolicy >", "classunodb_1_1detail_1_1basic__inode__16.html", "classunodb_1_1detail_1_1basic__inode__16" ],

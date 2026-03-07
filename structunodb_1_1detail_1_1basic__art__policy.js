@@ -35,5 +35,6 @@ var structunodb_1_1detail_1_1basic__art__policy =
     [ "make_db_inode_unique_ptr", "structunodb_1_1detail_1_1basic__art__policy.html#a39df2f80bea501c58e19678f71a6e927", null ],
     [ "make_db_leaf_ptr", "structunodb_1_1detail_1_1basic__art__policy.html#abfce480be12491d012bedb41c984203d", null ],
     [ "make_db_leaf_ptr", "structunodb_1_1detail_1_1basic__art__policy.html#a98d887cdb0d3e4295cccf0c6a26360c1", null ],
+    [ "reclaim_if_leaf", "structunodb_1_1detail_1_1basic__art__policy.html#a0f6f60e207f2aeae2e6d989f9f8cb2d8", null ],
     [ "reclaim_leaf_on_scope_exit", "structunodb_1_1detail_1_1basic__art__policy.html#a90499cec07fe0f333cd4498345e4f6d1", null ]
 ];

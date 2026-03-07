@@ -97,6 +97,7 @@ $(document).ready(function(){initNavTree('classunodb_1_1detail_1_1basic__inode.h
 
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
@@ -135,6 +136,12 @@ Inheritance diagram for unodb::detail::basic_inode&lt; ArtPolicy, MinSize, Capac
   </map>
 </div></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__inode_1_1single__child__tag.html">single_child_tag</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag type to select the single-child chain constructor.  <a href="structunodb_1_1detail_1_1basic__inode_1_1single__child__tag.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:a22a3c943325fab4e46f48d9de5d203b5" id="r_a22a3c943325fab4e46f48d9de5d203b5"><td class="memItemLeft" align="right" valign="top"><a id="a22a3c943325fab4e46f48d9de5d203b5" name="a22a3c943325fab4e46f48d9de5d203b5"></a>
@@ -248,6 +255,9 @@ constexpr auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_k
 <tr class="memitem:a9199d94a15fedd493387941042e577f3 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl" id="r_a9199d94a15fedd493387941042e577f3"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#abd5f9efd3d001e70509078bbfe214d48">find_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a9199d94a15fedd493387941042e577f3">find_child</a> (<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> type, std::byte key_byte) noexcept</td></tr>
 <tr class="memdesc:a9199d94a15fedd493387941042e577f3 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find child matching key byte.  <br /></td></tr>
 <tr class="separator:a9199d94a15fedd493387941042e577f3 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa93b523e9c151828a7d71d4511d649b5 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl" id="r_aa93b523e9c151828a7d71d4511d649b5"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#aa93b523e9c151828a7d71d4511d649b5">remove_child_entry</a> (<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> type, std::uint8_t child_index) noexcept</td></tr>
+<tr class="memdesc:aa93b523e9c151828a7d71d4511d649b5 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove child entry without reclaiming the child, dispatching by type.  <br /></td></tr>
+<tr class="separator:aa93b523e9c151828a7d71d4511d649b5 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a019ffed4db192a8d88a7d5d8e921dc72 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl" id="r_a019ffed4db192a8d88a7d5d8e921dc72"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#af470045f63b1888c85166604c3d8a6be">node_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a019ffed4db192a8d88a7d5d8e921dc72">get_child</a> (<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> type, std::uint8_t child_index) noexcept</td></tr>
 <tr class="memdesc:a019ffed4db192a8d88a7d5d8e921dc72 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return child node at specified child index.  <br /></td></tr>
 <tr class="separator:a019ffed4db192a8d88a7d5d8e921dc72 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -353,6 +363,9 @@ constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>basic_inode</b> 
 constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>basic_inode</b> (const LargerDerived &amp;source_node) noexcept</td></tr>
 <tr class="memdesc:a0af82e138493a350472f26ee364becd6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct by shrinking from <em>source_node</em> of larger type. <br /></td></tr>
 <tr class="separator:a0af82e138493a350472f26ee364becd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e407f1f60307c3cc92b9d54c9030830" id="r_a7e407f1f60307c3cc92b9d54c9030830"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a7e407f1f60307c3cc92b9d54c9030830">basic_inode</a> (<a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a> k1, <a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a789345e4cacd1d9e179e0dcfe7aa064a">art_key_type</a> shifted_k2, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; <a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a789345e4cacd1d9e179e0dcfe7aa064a">art_key_type</a> &gt; depth, <a class="el" href="structunodb_1_1detail_1_1basic__inode_1_1single__child__tag.html">single_child_tag</a>) noexcept</td></tr>
+<tr class="memdesc:a7e407f1f60307c3cc92b9d54c9030830"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct single-child node with prefix from two identical keys.  <br /></td></tr>
+<tr class="separator:a7e407f1f60307c3cc92b9d54c9030830"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_classunodb_1_1detail_1_1basic__inode__impl"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classunodb_1_1detail_1_1basic__inode__impl')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html">unodb::detail::basic_inode_impl&lt; ArtPolicy &gt;</a></td></tr>
 <tr class="memitem:a17f1e7ea4e127322897b3678c98067ca inherit pro_methods_classunodb_1_1detail_1_1basic__inode__impl" id="r_a17f1e7ea4e127322897b3678c98067ca"><td class="memItemLeft" align="right" valign="top">
 void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os, bool) const</td></tr>
@@ -396,7 +409,7 @@ class unodb::detail::basic_inode&lt; ArtPolicy, MinSize, Capacity, NodeType, Sma
 </dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a31fd8624bc71996b089ceeff12ffc5eb" name="a31fd8624bc71996b089ceeff12ffc5eb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a31fd8624bc71996b089ceeff12ffc5eb">&#9670;&#160;</a></span>basic_inode() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a31fd8624bc71996b089ceeff12ffc5eb">&#9670;&#160;</a></span>basic_inode() <span class="overload">[1/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -450,7 +463,7 @@ template&lt;class ArtPolicy , unsigned MinSize, unsigned Capacity, <a class="el"
 </div>
 </div>
 <a id="a71b038c0de17eacd59e333ea92468cae" name="a71b038c0de17eacd59e333ea92468cae"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a71b038c0de17eacd59e333ea92468cae">&#9670;&#160;</a></span>basic_inode() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a71b038c0de17eacd59e333ea92468cae">&#9670;&#160;</a></span>basic_inode() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -490,6 +503,67 @@ template&lt;class ArtPolicy , unsigned MinSize, unsigned Capacity, <a class="el"
   <table class="params">
     <tr><td class="paramname">key_prefix_len</td><td>Length of prefix to copy </td></tr>
     <tr><td class="paramname">key_prefix_source_node</td><td>Node to copy prefix from </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a7e407f1f60307c3cc92b9d54c9030830" name="a7e407f1f60307c3cc92b9d54c9030830"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7e407f1f60307c3cc92b9d54c9030830">&#9670;&#160;</a></span>basic_inode() <span class="overload">[3/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ArtPolicy , unsigned MinSize, unsigned Capacity, <a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> NodeType, class SmallerDerived , class LargerDerived , class Derived &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="classunodb_1_1detail_1_1basic__inode.html">unodb::detail::basic_inode</a>&lt; ArtPolicy, MinSize, Capacity, NodeType, SmallerDerived, LargerDerived, Derived &gt;::basic_inode </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a>&#160;</td>
+          <td class="paramname"><em>k1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a789345e4cacd1d9e179e0dcfe7aa064a">art_key_type</a>&#160;</td>
+          <td class="paramname"><em>shifted_k2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; <a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a789345e4cacd1d9e179e0dcfe7aa064a">art_key_type</a> &gt;&#160;</td>
+          <td class="paramname"><em>depth</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__inode_1_1single__child__tag.html">single_child_tag</a>&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">protected</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Construct single-child node with prefix from two identical keys. </p>
+<p>Used to create chain nodes when keys share more than key_prefix_capacity bytes. The prefix is computed from the keys at the given depth, and children_count is set to 1.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">k1</td><td>First key for prefix computation </td></tr>
+    <tr><td class="paramname">shifted_k2</td><td>Second key shifted to current depth </td></tr>
+    <tr><td class="paramname">depth</td><td>Current tree depth </td></tr>
   </table>
   </dd>
 </dl>

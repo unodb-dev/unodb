@@ -22,5 +22,6 @@ var classunodb_1_1detail_1_1basic__inode__256 =
     [ "next", "classunodb_1_1detail_1_1basic__inode__256.html#a6930b829ffd40f24362f016d41af6fea", null ],
     [ "prior", "classunodb_1_1detail_1_1basic__inode__256.html#a25686dfc608f945f79f85056aaf7d7f9", null ],
     [ "remove", "classunodb_1_1detail_1_1basic__inode__256.html#a69ee45c77017182499a59843ebe0ada0", null ],
+    [ "remove_child_entry", "classunodb_1_1detail_1_1basic__inode__256.html#a69ab396f3d129d3b3c53bb7a74a67aea", null ],
     [ "children", "classunodb_1_1detail_1_1basic__inode__256.html#a0ddf0e079c8cb24c7566798792c10de1", null ]
 ];

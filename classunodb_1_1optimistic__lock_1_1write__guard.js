@@ -1,6 +1,7 @@
 var classunodb_1_1optimistic__lock_1_1write__guard =
 [
     [ "write_guard", "classunodb_1_1optimistic__lock_1_1write__guard.html#af16daf7ec12f8824761dcfd147f88502", null ],
+    [ "write_guard", "classunodb_1_1optimistic__lock_1_1write__guard.html#a03967d41486b2438a8968979de7fcde6", null ],
     [ "~write_guard", "classunodb_1_1optimistic__lock_1_1write__guard.html#ac5808e71507ce64965b364a5e5c345c3", null ],
     [ "active", "classunodb_1_1optimistic__lock_1_1write__guard.html#a8f9f411c1ee0aacbb7e7dcfa7500c6b9", null ],
     [ "guards", "classunodb_1_1optimistic__lock_1_1write__guard.html#a9153f958dcd73cf922b1f255f4338034", null ],

@@ -235,6 +235,9 @@ constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>basic_inode_256<
 <tr class="memitem:a69ee45c77017182499a59843ebe0ada0" id="r_a69ee45c77017182499a59843ebe0ada0"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html#a69ee45c77017182499a59843ebe0ada0">remove</a> (std::uint8_t child_index, <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html#aada67e1b1be140b695c809ff1ebbeb44">db_type</a> &amp;db_instance) noexcept</td></tr>
 <tr class="memdesc:a69ee45c77017182499a59843ebe0ada0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove child at given key byte index.  <br /></td></tr>
 <tr class="separator:a69ee45c77017182499a59843ebe0ada0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a69ab396f3d129d3b3c53bb7a74a67aea" id="r_a69ab396f3d129d3b3c53bb7a74a67aea"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html#a69ab396f3d129d3b3c53bb7a74a67aea">remove_child_entry</a> (std::uint8_t child_index) noexcept</td></tr>
+<tr class="memdesc:a69ab396f3d129d3b3c53bb7a74a67aea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove child entry without reclaiming the child.  <br /></td></tr>
+<tr class="separator:a69ab396f3d129d3b3c53bb7a74a67aea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8f38dc284dc59406e81571ebe5a6fbaa" id="r_a8f38dc284dc59406e81571ebe5a6fbaa"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#abd5f9efd3d001e70509078bbfe214d48">basic_inode_256::find_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html#a8f38dc284dc59406e81571ebe5a6fbaa">find_child</a> (std::byte key_byte) noexcept</td></tr>
 <tr class="memdesc:a8f38dc284dc59406e81571ebe5a6fbaa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find child by key byte.  <br /></td></tr>
 <tr class="separator:a8f38dc284dc59406e81571ebe5a6fbaa"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -301,6 +304,9 @@ constexpr auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_k
 <tr class="memitem:a9199d94a15fedd493387941042e577f3 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl" id="r_a9199d94a15fedd493387941042e577f3"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#abd5f9efd3d001e70509078bbfe214d48">find_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a9199d94a15fedd493387941042e577f3">find_child</a> (<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> type, std::byte key_byte) noexcept</td></tr>
 <tr class="memdesc:a9199d94a15fedd493387941042e577f3 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find child matching key byte.  <br /></td></tr>
 <tr class="separator:a9199d94a15fedd493387941042e577f3 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa93b523e9c151828a7d71d4511d649b5 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl" id="r_aa93b523e9c151828a7d71d4511d649b5"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#aa93b523e9c151828a7d71d4511d649b5">remove_child_entry</a> (<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> type, std::uint8_t child_index) noexcept</td></tr>
+<tr class="memdesc:aa93b523e9c151828a7d71d4511d649b5 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove child entry without reclaiming the child, dispatching by type.  <br /></td></tr>
+<tr class="separator:aa93b523e9c151828a7d71d4511d649b5 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a019ffed4db192a8d88a7d5d8e921dc72 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl" id="r_a019ffed4db192a8d88a7d5d8e921dc72"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#af470045f63b1888c85166604c3d8a6be">node_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a019ffed4db192a8d88a7d5d8e921dc72">get_child</a> (<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> type, std::uint8_t child_index) noexcept</td></tr>
 <tr class="memdesc:a019ffed4db192a8d88a7d5d8e921dc72 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return child node at specified child index.  <br /></td></tr>
 <tr class="separator:a019ffed4db192a8d88a7d5d8e921dc72 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -431,6 +437,9 @@ constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>basic_inode</b> 
 constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>basic_inode</b> (const LargerDerived &amp;source_node) noexcept</td></tr>
 <tr class="memdesc:a0af82e138493a350472f26ee364becd6 inherit pro_methods_classunodb_1_1detail_1_1basic__inode"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct by shrinking from <em>source_node</em> of larger type. <br /></td></tr>
 <tr class="separator:a0af82e138493a350472f26ee364becd6 inherit pro_methods_classunodb_1_1detail_1_1basic__inode"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e407f1f60307c3cc92b9d54c9030830 inherit pro_methods_classunodb_1_1detail_1_1basic__inode" id="r_a7e407f1f60307c3cc92b9d54c9030830"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a7e407f1f60307c3cc92b9d54c9030830">basic_inode</a> (<a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a> k1, <a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a789345e4cacd1d9e179e0dcfe7aa064a">art_key_type</a> shifted_k2, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; <a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a789345e4cacd1d9e179e0dcfe7aa064a">art_key_type</a> &gt; depth, <a class="el" href="structunodb_1_1detail_1_1basic__inode_1_1single__child__tag.html">single_child_tag</a>) noexcept</td></tr>
+<tr class="memdesc:a7e407f1f60307c3cc92b9d54c9030830 inherit pro_methods_classunodb_1_1detail_1_1basic__inode"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct single-child node with prefix from two identical keys.  <br /></td></tr>
+<tr class="separator:a7e407f1f60307c3cc92b9d54c9030830 inherit pro_methods_classunodb_1_1detail_1_1basic__inode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_classunodb_1_1detail_1_1basic__inode__impl"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classunodb_1_1detail_1_1basic__inode__impl')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html">unodb::detail::basic_inode_impl&lt; ArtPolicy &gt;</a></td></tr>
 <tr class="memitem:a17f1e7ea4e127322897b3678c98067ca inherit pro_methods_classunodb_1_1detail_1_1basic__inode__impl" id="r_a17f1e7ea4e127322897b3678c98067ca"><td class="memItemLeft" align="right" valign="top">
 void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os, bool) const</td></tr>
@@ -1088,6 +1097,42 @@ template&lt;class ArtPolicy &gt; </div>
   <table class="params">
     <tr><td class="paramname">child_index</td><td>Key byte of child to remove </td></tr>
     <tr><td class="paramname">db_instance</td><td>Database for memory reclamation </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a69ab396f3d129d3b3c53bb7a74a67aea" name="a69ab396f3d129d3b3c53bb7a74a67aea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a69ab396f3d129d3b3c53bb7a74a67aea">&#9670;&#160;</a></span>remove_child_entry()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ArtPolicy &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr void <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html">unodb::detail::basic_inode_256</a>&lt; ArtPolicy &gt;::remove_child_entry </td>
+          <td>(</td>
+          <td class="paramtype">std::uint8_t&#160;</td>
+          <td class="paramname"><em>child_index</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Remove child entry without reclaiming the child. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">child_index</td><td>Key byte of child to remove </td></tr>
   </table>
   </dd>
 </dl>

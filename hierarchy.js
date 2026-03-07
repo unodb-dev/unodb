@@ -94,10 +94,16 @@ var hierarchy =
     [ "unodb::qsbr_state", "structunodb_1_1qsbr__state.html", null ],
     [ "unodb::quiescent_state_on_scope_exit", "structunodb_1_1quiescent__state__on__scope__exit.html", null ],
     [ "unodb::optimistic_lock::read_critical_section", "classunodb_1_1optimistic__lock_1_1read__critical__section.html", null ],
+    [ "unodb::olc_db< Key, Value >::remove_entry", "structunodb_1_1olc__db_1_1remove__entry.html", null ],
     [ "unodb::detail::set_qsbr_per_thread_in_main_thread", "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html", null ],
+    [ "unodb::detail::basic_inode< ArtPolicy, MinSize, Capacity, NodeType, SmallerDerived, LargerDerived, Derived >::single_child_tag", "structunodb_1_1detail_1_1basic__inode_1_1single__child__tag.html", null ],
+    [ "unodb::detail::sync_point", "structunodb_1_1detail_1_1sync__point.html", null ],
+    [ "anonymous_namespace{test_art_concurrency.cpp}::sync_point_guard", "structanonymous__namespace_02test__art__concurrency_8cpp_03_1_1sync__point__guard.html", null ],
     [ "testing::Test", null, [
       [ "anonymous_namespace{test_art.cpp}::ARTCorrectnessTest< Db >", "classanonymous__namespace_02test__art_8cpp_03_1_1ARTCorrectnessTest.html", null ],
-      [ "anonymous_namespace{test_art_concurrency.cpp}::ARTConcurrencyTest< Db >", "classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTConcurrencyTest.html", null ],
+      [ "anonymous_namespace{test_art_concurrency.cpp}::ARTConcurrencyTest< Db >", "classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTConcurrencyTest.html", [
+        [ "anonymous_namespace{test_art_concurrency.cpp}::ARTChainConcurrencyTest< Db >", "classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTChainConcurrencyTest.html", null ]
+      ] ],
       [ "anonymous_namespace{test_art_iter.cpp}::ARTIteratorTest< Db >", "classanonymous__namespace_02test__art__iter_8cpp_03_1_1ARTIteratorTest.html", null ],
       [ "anonymous_namespace{test_art_key_view.cpp}::ARTKeyViewCorrectnessTest< Db >", "classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html", null ],
       [ "anonymous_namespace{test_art_oom.cpp}::ARTOOMTest< Db >", "classanonymous__namespace_02test__art__oom_8cpp_03_1_1ARTOOMTest.html", null ],

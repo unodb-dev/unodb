@@ -10,7 +10,9 @@ var annotated_dup =
       [ "ARTCorrectnessTest", "classanonymous__namespace_02test__art_8cpp_03_1_1ARTCorrectnessTest.html", null ]
     ] ],
     [ "anonymous_namespace{test_art_concurrency.cpp}", "namespaceanonymous__namespace_02test__art__concurrency_8cpp_03.html", [
-      [ "ARTConcurrencyTest", "classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTConcurrencyTest.html", null ]
+      [ "ARTChainConcurrencyTest", "classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTChainConcurrencyTest.html", null ],
+      [ "ARTConcurrencyTest", "classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTConcurrencyTest.html", null ],
+      [ "sync_point_guard", "structanonymous__namespace_02test__art__concurrency_8cpp_03_1_1sync__point__guard.html", null ]
     ] ],
     [ "anonymous_namespace{test_art_iter.cpp}", "namespaceanonymous__namespace_02test__art__iter_8cpp_03.html", [
       [ "ARTIteratorTest", "classanonymous__namespace_02test__art__iter_8cpp_03_1_1ARTIteratorTest.html", null ]
@@ -81,6 +83,7 @@ var annotated_dup =
         [ "olc_node_header", "structunodb_1_1detail_1_1olc__node__header.html", null ],
         [ "qsbr_ptr_base", "classunodb_1_1detail_1_1qsbr__ptr__base.html", "classunodb_1_1detail_1_1qsbr__ptr__base" ],
         [ "set_qsbr_per_thread_in_main_thread", "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html", "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread" ],
+        [ "sync_point", "structunodb_1_1detail_1_1sync__point.html", null ],
         [ "thread_sync", "classunodb_1_1detail_1_1thread__sync.html", "classunodb_1_1detail_1_1thread__sync" ],
         [ "tree_depth", "classunodb_1_1detail_1_1tree__depth.html", "classunodb_1_1detail_1_1tree__depth" ]
       ] ],

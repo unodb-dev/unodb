@@ -168,6 +168,9 @@ constexpr auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_k
 <tr class="memitem:a9199d94a15fedd493387941042e577f3" id="r_a9199d94a15fedd493387941042e577f3"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#abd5f9efd3d001e70509078bbfe214d48">find_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a9199d94a15fedd493387941042e577f3">find_child</a> (<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> type, std::byte key_byte) noexcept</td></tr>
 <tr class="memdesc:a9199d94a15fedd493387941042e577f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find child matching key byte.  <br /></td></tr>
 <tr class="separator:a9199d94a15fedd493387941042e577f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa93b523e9c151828a7d71d4511d649b5" id="r_aa93b523e9c151828a7d71d4511d649b5"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#aa93b523e9c151828a7d71d4511d649b5">remove_child_entry</a> (<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> type, std::uint8_t child_index) noexcept</td></tr>
+<tr class="memdesc:aa93b523e9c151828a7d71d4511d649b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove child entry without reclaiming the child, dispatching by type.  <br /></td></tr>
+<tr class="separator:aa93b523e9c151828a7d71d4511d649b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a019ffed4db192a8d88a7d5d8e921dc72" id="r_a019ffed4db192a8d88a7d5d8e921dc72"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#af470045f63b1888c85166604c3d8a6be">node_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a019ffed4db192a8d88a7d5d8e921dc72">get_child</a> (<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> type, std::uint8_t child_index) noexcept</td></tr>
 <tr class="memdesc:a019ffed4db192a8d88a7d5d8e921dc72"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return child node at specified child index.  <br /></td></tr>
 <tr class="separator:a019ffed4db192a8d88a7d5d8e921dc72"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1009,6 +1012,53 @@ template&lt;class ArtPolicy &gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Optional <a class="el" href="structunodb_1_1detail_1_1iter__result.html" title="Iterator traversal result representing tree path element.">iter_result</a> for previous child if one exists </dd></dl>
+
+</div>
+</div>
+<a id="aa93b523e9c151828a7d71d4511d649b5" name="aa93b523e9c151828a7d71d4511d649b5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa93b523e9c151828a7d71d4511d649b5">&#9670;&#160;</a></span>remove_child_entry()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ArtPolicy &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr void <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html">unodb::detail::basic_inode_impl</a>&lt; ArtPolicy &gt;::remove_child_entry </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a>&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::uint8_t&#160;</td>
+          <td class="paramname"><em>child_index</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Remove child entry without reclaiming the child, dispatching by type. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">type</td><td>Current node type </td></tr>
+    <tr><td class="paramname">child_index</td><td>Child index to remove </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

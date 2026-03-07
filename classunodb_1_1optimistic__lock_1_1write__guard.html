@@ -115,6 +115,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:af16daf7ec12f8824761dcfd147f88502" id="r_af16daf7ec12f8824761dcfd147f88502"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html#af16daf7ec12f8824761dcfd147f88502">write_guard</a> (<a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">read_critical_section</a> &amp;&amp;critical_section) noexcept</td></tr>
 <tr class="memdesc:af16daf7ec12f8824761dcfd147f88502"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a write guard by attempting to upgrade a read <em>critical_section</em>, which is consumed in process.  <br /></td></tr>
 <tr class="separator:af16daf7ec12f8824761dcfd147f88502"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a03967d41486b2438a8968979de7fcde6" id="r_a03967d41486b2438a8968979de7fcde6"><td class="memItemLeft" align="right" valign="top"><a id="a03967d41486b2438a8968979de7fcde6" name="a03967d41486b2438a8968979de7fcde6"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>write_guard</b> () noexcept</td></tr>
+<tr class="memdesc:a03967d41486b2438a8968979de7fcde6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create an inactive write guard (no lock held). <br /></td></tr>
+<tr class="separator:a03967d41486b2438a8968979de7fcde6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac5808e71507ce64965b364a5e5c345c3" id="r_ac5808e71507ce64965b364a5e5c345c3"><td class="memItemLeft" align="right" valign="top"><a id="ac5808e71507ce64965b364a5e5c345c3" name="ac5808e71507ce64965b364a5e5c345c3"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>~write_guard</b> () noexcept</td></tr>
 <tr class="memdesc:ac5808e71507ce64965b364a5e5c345c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unlock if needed and destruct the write guard. <br /></td></tr>
@@ -139,15 +143,15 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>guards</b> (const <a 
 <tr class="memitem:a814d4c75771a4cc2820fffad1e8eb3e5" id="r_a814d4c75771a4cc2820fffad1e8eb3e5"><td class="memItemLeft" align="right" valign="top"><a id="a814d4c75771a4cc2820fffad1e8eb3e5" name="a814d4c75771a4cc2820fffad1e8eb3e5"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>write_guard</b> (const <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">write_guard</a> &amp;)=delete</td></tr>
 <tr class="separator:a814d4c75771a4cc2820fffad1e8eb3e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6a1eab3f54b6b4347a8a00bb46f4ad0a" id="r_a6a1eab3f54b6b4347a8a00bb46f4ad0a"><td class="memItemLeft" align="right" valign="top"><a id="a6a1eab3f54b6b4347a8a00bb46f4ad0a" name="a6a1eab3f54b6b4347a8a00bb46f4ad0a"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>write_guard</b> (<a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">write_guard</a> &amp;&amp;)=delete</td></tr>
-<tr class="separator:a6a1eab3f54b6b4347a8a00bb46f4ad0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e905aa1163a2d681997d4b97e153c21" id="r_a4e905aa1163a2d681997d4b97e153c21"><td class="memItemLeft" align="right" valign="top"><a id="a4e905aa1163a2d681997d4b97e153c21" name="a4e905aa1163a2d681997d4b97e153c21"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>write_guard</b> (<a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">write_guard</a> &amp;&amp;other) noexcept</td></tr>
+<tr class="separator:a4e905aa1163a2d681997d4b97e153c21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a03daa92cfe21f2ab65765ae5a453629a" id="r_a03daa92cfe21f2ab65765ae5a453629a"><td class="memItemLeft" align="right" valign="top"><a id="a03daa92cfe21f2ab65765ae5a453629a" name="a03daa92cfe21f2ab65765ae5a453629a"></a>
 <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">write_guard</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">write_guard</a> &amp;)=delete</td></tr>
 <tr class="separator:a03daa92cfe21f2ab65765ae5a453629a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6d8a63b767ab04d44fd6e3169d62092c" id="r_a6d8a63b767ab04d44fd6e3169d62092c"><td class="memItemLeft" align="right" valign="top"><a id="a6d8a63b767ab04d44fd6e3169d62092c" name="a6d8a63b767ab04d44fd6e3169d62092c"></a>
-<a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">write_guard</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">write_guard</a> &amp;&amp;)=delete</td></tr>
-<tr class="separator:a6d8a63b767ab04d44fd6e3169d62092c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abef38b985ee8f9ead2bb499e175281c0" id="r_abef38b985ee8f9ead2bb499e175281c0"><td class="memItemLeft" align="right" valign="top"><a id="abef38b985ee8f9ead2bb499e175281c0" name="abef38b985ee8f9ead2bb499e175281c0"></a>
+<a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">write_guard</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">write_guard</a> &amp;&amp;other) noexcept</td></tr>
+<tr class="separator:abef38b985ee8f9ead2bb499e175281c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-methods" name="pri-static-methods"></a>
 Static Private Member Functions</h2></td></tr>

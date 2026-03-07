@@ -253,6 +253,9 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>leaf_reclaimable_ptr
 <tr class="memitem:a90499cec07fe0f333cd4498345e4f6d1" id="r_a90499cec07fe0f333cd4498345e4f6d1"><td class="memItemLeft" align="right" valign="top">static auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a90499cec07fe0f333cd4498345e4f6d1">reclaim_leaf_on_scope_exit</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#aea417ed6f98e209c3e0958bd064915d6">leaf_type</a> *leaf, <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ae90fdda165e947b64dd8f1490b4f3934">db_type</a> &amp;db_instance) noexcept</td></tr>
 <tr class="memdesc:a90499cec07fe0f333cd4498345e4f6d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create reclaimable pointer to leaf for deferred deletion.  <br /></td></tr>
 <tr class="separator:a90499cec07fe0f333cd4498345e4f6d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f6f60e207f2aeae2e6d989f9f8cb2d8" id="r_a0f6f60e207f2aeae2e6d989f9f8cb2d8"><td class="memItemLeft" align="right" valign="top">static auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a0f6f60e207f2aeae2e6d989f9f8cb2d8">reclaim_if_leaf</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a8cd97a2445cf3bf1b445c3dd82614dba">node_ptr</a> child, <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ae90fdda165e947b64dd8f1490b4f3934">db_type</a> &amp;db_instance) noexcept</td></tr>
+<tr class="memdesc:a0f6f60e207f2aeae2e6d989f9f8cb2d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reclaim a child node if it is a leaf; ignore if it is an inode.  <br /></td></tr>
+<tr class="separator:a0f6f60e207f2aeae2e6d989f9f8cb2d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a10c0482426031e4d956f5b7a541dea8f" id="r_a10c0482426031e4d956f5b7a541dea8f"><td class="memTemplParams" colspan="2">template&lt;class INode , class... Args&gt; </td></tr>
 <tr class="memitem:a10c0482426031e4d956f5b7a541dea8f"><td class="memTemplItemLeft" align="right" valign="top">static auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a10c0482426031e4d956f5b7a541dea8f">make_db_inode_unique_ptr</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ae90fdda165e947b64dd8f1490b4f3934">db_type</a> &amp;db_instance, Args &amp;&amp;... args)</td></tr>
 <tr class="memdesc:a10c0482426031e4d956f5b7a541dea8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create new internal node.  <br /></td></tr>
@@ -659,6 +662,55 @@ template&lt;typename Key , typename Value , template&lt; typename, typename &gt;
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Unique pointer owning the leaf </dd></dl>
+
+</div>
+</div>
+<a id="a0f6f60e207f2aeae2e6d989f9f8cb2d8" name="a0f6f60e207f2aeae2e6d989f9f8cb2d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0f6f60e207f2aeae2e6d989f9f8cb2d8">&#9670;&#160;</a></span>reclaim_if_leaf()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value , template&lt; typename, typename &gt; class Db, template&lt; class &gt; class CriticalSectionPolicy, class LockPolicy , class ReadCriticalSection , class NodePtr , template&lt; typename, typename &gt; class INodeDefs, template&lt; typename, typename, class &gt; class INodeReclamator, template&lt; class &gt; class LeafReclamator&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static auto <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html">unodb::detail::basic_art_policy</a>&lt; Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator &gt;::reclaim_if_leaf </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a8cd97a2445cf3bf1b445c3dd82614dba">node_ptr</a>&#160;</td>
+          <td class="paramname"><em>child</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ae90fdda165e947b64dd8f1490b4f3934">db_type</a> &amp;&#160;</td>
+          <td class="paramname"><em>db_instance</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reclaim a child node if it is a leaf; ignore if it is an inode. </p>
+<p>Used by shrink constructors where the deleted child may be a dead chain inode (already freed) rather than a leaf. The type tag is embedded in the pointer value, so checking type() is safe even if the pointed-to memory has been freed.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">child</td><td>Tagged node pointer to conditionally reclaim </td></tr>
+    <tr><td class="paramname">db_instance</td><td>Database for memory reclamation </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Reclaimable pointer (no-op if child is not a leaf) </dd></dl>
 
 </div>
 </div>

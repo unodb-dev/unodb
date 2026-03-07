@@ -219,6 +219,9 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html">set_qsbr_per_thread_in_main_thread</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper for registering the main thread with QSBR.  <a href="structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1sync__point.html">sync_point</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A named synchronization point that tests can arm with a callback.  <a href="structunodb_1_1detail_1_1sync__point.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1thread__sync.html">thread_sync</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A simple one-way synchronization mechanism to make one thread wait until another one signals it.  <a href="classunodb_1_1detail_1_1thread__sync.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -497,6 +500,10 @@ template&lt;typename T &gt; </td></tr>
 <tr class="memitem:ae1bd0a219522dc54b6e2726f277e9677"><td class="memTemplItemLeft" align="right" valign="top">constexpr To&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#ae1bd0a219522dc54b6e2726f277e9677">bit_cast</a> (From input) noexcept</td></tr>
 <tr class="memdesc:ae1bd0a219522dc54b6e2726f277e9677"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reinterpret object representation as a different type.  <br /></td></tr>
 <tr class="separator:ae1bd0a219522dc54b6e2726f277e9677"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a03878a8c54206e8babeb1cedd9c69a18" id="r_a03878a8c54206e8babeb1cedd9c69a18"><td class="memItemLeft" align="right" valign="top"><a id="a03878a8c54206e8babeb1cedd9c69a18" name="a03878a8c54206e8babeb1cedd9c69a18"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>sync</b> (<a class="el" href="structunodb_1_1detail_1_1sync__point.html">sync_point</a> &amp;pt)</td></tr>
+<tr class="memdesc:a03878a8c54206e8babeb1cedd9c69a18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fire a sync point (calls hook if armed). <br /></td></tr>
+<tr class="separator:a03878a8c54206e8babeb1cedd9c69a18"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -515,6 +522,14 @@ constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>node
 constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>inode_type_count</b> {4}</td></tr>
 <tr class="memdesc:aa11fc0dc02ee0b061504cd50856ea7dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of different internal node types. <br /></td></tr>
 <tr class="separator:aa11fc0dc02ee0b061504cd50856ea7dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a4f19f630d67a625c508f7309e4baf1" id="r_a4a4f19f630d67a625c508f7309e4baf1"><td class="memItemLeft" align="right" valign="top"><a id="a4a4f19f630d67a625c508f7309e4baf1" name="a4a4f19f630d67a625c508f7309e4baf1"></a>
+<a class="el" href="structunodb_1_1detail_1_1sync__point.html">sync_point</a>&#160;</td><td class="memItemRight" valign="bottom"><b>sync_after_chain_locked</b></td></tr>
+<tr class="memdesc:a4a4f19f630d67a625c508f7309e4baf1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sync point: fires after chain locked, before acquiring cut_point_parent. <br /></td></tr>
+<tr class="separator:a4a4f19f630d67a625c508f7309e4baf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af901b0308c5439f03f4c38539f2b946d" id="r_af901b0308c5439f03f4c38539f2b946d"><td class="memItemLeft" align="right" valign="top"><a id="af901b0308c5439f03f4c38539f2b946d" name="af901b0308c5439f03f4c38539f2b946d"></a>
+<a class="el" href="structunodb_1_1detail_1_1sync__point.html">sync_point</a>&#160;</td><td class="memItemRight" valign="bottom"><b>sync_between_chain_locks</b></td></tr>
+<tr class="memdesc:af901b0308c5439f03f4c38539f2b946d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sync point: fires inside Step 2 loop between chain node locks. <br /></td></tr>
+<tr class="separator:af901b0308c5439f03f4c38539f2b946d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ab520671507d4d7d913c5d2655fad89" id="r_a3ab520671507d4d7d913c5d2655fad89"><td class="memItemLeft" align="right" valign="top">constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a3ab520671507d4d7d913c5d2655fad89">hardware_constructive_interference_size</a></td></tr>
 <tr class="memdesc:a3ab520671507d4d7d913c5d2655fad89"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum size in bytes where multiple variables will be guaranteed to be shared for the purposes of true sharing.  <br /></td></tr>
 <tr class="separator:a3ab520671507d4d7d913c5d2655fad89"><td class="memSeparator" colspan="2">&#160;</td></tr>

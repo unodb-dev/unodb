@@ -106,7 +106,11 @@ $(document).ready(function(){initNavTree('namespaceanonymous__namespace_02test__
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTChainConcurrencyTest.html">ARTChainConcurrencyTest</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTConcurrencyTest.html">ARTConcurrencyTest</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structanonymous__namespace_02test__art__concurrency_8cpp_03_1_1sync__point__guard.html">sync_point_guard</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
@@ -114,6 +118,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:a15301ddcad098b8292f2cca9b1bbb380" id="r_a15301ddcad098b8292f2cca9b1bbb380"><td class="memItemLeft" align="right" valign="top"><a id="a15301ddcad098b8292f2cca9b1bbb380" name="a15301ddcad098b8292f2cca9b1bbb380"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>ConcurrentARTTypes</b> = ::testing::Types&lt; <a class="el" href="classunodb_1_1mutex__db.html">unodb::test::u64_mutex_db</a>, <a class="el" href="classunodb_1_1olc__db.html">unodb::test::u64_olc_db</a> &gt;</td></tr>
 <tr class="separator:a15301ddcad098b8292f2cca9b1bbb380"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5da520291946dcec57e73dbe6e2a64ff" id="r_a5da520291946dcec57e73dbe6e2a64ff"><td class="memItemLeft" align="right" valign="top"><a id="a5da520291946dcec57e73dbe6e2a64ff" name="a5da520291946dcec57e73dbe6e2a64ff"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>ChainConcurrentTypes</b> = ::testing::Types&lt; <a class="el" href="classunodb_1_1mutex__db.html">unodb::test::key_view_mutex_db</a>, <a class="el" href="classunodb_1_1olc__db.html">unodb::test::key_view_olc_db</a> &gt;</td></tr>
+<tr class="separator:a5da520291946dcec57e73dbe6e2a64ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -153,6 +160,52 @@ constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><b>odd</b> (st
 <tr class="memitem:a23047439d66aa549425563eace45efbe" id="r_a23047439d66aa549425563eace45efbe"><td class="memItemLeft" align="right" valign="top"><a id="a23047439d66aa549425563eace45efbe" name="a23047439d66aa549425563eace45efbe"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTConcurrencyTest.html">ARTConcurrencyTest</a>, DISABLED_ParallelRandomInsertDeleteGetScanStressTest)</td></tr>
 <tr class="separator:a23047439d66aa549425563eace45efbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ace8ca40d17a6e4f544fd455020bfa7be" id="r_ace8ca40d17a6e4f544fd455020bfa7be"><td class="memItemLeft" align="right" valign="top"><a id="ace8ca40d17a6e4f544fd455020bfa7be" name="ace8ca40d17a6e4f544fd455020bfa7be"></a>
+<a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a>&#160;</td><td class="memItemRight" valign="bottom"><b>make_chain_key</b> (<a class="el" href="classunodb_1_1key__encoder.html">unodb::key_encoder</a> &amp;enc, std::uint8_t tag, std::uint64_t v, std::array&lt; std::byte, 9 &gt; &amp;buf)</td></tr>
+<tr class="separator:ace8ca40d17a6e4f544fd455020bfa7be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a597dc1e80bc501b34c67f289c3fa6cb2" id="r_a597dc1e80bc501b34c67f289c3fa6cb2"><td class="memItemLeft" align="right" valign="top"><a id="a597dc1e80bc501b34c67f289c3fa6cb2" name="a597dc1e80bc501b34c67f289c3fa6cb2"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTChainConcurrencyTest.html">ARTChainConcurrencyTest</a>, ChainInsertRemove)</td></tr>
+<tr class="memdesc:a597dc1e80bc501b34c67f289c3fa6cb2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concurrent insert/remove on chain keys — exercises chain creation and two-pass removal under contention. <br /></td></tr>
+<tr class="separator:a597dc1e80bc501b34c67f289c3fa6cb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f87869a2482abb5abb16e79e32a6afa" id="r_a3f87869a2482abb5abb16e79e32a6afa"><td class="memItemLeft" align="right" valign="top"><a id="a3f87869a2482abb5abb16e79e32a6afa" name="a3f87869a2482abb5abb16e79e32a6afa"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTChainConcurrencyTest.html">ARTChainConcurrencyTest</a>, ChainRandomOps)</td></tr>
+<tr class="memdesc:a3f87869a2482abb5abb16e79e32a6afa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concurrent random insert/remove/get on chain keys with geometric key distribution — hot-spot contention on small v values. <br /></td></tr>
+<tr class="separator:a3f87869a2482abb5abb16e79e32a6afa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8f44f9f7789b2fdb0f77e3e6298b3f94" id="r_a8f44f9f7789b2fdb0f77e3e6298b3f94"><td class="memItemLeft" align="right" valign="top"><a id="a8f44f9f7789b2fdb0f77e3e6298b3f94" name="a8f44f9f7789b2fdb0f77e3e6298b3f94"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTChainConcurrencyTest.html">ARTChainConcurrencyTest</a>, ChainMultiTagOps)</td></tr>
+<tr class="memdesc:a8f44f9f7789b2fdb0f77e3e6298b3f94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Multi-tag concurrent ops — independent chain subtrees with some cross-tag contention at the root inode. <br /></td></tr>
+<tr class="separator:a8f44f9f7789b2fdb0f77e3e6298b3f94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a67798dc50214d3131403f80a01ab05d9" id="r_a67798dc50214d3131403f80a01ab05d9"><td class="memItemLeft" align="right" valign="top"><a id="a67798dc50214d3131403f80a01ab05d9" name="a67798dc50214d3131403f80a01ab05d9"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTChainConcurrencyTest.html">ARTChainConcurrencyTest</a>, DISABLED_ChainStressTest)</td></tr>
+<tr class="memdesc:a67798dc50214d3131403f80a01ab05d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Higher contention stress test (DISABLED for CI, enable manually). <br /></td></tr>
+<tr class="separator:a67798dc50214d3131403f80a01ab05d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe3864e8768b22f228b52679f8adad26" id="r_abe3864e8768b22f228b52679f8adad26"><td class="memItemLeft" align="right" valign="top"><a id="abe3864e8768b22f228b52679f8adad26" name="abe3864e8768b22f228b52679f8adad26"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TEST</b> (OLCChainCutInterleaved, ConcurrentInsertIntoCutPointParent)</td></tr>
+<tr class="separator:abe3864e8768b22f228b52679f8adad26"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c74bd0e707297e2cb15b9fe3f06c6d9" id="r_a1c74bd0e707297e2cb15b9fe3f06c6d9"><td class="memItemLeft" align="right" valign="top"><a id="a1c74bd0e707297e2cb15b9fe3f06c6d9" name="a1c74bd0e707297e2cb15b9fe3f06c6d9"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TEST</b> (OLCChainCutInterleaved, ConcurrentInsertIntoMidChain)</td></tr>
+<tr class="separator:a1c74bd0e707297e2cb15b9fe3f06c6d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad4839bce07a1c6a4e4cf2cc612a9db1e" id="r_ad4839bce07a1c6a4e4cf2cc612a9db1e"><td class="memItemLeft" align="right" valign="top"><a id="ad4839bce07a1c6a4e4cf2cc612a9db1e" name="ad4839bce07a1c6a4e4cf2cc612a9db1e"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TEST</b> (OLCChainCutInterleaved, ConcurrentRemoveOfSibling)</td></tr>
+<tr class="separator:ad4839bce07a1c6a4e4cf2cc612a9db1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a77116cb5273c4c4035162e0af0468b26" id="r_a77116cb5273c4c4035162e0af0468b26"><td class="memItemLeft" align="right" valign="top"><a id="a77116cb5273c4c4035162e0af0468b26" name="a77116cb5273c4c4035162e0af0468b26"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TEST</b> (OLCChainCutInterleaved, ABAOnChainNode)</td></tr>
+<tr class="separator:a77116cb5273c4c4035162e0af0468b26"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acaf3422f97212567f34f3ff6ae7808d5" id="r_acaf3422f97212567f34f3ff6ae7808d5"><td class="memItemLeft" align="right" valign="top"><a id="acaf3422f97212567f34f3ff6ae7808d5" name="acaf3422f97212567f34f3ff6ae7808d5"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TEST</b> (OLCChainCutStress, TwoRemoversFromChain)</td></tr>
+<tr class="separator:acaf3422f97212567f34f3ff6ae7808d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0139d5ea30ab13c3bb9eb9f4740a7f18" id="r_a0139d5ea30ab13c3bb9eb9f4740a7f18"><td class="memItemLeft" align="right" valign="top"><a id="a0139d5ea30ab13c3bb9eb9f4740a7f18" name="a0139d5ea30ab13c3bb9eb9f4740a7f18"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TEST</b> (OLCChainCutStress, InsertRemoveMix)</td></tr>
+<tr class="separator:a0139d5ea30ab13c3bb9eb9f4740a7f18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af775aa0aa20d80c9ef298449742758d5" id="r_af775aa0aa20d80c9ef298449742758d5"><td class="memItemLeft" align="right" valign="top"><a id="af775aa0aa20d80c9ef298449742758d5" name="af775aa0aa20d80c9ef298449742758d5"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>deep_chain_stress</b> (int n_threads, int ops_per_thread, int iterations)</td></tr>
+<tr class="separator:af775aa0aa20d80c9ef298449742758d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c4176608004a66df5ca8b26b9d518c7" id="r_a7c4176608004a66df5ca8b26b9d518c7"><td class="memItemLeft" align="right" valign="top"><a id="a7c4176608004a66df5ca8b26b9d518c7" name="a7c4176608004a66df5ca8b26b9d518c7"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TEST</b> (OLCChainCut, DeepChainStress)</td></tr>
+<tr class="separator:a7c4176608004a66df5ca8b26b9d518c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add274ca21e7458f9f3da913d97655a06" id="r_add274ca21e7458f9f3da913d97655a06"><td class="memItemLeft" align="right" valign="top"><a id="add274ca21e7458f9f3da913d97655a06" name="add274ca21e7458f9f3da913d97655a06"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TEST</b> (OLCChainCut, DISABLED_DeepChainStressHeavy)</td></tr>
+<tr class="separator:add274ca21e7458f9f3da913d97655a06"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->

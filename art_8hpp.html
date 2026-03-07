@@ -114,6 +114,7 @@ $(document).ready(function(){initNavTree('art_8hpp.html',''); initResizable(); }
 <code>#include &lt;optional&gt;</code><br />
 <code>#include &lt;stack&gt;</code><br />
 <code>#include &lt;type_traits&gt;</code><br />
+<code>#include &lt;boost/container/small_vector.hpp&gt;</code><br />
 <code>#include &quot;<a class="el" href="art__common_8hpp_source.html">art_common.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="art__internal_8hpp_source.html">art_internal.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a>&quot;</code><br />
@@ -222,6 +223,10 @@ Functions</h2></td></tr>
 <tr class="memitem:a315446f662ab93a69546e61c3c72a492" id="r_a315446f662ab93a69546e61c3c72a492"><td class="memItemLeft" align="right" valign="top">auto *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a315446f662ab93a69546e61c3c72a492">unodb::detail::unwrap_fake_critical_section</a> (<a class="el" href="classunodb_1_1in__fake__critical__section.html">unodb::in_fake_critical_section</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">unodb::detail::node_ptr</a> &gt; *ptr) noexcept</td></tr>
 <tr class="memdesc:a315446f662ab93a69546e61c3c72a492"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unwrap fake critical section wrapper to access underlying node pointer.  <br /></td></tr>
 <tr class="separator:a315446f662ab93a69546e61c3c72a492"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9073306ff796dcdb770b32e770ceb3d" id="r_aa9073306ff796dcdb770b32e770ceb3d"><td class="memTemplParams" colspan="2"><a id="aa9073306ff796dcdb770b32e770ceb3d" name="aa9073306ff796dcdb770b32e770ceb3d"></a>
+template&lt;typename Key , typename Value &gt; </td></tr>
+<tr class="memitem:aa9073306ff796dcdb770b32e770ceb3d"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><b>unodb::UNODB_DETAIL_DISABLE_MSVC_WARNING</b> (26815) bool <a class="el" href="classunodb_1_1db.html">db</a>&lt; Key</td></tr>
+<tr class="separator:aa9073306ff796dcdb770b32e770ceb3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Non-thread-safe Adaptive Radix Tree (ART) implementation. </p>

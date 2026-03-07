@@ -39,6 +39,7 @@ var namespaceunodb_1_1detail =
     [ "olc_node_header", "structunodb_1_1detail_1_1olc__node__header.html", null ],
     [ "qsbr_ptr_base", "classunodb_1_1detail_1_1qsbr__ptr__base.html", "classunodb_1_1detail_1_1qsbr__ptr__base" ],
     [ "set_qsbr_per_thread_in_main_thread", "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html", "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread" ],
+    [ "sync_point", "structunodb_1_1detail_1_1sync__point.html", null ],
     [ "thread_sync", "classunodb_1_1detail_1_1thread__sync.html", "classunodb_1_1detail_1_1thread__sync" ],
     [ "tree_depth", "classunodb_1_1detail_1_1tree__depth.html", "classunodb_1_1detail_1_1tree__depth" ],
     [ "art_policy", "namespaceunodb_1_1detail.html#aedf36d7f939b56845e7334c790d07195", null ],
@@ -85,6 +86,7 @@ var namespaceunodb_1_1detail =
     [ "msb", "namespaceunodb_1_1detail.html#aa11dfd956f06126308971d516d631d85", null ],
     [ "msg_stacktrace_abort", "namespaceunodb_1_1detail.html#aa70778153d340954b6f2718fd7f018a2", null ],
     [ "node_ptr_lock", "namespaceunodb_1_1detail.html#a13ca7f940a88b617002ae98db439ff94", null ],
+    [ "sync", "namespaceunodb_1_1detail.html#a03878a8c54206e8babeb1cedd9c69a18", null ],
     [ "unwrap_fake_critical_section", "namespaceunodb_1_1detail.html#a315446f662ab93a69546e61c3c72a492", null ],
     [ "hardware_constructive_interference_size", "namespaceunodb_1_1detail.html#a3ab520671507d4d7d913c5d2655fad89", null ],
     [ "hardware_destructive_interference_size", "namespaceunodb_1_1detail.html#a4c6387d4046bddd4f1d87150a2e6b94c", null ],
@@ -92,5 +94,7 @@ var namespaceunodb_1_1detail =
     [ "inode_type_count", "namespaceunodb_1_1detail.html#aa11fc0dc02ee0b061504cd50856ea7dd", null ],
     [ "key_prefix_capacity", "namespaceunodb_1_1detail.html#a6affb48b09460b87dbcb8ab404f26263", null ],
     [ "node_type_count", "namespaceunodb_1_1detail.html#ad81082c8f2c103492eb9f6917f0483bc", null ],
+    [ "sync_after_chain_locked", "namespaceunodb_1_1detail.html#a4a4f19f630d67a625c508f7309e4baf1", null ],
+    [ "sync_between_chain_locks", "namespaceunodb_1_1detail.html#af901b0308c5439f03f4c38539f2b946d", null ],
     [ "thread_syncs", "namespaceunodb_1_1detail.html#a04a041b47bebde8ed0f3bd97327e450c", null ]
 ];

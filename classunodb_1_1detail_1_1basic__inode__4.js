@@ -16,6 +16,7 @@ var classunodb_1_1detail_1_1basic__inode__4 =
     [ "basic_inode_4", "classunodb_1_1detail_1_1basic__inode__4.html#a29460e6f41d148d527ccfb58628942eb", null ],
     [ "basic_inode_4", "classunodb_1_1detail_1_1basic__inode__4.html#a575e359f5dcbdf48df85870422197115", null ],
     [ "basic_inode_4", "classunodb_1_1detail_1_1basic__inode__4.html#a3286e9963069ef8cbedc32bea430f88f", null ],
+    [ "basic_inode_4", "classunodb_1_1detail_1_1basic__inode__4.html#abf1487c4452bc33d7456ee9ece5fe6ec", null ],
     [ "add_to_nonfull", "classunodb_1_1detail_1_1basic__inode__4.html#aa71eba70addc756e5987caf96966e9fd", null ],
     [ "add_two_to_empty", "classunodb_1_1detail_1_1basic__inode__4.html#a6c4d6639fc7f0a6ed823e044557d8413", null ],
     [ "begin", "classunodb_1_1detail_1_1basic__inode__4.html#abec4991340bfe86e39fae76f5e9d8bdb", null ],
@@ -28,12 +29,14 @@ var classunodb_1_1detail_1_1basic__inode__4 =
     [ "init", "classunodb_1_1detail_1_1basic__inode__4.html#a6ce83cd51d2b2f115c821c530c1461a0", null ],
     [ "init", "classunodb_1_1detail_1_1basic__inode__4.html#af23c2911888581187e407ccfc374e41d", null ],
     [ "init", "classunodb_1_1detail_1_1basic__inode__4.html#af3c0783f343d718f5f678d00f8f91354", null ],
+    [ "init", "classunodb_1_1detail_1_1basic__inode__4.html#ae6fdb4c217c0955f6c58e7db74be7940", null ],
     [ "last", "classunodb_1_1detail_1_1basic__inode__4.html#abd5d0ca04f97d79666de2274ae850a2a", null ],
     [ "leave_last_child", "classunodb_1_1detail_1_1basic__inode__4.html#a5adec81f55fb0c1a2f5fff28cb8c1d83", null ],
     [ "lte_key_byte", "classunodb_1_1detail_1_1basic__inode__4.html#a0ae5c502de5424777461a2233413b15f", null ],
     [ "next", "classunodb_1_1detail_1_1basic__inode__4.html#aaea377e443c41dc9ce68f37e9edb82c9", null ],
     [ "prior", "classunodb_1_1detail_1_1basic__inode__4.html#a3bfb57f5d20cf52e22d7e5f262de8983", null ],
     [ "remove", "classunodb_1_1detail_1_1basic__inode__4.html#aef2f9b4c0f9f619e38059b5acdc202cc", null ],
+    [ "remove_child_entry", "classunodb_1_1detail_1_1basic__inode__4.html#a456fa57be3102b0ab40524fd27ad47ed", null ],
     [ "children", "classunodb_1_1detail_1_1basic__inode__4.html#afd07781a3fd2c8a9277c6405013f4e37", null ],
     [ "keys", "classunodb_1_1detail_1_1basic__inode__4.html#ace0f2d6fa82c6d6089ea04fce96e8ffc", null ]
 ];
