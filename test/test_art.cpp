@@ -49,8 +49,7 @@ UNODB_TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeEmptyValue) {
 
 #ifdef UNODB_DETAIL_WITH_STATS
   constexpr std::uint64_t C =
-      (std::is_same_v<typename TypeParam::key_type, unodb::key_view> &&
-      !unodb::test::is_olc_db<TypeParam>) ? 1 : 0;
+      std::is_same_v<typename TypeParam::key_type, unodb::key_view> ? 1 : 0;
   verifier.assert_node_counts({1, C, 0, 0, 0});
   verifier.assert_growing_inodes({C, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
@@ -65,8 +64,7 @@ UNODB_TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeNonemptyValue) {
 
 #ifdef UNODB_DETAIL_WITH_STATS
   constexpr std::uint64_t C =
-      (std::is_same_v<typename TypeParam::key_type, unodb::key_view> &&
-      !unodb::test::is_olc_db<TypeParam>) ? 1 : 0;
+      std::is_same_v<typename TypeParam::key_type, unodb::key_view> ? 1 : 0;
   verifier.assert_node_counts({1, C, 0, 0, 0});
   verifier.assert_growing_inodes({C, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
@@ -99,8 +97,7 @@ UNODB_TYPED_TEST(ARTCorrectnessTest, ExpandLeafToNode4) {
 
 #ifdef UNODB_DETAIL_WITH_STATS
   constexpr std::uint64_t C =
-      (std::is_same_v<typename TypeParam::key_type, unodb::key_view> &&
-      !unodb::test::is_olc_db<TypeParam>) ? 1 : 0;
+      std::is_same_v<typename TypeParam::key_type, unodb::key_view> ? 1 : 0;
   verifier.assert_node_counts({1, C, 0, 0, 0});
   verifier.assert_growing_inodes({C, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
@@ -123,8 +120,7 @@ UNODB_TYPED_TEST(ARTCorrectnessTest, DuplicateKey) {
 
 #ifdef UNODB_DETAIL_WITH_STATS
   constexpr std::uint64_t C =
-      (std::is_same_v<typename TypeParam::key_type, unodb::key_view> &&
-      !unodb::test::is_olc_db<TypeParam>) ? 1 : 0;
+      std::is_same_v<typename TypeParam::key_type, unodb::key_view> ? 1 : 0;
   verifier.assert_node_counts({1, C, 0, 0, 0});
 
   const auto mem_use_before = verifier.get_db().get_current_memory_use();
@@ -448,8 +444,7 @@ UNODB_TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeAttemptDeleteAbsent) {
 
 #ifdef UNODB_DETAIL_WITH_STATS
   constexpr std::uint64_t C =
-      (std::is_same_v<typename TypeParam::key_type, unodb::key_view> &&
-      !unodb::test::is_olc_db<TypeParam>) ? 1 : 0;
+      std::is_same_v<typename TypeParam::key_type, unodb::key_view> ? 1 : 0;
   verifier.assert_node_counts({1, C, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
@@ -953,8 +948,7 @@ UNODB_TYPED_TEST(ARTCorrectnessTest, Node48InsertIntoDeletedSlot) {
 
 #ifdef UNODB_DETAIL_WITH_STATS
   constexpr std::uint64_t C =
-      (std::is_same_v<typename TypeParam::key_type, unodb::key_view> &&
-      !unodb::test::is_olc_db<TypeParam>) ? 1 : 0;
+      std::is_same_v<typename TypeParam::key_type, unodb::key_view> ? 1 : 0;
   verifier.assert_node_counts({18, C, 0, 1, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }

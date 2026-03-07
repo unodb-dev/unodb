@@ -810,6 +810,11 @@ class olc_db final {
   [[nodiscard]] try_update_result_type try_insert(
       art_key_type k, value_type v, olc_db_leaf_unique_ptr_type& cached_leaf);
 
+  /// Build an inode chain for the first key_view insert.  Same as
+  /// db::build_chain but uses olc_node_ptr.
+  [[nodiscard]] detail::olc_node_ptr build_chain(art_key_type k,
+                                                 detail::olc_node_ptr child);
+
   [[nodiscard]] try_update_result_type try_remove(art_key_type k);
 
   /// Stack entry for key_view remove traversal.
@@ -1876,6 +1881,40 @@ bool olc_db<Key, Value>::insert_internal(art_key_type insert_key,
 }
 
 template <typename Key, typename Value>
+detail::olc_node_ptr olc_db<Key, Value>::build_chain(
+    art_key_type k, detail::olc_node_ptr child) {
+  constexpr std::size_t cap = detail::key_prefix_capacity;
+  const auto full_key = k.get_key_view();
+  const auto key_len = k.size();
+  auto current = child;
+  std::size_t pos = key_len;
+  while (pos > cap) {
+    const auto depth = pos - cap - 1;
+    const auto dispatch = full_key[pos - 1];
+    auto remaining = k;
+    remaining.shift_right(depth);
+    auto chain{inode_4::create(*this, full_key, remaining,
+                               tree_depth_type{depth}, dispatch, current)};
+    current = detail::olc_node_ptr{chain.release(), node_type::I4};
+#ifdef UNODB_DETAIL_WITH_STATS
+    account_growing_inode<node_type::I4>();
+#endif
+    pos = depth;
+  }
+  if (pos > 0) {
+    const auto dispatch = full_key[pos - 1];
+    auto chain{inode_4::create(*this, full_key, tree_depth_type{0},
+                               static_cast<detail::key_prefix_size>(pos - 1),
+                               dispatch, current)};
+    current = detail::olc_node_ptr{chain.release(), node_type::I4};
+#ifdef UNODB_DETAIL_WITH_STATS
+    account_growing_inode<node_type::I4>();
+#endif
+  }
+  return current;
+}
+
+template <typename Key, typename Value>
 typename olc_db<Key, Value>::try_update_result_type
 olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
                                olc_db_leaf_unique_ptr_type& cached_leaf) {
@@ -1899,7 +1938,12 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
       return {};  // LCOV_EXCL_LINE
     }
 
-    root = detail::olc_node_ptr{cached_leaf.release(), node_type::LEAF};
+    if constexpr (std::is_same_v<Key, key_view>) {
+      root = build_chain(
+          k, detail::olc_node_ptr{cached_leaf.release(), node_type::LEAF});
+    } else {
+      root = detail::olc_node_ptr{cached_leaf.release(), node_type::LEAF};
+    }
     return true;
   }
 
