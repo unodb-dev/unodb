@@ -1672,4 +1672,156 @@ UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, ZeroLengthKey) {
 #endif
 }
 
+// -------------------------------------------------------------------
+// build_chain correctness tests (no stats assertions).
+//
+// Verify that the first key_view insert creates a correct inode chain
+// for various key lengths.  key_prefix_capacity = 7, so each chain I4
+// consumes up to 7 prefix + 1 dispatch = 8 bytes.
+//
+// Key lengths tested: 1, 7, 8, 9, 15, 16, 17, 18
+// (0-byte key already tested in ZeroLengthKey above)
+// -------------------------------------------------------------------
+
+namespace {
+
+/// Build a raw key of \a len bytes.  All bytes are 0x42 except the
+/// last byte which is \a last.  \a buf must have at least \a len bytes.
+inline unodb::key_view make_raw_key(std::byte* buf, std::size_t len,
+                                    std::byte last = std::byte{0x01}) {
+  std::fill_n(buf, len, std::byte{0x42});
+  if (len > 0) buf[len - 1] = last;
+  return unodb::key_view{buf, len};
+}
+
+}  // namespace
+
+// T1: Single key insert/get/remove for each key length.
+UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, BuildChainSingleKey) {
+  constexpr auto val = unodb::test::test_values[0];
+  constexpr std::size_t lengths[] = {1, 7, 8, 9, 15, 16, 17, 18};
+  for (auto len : lengths) {
+    unodb::test::tree_verifier<TypeParam> verifier;
+    std::array<std::byte, 32> buf{};
+    const auto k = make_raw_key(buf.data(), len);
+    verifier.insert(k, val);
+    verifier.check_present_values();
+    // Duplicate insert must fail.
+    UNODB_ASSERT_FALSE(verifier.get_db().insert(k, val));
+    verifier.remove(k);
+    verifier.assert_empty();
+  }
+}
+
+// T2: Two keys diverging at the last byte.
+UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, BuildChainTwoKeysDivergeAtEnd) {
+  constexpr auto val = unodb::test::test_values[0];
+  constexpr std::size_t lengths[] = {1, 8, 9, 16, 17, 18};
+  for (auto len : lengths) {
+    unodb::test::tree_verifier<TypeParam> verifier;
+    std::array<std::byte, 32> buf_a{};
+    std::array<std::byte, 32> buf_b{};
+    const auto ka = make_raw_key(buf_a.data(), len, std::byte{0x01});
+    const auto kb = make_raw_key(buf_b.data(), len, std::byte{0x02});
+    verifier.insert(ka, val);
+    verifier.insert(kb, val);
+    verifier.check_present_values();
+    verifier.remove(ka);
+    verifier.check_present_values();
+    verifier.remove(kb);
+    verifier.assert_empty();
+  }
+}
+
+// T3: Two keys diverging at an intermediate byte (byte 0).
+UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, BuildChainDivergeAtStart) {
+  constexpr auto val = unodb::test::test_values[0];
+  constexpr std::size_t lengths[] = {9, 17, 18};
+  for (auto len : lengths) {
+    unodb::test::tree_verifier<TypeParam> verifier;
+    std::array<std::byte, 32> buf_a{};
+    std::array<std::byte, 32> buf_b{};
+    const auto ka = make_raw_key(buf_a.data(), len, std::byte{0x01});
+    // Diverge at byte 0.
+    std::fill_n(buf_b.data(), len, std::byte{0x42});
+    buf_b[0] = std::byte{0x10};
+    buf_b[len - 1] = std::byte{0x01};
+    const auto kb = unodb::key_view{buf_b.data(), len};
+    verifier.insert(ka, val);
+    verifier.insert(kb, val);
+    verifier.check_present_values();
+    verifier.remove(ka);
+    verifier.remove(kb);
+    verifier.assert_empty();
+  }
+}
+
+// T4: Scan over chain keys.
+UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, BuildChainScan) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+  constexpr auto val = unodb::test::test_values[0];
+  std::array<std::byte, 9> buf1{}, buf2{}, buf3{};
+  const auto k1 = make_raw_key(buf1.data(), 9, std::byte{0x01});
+  const auto k2 = make_raw_key(buf2.data(), 9, std::byte{0x02});
+  const auto k3 = make_raw_key(buf3.data(), 9, std::byte{0x03});
+  verifier.insert(k1, val);
+  verifier.insert(k2, val);
+  verifier.insert(k3, val);
+
+  // Forward scan — collect keys.
+  std::vector<std::vector<std::byte>> keys;
+  verifier.get_db().scan([&keys](auto visitor) {
+    auto kv = visitor.get_key();
+    keys.emplace_back(kv.begin(), kv.end());
+    return false;  // continue
+  });
+  UNODB_ASSERT_EQ(keys.size(), 3U);
+  // Keys should be in lexicographic order.
+  UNODB_ASSERT_TRUE(keys[0] < keys[1]);
+  UNODB_ASSERT_TRUE(keys[1] < keys[2]);
+}
+
+// T5: Chain + non-chain sibling (different first byte).
+UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, BuildChainWithSibling) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+  constexpr auto val = unodb::test::test_values[0];
+  // 9-byte chain key.
+  std::array<std::byte, 9> buf_chain{};
+  const auto k_chain = make_raw_key(buf_chain.data(), 9, std::byte{0x01});
+  // 8-byte key with different first byte.
+  std::array<std::byte, 8> buf_short{};
+  std::fill(buf_short.begin(), buf_short.end(), std::byte{0x10});
+  const auto k_short = unodb::key_view{buf_short.data(), 8};
+  verifier.insert(k_chain, val);
+  verifier.insert(k_short, val);
+  verifier.check_present_values();
+  verifier.remove(k_chain);
+  verifier.check_present_values();
+  verifier.remove(k_short);
+  verifier.assert_empty();
+}
+
+// T6: Prefix overflow on I4 collapse after chain removal.
+UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, BuildChainPrefixOverflow) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+  constexpr auto val = unodb::test::test_values[0];
+  unodb::key_encoder enc;
+  // Two 9-byte keys under tag=0x10.
+  verifier.insert(make_key(enc, 0x10, 1), val);
+  verifier.insert(make_key(enc, 0x10, 2), val);
+  // Two 9-byte keys under tag=0x20.
+  verifier.insert(make_key(enc, 0x20, 1), val);
+  verifier.insert(make_key(enc, 0x20, 2), val);
+  verifier.check_present_values();
+  // Remove both tag=0x10 keys.
+  verifier.remove(make_key(enc, 0x10, 1));
+  verifier.remove(make_key(enc, 0x10, 2));
+  // tag=0x20 keys must still be accessible.
+  verifier.check_present_values();
+  // Remove remaining.
+  verifier.remove(make_key(enc, 0x20, 1));
+  verifier.remove(make_key(enc, 0x20, 2));
+  verifier.assert_empty();
+}
+
 }  // namespace
