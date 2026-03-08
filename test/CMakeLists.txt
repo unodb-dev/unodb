@@ -60,6 +60,7 @@ add_db_test_target(test_art)
 target_compile_options(test_art PRIVATE "$<${is_msvc}:/bigobj>")
 
 add_db_test_target(test_art_key_view)
+add_db_test_target(test_art_key_view_full_chain)
 add_db_test_target(test_art_iter)
 add_db_test_target(test_art_scan)
 add_db_test_target(test_art_concurrency)
