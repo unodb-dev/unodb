@@ -219,6 +219,22 @@ class [[nodiscard]] basic_leaf final : public Header {
     return value_view{data + key_size, value_size};
   }
 
+  /// Return value stored in leaf, converted to the given type.
+  ///
+  /// For value_view, returns a span over the stored bytes.
+  /// For fixed-width types (e.g., uint64_t), deserializes from stored bytes.
+  template <typename Value>
+  [[nodiscard, gnu::pure]] constexpr auto get_value() const noexcept {
+    if constexpr (std::is_same_v<Value, value_view>) {
+      return get_value_view();
+    } else {
+      static_assert(std::is_trivially_copyable_v<Value>);
+      Value v{};
+      std::memcpy(&v, data + key_size, sizeof(v));
+      return v;
+    }
+  }
+
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
@@ -286,29 +302,38 @@ class [[nodiscard]] basic_leaf final : public Header {
 ///
 /// \throws std::length_error if key or value exceeds maximum size
 template <typename Key, typename Value, template <typename, typename> class Db>
-[[nodiscard]] auto make_db_leaf_ptr(basic_art_key<Key> k, value_view v,
+[[nodiscard]] auto make_db_leaf_ptr(basic_art_key<Key> k, Value v,
                                     Db<Key, Value>& db
                                     UNODB_DETAIL_LIFETIMEBOUND) {
   using db_type = Db<Key, Value>;
   using header_type = typename db_type::header_type;
   using leaf_type = basic_leaf<Key, header_type>;
 
-  // TODO(thompsonbry) We should have a discussion about limits.  To
-  // my mind, limits should be explicit configuration values, not
-  // uint32_t.
   if constexpr (std::is_same_v<Key, key_view>) {
     if (UNODB_DETAIL_UNLIKELY(k.size() > leaf_type::max_key_size)) {
       throw std::length_error("Key length must fit in std::uint32_t");
     }
   }
 
-  if (UNODB_DETAIL_UNLIKELY(v.size_bytes() > leaf_type::max_value_size)) {
+  // Serialize value to bytes for leaf storage.
+  value_view val_bytes;
+  [[maybe_unused]] std::byte val_buf[sizeof(Value)];
+  if constexpr (std::is_same_v<Value, value_view>) {
+    val_bytes = v;
+  } else {
+    static_assert(std::is_trivially_copyable_v<Value>);
+    std::memcpy(val_buf, &v, sizeof(v));
+    val_bytes = value_view{val_buf, sizeof(v)};
+  }
+
+  if (UNODB_DETAIL_UNLIKELY(val_bytes.size_bytes() >
+                            leaf_type::max_value_size)) {
     throw std::length_error("Value length must fit in std::uint32_t");
   }
 
   const auto size = leaf_type::compute_size(
       static_cast<typename leaf_type::key_size_type>(k.size()),
-      static_cast<typename leaf_type::value_size_type>(v.size_bytes()));
+      static_cast<typename leaf_type::value_size_type>(val_bytes.size_bytes()));
 
   auto* const leaf_mem = static_cast<std::byte*>(
       allocate_aligned(size, alignment_for_new<leaf_type>()));
@@ -318,7 +343,8 @@ template <typename Key, typename Value, template <typename, typename> class Db>
 #endif  // UNODB_DETAIL_WITH_STATS
 
   return basic_db_leaf_unique_ptr<Key, Value, header_type, Db>{
-      new (leaf_mem) leaf_type{k, v}, basic_db_leaf_deleter<db_type>{db}};
+      new (leaf_mem) leaf_type{k, val_bytes},
+      basic_db_leaf_deleter<db_type>{db}};
 }
 
 /// Metaprogramming struct listing all concrete internal node types.
@@ -518,7 +544,7 @@ struct basic_art_policy final {
   /// \param db_instance Database for memory tracking
   ///
   /// \return Unique pointer to newly allocated leaf
-  [[nodiscard]] static auto make_db_leaf_ptr(art_key_type k, value_view v,
+  [[nodiscard]] static auto make_db_leaf_ptr(art_key_type k, value_type v,
                                              db_type& db_instance
                                              UNODB_DETAIL_LIFETIMEBOUND) {
     return ::unodb::detail::make_db_leaf_ptr<Key, Value, Db>(k, v, db_instance);
