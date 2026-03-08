@@ -298,6 +298,11 @@ destroy_tree<unodb::olc_db<unodb::key_view, unodb::value_view>>(
 /// for benchmarking Value=uint64_t (tuple identifier use case).
 class key_view_set {
  public:
+  key_view_set() = default;
+  key_view_set(const key_view_set&) = delete;
+  key_view_set& operator=(const key_view_set&) = delete;
+  key_view_set(key_view_set&&) = default;
+  key_view_set& operator=(key_view_set&&) = default;
   /// G1: 9-byte compound keys (tag + uint64).
   ///
   /// All keys share the same tag byte → 8 shared prefix bytes →
@@ -380,6 +385,7 @@ class key_view_set {
   /// @param n Number of keys (must be <= 256 * 4 = 1024).
   static key_view_set chain_depth(std::size_t key_len, std::size_t n) {
     UNODB_DETAIL_ASSERT(key_len >= 2);
+    UNODB_DETAIL_ASSERT(n <= 1024);
     key_view_set ks;
     ks.key_len_ = key_len;
     ks.buf_.resize(n * key_len);

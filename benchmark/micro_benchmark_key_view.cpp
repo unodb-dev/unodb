@@ -58,6 +58,14 @@ using unodb::benchmark::key_view_set;
 
 namespace {
 
+/// Call quiescent state for OLC db types, no-op for others.
+template <class Db>
+void maybe_quiescent() {
+  if constexpr (std::is_same_v<
+                    Db, unodb::olc_db<unodb::key_view, unodb::value_view>>)
+    unodb::this_thread().quiescent();
+}
+
 constexpr auto val_bytes = std::array<std::byte, 8>{};
 const auto val = unodb::value_view{val_bytes};
 
@@ -83,6 +91,7 @@ void chain_insert(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
     for (std::size_t i = 0; i < n; ++i)
       benchmark::DoNotOptimize(db.insert(ks[i], val));
     state.PauseTiming();
+    maybe_quiescent<Db>();
     unodb::benchmark::destroy_tree(db, state);
   }
   state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
@@ -94,9 +103,11 @@ void chain_get(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
   const auto n = static_cast<std::size_t>(state.range(0));
   const auto ks = gen(n);
   Db db;
-  for (std::size_t i = 0; i < n; ++i) db.insert(ks[i], val);
+  for (std::size_t i = 0; i < n; ++i) std::ignore = db.insert(ks[i], val);
+  maybe_quiescent<Db>();
   for (auto _ : state) {
     for (std::size_t i = 0; i < n; ++i) benchmark::DoNotOptimize(db.get(ks[i]));
+    maybe_quiescent<Db>();
   }
   state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
                           static_cast<std::int64_t>(n));
@@ -109,11 +120,13 @@ void chain_remove(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
   for (auto _ : state) {
     state.PauseTiming();
     Db db;
-    for (std::size_t i = 0; i < n; ++i) db.insert(ks[i], val);
+    for (std::size_t i = 0; i < n; ++i) std::ignore = db.insert(ks[i], val);
     benchmark::ClobberMemory();
     state.ResumeTiming();
     for (std::size_t i = 0; i < n; ++i)
       benchmark::DoNotOptimize(db.remove(ks[i]));
+    state.PauseTiming();
+    maybe_quiescent<Db>();
   }
   state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
                           static_cast<std::int64_t>(n));
@@ -124,7 +137,7 @@ void chain_scan(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
   const auto n = static_cast<std::size_t>(state.range(0));
   const auto ks = gen(n);
   Db db;
-  for (std::size_t i = 0; i < n; ++i) db.insert(ks[i], val);
+  for (std::size_t i = 0; i < n; ++i) std::ignore = db.insert(ks[i], val);
   for (auto _ : state) {
     std::size_t count = 0;
     db.scan([&count](auto /*visitor*/) {
@@ -132,6 +145,7 @@ void chain_scan(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
       return false;
     });
     benchmark::DoNotOptimize(count);
+    maybe_quiescent<Db>();
   }
   state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
                           static_cast<std::int64_t>(n));
@@ -153,6 +167,7 @@ void kv_vs_u64_insert(benchmark::State& state) {
     for (std::size_t i = 0; i < n; ++i)
       benchmark::DoNotOptimize(db.insert(ks[i], val100));
     state.PauseTiming();
+    maybe_quiescent<Db>();
     unodb::benchmark::destroy_tree(db, state);
   }
   state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
@@ -164,9 +179,11 @@ void kv_vs_u64_get(benchmark::State& state) {
   const auto n = static_cast<std::size_t>(state.range(0));
   const auto ks = key_view_set::dense_sequential(n);
   Db db;
-  for (std::size_t i = 0; i < n; ++i) db.insert(ks[i], val100);
+  for (std::size_t i = 0; i < n; ++i) std::ignore = db.insert(ks[i], val100);
+  maybe_quiescent<Db>();
   for (auto _ : state) {
     for (std::size_t i = 0; i < n; ++i) benchmark::DoNotOptimize(db.get(ks[i]));
+    maybe_quiescent<Db>();
   }
   state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
                           static_cast<std::int64_t>(n));
@@ -179,11 +196,13 @@ void kv_vs_u64_remove(benchmark::State& state) {
   for (auto _ : state) {
     state.PauseTiming();
     Db db;
-    for (std::size_t i = 0; i < n; ++i) db.insert(ks[i], val100);
+    for (std::size_t i = 0; i < n; ++i) std::ignore = db.insert(ks[i], val100);
     benchmark::ClobberMemory();
     state.ResumeTiming();
     for (std::size_t i = 0; i < n; ++i)
       benchmark::DoNotOptimize(db.remove(ks[i]));
+    state.PauseTiming();
+    maybe_quiescent<Db>();
   }
   state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
                           static_cast<std::int64_t>(n));
@@ -243,7 +262,7 @@ BENCHMARK_CAPTURE(chain_scan<DB>, compound, gen_compound)->Apply(kv_sizes);
 BENCHMARK_CAPTURE(chain_scan<DB>, dense, gen_dense)->Apply(kv_sizes);
 
 // ===================================================================
-// Registration: olc_db (same functions — destroy_tree handles OLC)
+// Registration: olc_db
 // ===================================================================
 
 using OLC = unodb::benchmark::kv_olc_db;
