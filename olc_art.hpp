@@ -376,7 +376,9 @@ class olc_db final {
     /// the iterator.
     ///
     /// \pre The iterator MUST be valid().
-    [[nodiscard, gnu::pure]] qsbr_value_view get_val() const noexcept;
+    [[nodiscard, gnu::pure]] auto get_val() const noexcept
+        -> std::conditional_t<std::is_same_v<Value, unodb::value_view>,
+                              qsbr_value_view, value_type>;
 
     /// Debugging
     // LCOV_EXCL_START
@@ -926,7 +928,7 @@ class olc_db final {
 #endif  // UNODB_DETAIL_WITH_STATS
 
   friend auto detail::make_db_leaf_ptr<Key, Value, olc_db>(art_key_type,
-                                                           unodb::value_view,
+                                                           value_type,
                                                            olc_db&);
 
   template <class>
@@ -1091,7 +1093,7 @@ struct olc_impl_helpers {
   template <typename Key, typename Value, class INode>
   [[nodiscard]] static std::optional<in_critical_section<olc_node_ptr>*>
   add_or_choose_subtree(
-      INode& inode, std::byte key_byte, basic_art_key<Key> k, value_view v,
+      INode& inode, std::byte key_byte, basic_art_key<Key> k, Value v,
       olc_db<Key, Value>& db_instance, tree_depth<basic_art_key<Key>> depth,
       optimistic_lock::read_critical_section& node_critical_section,
       in_critical_section<olc_node_ptr>* node_in_parent,
@@ -1476,7 +1478,7 @@ void olc_inode_48<Key, Value>::init(
 
 template <typename Key, typename Value>
 void create_leaf_if_needed(olc_db_leaf_unique_ptr<Key, Value>& cached_leaf,
-                           basic_art_key<Key> k, unodb::value_view v,
+                           basic_art_key<Key> k, Value v,
                            unodb::olc_db<Key, Value>& db_instance) {
   if (UNODB_DETAIL_LIKELY(cached_leaf == nullptr)) {
     UNODB_DETAIL_ASSERT(&cached_leaf.get_deleter().get_db() == &db_instance);
@@ -1492,7 +1494,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26460)
 template <typename Key, typename Value, class INode>
 [[nodiscard]] std::optional<in_critical_section<olc_node_ptr>*>
 olc_impl_helpers::add_or_choose_subtree(
-    INode& inode, std::byte key_byte, basic_art_key<Key> k, value_view v,
+    INode& inode, std::byte key_byte, basic_art_key<Key> k, Value v,
     olc_db<Key, Value>& db_instance, tree_depth<basic_art_key<Key>> depth,
     optimistic_lock::read_critical_section& node_critical_section,
     in_critical_section<olc_node_ptr>* node_in_parent,
@@ -1805,10 +1807,10 @@ typename olc_db<Key, Value>::try_get_result_type olc_db<Key, Value>::try_get(
     if (node_type == node_type::LEAF) {
       const auto* const leaf{node.ptr<leaf_type*>()};
       if (leaf->matches(k)) {
-        const auto val_view{leaf->get_value_view()};
+        const auto val{leaf->template get_value<Value>()};
         if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
           return {};  // LCOV_EXCL_LINE
-        return qsbr_ptr_span<const std::byte>{val_view};
+        return std::make_optional<get_result>(val);
       }
       if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
         return {};  // LCOV_EXCL_LINE
@@ -2971,7 +2973,9 @@ key_view olc_db<Key, Value>::iterator::get_key() noexcept {
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
 template <typename Key, typename Value>
-qsbr_value_view olc_db<Key, Value>::iterator::get_val() const noexcept {
+auto olc_db<Key, Value>::iterator::get_val() const noexcept
+    -> std::conditional_t<std::is_same_v<Value, unodb::value_view>,
+                          qsbr_value_view, value_type> {
   // Note: If the iterator is on a leaf, we return the value for
   // that leaf regardless of whether the leaf has been deleted.
   // This is part of the design semantics for the OLC ART scan.
@@ -2980,7 +2984,10 @@ qsbr_value_view olc_db<Key, Value>::iterator::get_val() const noexcept {
   const auto& node = e.node;
   UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);      // On a leaf.
   const auto* const leaf{node.template ptr<leaf_type*>()};  // current leaf.
-  return qsbr_ptr_span{leaf->get_value_view()};
+  if constexpr (std::is_same_v<Value, unodb::value_view>)
+    return qsbr_ptr_span{leaf->get_value_view()};
+  else
+    return leaf->template get_value<Value>();
 }
 
 template <typename Key, typename Value>

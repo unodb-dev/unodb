@@ -362,7 +362,7 @@ class db final {
     /// the iterator.
     ///
     /// \pre The iterator MUST be valid().
-    [[nodiscard, gnu::pure]] value_view get_val() const noexcept;
+    [[nodiscard, gnu::pure]] value_type get_val() const noexcept;
 
     /// Output iterator state to stream \a os for debugging.
     // LCOV_EXCL_START
@@ -865,7 +865,7 @@ class db final {
   // Type names in the Doxygen comments below make them clickable in the output
 
   /// detail::make_db_leaf_ptr
-  friend auto detail::make_db_leaf_ptr<Key, Value, db>(art_key_type, value_view,
+  friend auto detail::make_db_leaf_ptr<Key, Value, db>(art_key_type, value_type,
                                                        db&);
 
   /// detail::basic_db_leaf_deleter
@@ -923,7 +923,7 @@ struct impl_helpers {
   /// \return Pointer to location for further descent or insertion
   template <typename Key, typename Value, class INode>
   [[nodiscard]] static detail::node_ptr* add_or_choose_subtree(
-      INode& inode, std::byte key_byte, basic_art_key<Key> k, value_view v,
+      INode& inode, std::byte key_byte, basic_art_key<Key> k, Value v,
       db<Key, Value>& db_instance, tree_depth<basic_art_key<Key>> depth,
       detail::node_ptr* node_in_parent);
 
@@ -1146,7 +1146,7 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 /// byte, create the leaf and insert it in the current node.
 template <typename Key, typename Value, class INode>
 detail::node_ptr* impl_helpers::add_or_choose_subtree(
-    INode& inode, std::byte key_byte, basic_art_key<Key> k, value_view v,
+    INode& inode, std::byte key_byte, basic_art_key<Key> k, Value v,
     db<Key, Value>& db_instance, tree_depth<basic_art_key<Key>> depth,
     detail::node_ptr* node_in_parent) {
   auto* const child =
@@ -1235,7 +1235,7 @@ typename db<Key, Value>::get_result db<Key, Value>::get_internal(
     const auto node_type = node.type();
     if (node_type == node_type::LEAF) {
       const auto* const leaf{node.template ptr<leaf_type*>()};
-      if (leaf->matches(k)) return leaf->get_value_view();
+      if (leaf->matches(k)) return leaf->template get_value<value_type>();
       return {};
     }
 
@@ -1905,13 +1905,14 @@ key_view db<Key, Value>::iterator::get_key() noexcept {
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
 template <typename Key, typename Value>
-value_view db<Key, Value>::iterator::get_val() const noexcept {
+typename db<Key, Value>::value_type
+db<Key, Value>::iterator::get_val() const noexcept {
   UNODB_DETAIL_ASSERT(valid());  // by contract
   const auto& e = stack_.top();
   const auto& node = e.node;
   UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);      // On a leaf.
   const auto* const leaf{node.template ptr<leaf_type*>()};  // current leaf.
-  return leaf->get_value_view();
+  return leaf->template get_value<value_type>();
 }
 
 //
