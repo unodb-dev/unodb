@@ -28,6 +28,10 @@ template class unodb::db<unodb::key_view, unodb::value_view>;
 template class unodb::mutex_db<unodb::key_view, unodb::value_view>;
 template class unodb::olc_db<unodb::key_view, unodb::value_view>;
 
+template class unodb::db<unodb::key_view, std::uint64_t>;
+template class unodb::mutex_db<unodb::key_view, std::uint64_t>;
+template class unodb::olc_db<unodb::key_view, std::uint64_t>;
+
 }  // namespace unodb
 
 namespace unodb::test {
@@ -43,6 +47,10 @@ template class tree_verifier<u64_olc_db>;
 template class tree_verifier<key_view_db>;
 template class tree_verifier<key_view_mutex_db>;
 template class tree_verifier<key_view_olc_db>;
+
+template class tree_verifier<key_view_u64val_db>;
+template class tree_verifier<key_view_u64val_mutex_db>;
+template class tree_verifier<key_view_u64val_olc_db>;
 
 }  // namespace unodb::test
 
