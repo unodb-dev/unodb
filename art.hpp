@@ -1289,7 +1289,7 @@ template <typename Key, typename Value>
 bool db<Key, Value>::insert_internal(art_key_type insert_key, value_type v) {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) {
     auto leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
-    if constexpr (std::is_same_v<Key, key_view>) {
+    if constexpr (art_policy::can_eliminate_leaf) {
       root = build_chain(insert_key,
                          detail::node_ptr{leaf.release(), node_type::LEAF});
     } else {

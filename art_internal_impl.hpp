@@ -482,6 +482,17 @@ struct basic_art_policy final {
   static_assert(sizeof(std::uintptr_t) <= sizeof(std::uint64_t),
                 "node_ptr must fit in a uint64_t slot");
 
+  /// Whether the full key is encoded in the inode path (prefix + dispatch
+  /// bytes at every level).  True for key_view keys with small values.
+  static constexpr bool full_key_in_inode_path =
+      std::is_same_v<Key, key_view> && value_in_slot;
+
+  /// Whether leaf allocation can be eliminated entirely.  Requires the
+  /// full key in the inode path (so the leaf need not store the key) and
+  /// the value in the inode child slot (so the leaf need not store the
+  /// value).  Currently equivalent to full_key_in_inode_path.
+  static constexpr bool can_eliminate_leaf = full_key_in_inode_path;
+
   /// Leaf type.
   using leaf_type = basic_leaf<Key, header_type>;
 

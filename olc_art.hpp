@@ -1938,7 +1938,7 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
       return {};  // LCOV_EXCL_LINE
     }
 
-    if constexpr (std::is_same_v<Key, key_view>) {
+    if constexpr (art_policy::can_eliminate_leaf) {
       root = build_chain(
           k, detail::olc_node_ptr{cached_leaf.release(), node_type::LEAF});
     } else {
