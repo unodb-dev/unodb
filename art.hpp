@@ -181,10 +181,12 @@ class db final {
   /// (with prefix from the start of the key) becomes the root.
   ///
   /// \param k The full encoded key
-  /// \param child The leaf node to place at the bottom of the chain
-  /// \return The chain top node, or \a child itself if the key is empty
-  [[nodiscard]] detail::node_ptr build_chain(art_key_type k,
-                                             detail::node_ptr child);
+  /// \param child The node to place at the bottom of the chain
+  /// \param start_depth Depth at which the chain starts (default 0)
+  /// \return The chain top node, or \a child if no bytes to encode
+  [[nodiscard]] detail::node_ptr build_chain(
+      art_key_type k, detail::node_ptr child,
+      detail::tree_depth<art_key_type> start_depth = {});
 
   /// Remove the entry associated with the encoded key \a remove_key.
   ///
@@ -1182,10 +1184,40 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
       db_instance
           .template account_growing_inode<INode::larger_derived_type::type>();
 #endif  // UNODB_DETAIL_WITH_STATS
+
+      // For full_key_in_inode_path: wrap the bare leaf in a chain.
+      if constexpr (art_policy<Key, Value>::full_key_in_inode_path) {
+        auto& new_inode = *node_in_parent->template ptr<
+            typename INode::larger_derived_type*>();
+        auto* const slot = unwrap_fake_critical_section(
+            new_inode.find_child(key_byte).second);
+        UNODB_DETAIL_ASSERT(slot != nullptr);
+        const auto chain_start =
+            static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
+        if (chain_start < k.size()) {
+          *slot = db_instance.build_chain(k, *slot, chain_start);
+        }
+      }
+
       return child;
     }
   }
   inode.add_to_nonfull(std::move(leaf), depth, children_count);
+
+  // For full_key_in_inode_path: wrap the bare leaf in a chain encoding
+  // the remaining key suffix.  The leaf was just inserted into the slot
+  // for key_byte — find it and replace with the chain top.
+  if constexpr (art_policy<Key, Value>::full_key_in_inode_path) {
+    auto* const slot = unwrap_fake_critical_section(
+        inode.find_child(key_byte).second);
+    UNODB_DETAIL_ASSERT(slot != nullptr);
+    const auto chain_start =
+        static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
+    if (chain_start < k.size()) {
+      *slot = db_instance.build_chain(k, *slot, chain_start);
+    }
+  }
+
   return child;
 }
 
@@ -1366,16 +1398,17 @@ bool db<Key, Value>::insert_internal_fixed(art_key_type insert_key,
 
 template <typename Key, typename Value>
 detail::node_ptr db<Key, Value>::build_chain(art_key_type k,
-                                             detail::node_ptr child) {
+                                             detail::node_ptr child,
+                                             tree_depth_type start_depth) {
   constexpr std::size_t cap = detail::key_prefix_capacity;
   const auto full_key = k.get_key_view();
   const auto key_len = k.size();
+  const auto start = static_cast<std::size_t>(start_depth);
   auto current = child;
-  // Build bottom-up: start from end of key, work toward root.
+  // Build bottom-up: start from end of key, work toward start_depth.
   // Each chain I4 consumes up to cap prefix bytes + 1 dispatch byte.
-  // The last I4 created (with prefix from key[0..]) becomes the root.
   std::size_t pos = key_len;
-  while (pos > cap) {
+  while (pos > start + cap) {
     const auto depth = pos - cap - 1;
     const auto dispatch = full_key[pos - 1];
     auto remaining = k;
@@ -1388,11 +1421,11 @@ detail::node_ptr db<Key, Value>::build_chain(art_key_type k,
 #endif
     pos = depth;
   }
-  // Tail: 1..cap bytes at the start of the key.
-  if (pos > 0) {
+  // Tail: remaining bytes from start_depth to pos.
+  if (pos > start) {
     const auto dispatch = full_key[pos - 1];
-    auto chain{inode_4::create(*this, full_key, tree_depth_type{0},
-                               static_cast<detail::key_prefix_size>(pos - 1),
+    auto chain{inode_4::create(*this, full_key, tree_depth_type{start},
+                               static_cast<detail::key_prefix_size>(pos - start - 1),
                                dispatch, current)};
     current = detail::node_ptr{chain.release(), node_type::I4};
 #ifdef UNODB_DETAIL_WITH_STATS
