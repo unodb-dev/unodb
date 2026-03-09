@@ -810,10 +810,10 @@ class olc_db final {
   [[nodiscard]] try_update_result_type try_insert(
       art_key_type k, value_type v, olc_db_leaf_unique_ptr_type& cached_leaf);
 
-  /// Build an inode chain for the first key_view insert.  Same as
-  /// db::build_chain but uses olc_node_ptr.
-  [[nodiscard]] detail::olc_node_ptr build_chain(art_key_type k,
-                                                 detail::olc_node_ptr child);
+  /// Build an inode chain encoding key bytes from start_depth to end.
+  [[nodiscard]] detail::olc_node_ptr build_chain(
+      art_key_type k, detail::olc_node_ptr child,
+      detail::tree_depth<art_key_type> start_depth = {});
 
   [[nodiscard]] try_update_result_type try_remove(art_key_type k);
 
@@ -1537,6 +1537,18 @@ olc_impl_helpers::add_or_choose_subtree(
           *node_in_parent = detail::olc_node_ptr{
               larger_node.release(), INode::larger_derived_type::type};
 
+          if constexpr (detail::olc_art_policy<Key, Value>::full_key_in_inode_path) {
+            const auto chain_start =
+                static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
+            if (chain_start < k.size()) {
+              auto* const new_inode = node_in_parent->load().template ptr<
+                  typename INode::larger_derived_type*>();
+              auto* const slot = new_inode->find_child(key_byte).second;
+              UNODB_DETAIL_ASSERT(slot != nullptr);
+              *slot = db_instance.build_chain(k, slot->load(), chain_start);
+            }
+          }
+
           UNODB_DETAIL_ASSERT(!node_write_guard.active());
         }
 
@@ -1557,6 +1569,17 @@ olc_impl_helpers::add_or_choose_subtree(
       return {};  // LCOV_EXCL_LINE
 
     inode.add_to_nonfull(std::move(cached_leaf), depth, children_count);
+
+    // For full_key_in_inode_path: wrap the bare leaf in a chain.
+    if constexpr (detail::olc_art_policy<Key, Value>::full_key_in_inode_path) {
+      const auto chain_start =
+          static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
+      if (chain_start < k.size()) {
+        auto* const slot = inode.find_child(key_byte).second;
+        UNODB_DETAIL_ASSERT(slot != nullptr);
+        *slot = db_instance.build_chain(k, slot->load(), chain_start);
+      }
+    }
   }
 
   return child_in_parent;
@@ -1882,13 +1905,15 @@ bool olc_db<Key, Value>::insert_internal(art_key_type insert_key,
 
 template <typename Key, typename Value>
 detail::olc_node_ptr olc_db<Key, Value>::build_chain(
-    art_key_type k, detail::olc_node_ptr child) {
+    art_key_type k, detail::olc_node_ptr child,
+    tree_depth_type start_depth) {
   constexpr std::size_t cap = detail::key_prefix_capacity;
   const auto full_key = k.get_key_view();
   const auto key_len = k.size();
+  const auto start = static_cast<std::size_t>(start_depth);
   auto current = child;
   std::size_t pos = key_len;
-  while (pos > cap) {
+  while (pos > start + cap) {
     const auto depth = pos - cap - 1;
     const auto dispatch = full_key[pos - 1];
     auto remaining = k;
@@ -1901,10 +1926,10 @@ detail::olc_node_ptr olc_db<Key, Value>::build_chain(
 #endif
     pos = depth;
   }
-  if (pos > 0) {
+  if (pos > start) {
     const auto dispatch = full_key[pos - 1];
-    auto chain{inode_4::create(*this, full_key, tree_depth_type{0},
-                               static_cast<detail::key_prefix_size>(pos - 1),
+    auto chain{inode_4::create(*this, full_key, tree_depth_type{start},
+                               static_cast<detail::key_prefix_size>(pos - start - 1),
                                dispatch, current)};
     current = detail::olc_node_ptr{chain.release(), node_type::I4};
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -2028,6 +2053,19 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
                        std::move(cached_leaf));
         *node_in_parent =
             detail::olc_node_ptr{new_node.release(), node_type::I4};
+
+        if constexpr (art_policy::full_key_in_inode_path) {
+          const auto chain_start =
+              static_cast<tree_depth_type>(depth + shared + 1);
+          if (chain_start < k.size()) {
+            auto* const new_i4 =
+                node_in_parent->load().template ptr<inode_type*>();
+            auto* const slot =
+                new_i4->find_child(node_type::I4, remaining_key[shared]).second;
+            UNODB_DETAIL_ASSERT(slot != nullptr);
+            *slot = build_chain(k, slot->load(), chain_start);
+          }
+        }
       }
 #ifdef UNODB_DETAIL_WITH_STATS
       account_growing_inode<node_type::I4>();
@@ -2060,6 +2098,19 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
                        std::move(cached_leaf));
         *node_in_parent =
             detail::olc_node_ptr{new_node.release(), node_type::I4};
+
+        if constexpr (art_policy::full_key_in_inode_path) {
+          const auto chain_start =
+              static_cast<tree_depth_type>(depth + shared_prefix_length + 1);
+          if (chain_start < k.size()) {
+            auto* const new_i4 =
+                node_in_parent->load().template ptr<inode_type*>();
+            auto* const slot =
+                new_i4->find_child(node_type::I4, remaining_key[shared_prefix_length]).second;
+            UNODB_DETAIL_ASSERT(slot != nullptr);
+            *slot = build_chain(k, slot->load(), chain_start);
+          }
+        }
       }
 
 #ifdef UNODB_DETAIL_WITH_STATS
