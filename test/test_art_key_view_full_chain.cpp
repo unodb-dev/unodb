@@ -252,8 +252,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest,
   verifier.check_present_values();
 #ifdef UNODB_DETAIL_WITH_STATS
   // chain I4 (bytes 0-7) + split I4 (at byte 10) + chain I4 (bytes 11-15)
-  // + bottom I4 (A,B) + 3 leaves
-  verifier.assert_node_counts({3, 4, 0, 0, 0});
+  // + bottom I4 (A,B) + chain I4 for C's suffix + 3 leaves
+  verifier.assert_node_counts({3, 5, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
@@ -349,8 +349,9 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, RemoveFromChainLeavesInode) {
   verifier.remove(make_key(enc, 0x42, 1));
   verifier.check_present_values();
 #ifdef UNODB_DETAIL_WITH_STATS
-  // Root I4 (2 children: key3 leaf + chain) + chain I4 + 2 leaves
-  verifier.assert_node_counts({2, 2, 0, 0, 0});
+  // Root I4 (2 children: key3 chain + key2 chain) + chain I4 for key3
+  // suffix + chain I4 for shared prefix + 2 leaves
+  verifier.assert_node_counts({2, 3, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
@@ -547,8 +548,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, MixedLengthKeysLongPrefix) {
   verifier.insert(make_key(enc, 0x42, 2), val);
   verifier.check_present_values();
 #ifdef UNODB_DETAIL_WITH_STATS
-  // chain I4 + bottom I4 (2 children) + 2 leaves
-  verifier.assert_node_counts({2, 2, 0, 0, 0});
+  // chain I4 + divergence I4 + chain I4 for shorter key's suffix + 2 leaves
+  verifier.assert_node_counts({2, 3, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
@@ -727,13 +728,14 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CascadeChainUnderI4) {
   verifier.insert(make_key(enc, 0x42, 1), val);
   verifier.insert(make_key(enc, 0x42, 2), val);
   verifier.insert(make_short_key(enc, 0x01), val);
-  // root I4(2: 0x42→chain, 0x01→leaf) + chain I4 + bottom I4 + 3 leaves
-  verifier.assert_node_counts({3, 3, 0, 0, 0});
+  // root I4(2: 0x42→chain, 0x01→bare leaf) + chain I4 + bottom I4 + 3 leaves
+  // Short key (1 byte) has no suffix → no chain wrapper.
+  verifier.assert_node_counts({3, 2, 0, 0, 0});
 
   verifier.remove(make_key(enc, 0x42, 1));
   // Bottom I4 collapsed via leave_last_child.  Chain I4 has 1 child (leaf).
   // Root I4 still has 2 children.
-  verifier.assert_node_counts({2, 2, 0, 0, 0});
+  verifier.assert_node_counts({2, 1, 0, 0, 0});
 
   verifier.remove(make_key(enc, 0x42, 2));
   verifier.check_present_values();
@@ -754,7 +756,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CascadeChainUnderI16) {
   for (std::uint8_t t = 0x01; t <= 0x04; ++t)
     verifier.insert(make_short_key(enc, t), val);
   // root I16(5) + chain I4 + bottom I4 + 6 leaves
-  verifier.assert_node_counts({6, 2, 1, 0, 0});
+  // Short keys (1 byte) have no suffix → no chain wrappers → I4=1 not 2.
+  verifier.assert_node_counts({6, 1, 1, 0, 0});
 
   verifier.remove(make_key(enc, 0x42, 1));
   verifier.remove(make_key(enc, 0x42, 2));
@@ -776,7 +779,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CascadeChainUnderI48) {
   for (std::uint8_t t = 0x01; t <= 0x10; ++t)
     verifier.insert(make_short_key(enc, t), val);
   // root I48(17) + chain I4 + bottom I4 + 18 leaves
-  verifier.assert_node_counts({18, 2, 0, 1, 0});
+  verifier.assert_node_counts({18, 1, 0, 1, 0});
 
   verifier.remove(make_key(enc, 0x42, 1));
   verifier.remove(make_key(enc, 0x42, 2));
@@ -797,7 +800,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CascadeChainUnderI256) {
   for (std::uint8_t t = 0x01; t <= 0x30; ++t)
     verifier.insert(make_short_key(enc, t), val);
   // root I256(49) + chain I4 + bottom I4 + 50 leaves
-  verifier.assert_node_counts({50, 2, 0, 0, 1});
+  verifier.assert_node_counts({50, 1, 0, 0, 1});
 
   verifier.remove(make_key(enc, 0x42, 1));
   verifier.remove(make_key(enc, 0x42, 2));
@@ -888,8 +891,9 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainParentGrowthI4ToI16) {
   for (std::uint8_t t = 0x01; t <= 0x04; ++t)
     verifier.insert(make_short_key(enc, t), val);
   verifier.check_present_values();
-  // root I16(5: 0x42→chain, 0x01..0x04→leaves) + chain-I4 + bottom-I4
-  verifier.assert_node_counts({6, 2, 1, 0, 0});
+  // root I16(5: 0x42→chain, 0x01..0x04→bare leaves) + chain-I4 + bottom-I4
+  // Short keys have no suffix → no chain wrappers → I4=1.
+  verifier.assert_node_counts({6, 1, 1, 0, 0});
 }
 
 /// Parent I16→I48 growth with a chain child.
@@ -904,7 +908,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainParentGrowthI16ToI48) {
     verifier.insert(make_short_key(enc, t), val);
   verifier.check_present_values();
   // root I48(17) + chain-I4 + bottom-I4
-  verifier.assert_node_counts({18, 2, 0, 1, 0});
+  verifier.assert_node_counts({18, 1, 0, 1, 0});
 }
 
 /// Parent I48→I256 growth with a chain child.
@@ -919,7 +923,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainParentGrowthI48ToI256) {
     verifier.insert(make_short_key(enc, t), val);
   verifier.check_present_values();
   // root I256(49) + chain-I4 + bottom-I4
-  verifier.assert_node_counts({50, 2, 0, 0, 1});
+  verifier.assert_node_counts({50, 1, 0, 0, 1});
 }
 
 // -------------------------------------------------------------------
@@ -1589,7 +1593,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanChainMixedLengths) {
   verifier.insert(make_long_key(enc, 0x42, 4, 0x01), val);
   // check_present_values does a full scan + per-key probe.
   verifier.check_present_values();
-  verifier.assert_node_counts({4, 2, 0, 0, 0});
+  // Chain I4 (prefix) + divergence I4 + chain I4s for each key's suffix
+  verifier.assert_node_counts({4, 4, 0, 0, 0});
 
   // Remove a 10-byte key, verify scan still works.
   verifier.remove(make_long_key(enc, 0x42, 3, 0x01));
