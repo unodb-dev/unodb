@@ -1474,6 +1474,20 @@ bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
 #ifdef UNODB_DETAIL_WITH_STATS
       account_growing_inode<node_type::I4>();
 #endif  // UNODB_DETAIL_WITH_STATS
+
+      if constexpr (art_policy::full_key_in_inode_path) {
+        const auto chain_start =
+            static_cast<tree_depth_type>(depth + shared + 1);
+        if (chain_start < insert_key.size()) {
+          auto* const new_inode = node->template ptr<inode_type*>();
+          auto* const slot =
+              new_inode->find_child(node_type::I4, remaining_key[shared])
+                  .second;
+          UNODB_DETAIL_ASSERT(slot != nullptr);
+          *slot = build_chain(insert_key, *slot, chain_start);
+        }
+      }
+
       return true;
     }
 
@@ -1494,6 +1508,20 @@ bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
       UNODB_DETAIL_ASSERT(growing_inode_counts[internal_as_i<node_type::I4>] >
                           key_prefix_splits);
 #endif  // UNODB_DETAIL_WITH_STATS
+
+      if constexpr (art_policy::full_key_in_inode_path) {
+        const auto chain_start =
+            static_cast<tree_depth_type>(depth + shared_prefix_len + 1);
+        if (chain_start < insert_key.size()) {
+          auto* const new_inode = node->template ptr<inode_type*>();
+          auto* const slot =
+              new_inode->find_child(node_type::I4,
+                                    remaining_key[shared_prefix_len])
+                  .second;
+          UNODB_DETAIL_ASSERT(slot != nullptr);
+          *slot = build_chain(insert_key, *slot, chain_start);
+        }
+      }
       return true;
     }
     UNODB_DETAIL_ASSERT(shared_prefix_len == key_prefix_length);
