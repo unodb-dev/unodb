@@ -186,7 +186,7 @@ class db final {
   /// \return The chain top node, or \a child if no bytes to encode
   [[nodiscard]] detail::node_ptr build_chain(
       art_key_type k, detail::node_ptr child,
-      detail::tree_depth<art_key_type> start_depth = {});
+      detail::tree_depth<art_key_type> start_depth);
 
   /// Remove the entry associated with the encoded key \a remove_key.
   ///
@@ -1323,7 +1323,8 @@ bool db<Key, Value>::insert_internal(art_key_type insert_key, value_type v) {
     auto leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
     if constexpr (art_policy::can_eliminate_leaf) {
       root = build_chain(insert_key,
-                         detail::node_ptr{leaf.release(), node_type::LEAF});
+                         detail::node_ptr{leaf.release(), node_type::LEAF},
+                         tree_depth_type{0});
     } else {
       root = detail::node_ptr{leaf.release(), node_type::LEAF};
     }
