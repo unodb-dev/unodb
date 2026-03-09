@@ -1919,7 +1919,8 @@ detail::olc_node_ptr olc_db<Key, Value>::build_chain(
     auto remaining = k;
     remaining.shift_right(depth);
     auto chain{inode_4::create(*this, full_key, remaining,
-                               tree_depth_type{depth}, dispatch, current)};
+                               tree_depth_type{static_cast<std::uint32_t>(depth)},
+                               dispatch, current)};
     current = detail::olc_node_ptr{chain.release(), node_type::I4};
 #ifdef UNODB_DETAIL_WITH_STATS
     account_growing_inode<node_type::I4>();
@@ -1928,7 +1929,8 @@ detail::olc_node_ptr olc_db<Key, Value>::build_chain(
   }
   if (pos > start) {
     const auto dispatch = full_key[pos - 1];
-    auto chain{inode_4::create(*this, full_key, tree_depth_type{start},
+    auto chain{inode_4::create(*this, full_key,
+                               tree_depth_type{static_cast<std::uint32_t>(start)},
                                static_cast<detail::key_prefix_size>(pos - start - 1),
                                dispatch, current)};
     current = detail::olc_node_ptr{chain.release(), node_type::I4};
