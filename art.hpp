@@ -1414,7 +1414,8 @@ detail::node_ptr db<Key, Value>::build_chain(art_key_type k,
     auto remaining = k;
     remaining.shift_right(depth);
     auto chain{inode_4::create(*this, full_key, remaining,
-                               tree_depth_type{depth}, dispatch, current)};
+                               tree_depth_type{static_cast<std::uint32_t>(depth)},
+                               dispatch, current)};
     current = detail::node_ptr{chain.release(), node_type::I4};
 #ifdef UNODB_DETAIL_WITH_STATS
     account_growing_inode<node_type::I4>();
@@ -1424,7 +1425,8 @@ detail::node_ptr db<Key, Value>::build_chain(art_key_type k,
   // Tail: remaining bytes from start_depth to pos.
   if (pos > start) {
     const auto dispatch = full_key[pos - 1];
-    auto chain{inode_4::create(*this, full_key, tree_depth_type{start},
+    auto chain{inode_4::create(*this, full_key,
+                               tree_depth_type{static_cast<std::uint32_t>(start)},
                                static_cast<detail::key_prefix_size>(pos - start - 1),
                                dispatch, current)};
     current = detail::node_ptr{chain.release(), node_type::I4};
