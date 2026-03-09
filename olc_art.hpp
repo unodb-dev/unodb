@@ -813,7 +813,7 @@ class olc_db final {
   /// Build an inode chain encoding key bytes from start_depth to end.
   [[nodiscard]] detail::olc_node_ptr build_chain(
       art_key_type k, detail::olc_node_ptr child,
-      detail::tree_depth<art_key_type> start_depth = {});
+      detail::tree_depth<art_key_type> start_depth);
 
   [[nodiscard]] try_update_result_type try_remove(art_key_type k);
 
@@ -1967,7 +1967,8 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
 
     if constexpr (art_policy::can_eliminate_leaf) {
       root = build_chain(
-          k, detail::olc_node_ptr{cached_leaf.release(), node_type::LEAF});
+          k, detail::olc_node_ptr{cached_leaf.release(), node_type::LEAF},
+          tree_depth_type{0});
     } else {
       root = detail::olc_node_ptr{cached_leaf.release(), node_type::LEAF};
     }
