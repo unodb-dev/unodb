@@ -8,6 +8,7 @@
 // Should be the first include
 #include "global.hpp"
 
+#include <algorithm>
 #include <array>
 #include <atomic>
 #include <cstddef>
@@ -17,6 +18,7 @@
 #include <stack>
 #include <tuple>
 #include <type_traits>
+#include <vector>
 
 #include <boost/container/small_vector.hpp>
 
@@ -429,6 +431,18 @@ class olc_db final {
     /// Return true unless the stack is empty (exposed to tests)
     [[nodiscard]] bool valid() const noexcept { return !stack_.empty(); }
 
+    /// Return stack entries bottom-to-top (test only).
+    [[nodiscard]] std::vector<stack_entry> test_only_stack() const {
+      auto tmp = stack_;
+      std::vector<stack_entry> result;
+      while (!tmp.empty()) {
+        result.push_back(tmp.top());
+        tmp.pop();
+      }
+      std::reverse(result.begin(), result.end());
+      return result;
+    }
+
    protected:
     /// Compare the given key (e.g., the to_key) to the current key in the
     /// internal buffer.
@@ -492,8 +506,11 @@ class olc_db final {
       // was pushed onto the stack and the stack and the keybuf are in
       // sync with one another.  So we can just do a simple POP for
       // each of them.
-      const auto prefix_len = top().prefix.length();
-      keybuf_[keybuf_ix_].pop(prefix_len);
+      const auto& e = top();
+      const auto n = (e.node.type() != node_type::LEAF)
+                         ? e.prefix.length() + 1
+                         : 0;
+      keybuf_[keybuf_ix_].pop(n);
       stack_.pop();
     }
 

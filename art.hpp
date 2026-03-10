@@ -13,11 +13,13 @@
 // Should be the first include
 #include "global.hpp"
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <optional>
 #include <stack>
+#include <vector>
 #include <type_traits>
 
 #include <boost/container/small_vector.hpp>
@@ -427,6 +429,17 @@ class db final {
     /// Return true unless the stack is empty (exposed to tests).
     [[nodiscard]] bool valid() const noexcept { return !stack_.empty(); }
 
+    /// Return stack entries bottom-to-top (test only).
+    [[nodiscard]] std::vector<stack_entry> test_only_stack() const {
+      auto tmp = stack_;
+      std::vector<stack_entry> result;
+      while (!tmp.empty()) {
+        result.push_back(tmp.top());
+        tmp.pop();
+      }
+      std::reverse(result.begin(), result.end());
+      return result;
+    }
    protected:
     /// Descend to left-most leaf from given \a node.
     ///
@@ -508,6 +521,7 @@ class db final {
       const auto node_type = e.node.type();
       if (UNODB_DETAIL_UNLIKELY(node_type == node_type::LEAF)) {
         push_leaf(e.node);
+        return;
       }
       push(e.node, e.key_byte, e.child_index, e.prefix);
     }
@@ -516,8 +530,11 @@ class db final {
     void pop() noexcept {
       UNODB_DETAIL_ASSERT(!empty());
 
-      const auto prefix_len = top().prefix.length();
-      keybuf_.pop(prefix_len);
+      const auto& e = top();
+      const auto n = (e.node.type() != node_type::LEAF)
+                         ? e.prefix.length() + 1
+                         : 0;
+      keybuf_.pop(n);
       stack_.pop();
     }
 
