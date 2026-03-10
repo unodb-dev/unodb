@@ -372,11 +372,15 @@ class olc_db final {
     /// LTE the search_key and invalidated if there is no such entry.
     iterator& seek(art_key_type search_key, bool& match, bool fwd = true);
 
-    /// Return the key_view associated with the current position of
-    /// the iterator.
+    /// Return type for get_key().
+    using get_key_result = std::conditional_t<
+        detail::olc_art_policy<Key, Value>::full_key_in_inode_path,
+        scoped_key_view, key_view>;
+
+    /// Return the key associated with the current position of the iterator.
     ///
     /// \pre The iterator MUST be valid().
-    [[nodiscard]] key_view get_key() noexcept;
+    [[nodiscard]] get_key_result get_key() noexcept;
 
     /// Return the value_view associated with the current position of
     /// the iterator.
@@ -3075,22 +3079,18 @@ bool olc_db<Key, Value>::iterator::try_right_most_traversal(
 
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
 template <typename Key, typename Value>
-key_view olc_db<Key, Value>::iterator::get_key() noexcept {
+typename olc_db<Key, Value>::iterator::get_key_result
+olc_db<Key, Value>::iterator::get_key() noexcept {
   UNODB_DETAIL_ASSERT(valid());  // by contract
-  // Note: If the iterator is on a leaf, we return the key for that
-  // leaf regardless of whether the leaf has been deleted.  This is
-  // part of the design semantics for the OLC ART scan.
-  //
-  // TODO(thompsonbry) : Switch to keybuf_[keybuf_ix_].get_key_view()
-  // once D1 (no root leaf for key_view) is implemented.  With no root
-  // leaf, every leaf has an inode path and keybuf_ is always populated.
-  // The dual key_buffer (keybuf_[2] + keybuf_ix_) is already in place
-  // for OLC restart safety in next()/prior().
-  const auto& e = stack_.top();
-  const auto& node = e.node;
-  UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);      // On a leaf.
-  const auto* const leaf{node.template ptr<leaf_type*>()};  // current leaf.
-  return leaf->get_key_view();
+  if constexpr (art_policy::full_key_in_inode_path) {
+    return scoped_key_view{keybuf_[keybuf_ix_].get_key_view()};
+  } else {
+    const auto& e = stack_.top();
+    const auto& node = e.node;
+    UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
+    const auto* const leaf{node.template ptr<leaf_type*>()};
+    return leaf->get_key_view();
+  }
 }
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 

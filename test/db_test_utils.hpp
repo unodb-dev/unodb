@@ -636,22 +636,21 @@ class [[nodiscard]] tree_verifier final {
     UNODB_DETAIL_PAUSE_HEAP_TRACKING_GUARD();
     std::size_t n{0};
     bool first = true;
-    unodb::key_view prev{};
+    std::vector<std::byte> prev_copy{};
     auto fn =
         [&n, &first,
-         &prev](const unodb::visitor<typename Db::iterator>& visitor) noexcept {
-          // We can't tell cheap and expensive to copy types apart in an
-          // useful way here
+         &prev_copy](const unodb::visitor<typename Db::iterator>& visitor) {
           UNODB_DETAIL_DISABLE_MSVC_WARNING(26445)
-          const auto& kv = visitor.get_key();
+          const auto kv = static_cast<unodb::key_view>(visitor.get_key());
           UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
           if (UNODB_DETAIL_UNLIKELY(first)) {
-            prev = kv;
+            prev_copy.assign(kv.begin(), kv.end());
             first = false;
           } else {
+            const unodb::key_view prev{prev_copy};
             UNODB_EXPECT_LT(unodb::detail::compare(prev, kv), 0);
-            prev = kv;
+            prev_copy.assign(kv.begin(), kv.end());
           }
           n++;
           return false;

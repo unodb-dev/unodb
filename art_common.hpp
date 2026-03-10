@@ -41,6 +41,36 @@ using key_size_type = std::uint32_t;
 /// Non-owning view of key bytes, copied into index upon insertion.
 using key_view = std::span<const std::byte>;
 
+/// Non-owning view of key bytes with scoped lifetime.  Returned by
+/// iterator get_key() when the key is reconstructed from the inode
+/// path (full_key_in_inode_path trees).  The view is valid only until
+/// the next iterator movement (next/prior/seek/invalidate).
+///
+/// Implicitly converts to key_view for read access.  Does NOT allow
+/// implicit construction from key_view, preventing accidental storage
+/// of a key_view where a scoped_key_view is expected.
+class scoped_key_view {
+  key_view kv_;
+
+ public:
+  explicit constexpr scoped_key_view(key_view kv) noexcept : kv_{kv} {}
+
+  [[nodiscard]] constexpr auto data() const noexcept { return kv_.data(); }
+  [[nodiscard]] constexpr auto size() const noexcept { return kv_.size(); }
+  [[nodiscard]] constexpr auto size_bytes() const noexcept {
+    return kv_.size_bytes();
+  }
+  [[nodiscard]] constexpr auto operator[](std::size_t i) const noexcept {
+    return kv_[i];
+  }
+  [[nodiscard]] constexpr auto begin() const noexcept { return kv_.begin(); }
+  [[nodiscard]] constexpr auto end() const noexcept { return kv_.end(); }
+  [[nodiscard]] constexpr bool empty() const noexcept { return kv_.empty(); }
+
+  // NOLINTNEXTLINE(google-explicit-constructor)
+  constexpr operator key_view() const noexcept { return kv_; }
+};
+
 /// Type alias determining the maximum size of a value that may be stored in the
 /// index.
 using value_size_type = std::uint32_t;
