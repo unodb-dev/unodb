@@ -9,11 +9,13 @@
 // IWYU pragma: no_include <string>
 // IWYU pragma: no_include <string_view>
 
+#include <algorithm>
 #include <cstddef>  // IWYU pragma: keep
 #include <cstdint>
 #include <limits>
 #include <stdexcept>
 #include <tuple>
+#include <vector>
 
 #include <gtest/gtest.h>
 
@@ -1606,5 +1608,176 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanChainMixedLengths) {
 }
 
 #endif  // UNODB_DETAIL_WITH_STATS
+
+// ===================================================================
+// Stack structure validation tests (D5).
+//
+// Verify that the iterator stack encodes the full key in the inode
+// path for can_eliminate_leaf trees (Mode 3).  At each leaf position,
+// the concatenation of (prefix + dispatch_byte) across inode entries
+// must equal the full encoded key.
+// ===================================================================
+
+template <class Db>
+void verify_stack(typename Db::iterator& it, unodb::key_view expected_key) {
+  ASSERT_TRUE(it.valid());
+  auto stk = it.test_only_stack();
+  ASSERT_GE(stk.size(), 1U) << "Stack must have at least a leaf";
+
+  EXPECT_EQ(stk.back().node.type(), unodb::node_type::LEAF)
+      << "Top of stack must be a leaf";
+
+  for (std::size_t i = 0; i + 1 < stk.size(); ++i) {
+    EXPECT_NE(stk[i].node.type(), unodb::node_type::LEAF)
+        << "Entry " << i << " should be an inode";
+  }
+
+  // Reconstruct key from inode prefix+dispatch bytes.
+  std::vector<std::byte> reconstructed;
+  for (std::size_t i = 0; i + 1 < stk.size(); ++i) {
+    auto prefix = stk[i].prefix.get_key_view();
+    for (std::size_t j = 0; j < prefix.size(); ++j)
+      reconstructed.push_back(prefix[j]);
+    reconstructed.push_back(stk[i].key_byte);
+  }
+  ASSERT_EQ(reconstructed.size(), expected_key.size())
+      << "Reconstructed key length mismatch";
+  for (std::size_t i = 0; i < reconstructed.size(); ++i) {
+    EXPECT_EQ(reconstructed[i], expected_key[i])
+        << "Key byte mismatch at position " << i;
+  }
+}
+
+/// Two keys sharing a long prefix (chain structure).
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureTwoChainKeys) {
+  TypeParam db;
+  unodb::key_encoder enc;
+  const auto val = unodb::test::get_test_value<TypeParam>(0);
+
+  std::array<std::byte, 9> buf_a{};
+  std::array<std::byte, 9> buf_b{};
+  auto kv = enc.reset().encode(std::uint8_t{0x01})
+                .encode(std::uint64_t{100}).get_key_view();
+  std::ranges::copy(kv, buf_a.begin());
+  kv = enc.reset().encode(std::uint8_t{0x01})
+           .encode(std::uint64_t{200}).get_key_view();
+  std::ranges::copy(kv, buf_b.begin());
+
+  const auto key_a = unodb::key_view{buf_a.data(), buf_a.size()};
+  const auto key_b = unodb::key_view{buf_b.data(), buf_b.size()};
+
+  db.insert(key_a, val);
+  db.insert(key_b, val);
+
+  auto it = db.test_only_iterator();
+  it.first();
+  verify_stack<TypeParam>(it, it.get_key());
+  it.next();
+  if (it.valid()) verify_stack<TypeParam>(it, it.get_key());
+}
+
+/// Three keys with different first bytes (wide I4, no chain).
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureWideNode) {
+  TypeParam db;
+  unodb::key_encoder enc;
+  const auto val = unodb::test::get_test_value<TypeParam>(0);
+
+  std::array<std::byte, 1> ba{}, bb{}, bc{};
+  auto kv = enc.reset().encode(std::uint8_t{0x10}).get_key_view();
+  std::ranges::copy(kv, ba.begin());
+  kv = enc.reset().encode(std::uint8_t{0x20}).get_key_view();
+  std::ranges::copy(kv, bb.begin());
+  kv = enc.reset().encode(std::uint8_t{0x30}).get_key_view();
+  std::ranges::copy(kv, bc.begin());
+
+  const auto ka = unodb::key_view{ba.data(), ba.size()};
+  const auto kb = unodb::key_view{bb.data(), bb.size()};
+  const auto kc = unodb::key_view{bc.data(), bc.size()};
+
+  db.insert(ka, val);
+  db.insert(kb, val);
+  db.insert(kc, val);
+
+  auto it = db.test_only_iterator();
+  for (it.first(); it.valid(); it.next())
+    verify_stack<TypeParam>(it, it.get_key());
+}
+
+/// Second insert with different tag must also create a full chain.
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureSecondInsertChain) {
+  TypeParam db;
+  unodb::key_encoder enc;
+  const auto val = unodb::test::get_test_value<TypeParam>(0);
+
+  std::array<std::byte, 9> buf_a{};
+  std::array<std::byte, 9> buf_b{};
+  auto kv = enc.reset().encode(std::uint8_t{0x01})
+                .encode(std::uint64_t{0}).get_key_view();
+  std::ranges::copy(kv, buf_a.begin());
+  kv = enc.reset().encode(std::uint8_t{0x02})
+           .encode(std::uint64_t{0}).get_key_view();
+  std::ranges::copy(kv, buf_b.begin());
+
+  const auto ka = unodb::key_view{buf_a.data(), buf_a.size()};
+  const auto kb = unodb::key_view{buf_b.data(), buf_b.size()};
+
+  db.insert(ka, val);
+  db.insert(kb, val);
+
+  auto it = db.test_only_iterator();
+  for (it.first(); it.valid(); it.next())
+    verify_stack<TypeParam>(it, it.get_key());
+}
+
+/// Forward and reverse scan, verify stack at every position.
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureFullScan) {
+  TypeParam db;
+  unodb::key_encoder enc;
+  const auto val = unodb::test::get_test_value<TypeParam>(0);
+
+  struct kh {
+    std::array<std::byte, 18> buf{};
+    unodb::key_view kv;
+  };
+  auto make = [&](std::uint8_t tag, std::uint64_t v) {
+    kh h;
+    auto k = enc.reset().encode(tag).encode(v).get_key_view();
+    std::ranges::copy(k, h.buf.begin());
+    h.kv = unodb::key_view{h.buf.data(), k.size()};
+    return h;
+  };
+
+  auto k1 = make(0x01, 100);
+  auto k2 = make(0x01, 200);
+  auto k3 = make(0x02, 300);
+  auto k4 = make(0x03, 0);
+
+  db.insert(k1.kv, val);
+  db.insert(k2.kv, val);
+  db.insert(k3.kv, val);
+  db.insert(k4.kv, val);
+
+  // Forward scan.
+  {
+    auto it = db.test_only_iterator();
+    int count = 0;
+    for (it.first(); it.valid(); it.next()) {
+      verify_stack<TypeParam>(it, it.get_key());
+      ++count;
+    }
+    EXPECT_EQ(count, 4);
+  }
+
+  // Reverse scan.
+  {
+    auto it = db.test_only_iterator();
+    int count = 0;
+    for (it.last(); it.valid(); it.prior()) {
+      verify_stack<TypeParam>(it, it.get_key());
+      ++count;
+    }
+    EXPECT_EQ(count, 4);
+  }
+}
 
 }  // namespace
