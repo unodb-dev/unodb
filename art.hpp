@@ -371,11 +371,20 @@ class db final {
     /// LTE the search_key and invalidated if there is no such entry.
     iterator& seek(art_key_type search_key, bool& match, bool fwd = true);
 
-    /// Return the key_view associated with the current position of
-    /// the iterator.
+    /// Return type for get_key(): key_view when the leaf stores the key,
+    /// scoped_key_view when the key is reconstructed from the inode path.
+    using get_key_result = std::conditional_t<
+        detail::art_policy<Key, Value>::full_key_in_inode_path,
+        scoped_key_view, key_view>;
+
+    /// Return the key associated with the current position of the iterator.
+    ///
+    /// For full_key_in_inode_path trees, returns a scoped_key_view that is
+    /// valid only until the next iterator movement.  For other trees,
+    /// returns a key_view into the leaf (stable for the leaf's lifetime).
     ///
     /// \pre The iterator MUST be valid().
-    [[nodiscard]] key_view get_key() noexcept;
+    [[nodiscard]] get_key_result get_key() noexcept;
 
     /// Return the value_view associated with the current position of
     /// the iterator.
@@ -2038,19 +2047,18 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
 
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
 template <typename Key, typename Value>
-key_view db<Key, Value>::iterator::get_key() noexcept {
+typename db<Key, Value>::iterator::get_key_result
+db<Key, Value>::iterator::get_key() noexcept {
   UNODB_DETAIL_ASSERT(valid());  // by contract
-  // TODO(thompsonbry) : variable length keys. The simplest case
-  // where this does not work today is a single root leaf.  In that
-  // case, there is no inode path and we can not properly track the
-  // key in the key_buffer.
-  //
-  // return keybuf_.get_key_view();
-  const auto& e = stack_.top();
-  const auto& node = e.node;
-  UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);      // On a leaf.
-  const auto* const leaf{node.template ptr<leaf_type*>()};  // current leaf.
-  return leaf->get_key_view();
+  if constexpr (art_policy::full_key_in_inode_path) {
+    return scoped_key_view{keybuf_.get_key_view()};
+  } else {
+    const auto& e = stack_.top();
+    const auto& node = e.node;
+    UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
+    const auto* const leaf{node.template ptr<leaf_type*>()};
+    return leaf->get_key_view();
+  }
 }
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
