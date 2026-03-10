@@ -473,14 +473,17 @@ class db final {
     /// \return -1, 0, or 1 if this key is LT, EQ, or GT the other
     /// key.
     [[nodiscard]] int cmp(art_key_type akey) const noexcept {
-      // TODO(thompsonbry) : variable length keys. Explore a cheaper way to
-      // handle the exclusive bound case when developing variable length key
-      // support based on the maintained key buffer.
       UNODB_DETAIL_ASSERT(!stack_.empty());
-      auto& node = stack_.top().node;
-      UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
-      const auto* const leaf{node.template ptr<leaf_type*>()};
-      return unodb::detail::compare(leaf->get_key_view(), akey.get_key_view());
+      if constexpr (art_policy::full_key_in_inode_path) {
+        return unodb::detail::compare(keybuf_.get_key_view(),
+                                      akey.get_key_view());
+      } else {
+        auto& node = stack_.top().node;
+        UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
+        const auto* const leaf{node.template ptr<leaf_type*>()};
+        return unodb::detail::compare(leaf->get_key_view(),
+                                      akey.get_key_view());
+      }
     }
 
     /// \name Stack access methods
