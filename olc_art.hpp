@@ -3114,14 +3114,16 @@ auto olc_db<Key, Value>::iterator::get_val() const noexcept
 
 template <typename Key, typename Value>
 int olc_db<Key, Value>::iterator::cmp(const art_key_type& akey) const noexcept {
-  // TODO(thompsonbry) : variable length keys. Explore a cheaper way
-  // to handle the exclusive bound case when developing variable
-  // length key support based on the maintained key buffer.
   UNODB_DETAIL_ASSERT(!stack_.empty());
-  auto& node = stack_.top().node;
-  UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
-  const auto* const leaf{node.template ptr<leaf_type*>()};
-  return unodb::detail::compare(leaf->get_key_view(), akey.get_key_view());
+  if constexpr (art_policy::full_key_in_inode_path) {
+    return unodb::detail::compare(keybuf_[keybuf_ix_].get_key_view(),
+                                  akey.get_key_view());
+  } else {
+    auto& node = stack_.top().node;
+    UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
+    const auto* const leaf{node.template ptr<leaf_type*>()};
+    return unodb::detail::compare(leaf->get_key_view(), akey.get_key_view());
+  }
 }
 
 ///
