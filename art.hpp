@@ -1187,14 +1187,16 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
 
       // For full_key_in_inode_path: wrap the bare leaf in a chain.
       if constexpr (art_policy<Key, Value>::full_key_in_inode_path) {
-        auto& new_inode = *node_in_parent->template ptr<
-            typename INode::larger_derived_type*>();
-        auto* const slot = unwrap_fake_critical_section(
-            new_inode.find_child(key_byte).second);
-        UNODB_DETAIL_ASSERT(slot != nullptr);
         const auto chain_start =
             static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
         if (chain_start < k.size()) {
+          // FIXME(@laurynas-biveinis): volatile works around #700.
+          const volatile auto* vp = node_in_parent;
+          auto& new_inode = *const_cast<detail::node_ptr&>(*vp)
+              .template ptr<typename INode::larger_derived_type*>();
+          auto* const slot = unwrap_fake_critical_section(
+              new_inode.find_child(key_byte).second);
+          UNODB_DETAIL_ASSERT(slot != nullptr);
           *slot = db_instance.build_chain(k, *slot, chain_start);
         }
       }
@@ -1208,12 +1210,12 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
   // the remaining key suffix.  The leaf was just inserted into the slot
   // for key_byte — find it and replace with the chain top.
   if constexpr (art_policy<Key, Value>::full_key_in_inode_path) {
-    auto* const slot = unwrap_fake_critical_section(
-        inode.find_child(key_byte).second);
-    UNODB_DETAIL_ASSERT(slot != nullptr);
     const auto chain_start =
         static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
     if (chain_start < k.size()) {
+      auto* const slot = unwrap_fake_critical_section(
+          UNODB_DETAIL_RELOAD(inode).find_child(key_byte).second);
+      UNODB_DETAIL_ASSERT(slot != nullptr);
       *slot = db_instance.build_chain(k, *slot, chain_start);
     }
   }
