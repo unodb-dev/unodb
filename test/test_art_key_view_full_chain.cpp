@@ -31,10 +31,9 @@ class ARTKeyViewFullChainTest : public ::testing::Test {
   using Test::Test;
 };
 
-using ARTTypes =
-    ::testing::Types<unodb::test::key_view_u64val_db,
-                     unodb::test::key_view_u64val_mutex_db,
-                     unodb::test::key_view_u64val_olc_db>;
+using ARTTypes = ::testing::Types<unodb::test::key_view_u64val_db,
+                                  unodb::test::key_view_u64val_mutex_db,
+                                  unodb::test::key_view_u64val_olc_db>;
 
 UNODB_TYPED_TEST_SUITE(ARTKeyViewFullChainTest, ARTTypes)
 
@@ -57,6 +56,39 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, TooLongKey) {
 #ifdef UNODB_DETAIL_WITH_STATS
   verifier.assert_growing_inodes({0, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
+}
+
+/// Minimal reproducer: two text keys into a keyless-leaf tree.
+/// Dumps the tree after each insert to diagnose CANNOT_HAPPEN.
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, TwoKeyMinimalRepro) {
+  TypeParam db;
+  unodb::key_encoder enc;
+
+  auto k1 = enc.reset().encode_text("").get_key_view();
+  UNODB_ASSERT_TRUE(db.insert(k1, 100));
+
+  // Dump after first insert.
+  {
+    std::ostringstream oss;
+    db.dump(oss);
+    std::cerr << "=== After k1 (empty string), k1.size()=" << k1.size()
+              << " ===\n"
+              << oss.str();
+  }
+
+  auto k2 = enc.reset().encode_text("a").get_key_view();
+  std::cerr << "k2.size()=" << k2.size() << " bytes:";
+  for (std::size_t i = 0; i < k2.size(); ++i)
+    std::cerr << " " << static_cast<unsigned>(k2[i]);
+  std::cerr << "\n";
+
+  UNODB_ASSERT_TRUE(db.insert(k2, 200));
+
+  {
+    std::ostringstream oss;
+    db.dump(oss);
+    std::cerr << "=== After k2 (\"a\") ===\n" << oss.str();
+  }
 }
 
 /// Unit test inserts several string keys with proper encoding and
@@ -189,8 +221,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, NineByteCompoundKeysLongPrefix) {
 
 /// Keys identical except last byte — maximum chaining depth for 9-byte keys.
 /// 9-byte keys sharing 8 bytes, differing only at byte 8.
-UNODB_TYPED_TEST(ARTKeyViewFullChainTest,
-                 CompoundKeysIdenticalExceptLastByte) {
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeysIdenticalExceptLastByte) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
   const auto val = unodb::test::get_test_value<TypeParam>(0);
@@ -329,9 +360,9 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeysInsertThenRemove) {
   verifier.remove(make_key(enc, 0x42, 1));
   verifier.check_present_values();
 #ifdef UNODB_DETAIL_WITH_STATS
-  // Bottom I4 collapsed via leave_last_child.  Chain I4 remains with
-  // 1 child (the surviving leaf).
-  verifier.assert_node_counts({1, 1, 0, 0, 0});
+  // For keyless leaves, the chain I4 above the leaf is NOT collapsed
+  // (collapsing would lose key bytes from the inode path).
+  verifier.assert_node_counts({1, 2, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
@@ -351,9 +382,10 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, RemoveFromChainLeavesInode) {
   verifier.remove(make_key(enc, 0x42, 1));
   verifier.check_present_values();
 #ifdef UNODB_DETAIL_WITH_STATS
-  // Root I4 (2 children: key3 chain + key2 chain) + chain I4 for key3
-  // suffix + chain I4 for shared prefix + 2 leaves
-  verifier.assert_node_counts({2, 3, 0, 0, 0});
+  // Root I4 (2 children: key3 chain + key2 chain) + chain I4s for
+  // each key's suffix + 2 leaves.  Extra I4 because keyless leaf
+  // prevents collapse of the chain node above key2's leaf.
+  verifier.assert_node_counts({2, 4, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
@@ -462,8 +494,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, RemoveMixedLengthFromChain) {
   verifier.remove(make_long_key(enc, 0x42, 1, 0xFF));
   verifier.check_present_values();
 #ifdef UNODB_DETAIL_WITH_STATS
-  // Chain I4 + 1 surviving leaf
-  verifier.assert_node_counts({1, 1, 0, 0, 0});
+  // Chain I4 + 1 surviving leaf.  Extra I4 for keyless leaf no-collapse.
+  verifier.assert_node_counts({1, 2, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
   verifier.remove(make_key(enc, 0x42, 2));
   verifier.assert_empty();
@@ -735,15 +767,13 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CascadeChainUnderI4) {
   verifier.assert_node_counts({3, 2, 0, 0, 0});
 
   verifier.remove(make_key(enc, 0x42, 1));
-  // Bottom I4 collapsed via leave_last_child.  Chain I4 has 1 child (leaf).
-  // Root I4 still has 2 children.
-  verifier.assert_node_counts({2, 1, 0, 0, 0});
+  // Keyless leaf prevents collapse.  Chain I4 above surviving leaf stays.
+  verifier.assert_node_counts({2, 2, 0, 0, 0});
 
   verifier.remove(make_key(enc, 0x42, 2));
   verifier.check_present_values();
-  // Chain fully reclaimed.  Root I4 at min_size(2) loses a child →
-  // leave_last_child → root becomes the surviving leaf.
-  verifier.assert_node_counts({1, 0, 0, 0, 0});
+  // Short key's leaf is under its own chain I4 (keyless, no collapse).
+  verifier.assert_node_counts({1, 1, 0, 0, 0});
 }
 
 /// Chain under I16(5 children).  Remove chain → I16 shrinks to I4.
@@ -866,8 +896,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, MultiLevelChainRemoveAll) {
   verifier.assert_node_counts({2, 3, 0, 0, 0});
 
   verifier.remove(make17(0x01));
-  // Bottom I4 collapsed.  Two chain I4s remain, last one has 1 child (leaf).
-  verifier.assert_node_counts({1, 2, 0, 0, 0});
+  // Keyless leaf prevents collapse.  Three chain I4s remain.
+  verifier.assert_node_counts({1, 3, 0, 0, 0});
 
   verifier.remove(make17(0x02));
   verifier.assert_empty();
@@ -1147,9 +1177,15 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1CollapseToLeaf) {
   verifier.remove(make18(0x01, 0x00, 0x02));
   verifier.check_present_values();
 
-  // Remove A: chain cut (CD=1). Root I4(2→1) collapses to leaf(C).
+  // Remove A: chain cut (CD=1). Root I4(2→1).
+  // Surviving child is chain-I4 with 7-byte prefix.  Merge would be
+  // 0 + 1 + 7 = 8 > 7 → prefix overflow, no collapse.
+  // Tree: root-I4(1) → chain-I4 → leaf(C).
   verifier.remove(make18(0x01, 0x00, 0x01));
   verifier.check_present_values();
+#ifdef UNODB_DETAIL_WITH_STATS
+  verifier.assert_node_counts({1, 2, 0, 0, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
 
   // Remove C: tree empty.
   verifier.remove(make18(0x02, 0x00, 0x01));
@@ -1502,6 +1538,113 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1ShrinkI256) {
   verifier.assert_shrinking_inodes({2, 0, 0, 1});
 }
 
+// T14: Keyless leaf no-collapse guard.
+// I4(2) where surviving child is a keyless leaf → collapse blocked.
+// Tree: root-I4(2: 0x01→chain→leaf(A), 0x02→chain→leaf(B))
+// Remove A → root-I4(2→1).  Surviving child is chain-I4 (inode),
+// but that chain's only child is a keyless leaf(B).  The chain-I4
+// itself is an inode, so can_collapse checks prefix overflow, not
+// the keyless guard.  However, the chain-I4 above leaf(B) is also
+// I4(1), and if IT were collapsed, the leaf would become root —
+// losing key bytes.  The no-collapse guard fires at the chain-I4
+// level, not at root.
+//
+// To test the guard directly: need I4(2) where one child is removed
+// and the other is directly a keyless leaf.  This requires a 1-byte
+// key (dispatch byte only, no chain above the leaf).
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, KeylessLeafNoCollapseGuard) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+  unodb::key_encoder enc;
+  const auto val = unodb::test::get_test_value<TypeParam>(0);
+
+  // Two 1-byte keys with different dispatch bytes.
+  std::array<std::byte, 1> buf_a{};
+  std::array<std::byte, 1> buf_b{};
+  auto kv = enc.reset().encode(std::uint8_t{0x01}).get_key_view();
+  std::ignore = std::ranges::copy(kv, buf_a.begin());
+  kv = enc.reset().encode(std::uint8_t{0x02}).get_key_view();
+  std::ignore = std::ranges::copy(kv, buf_b.begin());
+  const auto key_a = unodb::key_view{buf_a.data(), buf_a.size()};
+  const auto key_b = unodb::key_view{buf_b.data(), buf_b.size()};
+
+  verifier.insert(key_a, val);
+  verifier.insert(key_b, val);
+  verifier.check_present_values();
+
+#ifdef UNODB_DETAIL_WITH_STATS
+  // 2 leaves + root-I4.  1-byte keys have no prefix bytes, so no
+  // chain I4s are created — leaves go directly into root.
+  verifier.assert_node_counts({2, 1, 0, 0, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
+
+  // Remove A.  Root-I4(2→1).  Surviving child is leaf(B) (keyless).
+  // can_collapse returns false (keyless leaf guard).  Root-I4(1) stays.
+  verifier.remove(key_a);
+  verifier.check_present_values();
+
+#ifdef UNODB_DETAIL_WITH_STATS
+  // Root-I4(1) + 1 leaf.  No collapse.
+  verifier.assert_node_counts({1, 1, 0, 0, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
+
+  verifier.remove(key_b);
+  verifier.assert_empty();
+}
+
+// T15: Merge allowed when surviving child is an inode (not keyless leaf).
+// I4(2) where one child is a chain subtree, the other is an inode subtree.
+// Remove the chain → I4(2→1), surviving child is inode → collapse allowed.
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CollapseToInodeAllowed) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+  unodb::key_encoder enc;
+  const auto val = unodb::test::get_test_value<TypeParam>(0);
+
+  // A: 9-byte key tag=0x01.
+  // B,C: 9-byte keys tag=0x02, different suffixes → I4(2) under 0x02.
+  std::array<std::byte, 9> buf_a{};
+  std::array<std::byte, 9> buf_b{};
+  std::array<std::byte, 9> buf_c{};
+  auto kv = enc.reset()
+                .encode(std::uint8_t{0x01})
+                .encode(std::uint64_t{0})
+                .get_key_view();
+  std::ignore = std::ranges::copy(kv, buf_a.begin());
+  kv = enc.reset()
+           .encode(std::uint8_t{0x02})
+           .encode(std::uint64_t{0})
+           .get_key_view();
+  std::ignore = std::ranges::copy(kv, buf_b.begin());
+  kv = enc.reset()
+           .encode(std::uint8_t{0x02})
+           .encode(std::uint64_t{1})
+           .get_key_view();
+  std::ignore = std::ranges::copy(kv, buf_c.begin());
+  const auto key_a = unodb::key_view{buf_a.data(), buf_a.size()};
+  const auto key_b = unodb::key_view{buf_b.data(), buf_b.size()};
+  const auto key_c = unodb::key_view{buf_c.data(), buf_c.size()};
+
+  verifier.insert(key_a, val);
+  verifier.insert(key_b, val);
+  verifier.insert(key_c, val);
+  verifier.check_present_values();
+
+  // Remove A.  Root-I4(2→1).  Surviving child under 0x02 is an I4(2)
+  // (inode, not leaf).  Prefix merge fits → collapse allowed.
+  verifier.remove(key_a);
+  verifier.check_present_values();
+
+#ifdef UNODB_DETAIL_WITH_STATS
+  // After collapse: root-I4 merged into chain-I4 (prefix overflow
+  // prevents further collapse into bottom-I4).
+  // Root-chain-I4(1 child) + bottom-I4(2 children) + 2 leaves.
+  verifier.assert_node_counts({2, 2, 0, 0, 0});
+#endif  // UNODB_DETAIL_WITH_STATS
+
+  verifier.remove(key_b);
+  verifier.remove(key_c);
+  verifier.assert_empty();
+}
+
 // -------------------------------------------------------------------
 // Verify tree structures used by concurrent chain cut tests (CT1-CT4).
 // These confirm the chain depth and that insert/remove work correctly
@@ -1656,24 +1799,28 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureTwoChainKeys) {
 
   std::array<std::byte, 9> buf_a{};
   std::array<std::byte, 9> buf_b{};
-  auto kv = enc.reset().encode(std::uint8_t{0x01})
-                .encode(std::uint64_t{100}).get_key_view();
-  std::ranges::copy(kv, buf_a.begin());
-  kv = enc.reset().encode(std::uint8_t{0x01})
-           .encode(std::uint64_t{200}).get_key_view();
-  std::ranges::copy(kv, buf_b.begin());
+  auto kv = enc.reset()
+                .encode(std::uint8_t{0x01})
+                .encode(std::uint64_t{100})
+                .get_key_view();
+  std::ignore = std::ranges::copy(kv, buf_a.begin());
+  kv = enc.reset()
+           .encode(std::uint8_t{0x01})
+           .encode(std::uint64_t{200})
+           .get_key_view();
+  std::ignore = std::ranges::copy(kv, buf_b.begin());
 
   const auto key_a = unodb::key_view{buf_a.data(), buf_a.size()};
   const auto key_b = unodb::key_view{buf_b.data(), buf_b.size()};
 
-  db.insert(key_a, val);
-  db.insert(key_b, val);
+  std::ignore = db.insert(key_a, val);
+  std::ignore = db.insert(key_b, val);
 
   auto it = db.test_only_iterator();
   it.first();
-  verify_stack<TypeParam>(it, it.get_key());
+  verify_stack<TypeParam>(it, it.get_key().view());
   it.next();
-  if (it.valid()) verify_stack<TypeParam>(it, it.get_key());
+  if (it.valid()) verify_stack<TypeParam>(it, it.get_key().view());
 }
 
 /// Three keys with different first bytes (wide I4, no chain).
@@ -1684,23 +1831,23 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureWideNode) {
 
   std::array<std::byte, 1> ba{}, bb{}, bc{};
   auto kv = enc.reset().encode(std::uint8_t{0x10}).get_key_view();
-  std::ranges::copy(kv, ba.begin());
+  std::ignore = std::ranges::copy(kv, ba.begin());
   kv = enc.reset().encode(std::uint8_t{0x20}).get_key_view();
-  std::ranges::copy(kv, bb.begin());
+  std::ignore = std::ranges::copy(kv, bb.begin());
   kv = enc.reset().encode(std::uint8_t{0x30}).get_key_view();
-  std::ranges::copy(kv, bc.begin());
+  std::ignore = std::ranges::copy(kv, bc.begin());
 
   const auto ka = unodb::key_view{ba.data(), ba.size()};
   const auto kb = unodb::key_view{bb.data(), bb.size()};
   const auto kc = unodb::key_view{bc.data(), bc.size()};
 
-  db.insert(ka, val);
-  db.insert(kb, val);
-  db.insert(kc, val);
+  std::ignore = db.insert(ka, val);
+  std::ignore = db.insert(kb, val);
+  std::ignore = db.insert(kc, val);
 
   auto it = db.test_only_iterator();
   for (it.first(); it.valid(); it.next())
-    verify_stack<TypeParam>(it, it.get_key());
+    verify_stack<TypeParam>(it, it.get_key().view());
 }
 
 /// Second insert with different tag must also create a full chain.
@@ -1711,22 +1858,26 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureSecondInsertChain) {
 
   std::array<std::byte, 9> buf_a{};
   std::array<std::byte, 9> buf_b{};
-  auto kv = enc.reset().encode(std::uint8_t{0x01})
-                .encode(std::uint64_t{0}).get_key_view();
-  std::ranges::copy(kv, buf_a.begin());
-  kv = enc.reset().encode(std::uint8_t{0x02})
-           .encode(std::uint64_t{0}).get_key_view();
-  std::ranges::copy(kv, buf_b.begin());
+  auto kv = enc.reset()
+                .encode(std::uint8_t{0x01})
+                .encode(std::uint64_t{0})
+                .get_key_view();
+  std::ignore = std::ranges::copy(kv, buf_a.begin());
+  kv = enc.reset()
+           .encode(std::uint8_t{0x02})
+           .encode(std::uint64_t{0})
+           .get_key_view();
+  std::ignore = std::ranges::copy(kv, buf_b.begin());
 
   const auto ka = unodb::key_view{buf_a.data(), buf_a.size()};
   const auto kb = unodb::key_view{buf_b.data(), buf_b.size()};
 
-  db.insert(ka, val);
-  db.insert(kb, val);
+  std::ignore = db.insert(ka, val);
+  std::ignore = db.insert(kb, val);
 
   auto it = db.test_only_iterator();
   for (it.first(); it.valid(); it.next())
-    verify_stack<TypeParam>(it, it.get_key());
+    verify_stack<TypeParam>(it, it.get_key().view());
 }
 
 /// Forward and reverse scan, verify stack at every position.
@@ -1737,13 +1888,16 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureFullScan) {
 
   struct kh {
     std::array<std::byte, 18> buf{};
-    unodb::key_view kv;
+    std::size_t len{};
+    [[nodiscard]] unodb::key_view kv() const {
+      return {buf.data(), len};
+    }
   };
   auto make = [&](std::uint8_t tag, std::uint64_t v) {
     kh h;
     auto k = enc.reset().encode(tag).encode(v).get_key_view();
-    std::ranges::copy(k, h.buf.begin());
-    h.kv = unodb::key_view{h.buf.data(), k.size()};
+    std::ignore = std::ranges::copy(k, h.buf.begin());
+    h.len = k.size();
     return h;
   };
 
@@ -1752,17 +1906,17 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureFullScan) {
   auto k3 = make(0x02, 300);
   auto k4 = make(0x03, 0);
 
-  db.insert(k1.kv, val);
-  db.insert(k2.kv, val);
-  db.insert(k3.kv, val);
-  db.insert(k4.kv, val);
+  std::ignore = db.insert(k1.kv(), val);
+  std::ignore = db.insert(k2.kv(), val);
+  std::ignore = db.insert(k3.kv(), val);
+  std::ignore = db.insert(k4.kv(), val);
 
   // Forward scan.
   {
     auto it = db.test_only_iterator();
     int count = 0;
     for (it.first(); it.valid(); it.next()) {
-      verify_stack<TypeParam>(it, it.get_key());
+      verify_stack<TypeParam>(it, it.get_key().view());
       ++count;
     }
     EXPECT_EQ(count, 4);
@@ -1773,7 +1927,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureFullScan) {
     auto it = db.test_only_iterator();
     int count = 0;
     for (it.last(); it.valid(); it.prior()) {
-      verify_stack<TypeParam>(it, it.get_key());
+      verify_stack<TypeParam>(it, it.get_key().view());
       ++count;
     }
     EXPECT_EQ(count, 4);

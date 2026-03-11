@@ -85,7 +85,7 @@ void chain_insert(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
     state.PauseTiming();
     unodb::benchmark::destroy_tree(db, state);
   }
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
+  state.SetItemsProcessed(state.iterations() *
                           static_cast<std::int64_t>(n));
 }
 
@@ -98,7 +98,7 @@ void chain_get(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
   for (auto _ : state) {
     for (std::size_t i = 0; i < n; ++i) benchmark::DoNotOptimize(db.get(ks[i]));
   }
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
+  state.SetItemsProcessed(state.iterations() *
                           static_cast<std::int64_t>(n));
 }
 
@@ -115,7 +115,7 @@ void chain_remove(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
     for (std::size_t i = 0; i < n; ++i)
       benchmark::DoNotOptimize(db.remove(ks[i]));
   }
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
+  state.SetItemsProcessed(state.iterations() *
                           static_cast<std::int64_t>(n));
 }
 
@@ -133,7 +133,7 @@ void chain_scan(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
     });
     benchmark::DoNotOptimize(count);
   }
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
+  state.SetItemsProcessed(state.iterations() *
                           static_cast<std::int64_t>(n));
 }
 
@@ -155,7 +155,7 @@ void kv_vs_u64_insert(benchmark::State& state) {
     state.PauseTiming();
     unodb::benchmark::destroy_tree(db, state);
   }
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
+  state.SetItemsProcessed(state.iterations() *
                           static_cast<std::int64_t>(n));
 }
 
@@ -168,7 +168,7 @@ void kv_vs_u64_get(benchmark::State& state) {
   for (auto _ : state) {
     for (std::size_t i = 0; i < n; ++i) benchmark::DoNotOptimize(db.get(ks[i]));
   }
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
+  state.SetItemsProcessed(state.iterations() *
                           static_cast<std::int64_t>(n));
 }
 
@@ -185,7 +185,7 @@ void kv_vs_u64_remove(benchmark::State& state) {
     for (std::size_t i = 0; i < n; ++i)
       benchmark::DoNotOptimize(db.remove(ks[i]));
   }
-  state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
+  state.SetItemsProcessed(state.iterations() *
                           static_cast<std::int64_t>(n));
 }
 

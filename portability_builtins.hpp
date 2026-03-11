@@ -82,10 +82,9 @@ template <typename To, typename From>
 /// Forces the compiler to re-read the object through a volatile pointer.
 /// FIXME(@laurynas-biveinis): remove when #700 is fixed.
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define UNODB_DETAIL_RELOAD(obj)       \
-  (*const_cast<                        \
-      std::remove_cvref_t<decltype(obj)>*>( \
-      static_cast<volatile const      \
-          std::remove_cvref_t<decltype(obj)>*>(&(obj))))
+#define UNODB_DETAIL_RELOAD(obj)                                       \
+  (*const_cast<std::remove_cvref_t<decltype(obj)>*>(                   \
+      static_cast<volatile const std::remove_cvref_t<decltype(obj)>*>( \
+          &(obj))))
 
 #endif
