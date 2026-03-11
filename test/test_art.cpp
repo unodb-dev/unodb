@@ -428,8 +428,9 @@ UNODB_TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeAttemptDeleteAbsent) {
 
   verifier.insert(2, unodb::test::test_values[1]);
 
-  unodb::test::must_not_allocate(
-      [&verifier] { verifier.attempt_remove_missing_keys({1, 3, 0xFF02}); });
+  unodb::test::must_not_allocate([&verifier] {
+    verifier.attempt_remove_missing_keys({1, 3, 0xFF02});
+  });
 
   verifier.check_present_values();
   verifier.check_absent_keys({1, 3, 0xFF02});
@@ -891,8 +892,9 @@ UNODB_TYPED_TEST(ARTCorrectnessTest, MissingKeyMatchingInodePath) {
   verifier.insert(0x0100, unodb::test::test_values[0]);
   verifier.insert(0x0200, unodb::test::test_values[1]);
 
-  unodb::test::must_not_allocate(
-      [&verifier] { verifier.attempt_remove_missing_keys({0x0101, 0x0202}); });
+  unodb::test::must_not_allocate([&verifier] {
+    verifier.attempt_remove_missing_keys({0x0101, 0x0202});
+  });
 }
 
 #ifdef UNODB_DETAIL_WITH_STATS

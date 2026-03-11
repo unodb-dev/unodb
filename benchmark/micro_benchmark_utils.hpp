@@ -360,7 +360,7 @@ class key_view_set {
       const auto tag = static_cast<std::uint8_t>(1 + (i % tag_count));
       auto kv = enc.reset()
                     .encode(tag)
-                    .encode(static_cast<std::uint64_t>(i / tag_count))
+                    .encode(std::uint64_t{i / tag_count})
                     .get_key_view();
       std::copy(kv.begin(), kv.end(), ks.buf_.data() + i * 9);
       ks.views_.emplace_back(ks.buf_.data() + i * 9, 9);
