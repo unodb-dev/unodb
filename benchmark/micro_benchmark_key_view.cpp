@@ -90,8 +90,6 @@ void chain_insert(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
     state.ResumeTiming();
     for (std::size_t i = 0; i < n; ++i)
       benchmark::DoNotOptimize(db.insert(ks[i], val));
-    state.PauseTiming();
-    maybe_quiescent<Db>();
     unodb::benchmark::destroy_tree(db, state);
   }
   state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
@@ -125,8 +123,6 @@ void chain_remove(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
     state.ResumeTiming();
     for (std::size_t i = 0; i < n; ++i)
       benchmark::DoNotOptimize(db.remove(ks[i]));
-    state.PauseTiming();
-    maybe_quiescent<Db>();
   }
   state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
                           static_cast<std::int64_t>(n));
@@ -166,8 +162,6 @@ void kv_vs_u64_insert(benchmark::State& state) {
     state.ResumeTiming();
     for (std::size_t i = 0; i < n; ++i)
       benchmark::DoNotOptimize(db.insert(ks[i], val100));
-    state.PauseTiming();
-    maybe_quiescent<Db>();
     unodb::benchmark::destroy_tree(db, state);
   }
   state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
@@ -201,8 +195,6 @@ void kv_vs_u64_remove(benchmark::State& state) {
     state.ResumeTiming();
     for (std::size_t i = 0; i < n; ++i)
       benchmark::DoNotOptimize(db.remove(ks[i]));
-    state.PauseTiming();
-    maybe_quiescent<Db>();
   }
   state.SetItemsProcessed(static_cast<std::int64_t>(state.iterations()) *
                           static_cast<std::int64_t>(n));
