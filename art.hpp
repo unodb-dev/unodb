@@ -1199,9 +1199,16 @@ std::optional<detail::node_ptr*> impl_helpers::remove_or_choose_subtree(
 
   if (UNODB_DETAIL_UNLIKELY(inode.is_min_size())) {
     if constexpr (std::is_same_v<INode, inode_4<Key, Value>>) {
-      auto current_node{art_policy<Key, Value>::make_db_inode_unique_ptr(
-          &inode, db_instance)};
-      *node_in_parent = current_node->leave_last_child(child_i, db_instance);
+      if (UNODB_DETAIL_LIKELY(inode.can_collapse(child_i))) {
+        auto current_node{art_policy<Key, Value>::make_db_inode_unique_ptr(
+            &inode, db_instance)};
+        *node_in_parent =
+            current_node->leave_last_child(child_i, db_instance);
+      } else {
+        // Prefix overflow — cannot collapse.  Just remove the child.
+        inode.remove(child_i, db_instance);
+        return nullptr;
+      }
     } else {
       auto new_node{
           INode::smaller_derived_type::create(db_instance, inode, child_i)};

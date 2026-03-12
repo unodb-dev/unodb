@@ -2075,6 +2075,22 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
   /// For a node with two children, remove one child and return the other one.
   ///
+  /// Check if collapsing this min-size I4 is safe (prefix merge fits).
+  /// \param child_to_delete Index of child to remove (0 or 1)
+  /// \return true if the remaining child's prefix can absorb this node's
+  ///         prefix + dispatch byte without exceeding key_prefix_capacity.
+  [[nodiscard]] constexpr bool can_collapse(
+      std::uint8_t child_to_delete) const noexcept {
+    UNODB_DETAIL_ASSERT(this->is_min_size());
+    const std::uint8_t child_to_leave = (child_to_delete == 0) ? 1U : 0U;
+    const auto child_ptr = children[child_to_leave].load();
+    if (child_ptr.type() == node_type::LEAF) return true;
+    const auto* const child_inode{child_ptr.template ptr<inode_type*>()};
+    return this->get_key_prefix().length() +
+               child_inode->get_key_prefix().length() <
+           detail::key_prefix_capacity;
+  }
+
   /// \param child_to_delete Index of child to remove (0 or 1)
   /// \param db_instance Database instance
   ///
