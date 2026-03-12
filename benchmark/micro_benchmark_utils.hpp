@@ -260,6 +260,38 @@ inline void get_existing_key(
   detail::do_get_existing_key(instance, k);
 }
 
+// key_view operation wrappers — per-operation QSBR for OLC.
+
+template <class Db>
+void kv_insert(Db& db, unodb::key_view k, unodb::value_view v) {
+  std::ignore = db.insert(k, v);
+}
+
+inline void kv_insert(kv_olc_db& db, unodb::key_view k, unodb::value_view v) {
+  const quiescent_state_on_scope_exit q{};
+  std::ignore = db.insert(k, v);
+}
+
+template <class Db>
+void kv_get(const Db& db, unodb::key_view k) {
+  ::benchmark::DoNotOptimize(db.get(k));
+}
+
+inline void kv_get(const kv_olc_db& db, unodb::key_view k) {
+  const quiescent_state_on_scope_exit q{};
+  ::benchmark::DoNotOptimize(db.get(k));
+}
+
+template <class Db>
+void kv_remove(Db& db, unodb::key_view k) {
+  ::benchmark::DoNotOptimize(db.remove(k));
+}
+
+inline void kv_remove(kv_olc_db& db, unodb::key_view k) {
+  const quiescent_state_on_scope_exit q{};
+  ::benchmark::DoNotOptimize(db.remove(k));
+}
+
 // Teardown
 
 template <class Db>
@@ -315,10 +347,7 @@ class key_view_set {
     ks.views_.reserve(n);
     unodb::key_encoder enc;
     for (std::size_t i = 0; i < n; ++i) {
-      auto kv = enc.reset()
-                    .encode(tag)
-                    .encode(static_cast<std::uint64_t>(i))
-                    .get_key_view();
+      auto kv = enc.reset().encode(tag).encode(std::uint64_t{i}).get_key_view();
       std::copy(kv.begin(), kv.end(), ks.buf_.data() + i * 9);
       ks.views_.emplace_back(ks.buf_.data() + i * 9, 9);
     }
@@ -341,7 +370,7 @@ class key_view_set {
                     .encode(tag)
                     .encode(std::uint64_t{0x4242424242424242ULL})
                     .encode(static_cast<std::uint8_t>(i & 0xFF))
-                    .encode(static_cast<std::uint64_t>(i))
+                    .encode(std::uint64_t{i})
                     .get_key_view();
       std::copy(kv.begin(), kv.end(), ks.buf_.data() + i * 18);
       ks.views_.emplace_back(ks.buf_.data() + i * 18, 18);
@@ -365,7 +394,7 @@ class key_view_set {
       const auto tag = static_cast<std::uint8_t>(1 + (i % tag_count));
       auto kv = enc.reset()
                     .encode(tag)
-                    .encode(static_cast<std::uint64_t>(i / tag_count))
+                    .encode(std::uint64_t{i / tag_count})
                     .get_key_view();
       std::copy(kv.begin(), kv.end(), ks.buf_.data() + i * 9);
       ks.views_.emplace_back(ks.buf_.data() + i * 9, 9);
@@ -414,8 +443,7 @@ class key_view_set {
     ks.views_.reserve(n);
     unodb::key_encoder enc;
     for (std::size_t i = 0; i < n; ++i) {
-      auto kv =
-          enc.reset().encode(static_cast<std::uint64_t>(i)).get_key_view();
+      auto kv = enc.reset().encode(std::uint64_t{i}).get_key_view();
       std::copy(kv.begin(), kv.end(), ks.buf_.data() + i * 8);
       ks.views_.emplace_back(ks.buf_.data() + i * 8, 8);
     }

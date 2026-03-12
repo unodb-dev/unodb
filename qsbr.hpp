@@ -163,9 +163,8 @@ class [[nodiscard]] qsbr_epoch final {
 // LCOV_EXCL_START
 /// Print the epoch \a value to the output stream \a os. For debug purposes
 /// only.
-[[gnu::cold]] inline std::ostream& operator<<(std::ostream& os
-                                              UNODB_DETAIL_LIFETIMEBOUND,
-                                              qsbr_epoch value) {
+[[gnu::cold]] inline std::ostream& operator<<(
+    std::ostream& os UNODB_DETAIL_LIFETIMEBOUND, qsbr_epoch value) {
   value.dump(os);
   return os;
 }
@@ -403,8 +402,8 @@ struct qsbr_state {
   atomic_fetch_dec_threads_in_previous_epoch(std::atomic<type>& word) noexcept;
 
   /// Assert that all invariants hold for \a word.
-  static constexpr void assert_invariants(type word
-                                          UNODB_DETAIL_USED_IN_DEBUG) noexcept {
+  static constexpr void assert_invariants(
+      type word UNODB_DETAIL_USED_IN_DEBUG) noexcept {
 #ifndef NDEBUG
     const auto thread_count = do_get_thread_count(word);
     UNODB_DETAIL_ASSERT(thread_count <= max_qsbr_threads);

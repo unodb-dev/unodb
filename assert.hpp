@@ -85,9 +85,10 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 /// Implementation for marking a source code location as unreachable.
 ///
 /// Should not be called directly - use UNODB_DETAIL_CANNOT_HAPPEN instead.
-[[noreturn, gnu::cold]] UNODB_DETAIL_C_STRING_ARG(1)
-UNODB_DETAIL_C_STRING_ARG(3) UNODB_DETAIL_HEADER_NOINLINE void
-cannot_happen(const char* file, int line, const char* func) noexcept {
+[[noreturn,
+  gnu::cold]] UNODB_DETAIL_C_STRING_ARG(1) UNODB_DETAIL_C_STRING_ARG(3)
+    UNODB_DETAIL_HEADER_NOINLINE void cannot_happen(const char* file, int line,
+                                                    const char* func) noexcept {
   unodb::test::allocation_failure_injector::fail_on_nth_allocation(0);
   std::ostringstream buf;
   buf << "Execution reached an unreachable point at " << file << ':' << line
@@ -101,9 +102,9 @@ cannot_happen(const char* file, int line, const char* func) noexcept {
 #define UNODB_DETAIL_DEBUG_CRASH()
 
 [[noreturn, gnu::cold]] UNODB_DETAIL_C_STRING_ARG(1)
-UNODB_DETAIL_C_STRING_ARG(3)
-UNODB_DETAIL_HEADER_NOINLINE void cannot_happen(const char*, int,
-                                                const char*) noexcept {
+    UNODB_DETAIL_C_STRING_ARG(3)
+        UNODB_DETAIL_HEADER_NOINLINE void cannot_happen(const char*, int,
+                                                        const char*) noexcept {
   UNODB_DETAIL_UNREACHABLE();
 }
 
@@ -116,8 +117,9 @@ UNODB_DETAIL_HEADER_NOINLINE void cannot_happen(const char*, int,
 ///
 /// Should not be called directly - use UNODB_DETAIL_CRASH instead.
 [[noreturn, gnu::cold]] UNODB_DETAIL_C_STRING_ARG(1)
-UNODB_DETAIL_C_STRING_ARG(3) UNODB_DETAIL_HEADER_NOINLINE void
-crash(const char* file, int line, const char* func) noexcept {
+    UNODB_DETAIL_C_STRING_ARG(3)
+        UNODB_DETAIL_HEADER_NOINLINE void crash(const char* file, int line,
+                                                const char* func) noexcept {
   UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION(0);
   std::ostringstream buf;
   buf << "Crash requested at " << file << ':' << line << ", function \"" << func
@@ -145,10 +147,10 @@ crash(const char* file, int line, const char* func) noexcept {
 ///
 /// Should not be called directly - used UNODB_DETAIL_ASSERT instead.
 [[noreturn, gnu::cold]] UNODB_DETAIL_C_STRING_ARG(1)
-UNODB_DETAIL_C_STRING_ARG(3) UNODB_DETAIL_C_STRING_ARG(4)
-UNODB_DETAIL_HEADER_NOINLINE void
-assert_failure(const char* file, int line, const char* func,
-               const char* condition) noexcept {
+    UNODB_DETAIL_C_STRING_ARG(3) UNODB_DETAIL_C_STRING_ARG(4)
+        UNODB_DETAIL_HEADER_NOINLINE void assert_failure(
+            const char* file, int line, const char* func,
+            const char* condition) noexcept {
   unodb::test::allocation_failure_injector::fail_on_nth_allocation(0);
   std::ostringstream buf;
   buf << "Assertion \"" << condition << "\" failed at " << file << ':' << line
