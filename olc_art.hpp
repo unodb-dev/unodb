@@ -1513,13 +1513,20 @@ template <typename Key, typename Value>
 void create_leaf_if_needed(olc_db_leaf_unique_ptr<Key, Value>& cached_leaf,
                            basic_art_key<Key> k, Value v,
                            unodb::olc_db<Key, Value>& db_instance) {
-  if (UNODB_DETAIL_LIKELY(cached_leaf == nullptr)) {
-    UNODB_DETAIL_ASSERT(&cached_leaf.get_deleter().get_db() == &db_instance);
-    // Do not assign because we do not need to assign the deleter
-    // NOLINTNEXTLINE(misc-uniqueptr-reset-release)
-    cached_leaf.reset(
-        olc_art_policy<Key, Value>::make_db_leaf_ptr(k, v, db_instance)
-            .release());
+  if constexpr (olc_art_policy<Key, Value>::can_eliminate_leaf) {
+    (void)cached_leaf;
+    (void)k;
+    (void)v;
+    (void)db_instance;
+  } else {
+    if (UNODB_DETAIL_LIKELY(cached_leaf == nullptr)) {
+      UNODB_DETAIL_ASSERT(&cached_leaf.get_deleter().get_db() == &db_instance);
+      // Do not assign because we do not need to assign the deleter
+      // NOLINTNEXTLINE(misc-uniqueptr-reset-release)
+      cached_leaf.reset(
+          olc_art_policy<Key, Value>::make_db_leaf_ptr(k, v, db_instance)
+              .release());
+    }
   }
 }
 
@@ -2273,30 +2280,33 @@ olc_db<Key, Value>::try_remove_key_view(art_key_type k) {
 
   auto node_type = node.type();
 
-  if (node_type == node_type::LEAF) {
-    auto* const leaf{node.template ptr<leaf_type*>()};
-    if (leaf->matches(k)) {
-      const optimistic_lock::write_guard parent_guard{
-          std::move(parent_critical_section)};
-      // Do not call spin_wait_loop_body from this point on - assume
-      // the above took enough time.
-      if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
+  if constexpr (!art_policy::can_eliminate_leaf) {
+    if (node_type == node_type::LEAF) {
+      auto* const leaf{node.template ptr<leaf_type*>()};
+      if (leaf->matches(k)) {
+        const optimistic_lock::write_guard parent_guard{
+            std::move(parent_critical_section)};
+        // Do not call spin_wait_loop_body from this point on - assume
+        // the above took enough time.
+        if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
 
-      optimistic_lock::write_guard node_guard{std::move(node_critical_section)};
-      if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
+        optimistic_lock::write_guard node_guard{
+            std::move(node_critical_section)};
+        if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
 
-      node_guard.unlock_and_obsolete();
+        node_guard.unlock_and_obsolete();
 
-      const auto r{art_policy::reclaim_leaf_on_scope_exit(leaf, *this)};
-      root = detail::olc_node_ptr{nullptr};
-      return true;
+        const auto r{art_policy::reclaim_leaf_on_scope_exit(leaf, *this)};
+        root = detail::olc_node_ptr{nullptr};
+        return true;
+      }
+
+      if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+        return {};  // LCOV_EXCL_LINE
+
+      return false;
     }
-
-    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
-      return {};  // LCOV_EXCL_LINE
-
-    return false;
-  }
+  }  // if constexpr (!can_eliminate_leaf)
 
   auto* node_in_parent{&root};
   tree_depth_type depth{};
@@ -2474,30 +2484,33 @@ olc_db<Key, Value>::try_remove_fixed_width_key(art_key_type k) {
 
   auto node_type = node.type();
 
-  if (node_type == node_type::LEAF) {
-    auto* const leaf{node.template ptr<leaf_type*>()};
-    if (leaf->matches(k)) {
-      const optimistic_lock::write_guard parent_guard{
-          std::move(parent_critical_section)};
-      // Do not call spin_wait_loop_body from this point on - assume
-      // the above took enough time
-      if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
+  if constexpr (!art_policy::can_eliminate_leaf) {
+    if (node_type == node_type::LEAF) {
+      auto* const leaf{node.template ptr<leaf_type*>()};
+      if (leaf->matches(k)) {
+        const optimistic_lock::write_guard parent_guard{
+            std::move(parent_critical_section)};
+        // Do not call spin_wait_loop_body from this point on - assume
+        // the above took enough time
+        if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
 
-      optimistic_lock::write_guard node_guard{std::move(node_critical_section)};
-      if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
+        optimistic_lock::write_guard node_guard{
+            std::move(node_critical_section)};
+        if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
 
-      node_guard.unlock_and_obsolete();
+        node_guard.unlock_and_obsolete();
 
-      const auto r{art_policy::reclaim_leaf_on_scope_exit(leaf, *this)};
-      root = detail::olc_node_ptr{nullptr};
-      return true;
+        const auto r{art_policy::reclaim_leaf_on_scope_exit(leaf, *this)};
+        root = detail::olc_node_ptr{nullptr};
+        return true;
+      }
+
+      if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+        return {};  // LCOV_EXCL_LINE
+
+      return false;
     }
-
-    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
-      return {};  // LCOV_EXCL_LINE
-
-    return false;
-  }
+  }  // if constexpr (!can_eliminate_leaf)
 
   auto* node_in_parent{&root};
   tree_depth_type depth{};
@@ -3527,7 +3540,9 @@ olc_db<Key, Value>::try_chain_cut(
 
   // --- Step 4.4: Reclaim leaf and chain nodes ---
   leaf_guard.unlock_and_obsolete();
-  { const auto r{art_policy::reclaim_leaf_on_scope_exit(leaf, *this)}; }
+  if constexpr (!art_policy::can_eliminate_leaf) {
+    const auto r{art_policy::reclaim_leaf_on_scope_exit(leaf, *this)};
+  }
 
   // chain_bottom_guard may have been consumed by init() in the shrink path.
   // must_restart() returns true when the guard is inactive (no lock).

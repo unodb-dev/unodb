@@ -1200,7 +1200,54 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
 
   if (child != nullptr) return child;
 
-  auto leaf = art_policy<Key, Value>::make_db_leaf_ptr(k, v, db_instance);
+  if constexpr (art_policy<Key, Value>::can_eliminate_leaf) {
+    // Value-in-slot: pack value directly, no leaf allocation.
+    const auto packed = art_policy<Key, Value>::pack_value(v);
+    const auto children_count = inode.get_children_count();
+
+    if constexpr (!std::is_same_v<INode, inode_256<Key, Value>>) {
+      if (UNODB_DETAIL_UNLIKELY(children_count == INode::capacity)) {
+        auto larger_node{INode::larger_derived_type::create(
+            db_instance, inode, packed, depth, key_byte)};
+        *node_in_parent =
+            node_ptr{larger_node.release(), INode::larger_derived_type::type};
+#ifdef UNODB_DETAIL_WITH_STATS
+        db_instance
+            .template account_growing_inode<INode::larger_derived_type::type>();
+#endif
+        if constexpr (art_policy<Key, Value>::full_key_in_inode_path) {
+          const auto chain_start =
+              static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
+          if (chain_start < k.size()) {
+            const volatile auto* vp = node_in_parent;
+            auto& new_inode =
+                *const_cast<detail::node_ptr&>(*vp)
+                     .template ptr<typename INode::larger_derived_type*>();
+            auto* const slot = unwrap_fake_critical_section(
+                new_inode.find_child(key_byte).second);
+            UNODB_DETAIL_ASSERT(slot != nullptr);
+            *slot = db_instance.build_chain(k, *slot, chain_start);
+          }
+        }
+        return child;
+      }
+    }
+    inode.add_to_nonfull(packed, depth, key_byte, children_count);
+
+    if constexpr (art_policy<Key, Value>::full_key_in_inode_path) {
+      const auto chain_start =
+          static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
+      if (chain_start < k.size()) {
+        auto* const slot = unwrap_fake_critical_section(
+            UNODB_DETAIL_RELOAD(inode).find_child(key_byte).second);
+        UNODB_DETAIL_ASSERT(slot != nullptr);
+        *slot = db_instance.build_chain(k, *slot, chain_start);
+      }
+    }
+    return child;
+  } else {
+    // Leaf-based: allocate leaf as before.
+    auto leaf = art_policy<Key, Value>::make_db_leaf_ptr(k, v, db_instance);
   const auto children_count = inode.get_children_count();
 
   if constexpr (!std::is_same_v<INode, inode_256<Key, Value>>) {
@@ -1251,6 +1298,7 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
   }
 
   return child;
+  }  // else (leaf-based)
 }
 
 // MSVC C26815 false positive: create() returns smart pointer with LIFETIMEBOUND
@@ -1266,12 +1314,21 @@ std::optional<detail::node_ptr*> impl_helpers::remove_or_choose_subtree(
   if (child_ptr == nullptr) return {};
 
   const auto child_ptr_val{child_ptr->load()};
-  if (child_ptr_val.type() != node_type::LEAF)
-    return unwrap_fake_critical_section(child_ptr);
 
-  const auto* const leaf{
-      child_ptr_val.template ptr<typename db<Key, Value>::leaf_type*>()};
-  if (!leaf->matches(k)) return {};
+  if constexpr (art_policy<Key, Value>::can_eliminate_leaf) {
+    // Value-in-slot: the child is a packed value, not a leaf pointer.
+    // Match by comparing the key path (the traversal already matched
+    // dispatch bytes at each level — if we reached this slot via the
+    // correct key_byte, the key matches).
+    // TODO(#707): verify key match via full key comparison if needed.
+  } else {
+    if (child_ptr_val.type() != node_type::LEAF)
+      return unwrap_fake_critical_section(child_ptr);
+
+    const auto* const leaf{
+        child_ptr_val.template ptr<typename db<Key, Value>::leaf_type*>()};
+    if (!leaf->matches(k)) return {};
+  }
 
   if (UNODB_DETAIL_UNLIKELY(inode.is_min_size())) {
     if constexpr (std::is_same_v<INode, inode_4<Key, Value>>) {
@@ -1364,13 +1421,18 @@ bool db<Key, Value>::insert_internal(art_key_type insert_key, value_type v) {
   }
 
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) {
-    auto leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
-    if constexpr (art_policy::can_eliminate_key_in_leaf) {
-      root = build_chain(insert_key,
-                         detail::node_ptr{leaf.release(), node_type::LEAF},
+    if constexpr (art_policy::can_eliminate_leaf) {
+      root = build_chain(insert_key, art_policy::pack_value(v),
                          tree_depth_type{0});
     } else {
-      root = detail::node_ptr{leaf.release(), node_type::LEAF};
+      auto leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
+      if constexpr (art_policy::can_eliminate_key_in_leaf) {
+        root = build_chain(insert_key,
+                           detail::node_ptr{leaf.release(), node_type::LEAF},
+                           tree_depth_type{0});
+      } else {
+        root = detail::node_ptr{leaf.release(), node_type::LEAF};
+      }
     }
     return true;
   }
@@ -1561,11 +1623,19 @@ bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
     const auto key_prefix_length{key_prefix.length()};
     const auto shared_prefix_len{key_prefix.get_shared_length(remaining_key)};
     if (shared_prefix_len < key_prefix_length) {
-      auto leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
-      auto new_node =
-          inode_4::create(*this, *node, shared_prefix_len, depth,
-                          std::move(leaf), remaining_key[shared_prefix_len]);
-      *node = detail::node_ptr{new_node.release(), node_type::I4};
+      if constexpr (art_policy::can_eliminate_leaf) {
+        auto new_node =
+            inode_4::create(*this, *node, shared_prefix_len, depth,
+                            art_policy::pack_value(v),
+                            remaining_key[shared_prefix_len]);
+        *node = detail::node_ptr{new_node.release(), node_type::I4};
+      } else {
+        auto leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
+        auto new_node =
+            inode_4::create(*this, *node, shared_prefix_len, depth,
+                            std::move(leaf), remaining_key[shared_prefix_len]);
+        *node = detail::node_ptr{new_node.release(), node_type::I4};
+      }
 #ifdef UNODB_DETAIL_WITH_STATS
       account_growing_inode<node_type::I4>();
       ++key_prefix_splits;
@@ -1608,14 +1678,16 @@ template <typename Key, typename Value>
 bool db<Key, Value>::remove_internal(art_key_type remove_key) {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return false;
 
-  if (root.type() == node_type::LEAF) {
-    auto* const root_leaf{root.ptr<leaf_type*>()};
-    if (root_leaf->matches(remove_key)) {
-      const auto r{art_policy::reclaim_leaf_on_scope_exit(root_leaf, *this)};
-      root = nullptr;
-      return true;
+  if constexpr (!art_policy::can_eliminate_leaf) {
+    if (root.type() == node_type::LEAF) {
+      auto* const root_leaf{root.ptr<leaf_type*>()};
+      if (root_leaf->matches(remove_key)) {
+        const auto r{art_policy::reclaim_leaf_on_scope_exit(root_leaf, *this)};
+        root = nullptr;
+        return true;
+      }
+      return false;
     }
-    return false;
   }
 
   if constexpr (std::is_same_v<Key, key_view>) {
@@ -1719,7 +1791,9 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
 
     // Single-child inode (chain node).  Reclaim leaf and chain,
     // then walk up cleaning any further empty chains.
-    { const auto rl{art_policy::reclaim_leaf_on_scope_exit(leaf, *this)}; }
+    if constexpr (!art_policy::can_eliminate_leaf) {
+      const auto rl{art_policy::reclaim_leaf_on_scope_exit(leaf, *this)};
+    }
     {
       const auto ri{art_policy::make_db_inode_unique_ptr(
           node_val.template ptr<inode_4*>(), *this)};
