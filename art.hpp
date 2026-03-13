@@ -1390,7 +1390,6 @@ bool db<Key, Value>::insert_internal_fixed(art_key_type insert_key,
     (void)insert_key;
     (void)v;
     UNODB_DETAIL_CANNOT_HAPPEN();
-    return false;
   } else {
     auto* node = &root;
     tree_depth_type depth{};

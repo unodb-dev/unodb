@@ -230,6 +230,7 @@ class [[nodiscard]] basic_leaf final : public Header {
     } else {
       static_assert(std::is_trivially_copyable_v<Value>);
       Value v{};
+      // cppcheck-suppress memsetClass
       std::memcpy(&v, data + key_size, sizeof(v));
       return v;
     }
@@ -2260,7 +2261,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
       keys.byte_array[i] = keys.byte_array[i - 1];
       children[i] = children[i - 1];
     }
-    keys.byte_array[insert_pos_index] = static_cast<std::byte>(key_byte);
+    keys.byte_array[insert_pos_index] = key_byte;
     children[insert_pos_index] = node_ptr{child.release(), node_type::LEAF};
 
     ++children_count_;
@@ -2746,7 +2747,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
 
     UNODB_DETAIL_ASSUME(i < parent_class::capacity);
 
-    keys.byte_array[i] = static_cast<std::byte>(key_byte);
+    keys.byte_array[i] = key_byte;
     children[i] = node_ptr{child.release(), node_type::LEAF};
     ++i;
 
