@@ -1552,6 +1552,7 @@ detail::node_ptr db<Key, Value>::build_chain(art_key_type k,
   const auto key_len = k.size();
   const auto start = static_cast<std::size_t>(start_depth);
   auto current = child;
+  bool child_is_value = art_policy::can_eliminate_leaf;
   // Build bottom-up: start from end of key, work toward start_depth.
   // Each chain I4 consumes up to cap prefix bytes + 1 dispatch byte.
   std::size_t pos = key_len;
@@ -1563,6 +1564,10 @@ detail::node_ptr db<Key, Value>::build_chain(art_key_type k,
     auto chain{inode_4::create(
         *this, full_key, remaining,
         tree_depth_type{static_cast<std::uint32_t>(depth)}, dispatch, current)};
+    if (child_is_value) {
+      chain->set_value_bit(0);
+      child_is_value = false;
+    }
     current = detail::node_ptr{chain.release(), node_type::I4};
 #ifdef UNODB_DETAIL_WITH_STATS
     account_growing_inode<node_type::I4>();
@@ -1576,6 +1581,10 @@ detail::node_ptr db<Key, Value>::build_chain(art_key_type k,
         *this, full_key, tree_depth_type{static_cast<std::uint32_t>(start)},
         static_cast<detail::key_prefix_size>(pos - start - 1), dispatch,
         current)};
+    if (child_is_value) {
+      chain->set_value_bit(0);
+      child_is_value = false;
+    }
     current = detail::node_ptr{chain.release(), node_type::I4};
 #ifdef UNODB_DETAIL_WITH_STATS
     account_growing_inode<node_type::I4>();
