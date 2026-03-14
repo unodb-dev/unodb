@@ -3557,10 +3557,10 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       // Copy bitmask from source I16 (indexed by position).
       for (std::uint8_t j = 0; j < inode16_type::capacity; ++j) {
         if (source_node.is_value_in_slot(j))
-          set_value_bit(j);
+          set_value_bit_by_ci(j);
       }
       // The new child is a packed value.
-      set_value_bit(i);
+      set_value_bit_by_ci(i);
     }
     for (i = this->children_count; i < basic_inode_48::capacity; i++) {
       children.pointer_array[i] = node_ptr{nullptr};
@@ -3595,7 +3595,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       children.pointer_array[next_child] = source_node.children[child_i].load();
       if constexpr (ArtPolicy::can_eliminate_leaf) {
         if (source_node.is_value_in_slot(static_cast<std::uint8_t>(child_i)))
-          set_value_bit(next_child);
+          set_value_bit_by_ci(next_child);
       }
       ++next_child;
 
@@ -3756,7 +3756,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     child_indexes[static_cast<std::uint8_t>(key_byte)] =
         static_cast<std::uint8_t>(slot);
     children.pointer_array[slot] = packed_value;
-    set_value_bit(static_cast<std::uint8_t>(slot));
+    set_value_bit(static_cast<std::uint8_t>(key_byte));
     this->children_count = this->children_count + 1U;
   }
 
@@ -3953,7 +3953,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
       const auto child = children.pointer_array[i].load();
       if (child != nullptr) {
         if constexpr (ArtPolicy::can_eliminate_leaf) {
-          if (!is_value_in_slot(static_cast<std::uint8_t>(i))) {
+          if (!is_value_in_slot_by_ci(static_cast<std::uint8_t>(i))) {
             ArtPolicy::delete_subtree(child, db_instance);
           }
         } else {
@@ -4037,17 +4037,30 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   std::array<std::uint8_t, 6> value_bitmask{};
 
  public:
-  [[nodiscard]] constexpr bool is_value_in_slot(std::uint8_t i) const noexcept {
-    return (value_bitmask[i / 8] >> (i % 8)) & 1U;
+  /// For I48, the child_index from find_child is the key byte.
+  /// Resolve to children array index before accessing the bitmask.
+  [[nodiscard]] constexpr bool is_value_in_slot(std::uint8_t key_byte_i) const noexcept {
+    const auto ci = child_indexes[key_byte_i].load();
+    if (ci == empty_child) return false;
+    return is_value_in_slot_by_ci(ci);
   }
-  constexpr void set_value_bit(std::uint8_t i) noexcept {
-    value_bitmask[i / 8] |= static_cast<std::uint8_t>(1U << (i % 8));
+  constexpr void set_value_bit(std::uint8_t key_byte_i) noexcept {
+    const auto ci = child_indexes[key_byte_i].load();
+    UNODB_DETAIL_ASSERT(ci != empty_child);
+    value_bitmask[ci / 8] |= static_cast<std::uint8_t>(1U << (ci % 8));
   }
-  constexpr void clear_value_bit(std::uint8_t i) noexcept {
-    value_bitmask[i / 8] &= static_cast<std::uint8_t>(~(1U << (i % 8)));
+  constexpr void clear_value_bit(std::uint8_t key_byte_i) noexcept {
+    const auto ci = child_indexes[key_byte_i].load();
+    UNODB_DETAIL_ASSERT(ci != empty_child);
+    value_bitmask[ci / 8] &= static_cast<std::uint8_t>(~(1U << (ci % 8)));
   }
-
-  /// Maps key byte to index in children array (256 entries).
+  /// Check by children array index (for internal iteration).
+  [[nodiscard]] constexpr bool is_value_in_slot_by_ci(std::uint8_t ci) const noexcept {
+    return (value_bitmask[ci / 8] >> (ci % 8)) & 1U;
+  }
+  constexpr void set_value_bit_by_ci(std::uint8_t ci) noexcept {
+    value_bitmask[ci / 8] |= static_cast<std::uint8_t>(1U << (ci % 8));
+  }
   // The only way I found to initialize this array so that everyone is happy and
   // efficient. In the case of OLC, a std::fill compiles to a loop doing a
   // single byte per iteration. memset is likely an UB, and atomic_ref is not
