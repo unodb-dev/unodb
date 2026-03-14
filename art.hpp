@@ -1592,8 +1592,13 @@ bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
   auto remaining_key{insert_key};
 
   while (true) {
-    const auto node_type = node->type();
-    if (node_type == node_type::LEAF) {
+    if constexpr (art_policy::can_eliminate_leaf) {
+      // Value-in-slot: no LEAF nodes exist. If we reach here after
+      // add_or_choose_subtree returned a child pointer, the child
+      // is always an inode (values are detected by bitmask above).
+    } else {
+      const auto node_type = node->type();
+      if (node_type == node_type::LEAF) {
       if constexpr (art_policy::can_eliminate_key_in_leaf) {
         // Keyless leaf: the inode path consumed all bytes of the existing
         // key.  The ART prefix restriction guarantees no key is a prefix
@@ -1647,7 +1652,9 @@ bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
         return true;
       }  // else (keyed leaf)
     }
+    }  // else (!can_eliminate_leaf)
 
+    const auto node_type = node->type();
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
 
     auto* const inode{node->template ptr<inode_type*>()};
@@ -1698,6 +1705,16 @@ bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
         node_type, remaining_key[0], insert_key, v, *this, depth, node);
 
     if (node == nullptr) return true;
+
+    if constexpr (art_policy::can_eliminate_leaf) {
+      // The returned slot might hold a packed value (duplicate key).
+      // For full_key_in_inode_path, matching all dispatch bytes means
+      // the keys are identical.
+      const auto [ci, _] = inode->find_child(node_type, remaining_key[0]);
+      if (inode->is_value_in_slot(node_type, ci)) {
+        return false;  // duplicate key
+      }
+    }
 
     ++depth;
     remaining_key.shift_right(1);
