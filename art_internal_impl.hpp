@@ -2263,6 +2263,16 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     UNODB_DETAIL_ASSERT(
         std::is_sorted(keys.byte_array.cbegin(),
                        keys.byte_array.cbegin() + basic_inode_4::capacity));
+
+    if constexpr (ArtPolicy::can_eliminate_leaf) {
+      std::uint8_t dst = 0;
+      for (std::uint8_t src = 0; src < inode16_type::min_size; ++src) {
+        if (src == child_to_delete) continue;
+        if (source_node.is_value_in_slot(src))
+          set_value_bit(dst);
+        ++dst;
+      }
+    }
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
@@ -2716,6 +2726,9 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     children[key1_i] = child1;
     keys.byte_array[key2_i] = key2;
     children[key2_i] = child2;
+    // child2 is always a packed value in the value-in-slot path.
+    // child1 may be an inode (existing subtree) or a packed value.
+    set_value_bit(key2_i);
 #ifndef UNODB_DETAIL_X86_64
     keys.byte_array[2] = unused_key_byte;
     keys.byte_array[3] = unused_key_byte;
@@ -2947,9 +2960,9 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
         if (source_node.is_value_in_slot(static_cast<std::uint8_t>(j)))
           set_value_bit(static_cast<std::uint8_t>(j));
       }
-      // The new child at insert_pos_index: check if it's a value.
-      // For now, the caller passes node_ptr for values — we can't
-      // distinguish here. The caller must set the bit after create().
+      // The new child at insert_pos_index is a packed value
+      // (this overload is only called for value-in-slot).
+      set_value_bit(static_cast<std::uint8_t>(insert_pos_index));
       for (unsigned j = insert_pos_index; j < inode4_type::capacity; ++j) {
         if (source_node.is_value_in_slot(static_cast<std::uint8_t>(j)))
           set_value_bit(static_cast<std::uint8_t>(j + 1));
@@ -2992,6 +3005,21 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     UNODB_DETAIL_ASSERT(
         std::is_sorted(keys.byte_array.cbegin(),
                        keys.byte_array.cbegin() + basic_inode_16::capacity));
+
+    if constexpr (ArtPolicy::can_eliminate_leaf) {
+      // Copy bitmask from I48. I48 uses slot indices; we mapped them
+      // to sequential positions in the loop above. Re-scan to set bits.
+      next_child = 0;
+      for (unsigned j = 0; j <= i; ++j) {
+        const auto sci = source_node.child_indexes[j].load();
+        if (sci != inode48_type::empty_child) {
+          if (source_node.is_value_in_slot(sci))
+            set_value_bit(static_cast<std::uint8_t>(next_child));
+          ++next_child;
+          if (next_child == basic_inode_16::capacity) break;
+        }
+      }
+    }
   }
 
   /// Add child to node that has available capacity.
@@ -3505,6 +3533,15 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
 
     child_indexes[static_cast<std::uint8_t>(key_byte)] = i;
     children.pointer_array[i] = child_val;
+    if constexpr (ArtPolicy::can_eliminate_leaf) {
+      // Copy bitmask from source I16 (indexed by position).
+      for (std::uint8_t j = 0; j < inode16_type::capacity; ++j) {
+        if (source_node.is_value_in_slot(j))
+          set_value_bit(j);
+      }
+      // The new child is a packed value.
+      set_value_bit(i);
+    }
     for (i = this->children_count; i < basic_inode_48::capacity; i++) {
       children.pointer_array[i] = node_ptr{nullptr};
     }
@@ -3536,6 +3573,10 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
 
       child_indexes[child_i] = next_child;
       children.pointer_array[next_child] = source_node.children[child_i].load();
+      if constexpr (ArtPolicy::can_eliminate_leaf) {
+        if (source_node.is_value_in_slot(static_cast<std::uint8_t>(child_i)))
+          set_value_bit(next_child);
+      }
       ++next_child;
 
       if (next_child == basic_inode_48::capacity) return;
@@ -4199,6 +4240,18 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     UNODB_DETAIL_ASSERT(children[static_cast<std::uint8_t>(key_byte)] ==
                         nullptr);
     children[static_cast<std::uint8_t>(key_byte)] = child_val;
+    if constexpr (ArtPolicy::can_eliminate_leaf) {
+      // Copy bitmask from source I48. I48 indexes by slot position,
+      // I256 indexes by key byte. Map through child_indexes.
+      for (unsigned j = 0; j < 256; ++j) {
+        const auto ci = source_node.child_indexes[j].load();
+        if (ci != inode48_type::empty_child &&
+            source_node.is_value_in_slot(ci)) {
+          set_value_bit(static_cast<std::uint8_t>(j));
+        }
+      }
+      set_value_bit(static_cast<std::uint8_t>(key_byte));
+    }
   }
 
   /// Add child to non-full node.
