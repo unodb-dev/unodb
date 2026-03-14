@@ -469,6 +469,30 @@ class db final {
     /// \return Reference to this iterator
     iterator& right_most_traversal(detail::node_ptr node);
 
+    /// Descend left if child is an inode, or push as leaf if value-in-slot.
+    iterator& descend_left(const auto* inode, node_type ntype,
+                           std::uint8_t child_i, detail::node_ptr child) {
+      if constexpr (art_policy::can_eliminate_leaf) {
+        if (inode->is_value_in_slot(ntype, child_i)) {
+          push_leaf(child);
+          return *this;
+        }
+      }
+      return left_most_traversal(child);
+    }
+
+    /// Descend right if child is an inode, or push as leaf if value-in-slot.
+    iterator& descend_right(const auto* inode, node_type ntype,
+                            std::uint8_t child_i, detail::node_ptr child) {
+      if constexpr (art_policy::can_eliminate_leaf) {
+        if (inode->is_value_in_slot(ntype, child_i)) {
+          push_leaf(child);
+          return *this;
+        }
+      }
+      return right_most_traversal(child);
+    }
+
     /// Compare the given key \a akey to the current key in the internal buffer.
     ///
     /// \return -1, 0, or 1 if this key is LT, EQ, or GT the other
@@ -1320,11 +1344,9 @@ std::optional<detail::node_ptr*> impl_helpers::remove_or_choose_subtree(
   const auto child_ptr_val{child_ptr->load()};
 
   if constexpr (art_policy<Key, Value>::can_eliminate_leaf) {
-    // Value-in-slot: the child is a packed value, not a leaf pointer.
-    // Match by comparing the key path (the traversal already matched
-    // dispatch bytes at each level — if we reached this slot via the
-    // correct key_byte, the key matches).
-    // TODO(#707): verify key match via full key comparison if needed.
+    if (!inode.is_value_in_slot(child_i)) {
+      return unwrap_fake_critical_section(child_ptr);
+    }
   } else {
     if (child_ptr_val.type() != node_type::LEAF)
       return unwrap_fake_critical_section(child_ptr);
@@ -2061,7 +2083,8 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
 
   while (true) {
     const auto node_type = node.type();
-    if (node_type == node_type::LEAF) {
+    if constexpr (!art_policy::can_eliminate_leaf) {
+     if (node_type == node_type::LEAF) {
       const auto* const leaf{node.template ptr<leaf_type*>()};
       push_leaf(node);
       int cmp_;
@@ -2080,7 +2103,8 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
       }
       // LTE semantics: if search_key > leaf, use the leaf, else prior().
       return (cmp_ > 0) ? *this : prior();
-    }
+     }
+    }  // if constexpr (!can_eliminate_leaf)
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
     auto* const inode{node.template ptr<inode_type*>()};  // some internal node.
     const auto key_prefix{inode->get_key_prefix().get_snapshot()};  // prefix
@@ -2152,7 +2176,8 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
                 cnode.type(), centry.child_index);  // right-sibling.
             if (cnxt) {
               auto nchild = icnode->get_child(cnode.type(), centry.child_index);
-              return left_most_traversal(nchild);
+              return descend_left(icnode, cnode.type(), centry.child_index,
+                                  nchild);
             }
             pop();
           }
@@ -2162,7 +2187,7 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
         const auto child_index = tmp.child_index;
         const auto child = inode->get_child(node_type, child_index);
         push(node, tmp.key_byte, child_index, tmp.prefix);  // the path we took
-        return left_most_traversal(child);  // left most traversal
+        return descend_left(inode, node_type, child_index, child);
       }
       // REV: Take the prior child_index that is mapped and then do
       // a right-most descent to land on the key that is the
@@ -2182,7 +2207,8 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
               icnode->prior(cnode.type(), centry.child_index);  // left-sibling.
           if (cnxt) {
             auto nchild = icnode->get_child(cnode.type(), centry.child_index);
-            return right_most_traversal(nchild);
+            return descend_right(icnode, cnode.type(), centry.child_index,
+                                 nchild);
           }
           pop();
         }
@@ -2192,12 +2218,20 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
       const auto child_index{tmp.child_index};
       const auto child = inode->get_child(node_type, child_index);
       push(node, tmp.key_byte, child_index, tmp.prefix);  // the path we took
-      return right_most_traversal(child);  // right most traversal
+      return descend_right(inode, node_type, child_index, child);
     }
     // Simple case. There is a child for the current key byte.
     const auto child_index{res.first};
     const auto* const child{res.second};
     push(node, remaining_key[0], child_index, key_prefix);
+    if constexpr (art_policy::can_eliminate_leaf) {
+      if (inode->is_value_in_slot(node_type, child_index)) {
+        push_leaf(*child);
+        // Exact match — remaining key consumed by prefix + dispatch bytes.
+        match = (remaining_key.size() <= 1);
+        return *this;
+      }
+    }
     node = *child;
     remaining_key.shift_right(1);
   }  // while ( true )

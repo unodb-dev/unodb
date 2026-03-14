@@ -2730,6 +2730,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   std::uint8_t value_bitmask{0};
 
   /// Check if child at index holds a packed value (not a pointer).
+ public:
   [[nodiscard]] constexpr bool is_value_in_slot(std::uint8_t i) const noexcept {
     return (value_bitmask >> i) & 1U;
   }
@@ -3316,6 +3317,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   /// than a child pointer.  Only meaningful when value_in_slot is true.
   std::uint16_t value_bitmask{0};
 
+ public:
   [[nodiscard]] constexpr bool is_value_in_slot(std::uint8_t i) const noexcept {
     return (value_bitmask >> i) & 1U;
   }
@@ -3933,6 +3935,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   /// value_in_slot is true.
   std::array<std::uint8_t, 6> value_bitmask{};
 
+ public:
   [[nodiscard]] constexpr bool is_value_in_slot(std::uint8_t i) const noexcept {
     return (value_bitmask[i / 8] >> (i % 8)) & 1U;
   }
@@ -4424,6 +4427,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   /// the first cache line (release builds).
   alignas(std::uint64_t) std::array<std::uint8_t, 32> value_bitmask{};
 
+ public:
   [[nodiscard]] constexpr bool is_value_in_slot(std::uint8_t i) const noexcept {
     return (value_bitmask[i / 8] >> (i % 8)) & 1U;
   }
