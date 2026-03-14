@@ -2637,6 +2637,9 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   constexpr void delete_subtree(db_type& db_instance) noexcept {
     const std::uint8_t children_count_ = this->children_count.load();
     for (std::uint8_t i = 0; i < children_count_; ++i) {
+      if constexpr (ArtPolicy::can_eliminate_leaf) {
+        if (is_value_in_slot(i)) continue;  // packed value, nothing to free
+      }
       ArtPolicy::delete_subtree(children[i], db_instance);
     }
   }
@@ -2924,6 +2927,21 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     for (; i <= inode4_type::capacity; ++i) {
       keys.byte_array[i] = source_node.keys.byte_array[i - 1];
       children[i] = source_node.children[i - 1];
+    }
+
+    // Copy value bitmask from source, inserting the new child's bit.
+    if constexpr (ArtPolicy::can_eliminate_leaf) {
+      for (unsigned j = 0; j < insert_pos_index; ++j) {
+        if (source_node.is_value_in_slot(static_cast<std::uint8_t>(j)))
+          set_value_bit(static_cast<std::uint8_t>(j));
+      }
+      // The new child at insert_pos_index: check if it's a value.
+      // For now, the caller passes node_ptr for values — we can't
+      // distinguish here. The caller must set the bit after create().
+      for (unsigned j = insert_pos_index; j < inode4_type::capacity; ++j) {
+        if (source_node.is_value_in_slot(static_cast<std::uint8_t>(j)))
+          set_value_bit(static_cast<std::uint8_t>(j + 1));
+      }
     }
   }
 
@@ -3228,8 +3246,12 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   /// \param db_instance Database instance
   constexpr void delete_subtree(db_type& db_instance) noexcept {
     const uint8_t children_count_ = this->children_count.load();
-    for (std::uint8_t i = 0; i < children_count_; ++i)
+    for (std::uint8_t i = 0; i < children_count_; ++i) {
+      if constexpr (ArtPolicy::can_eliminate_leaf) {
+        if (is_value_in_slot(i)) continue;
+      }
       ArtPolicy::delete_subtree(children[i], db_instance);
+    }
   }
 
   /// Dump node contents to stream for debugging.
@@ -3857,7 +3879,13 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     for (unsigned i = 0; i < this->capacity; ++i) {
       const auto child = children.pointer_array[i].load();
       if (child != nullptr) {
-        ArtPolicy::delete_subtree(child, db_instance);
+        if constexpr (ArtPolicy::can_eliminate_leaf) {
+          if (!is_value_in_slot(static_cast<std::uint8_t>(i))) {
+            ArtPolicy::delete_subtree(child, db_instance);
+          }
+        } else {
+          ArtPolicy::delete_subtree(child, db_instance);
+        }
 #ifndef NDEBUG
         ++actual_children_count;
         UNODB_DETAIL_ASSERT(actual_children_count <= children_count_);
@@ -4397,7 +4425,10 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   ///
   /// \param db_instance Database instance
   constexpr void delete_subtree(db_type& db_instance) noexcept {
-    for_each_child([&db_instance](unsigned, node_ptr child) noexcept {
+    for_each_child([this, &db_instance](unsigned i, node_ptr child) noexcept {
+      if constexpr (ArtPolicy::can_eliminate_leaf) {
+        if (is_value_in_slot(static_cast<std::uint8_t>(i))) return;
+      }
       ArtPolicy::delete_subtree(child, db_instance);
     });
   }

@@ -2287,9 +2287,13 @@ typename db<Key, Value>::value_type db<Key, Value>::iterator::get_val()
   UNODB_DETAIL_ASSERT(valid());  // by contract
   const auto& e = stack_.top();
   const auto& node = e.node;
-  UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);      // On a leaf.
-  const auto* const leaf{node.template ptr<leaf_type*>()};  // current leaf.
-  return leaf->template get_value<value_type>();
+  if constexpr (art_policy::can_eliminate_leaf) {
+    return art_policy::unpack_value(node);
+  } else {
+    UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
+    const auto* const leaf{node.template ptr<leaf_type*>()};
+    return leaf->template get_value<value_type>();
+  }
 }
 
 //
