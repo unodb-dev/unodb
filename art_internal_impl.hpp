@@ -605,6 +605,11 @@ struct basic_art_policy final {
   static constexpr bool can_eliminate_leaf =
       full_key_in_inode_path && value_in_slot;
 
+  /// Sentinel XOR'd into packed values to ensure they are never nullptr.
+  /// Any non-zero constant works; using a pattern unlikely to collide
+  /// with valid pointer alignment.
+  static constexpr std::uintptr_t pack_xor_sentinel = 0x8000000000000001ULL;
+
   /// Pack a value into a node_ptr slot (value-in-slot mode).
   /// The parent inode's value_bitmask distinguishes this from a pointer.
   [[nodiscard]] static node_ptr pack_value(Value v) noexcept {
@@ -612,14 +617,21 @@ struct basic_art_policy final {
     node_ptr result{nullptr};
     static_assert(sizeof(v) <= sizeof(result));
     std::memcpy(&result, &v, sizeof(v));
+    // XOR with sentinel so that value 0 doesn't produce nullptr.
+    auto raw = result.raw_val() ^ pack_xor_sentinel;
+    std::memcpy(&result, &raw, sizeof(raw));
     return result;
   }
 
   /// Extract a value from a node_ptr slot (value-in-slot mode).
   [[nodiscard]] static Value unpack_value(node_ptr n) noexcept {
     static_assert(can_eliminate_leaf);
+    // Reverse the XOR sentinel.
+    auto raw = n.raw_val() ^ pack_xor_sentinel;
+    node_ptr tmp{nullptr};
+    std::memcpy(&tmp, &raw, sizeof(raw));
     Value v{};
-    std::memcpy(&v, &n, sizeof(v));
+    std::memcpy(&v, &tmp, sizeof(v));
     return v;
   }
 
