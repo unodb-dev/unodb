@@ -1396,11 +1396,17 @@ typename db<Key, Value>::get_result db<Key, Value>::get_internal(
     if (key_prefix.get_shared_length(remaining_key) < key_prefix_length)
       return {};
     remaining_key.shift_right(key_prefix_length);
-    const auto* const child{
-        inode->find_child(node_type, remaining_key[0]).second};
-    if (child == nullptr) return {};
+    const auto [child_i, child_ptr]{
+        inode->find_child(node_type, remaining_key[0])};
+    if (child_ptr == nullptr) return {};
 
-    node = *child;
+    if constexpr (art_policy::can_eliminate_leaf) {
+      if (inode->is_value_in_slot(node_type, child_i)) {
+        return art_policy::unpack_value(*child_ptr);
+      }
+    }
+
+    node = *child_ptr;
     remaining_key.shift_right(1);
   }
 }

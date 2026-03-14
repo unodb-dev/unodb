@@ -1537,6 +1537,29 @@ class basic_inode_impl : public ArtPolicy::header_type {
     // LCOV_EXCL_STOP
   }
 
+  /// Check if child at index holds a packed value, dispatching by type.
+  [[nodiscard]] constexpr bool is_value_in_slot(
+      node_type type, std::uint8_t child_i) const noexcept {
+    switch (type) {
+      case node_type::I4:
+        return static_cast<const inode4_type*>(this)->is_value_in_slot(child_i);
+      case node_type::I16:
+        return static_cast<const inode16_type*>(this)->is_value_in_slot(
+            child_i);
+      case node_type::I48:
+        return static_cast<const inode48_type*>(this)->is_value_in_slot(
+            child_i);
+      case node_type::I256:
+        return static_cast<const inode256_type*>(this)->is_value_in_slot(
+            child_i);
+      // LCOV_EXCL_START
+      case node_type::LEAF:
+        UNODB_DETAIL_CANNOT_HAPPEN();
+    }
+    UNODB_DETAIL_CANNOT_HAPPEN();
+    // LCOV_EXCL_STOP
+  }
+
   /// Remove child entry without reclaiming the child, dispatching by type.
   ///
   /// \param type Current node type
@@ -2765,6 +2788,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
   template <class>
   friend class basic_inode_16;
+  friend class basic_inode_impl<ArtPolicy>;
 };  // class basic_inode_4
 
 /// Type alias for basic_inode_16 parent class.
@@ -3315,6 +3339,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
 
   template <class>
   friend class basic_inode_4;
+  friend class basic_inode_impl<ArtPolicy>;
   template <class>
   friend class basic_inode_48;
 };  // class basic_inode_16
@@ -4015,6 +4040,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
 
   template <class>
   friend class basic_inode_16;
+  friend class basic_inode_impl<ArtPolicy>;
   template <class>
   friend class basic_inode_256;
 };  // class basic_inode_48
@@ -4414,6 +4440,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
 
   template <class>
   friend class basic_inode_48;
+  friend class basic_inode_impl<ArtPolicy>;
 };  // class basic_inode_256
 
 }  // namespace unodb::detail
