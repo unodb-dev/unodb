@@ -545,7 +545,11 @@ class db final {
 
       const auto& e = top();
       const auto n = static_cast<std::size_t>(
-          (e.node.type() != node_type::LEAF) ? e.prefix.length() + 1 : 0);
+          (e.node.type() != node_type::LEAF &&
+           !(art_policy::can_eliminate_leaf &&
+             e.child_index == static_cast<std::uint8_t>(0xFFU)))
+              ? e.prefix.length() + 1
+              : 0);
       keybuf_.pop(n);
       stack_.pop();
     }
@@ -1923,7 +1927,9 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::next() {
     const auto node{e.node};
     UNODB_DETAIL_ASSERT(node != nullptr);
     const auto node_type = node.type();
-    if (node_type == node_type::LEAF) {
+    if (node_type == node_type::LEAF ||
+        (art_policy::can_eliminate_leaf &&
+         e.child_index == static_cast<std::uint8_t>(0xFFU))) {
       pop();     // pop off the leaf
       continue;  // falls through loop if just a root leaf since stack now
                  // empty.
@@ -1940,6 +1946,12 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::next() {
     pop();
     push(e2);
     const auto child = inode->get_child(node_type, e2.child_index);  // descend
+    if constexpr (art_policy::can_eliminate_leaf) {
+      if (inode->is_value_in_slot(node_type, e2.child_index)) {
+        push_leaf(child);
+        return *this;
+      }
+    }
     return left_most_traversal(child);
   }
   return *this;  // stack is empty, so iterator is at the end
@@ -1952,7 +1964,9 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::prior() {
     const auto node{e.node};
     UNODB_DETAIL_ASSERT(node != nullptr);
     const auto node_type = node.type();
-    if (node_type == node_type::LEAF) {
+    if (node_type == node_type::LEAF ||
+        (art_policy::can_eliminate_leaf &&
+         e.child_index == static_cast<std::uint8_t>(0xFFU))) {
       pop();     // pop off the leaf
       continue;  // falls through loop if just a root leaf since stack now
                  // empty.
@@ -1969,6 +1983,12 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::prior() {
     pop();
     push(e2);
     auto child = inode->get_child(node_type, e2.child_index);  // descend
+    if constexpr (art_policy::can_eliminate_leaf) {
+      if (inode->is_value_in_slot(node_type, e2.child_index)) {
+        push_leaf(child);
+        return *this;
+      }
+    }
     return right_most_traversal(child);
   }
   return *this;  // stack is empty, so iterator is at the end.
@@ -1989,7 +2009,14 @@ db<Key, Value>::iterator::left_most_traversal(detail::node_ptr node) {
     const auto e =
         inode->begin(node_type);  // first child of current internal node
     push(e);                      // push the entry on the stack.
-    node = inode->get_child(node_type, e.child_index);  // get the child
+    const auto child = inode->get_child(node_type, e.child_index);
+    if constexpr (art_policy::can_eliminate_leaf) {
+      if (inode->is_value_in_slot(node_type, e.child_index)) {
+        push_leaf(child);
+        return *this;
+      }
+    }
+    node = child;
   }
   UNODB_DETAIL_CANNOT_HAPPEN();
 }
@@ -2007,9 +2034,16 @@ db<Key, Value>::iterator::right_most_traversal(detail::node_ptr node) {
     // recursive descent.
     auto* const inode{node.ptr<inode_type*>()};
     const auto e =
-        inode->last(node_type);  // first child of current internal node
+        inode->last(node_type);  // last child of current internal node
     push(e);                     // push the entry on the stack.
-    node = inode->get_child(node_type, e.child_index);  // get the child
+    const auto child = inode->get_child(node_type, e.child_index);
+    if constexpr (art_policy::can_eliminate_leaf) {
+      if (inode->is_value_in_slot(node_type, e.child_index)) {
+        push_leaf(child);
+        return *this;
+      }
+    }
+    node = child;
   }
   UNODB_DETAIL_CANNOT_HAPPEN();
 }
