@@ -1572,6 +1572,26 @@ class basic_inode_impl : public ArtPolicy::header_type {
     // LCOV_EXCL_STOP
   }
 
+  /// Clear value bitmask bit, dispatching by type.
+  constexpr void clear_value_bit(
+      node_type type, std::uint8_t child_i) noexcept {
+    switch (type) {
+      case node_type::I4:
+        return static_cast<inode4_type*>(this)->clear_value_bit(child_i);
+      case node_type::I16:
+        return static_cast<inode16_type*>(this)->clear_value_bit(child_i);
+      case node_type::I48:
+        return static_cast<inode48_type*>(this)->clear_value_bit(child_i);
+      case node_type::I256:
+        return static_cast<inode256_type*>(this)->clear_value_bit(child_i);
+      // LCOV_EXCL_START
+      case node_type::LEAF:
+        UNODB_DETAIL_CANNOT_HAPPEN();
+    }
+    UNODB_DETAIL_CANNOT_HAPPEN();
+    // LCOV_EXCL_STOP
+  }
+
   /// Remove child entry without reclaiming the child, dispatching by type.
   ///
   /// \param type Current node type

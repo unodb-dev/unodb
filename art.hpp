@@ -1251,10 +1251,11 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
             auto& new_inode =
                 *const_cast<detail::node_ptr&>(*vp)
                      .template ptr<typename INode::larger_derived_type*>();
-            auto* const slot = unwrap_fake_critical_section(
-                new_inode.find_child(key_byte).second);
+            auto [ci, slotraw] = new_inode.find_child(key_byte);
+            auto* const slot = unwrap_fake_critical_section(slotraw);
             UNODB_DETAIL_ASSERT(slot != nullptr);
             *slot = db_instance.build_chain(k, *slot, chain_start);
+            new_inode.clear_value_bit(ci);
           }
         }
         return child;
@@ -1266,10 +1267,14 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
       const auto chain_start =
           static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
       if (chain_start < k.size()) {
-        auto* const slot = unwrap_fake_critical_section(
-            UNODB_DETAIL_RELOAD(inode).find_child(key_byte).second);
+        auto [ci2, slotraw2] =
+            UNODB_DETAIL_RELOAD(inode).find_child(key_byte);
+        auto* const slot = unwrap_fake_critical_section(slotraw2);
         UNODB_DETAIL_ASSERT(slot != nullptr);
         *slot = db_instance.build_chain(k, *slot, chain_start);
+        if constexpr (art_policy<Key, Value>::can_eliminate_leaf) {
+          UNODB_DETAIL_RELOAD(inode).clear_value_bit(ci2);
+        }
       }
     }
     return child;
@@ -1318,10 +1323,14 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
     const auto chain_start =
         static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
     if (chain_start < k.size()) {
-      auto* const slot = unwrap_fake_critical_section(
-          UNODB_DETAIL_RELOAD(inode).find_child(key_byte).second);
+      auto [ci, slotraw] =
+          UNODB_DETAIL_RELOAD(inode).find_child(key_byte);
+      auto* const slot = unwrap_fake_critical_section(slotraw);
       UNODB_DETAIL_ASSERT(slot != nullptr);
       *slot = db_instance.build_chain(k, *slot, chain_start);
+      if constexpr (art_policy<Key, Value>::can_eliminate_leaf) {
+        UNODB_DETAIL_RELOAD(inode).clear_value_bit(ci);
+      }
     }
   }
 
@@ -1650,11 +1659,14 @@ bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
               static_cast<tree_depth_type>(depth + shared + 1);
           if (chain_start < insert_key.size()) {
             auto* const new_inode = node->template ptr<inode_type*>();
-            auto* const slot =
-                new_inode->find_child(node_type::I4, remaining_key[shared])
-                    .second;
+            auto [ci3, slotraw3] =
+                new_inode->find_child(node_type::I4, remaining_key[shared]);
+            auto* const slot = unwrap_fake_critical_section(slotraw3);
             UNODB_DETAIL_ASSERT(slot != nullptr);
             *slot = build_chain(insert_key, *slot, chain_start);
+            if constexpr (art_policy::can_eliminate_leaf) {
+              new_inode->clear_value_bit(node_type::I4, ci3);
+            }
           }
         }
 
@@ -1696,12 +1708,15 @@ bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
             static_cast<tree_depth_type>(depth + shared_prefix_len + 1);
         if (chain_start < insert_key.size()) {
           auto* const new_inode = node->template ptr<inode_type*>();
-          auto* const slot =
-              new_inode
-                  ->find_child(node_type::I4, remaining_key[shared_prefix_len])
-                  .second;
+          auto [ci4, slotraw4] =
+              new_inode->find_child(node_type::I4,
+                                    remaining_key[shared_prefix_len]);
+          auto* const slot = unwrap_fake_critical_section(slotraw4);
           UNODB_DETAIL_ASSERT(slot != nullptr);
           *slot = build_chain(insert_key, *slot, chain_start);
+          if constexpr (art_policy::can_eliminate_leaf) {
+            new_inode->clear_value_bit(node_type::I4, ci4);
+          }
         }
       }
       return true;
@@ -1716,11 +1731,11 @@ bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
     if (node == nullptr) return true;
 
     if constexpr (art_policy::can_eliminate_leaf) {
-      // The returned slot might hold a packed value (duplicate key).
-      // For full_key_in_inode_path, matching all dispatch bytes means
-      // the keys are identical.
       const auto [ci, _] = inode->find_child(node_type, remaining_key[0]);
       if (inode->is_value_in_slot(node_type, ci)) {
+        // ART prefix restriction: no key is a prefix of another.
+        // If we reached a value, the entire key must be consumed.
+        UNODB_DETAIL_ASSERT(remaining_key.size() <= 1);
         return false;  // duplicate key
       }
     }
