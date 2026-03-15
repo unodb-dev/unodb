@@ -1546,6 +1546,14 @@ bool db<Key, Value>::insert_internal_fixed(art_key_type insert_key,
 
       if (node == nullptr) return true;
 
+      if constexpr (art_policy::can_eliminate_leaf) {
+        // The child slot may hold a packed value (not an inode).
+        const auto [ci, _] = inode->find_child(node_type, remaining_key[0]);
+        if (inode->is_value_in_slot(node_type, ci)) {
+          return false;  // duplicate key
+        }
+      }
+
       ++depth;
       remaining_key.shift_right(1);
     }
