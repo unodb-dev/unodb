@@ -1197,7 +1197,7 @@ class [[nodiscard]] inode_256 final : public inode_256_parent<Key, Value> {
   }
 };
 
-static_assert(sizeof(inode_256<std::uint64_t, unodb::value_view>) == 2096);
+static_assert(sizeof(inode_256<std::uint64_t, unodb::value_view>) == 2064);
 
 /// Unwrap fake critical section wrapper to access underlying node pointer.
 ///
