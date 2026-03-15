@@ -2770,8 +2770,13 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
       dump_byte(os, keys.byte_array[i]);
     if (recursive) {
       os << ", children:  \n";
-      for (std::uint8_t i = 0; i < children_count_; i++)
-        ArtPolicy::dump_node(os, children[i].load());
+      for (std::uint8_t i = 0; i < children_count_; i++) {
+        if (is_value_in_slot(i)) {
+          os << "  [" << static_cast<unsigned>(i) << "] packed value\n";
+        } else {
+          ArtPolicy::dump_node(os, children[i].load());
+        }
+      }
     }
   }
 
@@ -3404,8 +3409,13 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
       dump_byte(os, keys.byte_array[i]);
     if (recursive) {
       os << ", children:  \n";
-      for (std::uint8_t i = 0; i < children_count_; ++i)
-        ArtPolicy::dump_node(os, children[i].load());
+      for (std::uint8_t i = 0; i < children_count_; ++i) {
+        if (is_value_in_slot(i)) {
+          os << "  [" << static_cast<unsigned>(i) << "] packed value\n";
+        } else {
+          ArtPolicy::dump_node(os, children[i].load());
+        }
+      }
     }
   }
 
@@ -4071,8 +4081,13 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
         UNODB_DETAIL_ASSERT(children.pointer_array[child_indexes[i]] !=
                             nullptr);
         if (recursive) {
-          ArtPolicy::dump_node(os,
-                               children.pointer_array[child_indexes[i]].load());
+          const auto ci = child_indexes[i].load();
+          if (is_value_in_slot_by_ci(ci)) {
+            os << "packed value\n";
+          } else {
+            ArtPolicy::dump_node(
+                os, children.pointer_array[ci].load());
+          }
         }
 #ifndef NDEBUG
         ++actual_children_count;
@@ -4627,12 +4642,16 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
                                                 bool recursive) const {
     parent_class::dump(os, recursive);
     os << ", key bytes & children:\n";
-    for_each_child([&os, recursive](unsigned i, node_ptr child) {
+    for_each_child([&os, recursive, this](unsigned i, node_ptr child) {
       os << ' ';
       dump_byte(os, static_cast<std::byte>(i));
       os << ' ';
       if (recursive) {
-        ArtPolicy::dump_node(os, child);
+        if (is_value_in_slot(static_cast<std::uint8_t>(i))) {
+          os << "packed value\n";
+        } else {
+          ArtPolicy::dump_node(os, child);
+        }
       }
     });
   }
