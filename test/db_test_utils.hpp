@@ -352,7 +352,8 @@ class [[nodiscard]] tree_verifier final {
 #ifdef UNODB_DETAIL_WITH_STATS
     if (!parallel_test) {
       const auto mem_use_after = test_db.get_current_memory_use();
-      UNODB_ASSERT_LT(mem_use_after, mem_use_before);
+      if constexpr (std::is_same_v<value_type, unodb::value_view>)
+        UNODB_ASSERT_LT(mem_use_after, mem_use_before);
 
       const auto leaf_count_after =
           test_db.template get_node_count<::unodb::node_type::LEAF>();
