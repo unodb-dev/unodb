@@ -1547,10 +1547,12 @@ bool db<Key, Value>::insert_internal_fixed(art_key_type insert_key,
       if (node == nullptr) return true;
 
       if constexpr (art_policy::can_eliminate_leaf) {
-        // The child slot may hold a packed value (not an inode).
         const auto [ci, _] = inode->find_child(node_type, remaining_key[0]);
         if (inode->is_value_in_slot(node_type, ci)) {
-          return false;  // duplicate key
+          // FIXME(#707): chain split not implemented. Two keys share
+          // a chain prefix but diverge deeper. Need to replace the
+          // packed value with a new I4 holding both values.
+          UNODB_DETAIL_CANNOT_HAPPEN();
         }
       }
 
@@ -1619,9 +1621,9 @@ bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
 
   while (true) {
     if constexpr (art_policy::can_eliminate_leaf) {
-      // Value-in-slot: no LEAF nodes exist. If we reach here after
-      // add_or_choose_subtree returned a child pointer, the child
-      // is always an inode (values are detected by bitmask above).
+      // Value-in-slot: no LEAF nodes in the tree. The insert loop
+      // only descends through inodes. Packed values are detected
+      // by is_value_in_slot after add_or_choose_subtree above.
     } else {
       const auto node_type = node->type();
       if (node_type == node_type::LEAF) {
@@ -1741,10 +1743,9 @@ bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
     if constexpr (art_policy::can_eliminate_leaf) {
       const auto [ci, _] = inode->find_child(node_type, remaining_key[0]);
       if (inode->is_value_in_slot(node_type, ci)) {
-        // ART prefix restriction: no key is a prefix of another.
-        // If we reached a value, the entire key must be consumed.
-        UNODB_DETAIL_ASSERT(remaining_key.size() <= 1);
-        return false;  // duplicate key
+        // The chain encoded the full key. Reaching a packed value
+        // means the key already exists (duplicate).
+        return false;
       }
     }
 
