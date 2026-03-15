@@ -655,7 +655,7 @@ struct basic_art_policy final {
   /// Whether the full key is encoded in the inode path (prefix + dispatch
   /// bytes at every level).  True for key_view keys with small values.
   static constexpr bool full_key_in_inode_path =
-      std::is_same_v<Key, key_view> && value_in_slot;
+      std::is_same_v<Key, key_view>;
 
   /// Whether the key can be omitted from the leaf.
   static constexpr bool can_eliminate_key_in_leaf =

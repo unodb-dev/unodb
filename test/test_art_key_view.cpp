@@ -36,14 +36,11 @@ class ARTKeyViewCorrectnessTest : public ::testing::Test {
       return n;
   }
 
-  /// Expected I4 count: returns leaf_n for leaf-based, vis_n for value-in-slot.
-  /// Value-in-slot trees pre-build chains on first insert, so I4 counts differ.
-  static constexpr std::uint64_t I4(std::uint64_t leaf_n,
-                                    std::uint64_t vis_n) {
-    if constexpr (!std::is_same_v<typename Db::value_type, unodb::value_view>)
-      return vis_n;
-    else
-      return leaf_n;
+  /// Expected I4 count: all key_view types build chains via build_chain,
+  /// so I4 counts are the same regardless of value type.
+  static constexpr std::uint64_t I4(std::uint64_t /*leaf_n*/,
+                                    std::uint64_t chain_n) {
+    return chain_n;
   }
 };
 

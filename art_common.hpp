@@ -55,7 +55,7 @@ struct no_key_tag {};
 /// key_view and Value fits in a pointer-sized slot.
 template <typename Key, typename Value>
 inline constexpr bool can_eliminate_key_in_leaf_v =
-    std::is_same_v<Key, key_view> && (sizeof(Value) <= sizeof(std::uint64_t));
+    std::is_same_v<Key, key_view>;
 
 /// The Key type used for the leaf template.  Maps to no_key_tag when
 /// the key can be eliminated, otherwise passes Key through unchanged.
