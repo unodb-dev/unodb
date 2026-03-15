@@ -2182,6 +2182,9 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     UNODB_DETAIL_ASSERT(this->is_min_size());
     const std::uint8_t child_to_leave = (child_to_delete == 0) ? 1U : 0U;
     const auto child_ptr = children[child_to_leave].load();
+    if constexpr (ArtPolicy::can_eliminate_leaf) {
+      if (is_value_in_slot(child_to_leave)) return false;
+    }
     if (child_ptr.type() == node_type::LEAF) {
       // For keyless leaves, collapsing would lose key bytes encoded
       // in this inode's prefix+dispatch.  Keep the chain intact.
@@ -2457,6 +2460,15 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     --children_count_;
     this->children_count = children_count_;
 
+    // Shift bitmask bits to match shifted children array.
+    if constexpr (ArtPolicy::can_eliminate_leaf) {
+      const auto above =
+          static_cast<std::uint8_t>(value_bitmask >> (child_index + 1));
+      const auto below =
+          static_cast<std::uint8_t>(value_bitmask & ((1U << child_index) - 1));
+      value_bitmask = static_cast<std::uint8_t>(below | (above << child_index));
+    }
+
     UNODB_DETAIL_ASSERT(std::is_sorted(
         keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
   }
@@ -2484,7 +2496,9 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
     const std::uint8_t child_to_leave = (child_to_delete == 0) ? 1U : 0U;
     const auto child_to_leave_ptr = children[child_to_leave].load();
-    if (child_to_leave_ptr.type() != node_type::LEAF) {
+    const bool remaining_is_value =
+        ArtPolicy::can_eliminate_leaf && is_value_in_slot(child_to_leave);
+    if (!remaining_is_value && child_to_leave_ptr.type() != node_type::LEAF) {
       auto* const inode_to_leave_ptr{
           child_to_leave_ptr.template ptr<inode_type*>()};
       inode_to_leave_ptr->get_key_prefix().prepend(
@@ -3145,6 +3159,15 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     --children_count_;
     this->children_count = children_count_;
 
+    // Shift bitmask bits to match shifted children array.
+    if constexpr (ArtPolicy::can_eliminate_leaf) {
+      const auto above =
+          static_cast<std::uint16_t>(value_bitmask >> (child_index + 1));
+      const auto below =
+          static_cast<std::uint16_t>(value_bitmask & ((1U << child_index) - 1));
+      value_bitmask = static_cast<std::uint16_t>(below | (above << child_index));
+    }
+
     UNODB_DETAIL_ASSERT(std::is_sorted(
         keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
   }
@@ -3774,6 +3797,9 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   ///
   /// \param child_index Key byte of child to remove
   constexpr void remove_child_entry(std::uint8_t child_index) noexcept {
+    if constexpr (ArtPolicy::can_eliminate_leaf) {
+      clear_value_bit(child_index);
+    }
     children.pointer_array[child_indexes[child_index]] = node_ptr{nullptr};
     child_indexes[child_index] = empty_child;
     --this->children_count;
@@ -4279,7 +4305,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
       for (unsigned j = 0; j < 256; ++j) {
         const auto ci = source_node.child_indexes[j].load();
         if (ci != inode48_type::empty_child &&
-            source_node.is_value_in_slot(ci)) {
+            source_node.is_value_in_slot_by_ci(ci)) {
           set_value_bit(static_cast<std::uint8_t>(j));
         }
       }
@@ -4345,6 +4371,9 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   ///
   /// \param child_index Key byte of child to remove
   constexpr void remove_child_entry(std::uint8_t child_index) noexcept {
+    if constexpr (ArtPolicy::can_eliminate_leaf) {
+      clear_value_bit(child_index);
+    }
     children[child_index] = node_ptr{nullptr};
     --this->children_count;
   }

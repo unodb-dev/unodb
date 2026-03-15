@@ -1830,23 +1830,30 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
     if (child_ptr == nullptr) return false;
 
     const auto child_val{child_ptr->load()};
-    if (child_val.type() != node_type::LEAF) {
-      stack.push_back({slot, child_i});
-      slot = detail::unwrap_fake_critical_section(child_ptr);
-      remaining_key.shift_right(1);
-      continue;
-    }
-
-    // Found a leaf — verify it matches.
-    auto* const leaf{child_val.template ptr<leaf_type*>()};
-    if constexpr (art_policy::can_eliminate_key_in_leaf) {
-      // Keyless leaf: verify all key bytes were consumed by the inode
-      // path.  remaining_key[0] is the dispatch byte (already matched
-      // by find_child).  Any additional bytes mean the search key is
-      // longer than the stored key.
+    if constexpr (art_policy::can_eliminate_leaf) {
+      if (!inode->is_value_in_slot(ntype, child_i)) {
+        stack.push_back({slot, child_i});
+        slot = detail::unwrap_fake_critical_section(child_ptr);
+        remaining_key.shift_right(1);
+        continue;
+      }
+      // Found a packed value — verify key bytes consumed.
       if (remaining_key.size() != 1) return false;
     } else {
-      if (!leaf->matches(remove_key)) return false;
+      if (child_val.type() != node_type::LEAF) {
+        stack.push_back({slot, child_i});
+        slot = detail::unwrap_fake_critical_section(child_ptr);
+        remaining_key.shift_right(1);
+        continue;
+      }
+
+      // Found a leaf — verify it matches.
+      auto* const leaf{child_val.template ptr<leaf_type*>()};
+      if constexpr (art_policy::can_eliminate_key_in_leaf) {
+        if (remaining_key.size() != 1) return false;
+      } else {
+        if (!leaf->matches(remove_key)) return false;
+      }
     }
 
     // --- Upward pass ---
@@ -1865,6 +1872,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
     // Single-child inode (chain node).  Reclaim leaf and chain,
     // then walk up cleaning any further empty chains.
     if constexpr (!art_policy::can_eliminate_leaf) {
+      auto* const leaf{child_val.template ptr<leaf_type*>()};
       const auto rl{art_policy::reclaim_leaf_on_scope_exit(leaf, *this)};
     }
     {
@@ -1900,7 +1908,9 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
         auto* const pi4{parent_val.template ptr<inode_4*>()};
         const auto remaining_iter = pi4->begin();
         const auto remaining = pi4->get_child(0);
-        if (remaining.type() != node_type::LEAF) {
+        const bool remaining_is_value =
+            art_policy::can_eliminate_leaf && pi4->is_value_in_slot(0);
+        if (!remaining_is_value && remaining.type() != node_type::LEAF) {
           auto* const remaining_inode{remaining.template ptr<inode_type*>()};
           const auto child_prefix_len =
               remaining_inode->get_key_prefix().length();
