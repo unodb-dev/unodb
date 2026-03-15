@@ -3047,7 +3047,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
       for (unsigned j = 0; j <= i; ++j) {
         const auto sci = source_node.child_indexes[j].load();
         if (sci != inode48_type::empty_child) {
-          if (source_node.is_value_in_slot(sci))
+          if (source_node.is_value_in_slot_by_ci(sci))
             set_value_bit(static_cast<std::uint8_t>(next_child));
           ++next_child;
           if (next_child == basic_inode_16::capacity) break;
