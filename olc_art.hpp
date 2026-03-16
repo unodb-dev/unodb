@@ -436,6 +436,7 @@ class olc_db final {
     [[nodiscard]] bool valid() const noexcept { return !stack_.empty(); }
 
     /// Return stack entries bottom-to-top (test only).
+    // FIXME: move to test utils or #ifdef guard before PR
     [[nodiscard]] std::vector<stack_entry> test_only_stack() const {
       auto tmp = stack_;
       std::vector<stack_entry> result;
@@ -512,7 +513,7 @@ class olc_db final {
       // each of them.
       const auto& e = top();
       const auto n = static_cast<std::size_t>(
-          (e.node.type() != node_type::LEAF) ? e.prefix.length() + 1 : 0);
+          (e.child_index != 0xFF && e.node.type() != node_type::LEAF) ? e.prefix.length() + 1 : 0);
       keybuf_[keybuf_ix_].pop(n);
       stack_.pop();
     }
