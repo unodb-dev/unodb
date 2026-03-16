@@ -3314,6 +3314,11 @@ auto olc_db<Key, Value>::iterator::get_val() const noexcept
   UNODB_DETAIL_ASSERT(valid());  // by contract
   const auto& e = stack_.top();
   const auto& node = e.node;
+  if constexpr (art_policy::can_eliminate_leaf) {
+    if (e.child_index == 0xFF) {
+      return art_policy::unpack_value(node);
+    }
+  }
   UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);      // On a leaf.
   const auto* const leaf{node.template ptr<leaf_type*>()};  // current leaf.
   if constexpr (std::is_same_v<Value, unodb::value_view>)
