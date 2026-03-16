@@ -108,13 +108,27 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, EncodedTextKeys) {
   const auto val = unodb::test::get_test_value<TypeParam>(0);
   verifier.insert(enc.reset().encode_text("").get_key_view(), val);
   verifier.insert(enc.reset().encode_text("a").get_key_view(), val);
+  // Dump tree to verify structure before any get/scan.
+  {
+    std::ostringstream oss;
+    verifier.get_db().dump(oss);
+    std::cerr << "=== tree after 2 inserts ===\n" << oss.str() << "\n";
+  }
+  // Try get on the first key.
+  auto k = enc.reset().encode_text("").get_key_view();
+  std::cerr << "key len=" << k.size() << " bytes:";
+  for (std::size_t i = 0; i < k.size(); ++i)
+    fprintf(stderr, " %02x", static_cast<unsigned>(k[i]));
+  fprintf(stderr, "\n");
+  auto r = verifier.get_db().get(k);
+  std::cerr << "get returned\n";
   verifier.insert(enc.reset().encode_text("abba").get_key_view(), val);
   verifier.insert(enc.reset().encode_text("banana").get_key_view(), val);
   verifier.insert(enc.reset().encode_text("camel").get_key_view(), val);
   verifier.insert(enc.reset().encode_text("yellow").get_key_view(), val);
   verifier.insert(enc.reset().encode_text("ostritch").get_key_view(), val);
   verifier.insert(enc.reset().encode_text("zebra").get_key_view(), val);
-  verifier.check_present_values();  // checks keys and key ordering.
+  verifier.check_present_values();
 }
 
 // ===================================================================
