@@ -25,6 +25,11 @@ namespace {
 using unodb::detail::thread_syncs;
 using unodb::test::test_values;
 
+/// For key_view types, build_chain creates 1 chain I4 per 8-byte key.
+template <class Db>
+constexpr std::uint64_t chain_i4_per_key =
+    std::is_same_v<typename Db::key_type, unodb::key_view> ? 1 : 0;
+
 template <class Db>
 class ARTCorrectnessTest : public ::testing::Test {
  public:
@@ -48,8 +53,9 @@ UNODB_TYPED_TEST(ARTCorrectnessTest, SingleNodeTreeEmptyValue) {
   verifier.check_absent_keys({0});
 
 #ifdef UNODB_DETAIL_WITH_STATS
-  verifier.assert_node_counts({1, 0, 0, 0, 0});
-  verifier.assert_growing_inodes({0, 0, 0, 0});
+  constexpr auto ci4 = chain_i4_per_key<TypeParam>;
+  verifier.assert_node_counts({1, ci4, 0, 0, 0});
+  verifier.assert_growing_inodes({ci4, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
