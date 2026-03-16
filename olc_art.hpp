@@ -2720,6 +2720,14 @@ bool olc_db<Key, Value>::iterator::try_next() {
     const auto& e = top();
     const auto node{e.node};  // the node on the top of the stack.
     UNODB_DETAIL_ASSERT(node != nullptr);
+    // Packed values (value-in-slot) are pushed with child_index=0xFF.
+    // They have no valid lock — just pop and continue.
+    if constexpr (art_policy::can_eliminate_leaf) {
+      if (e.child_index == 0xFF) {
+        pop();
+        continue;
+      }
+    }
     auto node_critical_section(
         node_ptr_lock(node).rehydrate_read_lock(e.version));
     // Restart check (fails if node was modified after it was pushed
@@ -2807,6 +2815,12 @@ bool olc_db<Key, Value>::iterator::try_prior() {
     const auto& e = top();
     const auto node{e.node};  // the node on the top of the stack.
     UNODB_DETAIL_ASSERT(node != nullptr);
+    if constexpr (art_policy::can_eliminate_leaf) {
+      if (e.child_index == 0xFF) {
+        pop();
+        continue;
+      }
+    }
     auto node_critical_section(
         node_ptr_lock(node).rehydrate_read_lock(e.version));
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))
