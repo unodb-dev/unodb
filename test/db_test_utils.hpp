@@ -653,6 +653,12 @@ class [[nodiscard]] tree_verifier final {
       } else {
         const unodb::key_view prev{prev_copy};
         UNODB_EXPECT_LT(unodb::detail::compare(prev, kv), 0);
+        if (unodb::detail::compare(prev, kv) == 0 && n < 20) {
+          fprintf(stderr, "DUP at n=%zu kv.size=%zu bytes:", n, kv.size());
+          for (size_t i = 0; i < kv.size() && i < 16; i++)
+            fprintf(stderr, " %02x", static_cast<unsigned>(kv[i]));
+          fprintf(stderr, "\n");
+        }
         prev_copy.assign(kv.begin(), kv.end());
       }
       n++;

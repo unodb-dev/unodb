@@ -2685,17 +2685,16 @@ template <typename Key, typename Value>
 typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::next() {
   const auto node = current_node();
   if (node != nullptr) {
-    UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);      // On a leaf.
-    const auto* const leaf{node.template ptr<leaf_type*>()};  // current leaf
-    // TODO(thompsonbry) : variable length keys: We need a temporary
-    // copy of the key since actions on the stack will make it
-    // impossible to reconstruct the key.  So maybe we have two
-    // internal buffers on the iterator to support this?
+    const bool is_packed =
+        art_policy::can_eliminate_leaf &&
+        stack_.top().child_index == static_cast<std::uint8_t>(0xFFU);
     art_key_type akey{[&]() -> art_key_type {
       if constexpr (art_policy::full_key_in_inode_path) {
         return art_key_type{keybuf_[keybuf_ix_].get_key_view()};
       } else {
-        return leaf->get_key();
+        UNODB_DETAIL_ASSERT(!is_packed);
+        UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
+        return node.template ptr<leaf_type*>()->get_key();
       }
     }()};
     if (UNODB_DETAIL_LIKELY(try_next())) return *this;
@@ -2779,17 +2778,16 @@ template <typename Key, typename Value>
 typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::prior() {
   const auto node = current_node();
   if (node != nullptr) {
-    UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);      // On a leaf.
-    const auto* const leaf{node.template ptr<leaf_type*>()};  // current leaf
-    // TODO(thompsonbry) : variable length keys: We need a temporary
-    // copy of the key since actions on the stack will make it
-    // impossible to reconstruct the key.  So maybe we have two
-    // internal buffers on the iterator to support this?
+    const bool is_packed =
+        art_policy::can_eliminate_leaf &&
+        stack_.top().child_index == static_cast<std::uint8_t>(0xFFU);
     art_key_type akey{[&]() -> art_key_type {
       if constexpr (art_policy::full_key_in_inode_path) {
         return art_key_type{keybuf_[keybuf_ix_].get_key_view()};
       } else {
-        return leaf->get_key();
+        UNODB_DETAIL_ASSERT(!is_packed);
+        UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
+        return node.template ptr<leaf_type*>()->get_key();
       }
     }()};
     if (UNODB_DETAIL_LIKELY(try_prior())) return *this;
