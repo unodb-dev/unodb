@@ -22,6 +22,16 @@ using unodb::test::test_values;
 template <class Db>
 constexpr std::uint64_t chain_i4_per_key =
     std::is_same_v<typename Db::key_type, unodb::key_view> ? 1 : 0;
+
+/// OLC remove collapses chain I4s during prefix merge; db/mutex_db don't.
+template <class Db>
+constexpr std::uint64_t olc_chain_collapse =
+    (std::is_same_v<typename Db::key_type, unodb::key_view> &&
+     std::is_same_v<Db, unodb::olc_db<typename Db::key_type,
+                                       typename Db::value_type>>)
+        ? 1
+        : 0;
+
 template <class Db>
 class ARTCorrectnessTest : public ::testing::Test {
  public:
@@ -429,8 +439,9 @@ UNODB_TYPED_TEST(ARTCorrectnessTest, Node4DeleteKeyPrefixMerge) {
   verifier.check_absent_keys({0x90AA, 0x8003});
 #ifdef UNODB_DETAIL_WITH_STATS
   verifier.assert_key_prefix_splits(1);
-  verifier.assert_node_counts({2, 1 + ci4, 0, 0, 0});
-  verifier.assert_shrinking_inodes({1, 0, 0, 0});
+  constexpr auto oc = olc_chain_collapse<TypeParam>;
+  verifier.assert_node_counts({2, 1 + ci4 - oc, 0, 0, 0});
+  verifier.assert_shrinking_inodes({1 + oc, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 UNODB_TYPED_TEST(ARTCorrectnessTest, Node4DeleteKeyPrefixMerge2) {
@@ -516,8 +527,8 @@ UNODB_TYPED_TEST(ARTCorrectnessTest, Node16KeyPrefixMerge) {
   verifier.check_present_values();
   verifier.check_absent_keys({9, 16, 0x1020});
 #ifdef UNODB_DETAIL_WITH_STATS
-  verifier.assert_shrinking_inodes({1, 0, 0, 0});
-  verifier.assert_node_counts({5, ci4, 1, 0, 0});
+  verifier.assert_shrinking_inodes({1 + olc_chain_collapse<TypeParam>, 0, 0, 0});
+  verifier.assert_node_counts({5, ci4 - olc_chain_collapse<TypeParam>, 1, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 UNODB_TYPED_TEST(ARTCorrectnessTest, Node48DeleteBeginningMiddleEnd) {
@@ -591,8 +602,8 @@ UNODB_TYPED_TEST(ARTCorrectnessTest, Node48KeyPrefixMerge) {
   verifier.check_present_values();
   verifier.check_absent_keys({9, 0x2010, 28});
 #ifdef UNODB_DETAIL_WITH_STATS
-  verifier.assert_shrinking_inodes({1, 0, 0, 0});
-  verifier.assert_node_counts({17, ci4, 0, 1, 0});
+  verifier.assert_shrinking_inodes({1 + olc_chain_collapse<TypeParam>, 0, 0, 0});
+  verifier.assert_node_counts({17, ci4 - olc_chain_collapse<TypeParam>, 0, 1, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 UNODB_TYPED_TEST(ARTCorrectnessTest, Node256DeleteBeginningMiddleEnd) {
@@ -607,7 +618,8 @@ UNODB_TYPED_TEST(ARTCorrectnessTest, Node256DeleteBeginningMiddleEnd) {
   verifier.check_absent_keys({0, 1, 180, 256});
 #ifdef UNODB_DETAIL_WITH_STATS
   constexpr auto ci4 = chain_i4_per_key<TypeParam>;
-  verifier.assert_node_counts({253, ci4, 0, 0, 1});
+  constexpr auto oc = olc_chain_collapse<TypeParam>;
+  verifier.assert_node_counts({253, ci4 - oc, 0, 0, 1});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 UNODB_TYPED_TEST(ARTCorrectnessTest, Node256ShrinkToNode48DeleteMiddle) {
@@ -667,8 +679,8 @@ UNODB_TYPED_TEST(ARTCorrectnessTest, Node256KeyPrefixMerge) {
   verifier.check_present_values();
   verifier.check_absent_keys({9, 0x2010, 60});
 #ifdef UNODB_DETAIL_WITH_STATS
-  verifier.assert_shrinking_inodes({1, 0, 0, 0});
-  verifier.assert_node_counts({49, ci4, 0, 0, 1});
+  verifier.assert_shrinking_inodes({1 + olc_chain_collapse<TypeParam>, 0, 0, 0});
+  verifier.assert_node_counts({49, ci4 - olc_chain_collapse<TypeParam>, 0, 0, 1});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 UNODB_TYPED_TEST(ARTCorrectnessTest, MissingKeyWithPresentPrefix) {
