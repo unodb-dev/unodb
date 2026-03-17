@@ -1708,9 +1708,17 @@ template <typename Key, typename Value, class INode>
             std::move(node_critical_section)};
         if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
         inode.remove(child_i, db_instance);
+      } else if constexpr (std::is_same_v<INode, olc_inode_4<Key, Value>>) {
+        // Min-size I4 with packed value — don't collapse for now (D3).
+        // Just remove the child, leaving I4 with 1 child.
+        if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+          return {};
+        const optimistic_lock::write_guard node_guard{
+            std::move(node_critical_section)};
+        if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
+        inode.remove(child_i, db_instance);
       } else {
-        // Min-size inode with packed value child. For now, just remove
-        // without shrinking (D3: suboptimal but correct).
+        // Larger inode at min_size with packed value — shrink.
         if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
           return {};
         const optimistic_lock::write_guard node_guard{
