@@ -2044,7 +2044,10 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
       return {};  // LCOV_EXCL_LINE
     }
 
-    if constexpr (art_policy::can_eliminate_key_in_leaf) {
+    if constexpr (art_policy::can_eliminate_leaf) {
+      root = build_chain(k, art_policy::pack_value(v), tree_depth_type{0});
+      if (cached_leaf) cached_leaf.reset();
+    } else if constexpr (art_policy::can_eliminate_key_in_leaf) {
       root = build_chain(
           k, detail::olc_node_ptr{cached_leaf.release(), node_type::LEAF},
           tree_depth_type{0});
