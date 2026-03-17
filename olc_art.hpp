@@ -1698,13 +1698,26 @@ template <typename Key, typename Value, class INode>
   if constexpr (olc_art_policy<Key, Value>::can_eliminate_leaf) {
     if (inode.is_value_in_slot(child_i)) {
       *child_in_parent = nullptr;
+      const auto is_node_min_size{inode.is_min_size()};
       detail::sync(detail::sync_before_remove_write_guard);
-      if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
-        return {};
-      const optimistic_lock::write_guard node_guard{
-          std::move(node_critical_section)};
-      if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
-      inode.remove(child_i, db_instance);
+
+      if (UNODB_DETAIL_LIKELY(!is_node_min_size)) {
+        if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+          return {};
+        const optimistic_lock::write_guard node_guard{
+            std::move(node_critical_section)};
+        if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
+        inode.remove(child_i, db_instance);
+      } else {
+        // Min-size inode with packed value child. For now, just remove
+        // without shrinking (D3: suboptimal but correct).
+        if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+          return {};
+        const optimistic_lock::write_guard node_guard{
+            std::move(node_critical_section)};
+        if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
+        inode.remove(child_i, db_instance);
+      }
       return true;
     }
   }
