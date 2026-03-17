@@ -3593,6 +3593,11 @@ bool olc_db<Key, Value>::try_collapse_i4(
   i4->remove_child_entry(del_ci);
   const auto rem_iter = i4->begin();
   const auto rem = i4->get_child(0);
+  if constexpr (art_policy::can_eliminate_leaf) {
+    if (i4->is_value_in_slot(0)) {
+      return false;  // Remaining child is a packed value — can't collapse.
+    }
+  }
   if (rem.type() != node_type::LEAF) {
     auto* const ri{rem.template ptr<inode_type*>()};
     if (ri->get_key_prefix().length() + i4->get_key_prefix().length() + 1 >
