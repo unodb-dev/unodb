@@ -66,7 +66,6 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, TooLongKey) {
 }
 
 /// Minimal reproducer: two text keys into a keyless-leaf tree.
-/// Dumps the tree after each insert to diagnose CANNOT_HAPPEN.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, TwoKeyMinimalRepro) {
   TypeParam db;
   unodb::key_encoder enc;
@@ -74,30 +73,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, TwoKeyMinimalRepro) {
   auto k1 = enc.reset().encode_text("").get_key_view();
   UNODB_ASSERT_TRUE(db.insert(k1, 100));
 
-  // Dump after first insert.
-  {
-    std::ostringstream oss;
-    // TODO(#707): dump does not handle value-in-slot yet.
-    // db.dump(oss);
-    std::cerr << "=== After k1 (empty string), k1.size()=" << k1.size()
-              << " ===\n"
-              << oss.str();
-  }
-
   auto k2 = enc.reset().encode_text("a").get_key_view();
-  std::cerr << "k2.size()=" << k2.size() << " bytes:";
-  for (std::size_t i = 0; i < k2.size(); ++i)
-    std::cerr << " " << static_cast<unsigned>(k2[i]);
-  std::cerr << "\n";
-
   UNODB_ASSERT_TRUE(db.insert(k2, 200));
-
-  {
-    std::ostringstream oss;
-    // TODO(#707): dump does not handle value-in-slot yet.
-    // db.dump(oss);
-    std::cerr << "=== After k2 (\"a\") ===\n" << oss.str();
-  }
 }
 
 /// Unit test inserts several string keys with proper encoding and
@@ -108,20 +85,6 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, EncodedTextKeys) {
   const auto val = unodb::test::get_test_value<TypeParam>(0);
   verifier.insert(enc.reset().encode_text("").get_key_view(), val);
   verifier.insert(enc.reset().encode_text("a").get_key_view(), val);
-  // Dump tree to verify structure before any get/scan.
-  {
-    std::ostringstream oss;
-    verifier.get_db().dump(oss);
-    std::cerr << "=== tree after 2 inserts ===\n" << oss.str() << "\n";
-  }
-  // Try get on the first key.
-  auto k = enc.reset().encode_text("").get_key_view();
-  std::cerr << "key len=" << k.size() << " bytes:";
-  for (std::size_t i = 0; i < k.size(); ++i)
-    fprintf(stderr, " %02x", static_cast<unsigned>(k[i]));
-  fprintf(stderr, "\n");
-  auto r = verifier.get_db().get(k);
-  std::cerr << "get returned\n";
   verifier.insert(enc.reset().encode_text("abba").get_key_view(), val);
   verifier.insert(enc.reset().encode_text("banana").get_key_view(), val);
   verifier.insert(enc.reset().encode_text("camel").get_key_view(), val);
@@ -1790,17 +1753,24 @@ void verify_stack(typename Db::iterator& it, unodb::key_view expected_key) {
   auto stk = it.test_only_stack();
   ASSERT_GE(stk.size(), 1U) << "Stack must have at least a leaf";
 
-  EXPECT_EQ(stk.back().node.type(), unodb::node_type::LEAF)
-      << "Top of stack must be a leaf";
+  // For can_eliminate_leaf types, the top is a packed value sentinel (0xFF).
+  // For leaf types, the top is a LEAF node.
+  if (stk.back().child_index == static_cast<std::uint8_t>(0xFFU)) {
+    // Packed value — no type check possible.
+  } else {
+    EXPECT_EQ(stk.back().node.type(), unodb::node_type::LEAF)
+        << "Top of stack must be a leaf";
+  }
 
-  for (std::size_t i = 0; i + 1 < stk.size(); ++i) {
+  const auto inode_end = stk.size() - 1;
+  for (std::size_t i = 0; i < inode_end; ++i) {
     EXPECT_NE(stk[i].node.type(), unodb::node_type::LEAF)
         << "Entry " << i << " should be an inode";
   }
 
   // Reconstruct key from inode prefix+dispatch bytes.
   std::vector<std::byte> reconstructed;
-  for (std::size_t i = 0; i + 1 < stk.size(); ++i) {
+  for (std::size_t i = 0; i < inode_end; ++i) {
     auto prefix = stk[i].prefix.get_key_view();
     for (std::size_t j = 0; j < prefix.size(); ++j)
       reconstructed.push_back(prefix[j]);

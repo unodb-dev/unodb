@@ -1781,6 +1781,9 @@ template <typename Key, typename Value, class INode>
         *node_in_parent = detail::olc_node_ptr{
             smaller_node.release(),
             INode::smaller_derived_type::type};
+#ifdef UNODB_DETAIL_WITH_STATS
+        db_instance.template account_shrinking_inode<INode::type>();
+#endif  // UNODB_DETAIL_WITH_STATS
       }
       return true;
     }
