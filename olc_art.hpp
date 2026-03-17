@@ -1614,9 +1614,12 @@ olc_impl_helpers::add_or_choose_subtree(
               auto* const new_inode =
                   node_in_parent->load()
                       .template ptr<typename INode::larger_derived_type*>();
-              auto* const slot = new_inode->find_child(key_byte).second;
-              UNODB_DETAIL_ASSERT(slot != nullptr);
-              *slot = db_instance.build_chain(k, slot->load(), chain_start);
+              auto [ci_g, slot_g] = new_inode->find_child(key_byte);
+              UNODB_DETAIL_ASSERT(slot_g != nullptr);
+              *slot_g = db_instance.build_chain(k, slot_g->load(), chain_start);
+              if constexpr (detail::olc_art_policy<Key, Value>::can_eliminate_leaf) {
+                new_inode->clear_value_bit(ci_g);
+              }
             }
           }
 
@@ -1653,9 +1656,12 @@ olc_impl_helpers::add_or_choose_subtree(
       const auto chain_start =
           static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
       if (chain_start < k.size()) {
-        auto* const slot = inode.find_child(key_byte).second;
-        UNODB_DETAIL_ASSERT(slot != nullptr);
-        *slot = db_instance.build_chain(k, slot->load(), chain_start);
+        auto [ci_nf, slot_nf] = inode.find_child(key_byte);
+        UNODB_DETAIL_ASSERT(slot_nf != nullptr);
+        *slot_nf = db_instance.build_chain(k, slot_nf->load(), chain_start);
+        if constexpr (detail::olc_art_policy<Key, Value>::can_eliminate_leaf) {
+          inode.clear_value_bit(ci_nf);
+        }
       }
     }
   }
@@ -2215,11 +2221,13 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
             if (chain_start < k.size()) {
               auto* const new_i4 =
                   node_in_parent->load().template ptr<inode_type*>();
-              auto* const slot =
-                  new_i4->find_child(node_type::I4, remaining_key[shared])
-                      .second;
-              UNODB_DETAIL_ASSERT(slot != nullptr);
-              *slot = build_chain(k, slot->load(), chain_start);
+              auto [ci_lc, slot_lc] =
+                  new_i4->find_child(node_type::I4, remaining_key[shared]);
+              UNODB_DETAIL_ASSERT(slot_lc != nullptr);
+              *slot_lc = build_chain(k, slot_lc->load(), chain_start);
+              if constexpr (art_policy::can_eliminate_leaf) {
+                new_i4->clear_value_bit(node_type::I4, ci_lc);
+              }
             }
           }
         }
@@ -2269,13 +2277,14 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
           if (chain_start < k.size()) {
             auto* const new_i4 =
                 node_in_parent->load().template ptr<inode_type*>();
-            auto* const slot =
-                new_i4
-                    ->find_child(node_type::I4,
-                                 remaining_key[shared_prefix_length])
-                    .second;
-            UNODB_DETAIL_ASSERT(slot != nullptr);
-            *slot = build_chain(k, slot->load(), chain_start);
+            auto [ci_new, slot_new] =
+                new_i4->find_child(node_type::I4,
+                                 remaining_key[shared_prefix_length]);
+            UNODB_DETAIL_ASSERT(slot_new != nullptr);
+            *slot_new = build_chain(k, slot_new->load(), chain_start);
+            if constexpr (art_policy::can_eliminate_leaf) {
+              new_i4->clear_value_bit(node_type::I4, ci_new);
+            }
           }
         }
       }
