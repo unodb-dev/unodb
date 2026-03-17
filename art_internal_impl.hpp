@@ -798,8 +798,9 @@ struct basic_art_policy final {
       db_type& db_instance UNODB_DETAIL_LIFETIMEBOUND) noexcept {
     if constexpr (can_eliminate_leaf) {
       (void)child;
-      return leaf_reclaimable_ptr{nullptr,
-                                  LeafReclamator<db_type>{db_instance}};
+      (void)db_instance;
+      struct noop_guard {};
+      return noop_guard{};
     } else {
       if (child.type() == node_type::LEAF) {
         return leaf_reclaimable_ptr{child.template ptr<leaf_type*>(),

@@ -1267,6 +1267,7 @@ class [[nodiscard]] olc_inode_16 final
   using olc_db_leaf_unique_ptr_type = olc_db_leaf_unique_ptr<Key, Value>;
 
   using parent_class::parent_class;
+  using parent_class::init;
 
   void init(db_type& db_instance, inode_4_type& source_node,
             unodb::optimistic_lock::write_guard& source_node_guard,
@@ -1275,6 +1276,16 @@ class [[nodiscard]] olc_inode_16 final
     UNODB_DETAIL_ASSERT(source_node_guard.guards(lock(source_node)));
     parent_class::init(db_instance, obsolete(source_node, source_node_guard),
                        std::move(child), depth, key_byte);
+    UNODB_DETAIL_ASSERT(!source_node_guard.active());
+  }
+
+  void init(db_type& db_instance, inode_4_type& source_node,
+            unodb::optimistic_lock::write_guard& source_node_guard,
+            olc_node_ptr packed_value, tree_depth_type depth,
+            std::byte key_byte) noexcept {
+    UNODB_DETAIL_ASSERT(source_node_guard.guards(lock(source_node)));
+    parent_class::init(db_instance, obsolete(source_node, source_node_guard),
+                       packed_value, depth, key_byte);
     UNODB_DETAIL_ASSERT(!source_node_guard.active());
   }
 
@@ -1363,6 +1374,7 @@ class [[nodiscard]] olc_inode_48 final
 
   using parent_class::parent_class;
 
+  using parent_class::init;
   void init(db_type& db_instance, inode_16_type& source_node,
             unodb::optimistic_lock::write_guard& source_node_guard,
             olc_db_leaf_unique_ptr_type&& child, tree_depth_type depth,
@@ -1370,6 +1382,16 @@ class [[nodiscard]] olc_inode_48 final
     UNODB_DETAIL_ASSERT(source_node_guard.guards(lock(source_node)));
     parent_class::init(db_instance, obsolete(source_node, source_node_guard),
                        std::move(child), depth, key_byte);
+    UNODB_DETAIL_ASSERT(!source_node_guard.active());
+  }
+
+  void init(db_type& db_instance, inode_16_type& source_node,
+            unodb::optimistic_lock::write_guard& source_node_guard,
+            olc_node_ptr packed_value, tree_depth_type depth,
+            std::byte key_byte) noexcept {
+    UNODB_DETAIL_ASSERT(source_node_guard.guards(lock(source_node)));
+    parent_class::init(db_instance, obsolete(source_node, source_node_guard),
+                       packed_value, depth, key_byte);
     UNODB_DETAIL_ASSERT(!source_node_guard.active());
   }
 
@@ -1450,6 +1472,7 @@ class [[nodiscard]] olc_inode_256 final
 
   using parent_class::parent_class;
 
+  using parent_class::init;
   void init(db_type& db_instance, inode_48_type& source_node,
             unodb::optimistic_lock::write_guard& source_node_guard,
             olc_db_leaf_unique_ptr_type&& child, tree_depth_type depth,
@@ -1457,6 +1480,16 @@ class [[nodiscard]] olc_inode_256 final
     UNODB_DETAIL_ASSERT(source_node_guard.guards(lock(source_node)));
     parent_class::init(db_instance, obsolete(source_node, source_node_guard),
                        std::move(child), depth, key_byte);
+    UNODB_DETAIL_ASSERT(!source_node_guard.active());
+  }
+
+  void init(db_type& db_instance, inode_48_type& source_node,
+            unodb::optimistic_lock::write_guard& source_node_guard,
+            olc_node_ptr packed_value, tree_depth_type depth,
+            std::byte key_byte) noexcept {
+    UNODB_DETAIL_ASSERT(source_node_guard.guards(lock(source_node)));
+    parent_class::init(db_instance, obsolete(source_node, source_node_guard),
+                       packed_value, depth, key_byte);
     UNODB_DETAIL_ASSERT(!source_node_guard.active());
   }
 
@@ -1562,8 +1595,14 @@ olc_impl_helpers::add_or_choose_subtree(
               std::move(node_critical_section)};
           if (UNODB_DETAIL_UNLIKELY(node_write_guard.must_restart())) return {};
 
-          larger_node->init(db_instance, inode, node_write_guard,
-                            std::move(cached_leaf), depth, key_byte);
+          if constexpr (detail::olc_art_policy<Key, Value>::can_eliminate_leaf) {
+            larger_node->init(db_instance, inode, node_write_guard,
+                              detail::olc_art_policy<Key, Value>::pack_value(v),
+                              depth, key_byte);
+          } else {
+            larger_node->init(db_instance, inode, node_write_guard,
+                              std::move(cached_leaf), depth, key_byte);
+          }
           *node_in_parent = detail::olc_node_ptr{
               larger_node.release(), INode::larger_derived_type::type};
 
@@ -1600,8 +1639,14 @@ olc_impl_helpers::add_or_choose_subtree(
     if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
       return {};  // LCOV_EXCL_LINE
 
-    inode.add_to_nonfull(std::move(cached_leaf), depth, key_byte,
-                         children_count);
+    inode.add_to_nonfull(
+        [&]() -> auto {
+          if constexpr (detail::olc_art_policy<Key, Value>::can_eliminate_leaf)
+            return detail::olc_art_policy<Key, Value>::pack_value(v);
+          else
+            return std::move(cached_leaf);
+        }(),
+        depth, key_byte, children_count);
 
     // For full_key_in_inode_path: wrap the bare leaf in a chain.
     if constexpr (detail::olc_art_policy<Key, Value>::full_key_in_inode_path) {
