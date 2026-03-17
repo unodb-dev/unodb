@@ -1697,9 +1697,15 @@ template <typename Key, typename Value, class INode>
 
   if constexpr (olc_art_policy<Key, Value>::can_eliminate_leaf) {
     if (inode.is_value_in_slot(child_i)) {
-      // Packed value — not a real node. Signal as "not found" for remove.
-      // FIXME: handle value-in-slot remove properly
-      UNODB_DETAIL_CANNOT_HAPPEN();
+      *child_in_parent = nullptr;
+      detail::sync(detail::sync_before_remove_write_guard);
+      if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+        return {};
+      const optimistic_lock::write_guard node_guard{
+          std::move(node_critical_section)};
+      if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
+      inode.remove(child_i, db_instance);
+      return true;
     }
   }
 
