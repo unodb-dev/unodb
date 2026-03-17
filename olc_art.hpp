@@ -2251,9 +2251,15 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
             std::move(node_critical_section)};
         if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
 
-        new_node->init(node, shared_prefix_length, depth,
-                       std::move(cached_leaf),
-                       remaining_key[shared_prefix_length]);
+        if constexpr (art_policy::can_eliminate_leaf) {
+          new_node->init(node, shared_prefix_length, depth,
+                         art_policy::pack_value(v),
+                         remaining_key[shared_prefix_length]);
+        } else {
+          new_node->init(node, shared_prefix_length, depth,
+                         std::move(cached_leaf),
+                         remaining_key[shared_prefix_length]);
+        }
         *node_in_parent =
             detail::olc_node_ptr{new_node.release(), node_type::I4};
 
