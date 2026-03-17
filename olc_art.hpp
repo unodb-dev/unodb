@@ -1183,6 +1183,11 @@ class [[nodiscard]] olc_inode_4 final : public olc_inode_4_parent<Key, Value> {
             std::uint8_t child_to_delete,
             unodb::optimistic_lock::write_guard& child_guard);
 
+  // Overload for packed value deletion (no child lock).
+  void init(db_type& db_instance, inode_16_type& source_node,
+            unodb::optimistic_lock::write_guard& source_node_guard,
+            std::uint8_t child_to_delete);
+
   void init(key_view k1, art_key_type shifted_k2, tree_depth_type depth,
             const leaf_type* child1,
             olc_db_leaf_unique_ptr_type&& child2) noexcept {
@@ -1294,6 +1299,10 @@ class [[nodiscard]] olc_inode_16 final
             std::uint8_t child_to_delete,
             unodb::optimistic_lock::write_guard& child_guard) noexcept;
 
+  void init(db_type& db_instance, inode_48_type& source_node,
+            unodb::optimistic_lock::write_guard& source_node_guard,
+            std::uint8_t child_to_delete) noexcept;
+
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args&&... args) {
     return olc_impl_helpers::add_or_choose_subtree(*this,
@@ -1357,6 +1366,17 @@ void olc_inode_4<Key, Value>::init(
 }
 
 template <typename Key, typename Value>
+void olc_inode_4<Key, Value>::init(
+    db_type& db_instance, inode_16_type& source_node,
+    unodb::optimistic_lock::write_guard& source_node_guard,
+    std::uint8_t child_to_delete) {
+  UNODB_DETAIL_ASSERT(source_node_guard.guards(lock(source_node)));
+  parent_class::init(db_instance, obsolete(source_node, source_node_guard),
+                     child_to_delete);
+  UNODB_DETAIL_ASSERT(!source_node_guard.active());
+}
+
+template <typename Key, typename Value>
 using olc_inode_48_parent = basic_inode_48<olc_art_policy<Key, Value>>;
 
 template <typename Key, typename Value>
@@ -1399,6 +1419,10 @@ class [[nodiscard]] olc_inode_48 final
             unodb::optimistic_lock::write_guard& source_node_guard,
             std::uint8_t child_to_delete,
             unodb::optimistic_lock::write_guard& child_guard) noexcept;
+
+  void init(db_type& db_instance, inode_256_type& source_node,
+            unodb::optimistic_lock::write_guard& source_node_guard,
+            std::uint8_t child_to_delete) noexcept;
 
   template <typename... Args>
   [[nodiscard]] auto add_or_choose_subtree(Args&&... args) {
@@ -1453,6 +1477,17 @@ void olc_inode_16<Key, Value>::init(
 
   UNODB_DETAIL_ASSERT(!source_node_guard.active());
   UNODB_DETAIL_ASSERT(!child_guard.active());
+}
+
+template <typename Key, typename Value>
+void olc_inode_16<Key, Value>::init(
+    db_type& db_instance, inode_48_type& source_node,
+    unodb::optimistic_lock::write_guard& source_node_guard,
+    std::uint8_t child_to_delete) noexcept {
+  UNODB_DETAIL_ASSERT(source_node_guard.guards(lock(source_node)));
+  parent_class::init(db_instance, obsolete(source_node, source_node_guard),
+                     child_to_delete);
+  UNODB_DETAIL_ASSERT(!source_node_guard.active());
 }
 
 template <typename Key, typename Value>
@@ -1541,6 +1576,17 @@ void olc_inode_48<Key, Value>::init(
 
   UNODB_DETAIL_ASSERT(!source_node_guard.active());
   UNODB_DETAIL_ASSERT(!child_guard.active());
+}
+
+template <typename Key, typename Value>
+void olc_inode_48<Key, Value>::init(
+    db_type& db_instance, inode_256_type& source_node,
+    unodb::optimistic_lock::write_guard& source_node_guard,
+    std::uint8_t child_to_delete) noexcept {
+  UNODB_DETAIL_ASSERT(source_node_guard.guards(lock(source_node)));
+  parent_class::init(db_instance, obsolete(source_node, source_node_guard),
+                     child_to_delete);
+  UNODB_DETAIL_ASSERT(!source_node_guard.active());
 }
 
 template <typename Key, typename Value>
@@ -1719,12 +1765,22 @@ template <typename Key, typename Value, class INode>
         inode.remove(child_i, db_instance);
       } else {
         // Larger inode at min_size with packed value — shrink.
-        if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
-          return {};
-        const optimistic_lock::write_guard node_guard{
+        // No child_guard needed since packed values have no lock.
+        auto smaller_node{
+            INode::smaller_derived_type::create(db_instance, inode)};
+
+        const optimistic_lock::write_guard parent_guard{
+            std::move(parent_critical_section)};
+        if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
+
+        optimistic_lock::write_guard node_guard{
             std::move(node_critical_section)};
         if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
-        inode.remove(child_i, db_instance);
+
+        smaller_node->init(db_instance, inode, node_guard, child_i);
+        *node_in_parent = detail::olc_node_ptr{
+            smaller_node.release(),
+            INode::smaller_derived_type::type};
       }
       return true;
     }
