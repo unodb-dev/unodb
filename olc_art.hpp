@@ -3573,7 +3573,13 @@ olc_db<Key, Value>::try_chain_cut(
     optimistic_lock::write_guard chain_bottom_guard,
     optimistic_lock::write_guard leaf_guard, remove_stack_type& stk,
     std::size_t stk_n) {
-  auto* const leaf{leaf_ptr.template ptr<detail::olc_leaf_type<Key, Value>*>()};
+  [[maybe_unused]] const auto* const leaf = [&]() ->
+      const detail::olc_leaf_type<Key, Value>* {
+    if constexpr (art_policy::can_eliminate_leaf)
+      return nullptr;
+    else
+      return leaf_ptr.template ptr<detail::olc_leaf_type<Key, Value>*>();
+  }();
   // Atomic Chain Cut — remove leaf under a single-child chain I4.
   // Parameters are self-documenting; chain_bottom is NOT on the stack.
   //
@@ -3771,9 +3777,11 @@ olc_db<Key, Value>::try_chain_cut(
   }
 
   // --- Step 4.4: Reclaim leaf and chain nodes ---
-  leaf_guard.unlock_and_obsolete();
   if constexpr (!art_policy::can_eliminate_leaf) {
-    const auto r{art_policy::reclaim_leaf_on_scope_exit(leaf, *this)};
+    leaf_guard.unlock_and_obsolete();
+    auto* const mutable_leaf{
+        leaf_ptr.template ptr<detail::olc_leaf_type<Key, Value>*>()};
+    const auto r{art_policy::reclaim_leaf_on_scope_exit(mutable_leaf, *this)};
   }
 
   // chain_bottom_guard may have been consumed by init() in the shrink path.
