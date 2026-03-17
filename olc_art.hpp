@@ -1665,6 +1665,11 @@ template <typename Key, typename Value, class INode>
     return true;
   }
 
+  if constexpr (olc_art_policy<Key, Value>::can_eliminate_leaf) {
+    // No LEAF nodes exist — child was an inode, handled above.
+    UNODB_DETAIL_CANNOT_HAPPEN();
+  } else {
+
   const auto* const leaf{child->ptr<olc_leaf_type<Key, Value>*>()};
   if (!leaf->matches(k)) {
     if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
@@ -1779,6 +1784,7 @@ template <typename Key, typename Value, class INode>
 #endif  // UNODB_DETAIL_WITH_STATS
 
   return true;
+  }  // else (!can_eliminate_leaf)
 }
 
 }  // namespace detail
@@ -1888,6 +1894,9 @@ typename olc_db<Key, Value>::try_get_result_type olc_db<Key, Value>::try_get(
     const auto node_type = node.type();
 
     if (node_type == node_type::LEAF) {
+      if constexpr (art_policy::can_eliminate_leaf) {
+        UNODB_DETAIL_CANNOT_HAPPEN();
+      } else {
       const auto* const leaf{node.ptr<leaf_type*>()};
       const bool key_matches = [&]() {
         if constexpr (art_policy::can_eliminate_key_in_leaf) {
@@ -1905,6 +1914,7 @@ typename olc_db<Key, Value>::try_get_result_type olc_db<Key, Value>::try_get(
       if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
         return {};  // LCOV_EXCL_LINE
       return std::make_optional<get_result>(std::nullopt);
+      }  // else (!can_eliminate_leaf)
     }
 
     auto* const inode{node.ptr<inode_type*>()};
@@ -3319,13 +3329,15 @@ auto olc_db<Key, Value>::iterator::get_val() const noexcept
     if (e.child_index == 0xFF) {
       return art_policy::unpack_value(node);
     }
-  }
+    UNODB_DETAIL_CANNOT_HAPPEN();
+  } else {
   UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);      // On a leaf.
   const auto* const leaf{node.template ptr<leaf_type*>()};  // current leaf.
   if constexpr (std::is_same_v<Value, unodb::value_view>)
     return qsbr_ptr_span{leaf->get_value_view()};
   else
     return leaf->template get_value<Value>();
+  }
 }
 
 template <typename Key, typename Value>

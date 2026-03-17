@@ -877,7 +877,8 @@ struct basic_art_policy final {
   /// \return Unique pointer owning the leaf
   [[nodiscard]] static auto make_db_leaf_ptr(
       leaf_type* leaf UNODB_DETAIL_LIFETIMEBOUND,
-      db_type& db_instance UNODB_DETAIL_LIFETIMEBOUND) noexcept {
+      db_type& db_instance UNODB_DETAIL_LIFETIMEBOUND) noexcept
+      requires(!can_eliminate_leaf) {
     return basic_db_leaf_unique_ptr<key_type, value_type, header_type, Db>{
         leaf, basic_db_leaf_deleter<db_type>{db_instance}};
   }
@@ -901,8 +902,10 @@ struct basic_art_policy final {
     ~delete_db_node_ptr_at_scope_exit() noexcept {
       switch (node_ptr.type()) {
         case node_type::LEAF: {
-          const auto r{
-              make_db_leaf_ptr(node_ptr.template ptr<leaf_type*>(), db)};
+          if constexpr (!can_eliminate_leaf) {
+            const auto r{
+                make_db_leaf_ptr(node_ptr.template ptr<leaf_type*>(), db)};
+          }
           return;
         }
         case node_type::I4: {
@@ -1007,7 +1010,9 @@ struct basic_art_policy final {
     switch (node.type()) {
       case node_type::LEAF:
         os << "LEAF";
-        node.template ptr<leaf_type*>()->dump(os, recursive);
+        if constexpr (!can_eliminate_leaf) {
+          node.template ptr<leaf_type*>()->dump(os, recursive);
+        }
         break;
       case node_type::I4:
         os << "I4";
