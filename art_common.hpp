@@ -51,6 +51,12 @@ namespace detail {
 /// key is encoded in the inode path, the leaf stores only the value.
 struct no_key_tag {};
 
+/// Tag type indicating that no leaf nodes exist in the tree.
+/// Used when can_eliminate_leaf is true (values packed into inode slots).
+struct no_leaf_tag {
+  no_leaf_tag() = delete;
+};
+
 /// Whether the key can be omitted from the leaf.  True when Key is
 /// key_view and Value fits in a pointer-sized slot.
 template <typename Key, typename Value>

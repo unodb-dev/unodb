@@ -696,8 +696,10 @@ struct basic_art_policy final {
     return v;
   }
 
-  /// Leaf type (keyless when can_eliminate_key_in_leaf).
-  using leaf_type = basic_leaf<leaf_key_type<Key, Value>, header_type>;
+  /// Leaf type — no_leaf_tag when can_eliminate_leaf (no leaf nodes in tree).
+  using leaf_type = std::conditional_t<
+      can_eliminate_leaf, no_leaf_tag,
+      basic_leaf<leaf_key_type<Key, Value>, header_type>>;
 
   /// Database type.
   using db_type = Db<Key, Value>;
