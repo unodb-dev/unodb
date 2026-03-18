@@ -4,7 +4,6 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <__cstddef/byte.h>
-// IWYU pragma: no_include <span>
 // IWYU pragma: no_include <string>
 // IWYU pragma: no_include <string_view>
 
@@ -12,6 +11,7 @@
 #include <cstddef>  // IWYU pragma: keep
 #include <cstdint>
 #include <limits>
+#include <span>
 #include <stdexcept>
 #include <tuple>
 #include <vector>

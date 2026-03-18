@@ -4,12 +4,12 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <__cstddef/byte.h>
-// IWYU pragma: no_include <array>
 // IWYU pragma: no_include <span>
 // IWYU pragma: no_include <string>
 // IWYU pragma: no_include <string_view>
 
 #include <algorithm>
+#include <array>
 #include <cstddef>  // IWYU pragma: keep
 #include <cstdint>
 #include <limits>
@@ -22,6 +22,7 @@
 #include "art_common.hpp"
 #include "db_test_utils.hpp"
 #include "gtest_utils.hpp"
+#include "node_type.hpp"
 
 namespace {
 
@@ -1169,9 +1170,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1CollapseToLeaf) {
   // Tree: root-I4(1) → chain-I4 → leaf(C).
   verifier.remove(make18(0x01, 0x00, 0x01));
   verifier.check_present_values();
-#ifdef UNODB_DETAIL_WITH_STATS
   verifier.assert_node_counts({TestFixture::LC(1), 2, 0, 0, 0});
-#endif  // UNODB_DETAIL_WITH_STATS
 
   // Remove C: tree empty.
   verifier.remove(make18(0x02, 0x00, 0x01));
@@ -1557,21 +1556,17 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, KeylessLeafNoCollapseGuard) {
   verifier.insert(key_b, val);
   verifier.check_present_values();
 
-#ifdef UNODB_DETAIL_WITH_STATS
   // 2 leaves + root-I4.  1-byte keys have no prefix bytes, so no
   // chain I4s are created — leaves go directly into root.
   verifier.assert_node_counts({TestFixture::LC(2), 1, 0, 0, 0});
-#endif  // UNODB_DETAIL_WITH_STATS
 
   // Remove A.  Root-I4(2→1).  Surviving child is leaf(B) (keyless).
   // can_collapse returns false (keyless leaf guard).  Root-I4(1) stays.
   verifier.remove(key_a);
   verifier.check_present_values();
 
-#ifdef UNODB_DETAIL_WITH_STATS
   // Root-I4(1) + 1 leaf.  No collapse.
   verifier.assert_node_counts({TestFixture::LC(1), 1, 0, 0, 0});
-#endif  // UNODB_DETAIL_WITH_STATS
 
   verifier.remove(key_b);
   verifier.assert_empty();
@@ -1619,12 +1614,10 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CollapseToInodeAllowed) {
   verifier.remove(key_a);
   verifier.check_present_values();
 
-#ifdef UNODB_DETAIL_WITH_STATS
   // After collapse: root-I4 merged into chain-I4 (prefix overflow
   // prevents further collapse into bottom-I4).
   // Root-chain-I4(1 child) + bottom-I4(2 children) + 2 leaves.
   verifier.assert_node_counts({TestFixture::LC(2), 2, 0, 0, 0});
-#endif  // UNODB_DETAIL_WITH_STATS
 
   verifier.remove(key_b);
   verifier.remove(key_c);
@@ -1824,7 +1817,9 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureWideNode) {
   unodb::key_encoder enc;
   const auto val = unodb::test::get_test_value<TypeParam>(0);
 
-  std::array<std::byte, 1> ba{}, bb{}, bc{};
+  std::array<std::byte, 1> ba{};
+  std::array<std::byte, 1> bb{};
+  std::array<std::byte, 1> bc{};
   auto kv = enc.reset().encode(std::uint8_t{0x10}).get_key_view();
   std::ignore = std::ranges::copy(kv, ba.begin());
   kv = enc.reset().encode(std::uint8_t{0x20}).get_key_view();
