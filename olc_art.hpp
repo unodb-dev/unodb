@@ -399,7 +399,7 @@ class olc_db final {
       }
       // Dump the key buffer maintained by the iterator.
       os << "keybuf=";
-      detail::dump_key(os, keybuf_[keybuf_ix_].get_key_view());
+      detail::dump_key(os, keybuf_.get_key_view());
       os << "\n";
       // Create a new stack and copy everything there.  Using the new
       // stack, print out the stack in top-bottom order.  This avoids
@@ -436,7 +436,7 @@ class olc_db final {
     [[nodiscard]] bool valid() const noexcept { return !stack_.empty(); }
 
     /// Return stack entries bottom-to-top (test only).
-    // FIXME: move to test utils or #ifdef guard before PR
+#ifdef UNODB_DETAIL_WITH_STATS
     [[nodiscard]] std::vector<stack_entry> test_only_stack() const {
       auto tmp = stack_;
       std::vector<stack_entry> result;
@@ -447,6 +447,7 @@ class olc_db final {
       std::reverse(result.begin(), result.end());
       return result;
     }
+#endif  // UNODB_DETAIL_WITH_STATS
 
    protected:
     /// Compare the given key (e.g., the to_key) to the current key in the
@@ -474,8 +475,8 @@ class olc_db final {
       // OLC where the node might be concurrently modified.
       UNODB_DETAIL_ASSERT(node.type() != node_type::LEAF);
       stack_.push({{node, key_byte, child_index, prefix}, rcs.get()});
-      keybuf_[keybuf_ix_].push(prefix.get_key_view());
-      keybuf_[keybuf_ix_].push(key_byte);
+      keybuf_.push(prefix.get_key_view());
+      keybuf_.push(key_byte);
       return true;
     }
 
@@ -514,7 +515,7 @@ class olc_db final {
       const auto& e = top();
       const auto n = static_cast<std::size_t>(
           (e.child_index != 0xFF && e.node.type() != node_type::LEAF) ? e.prefix.length() + 1 : 0);
-      keybuf_[keybuf_ix_].pop(n);
+      keybuf_.pop(n);
       stack_.pop();
     }
 
@@ -536,7 +537,7 @@ class olc_db final {
     /// post-condition: The iterator is !valid().
     iterator& invalidate() noexcept {
       while (!stack_.empty()) stack_.pop();  // clear the stack
-      keybuf_[keybuf_ix_].reset();           // clear the key buffer
+      keybuf_.reset();           // clear the key buffer
       return *this;
     }
 
@@ -580,8 +581,7 @@ class olc_db final {
     /// pushed onto this buffer when we push something onto the
     /// iterator stack and popped off of this buffer when we pop
     /// something off of the iterator stack.
-    detail::key_buffer keybuf_[2]{};
-    unsigned keybuf_ix_{0};
+    detail::key_buffer keybuf_{};
   };  // class iterator
 
   //
@@ -2849,7 +2849,7 @@ typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::next() {
         stack_.top().child_index == static_cast<std::uint8_t>(0xFFU);
     art_key_type akey{[&]() -> art_key_type {
       if constexpr (art_policy::full_key_in_inode_path) {
-        return art_key_type{keybuf_[keybuf_ix_].get_key_view()};
+        return art_key_type{keybuf_.get_key_view()};
       } else {
         UNODB_DETAIL_ASSERT(!is_packed);
         UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
@@ -2942,7 +2942,7 @@ typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::prior() {
         stack_.top().child_index == static_cast<std::uint8_t>(0xFFU);
     art_key_type akey{[&]() -> art_key_type {
       if constexpr (art_policy::full_key_in_inode_path) {
-        return art_key_type{keybuf_[keybuf_ix_].get_key_view()};
+        return art_key_type{keybuf_.get_key_view()};
       } else {
         UNODB_DETAIL_ASSERT(!is_packed);
         UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
@@ -3101,7 +3101,7 @@ bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
         return false;  // LCOV_EXCL_LINE
       int cmp_;
       if constexpr (art_policy::full_key_in_inode_path) {
-        cmp_ = unodb::detail::compare(keybuf_[keybuf_ix_].get_key_view(),
+        cmp_ = unodb::detail::compare(keybuf_.get_key_view(),
                                       k.get_key_view());
       } else {
         cmp_ = leaf->cmp(k);
@@ -3450,7 +3450,7 @@ typename olc_db<Key, Value>::iterator::get_key_result
 olc_db<Key, Value>::iterator::get_key() noexcept {
   UNODB_DETAIL_ASSERT(valid());  // by contract
   if constexpr (art_policy::full_key_in_inode_path) {
-    return transient_key_view{keybuf_[keybuf_ix_].get_key_view()};
+    return transient_key_view{keybuf_.get_key_view()};
   } else {
     const auto& e = stack_.top();
     const auto& node = e.node;
@@ -3490,7 +3490,7 @@ template <typename Key, typename Value>
 int olc_db<Key, Value>::iterator::cmp(const art_key_type& akey) const noexcept {
   UNODB_DETAIL_ASSERT(!stack_.empty());
   if constexpr (art_policy::full_key_in_inode_path) {
-    return unodb::detail::compare(keybuf_[keybuf_ix_].get_key_view(),
+    return unodb::detail::compare(keybuf_.get_key_view(),
                                   akey.get_key_view());
   } else {
     auto& node = stack_.top().node;

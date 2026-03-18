@@ -438,6 +438,7 @@ class db final {
     /// Return true unless the stack is empty (exposed to tests).
     [[nodiscard]] bool valid() const noexcept { return !stack_.empty(); }
 
+#ifdef UNODB_DETAIL_WITH_STATS
     /// Return stack entries bottom-to-top (test only).
     [[nodiscard]] std::vector<stack_entry> test_only_stack() const {
       auto tmp = stack_;
@@ -449,6 +450,7 @@ class db final {
       std::reverse(result.begin(), result.end());
       return result;
     }
+#endif  // UNODB_DETAIL_WITH_STATS
 
    protected:
     /// Descend to left-most leaf from given \a node.
@@ -569,9 +571,8 @@ class db final {
 
       const auto& e = top();
       const auto n = static_cast<std::size_t>(
-          (e.node.type() != node_type::LEAF &&
-           !(art_policy::can_eliminate_leaf &&
-             e.child_index == static_cast<std::uint8_t>(0xFFU)))
+          (e.child_index != static_cast<std::uint8_t>(0xFFU) &&
+           e.node.type() != node_type::LEAF)
               ? e.prefix.length() + 1
               : 0);
       keybuf_.pop(n);

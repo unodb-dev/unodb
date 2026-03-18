@@ -34,10 +34,6 @@ class db;
 template <typename Key, typename Value>
 class olc_db;
 
-namespace detail {
-
-}  // namespace detail
-
 /// Type alias determining the maximum size in bytes of a key that may be stored
 /// in the index.
 using key_size_type = std::uint32_t;

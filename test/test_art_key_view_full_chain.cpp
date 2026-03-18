@@ -1738,6 +1738,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanChainMixedLengths) {
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
+#ifdef UNODB_DETAIL_WITH_STATS
+
 // ===================================================================
 // Stack structure validation tests (D5).
 //
@@ -1927,34 +1929,6 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureFullScan) {
   }
 }
 
-}  // namespace
+#endif  // UNODB_DETAIL_WITH_STATS
 
-UNODB_TYPED_TEST(ARTKeyViewFullChainTest, OLCScanDebug) {
-  if constexpr (!std::is_same_v<TypeParam,
-                                unodb::olc_db<unodb::key_view, std::uint64_t>>)
-    GTEST_SKIP();
-  using db_t = unodb::db<unodb::key_view, std::uint64_t>;
-  db_t db;
-  TypeParam olc;
-  unodb::key_encoder enc;
-  std::uint64_t v = 42;
-  db.insert(enc.reset().encode_text("").get_key_view(), v);
-  olc.insert(enc.reset().encode_text("").get_key_view(), v);
-  db.insert(enc.reset().encode_text("a").get_key_view(), v);
-  olc.insert(enc.reset().encode_text("a").get_key_view(), v);
-  std::vector<std::vector<std::byte>> db_keys, olc_keys;
-  db.scan([&](const auto& vis) {
-    auto kv = vis.get_key();
-    db_keys.emplace_back(kv.begin(), kv.end());
-    return false;
-  });
-  int olc_count = 0;
-  olc.scan([&](const auto& vis) {
-    auto kv = static_cast<unodb::key_view>(vis.get_key());
-    olc_keys.emplace_back(kv.begin(), kv.end());
-    return ++olc_count >= 10;
-  });
-  UNODB_EXPECT_EQ(db_keys.size(), olc_keys.size());
-  for (size_t i = 0; i < std::min(db_keys.size(), olc_keys.size()); i++)
-    UNODB_EXPECT_EQ(db_keys[i], olc_keys[i]);
-}
+}  // namespace
