@@ -323,3 +323,92 @@ BENCHMARK_CAPTURE(chain_remove<OLC>, kl256, gen_kl256)->Apply(kl_sizes);
 }  // namespace
 
 UNODB_BENCHMARK_MAIN();
+
+// ===================================================================
+// Value-in-slot benchmarks: db<key_view, uint64_t>
+// These trees eliminate leaves — values packed directly into inode slots.
+// ===================================================================
+
+template <class Db>
+void vis_insert(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
+  const auto n = static_cast<std::size_t>(state.range(0));
+  const auto ks = gen(n);
+  for (auto _ : state) {
+    state.PauseTiming();
+    Db db;
+    benchmark::ClobberMemory();
+    state.ResumeTiming();
+    for (std::size_t i = 0; i < n; ++i)
+      benchmark::DoNotOptimize(db.insert(ks[i], static_cast<std::uint64_t>(i)));
+    state.PauseTiming();
+    unodb::benchmark::destroy_tree(db, state);
+  }
+  state.SetItemsProcessed(state.iterations() * static_cast<std::int64_t>(n));
+}
+
+template <class Db>
+void vis_get(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
+  const auto n = static_cast<std::size_t>(state.range(0));
+  const auto ks = gen(n);
+  Db db;
+  for (std::size_t i = 0; i < n; ++i)
+    std::ignore = db.insert(ks[i], static_cast<std::uint64_t>(i));
+  for (auto _ : state) {
+    for (std::size_t i = 0; i < n; ++i) benchmark::DoNotOptimize(db.get(ks[i]));
+  }
+  state.SetItemsProcessed(state.iterations() * static_cast<std::int64_t>(n));
+}
+
+template <class Db>
+void vis_remove(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
+  const auto n = static_cast<std::size_t>(state.range(0));
+  const auto ks = gen(n);
+  for (auto _ : state) {
+    state.PauseTiming();
+    Db db;
+    for (std::size_t i = 0; i < n; ++i)
+      std::ignore = db.insert(ks[i], static_cast<std::uint64_t>(i));
+    benchmark::ClobberMemory();
+    state.ResumeTiming();
+    for (std::size_t i = 0; i < n; ++i)
+      benchmark::DoNotOptimize(db.remove(ks[i]));
+  }
+  state.SetItemsProcessed(state.iterations() * static_cast<std::int64_t>(n));
+}
+
+template <class Db>
+void vis_scan(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
+  const auto n = static_cast<std::size_t>(state.range(0));
+  const auto ks = gen(n);
+  Db db;
+  for (std::size_t i = 0; i < n; ++i)
+    std::ignore = db.insert(ks[i], static_cast<std::uint64_t>(i));
+  for (auto _ : state) {
+    std::size_t count = 0;
+    db.scan([&count](auto /*visitor*/) {
+      ++count;
+      return false;
+    });
+    benchmark::DoNotOptimize(count);
+  }
+  state.SetItemsProcessed(state.iterations() * static_cast<std::int64_t>(n));
+}
+
+using VIS = unodb::benchmark::kv_u64_db;
+using VIS_OLC = unodb::benchmark::kv_u64_olc_db;
+
+BENCHMARK_CAPTURE(vis_insert<VIS>, compound, gen_compound)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(vis_insert<VIS>, dense, gen_dense)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(vis_get<VIS>, compound, gen_compound)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(vis_get<VIS>, dense, gen_dense)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(vis_remove<VIS>, compound, gen_compound)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(vis_remove<VIS>, dense, gen_dense)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(vis_scan<VIS>, compound, gen_compound)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(vis_scan<VIS>, dense, gen_dense)->Apply(kv_sizes);
+
+BENCHMARK_CAPTURE(vis_insert<VIS_OLC>, compound, gen_compound)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(vis_insert<VIS_OLC>, dense, gen_dense)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(vis_get<VIS_OLC>, compound, gen_compound)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(vis_get<VIS_OLC>, dense, gen_dense)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(vis_scan<VIS_OLC>, compound, gen_compound)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(vis_scan<VIS_OLC>, dense, gen_dense)->Apply(kv_sizes);
