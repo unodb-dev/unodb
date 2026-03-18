@@ -136,7 +136,7 @@ struct [[nodiscard]] basic_art_key final {
   [[nodiscard, gnu::pure]] constexpr int cmp(
       basic_art_key<KeyType> key2) const noexcept {
     if constexpr (std::is_same_v<KeyType, key_view>) {
-      return compare(&key, sizeof(KeyType), &key2.key, sizeof(KeyType));
+      return compare(key, key2.key);
     } else {
       return std::memcmp(&key, &key2.key, sizeof(KeyType));
     }

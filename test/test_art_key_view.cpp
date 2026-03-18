@@ -4,20 +4,22 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <__cstddef/byte.h>
-// IWYU pragma: no_include <array>
-// IWYU pragma: no_include <span>
 // IWYU pragma: no_include <string>
 // IWYU pragma: no_include <string_view>
 
+#include <array>
 #include <cstddef>  // IWYU pragma: keep
 #include <cstdint>
 #include <limits>
+#include <span>
 #include <stdexcept>
 #include <tuple>
+#include <vector>
 
 #include <gtest/gtest.h>
 
 #include "art_common.hpp"
+#include "assert.hpp"  // UNODB_DETAIL_ASSERT
 #include "db_test_utils.hpp"
 #include "gtest_utils.hpp"
 
@@ -1600,5 +1602,49 @@ UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, ScanChainMixedLengths) {
 }
 
 #endif  // UNODB_DETAIL_WITH_STATS
+
+// Regression test: basic_art_key<key_view>::cmp() must compare actual
+// key data, not the raw std::span struct bytes (pointer + size).
+// The bug caused scan_range to pick the wrong direction when key
+// buffers were at addresses that disagreed with key data ordering.
+UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, ScanRangeReversedPointerOrder) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+  const auto val = unodb::test::test_values[0];
+
+  // Insert 3 keys: 0x01, 0x02, 0x03.
+  std::array<std::byte, 1> buf_a{std::byte{0x01}};
+  std::array<std::byte, 1> buf_b{std::byte{0x02}};
+  std::array<std::byte, 1> buf_c{std::byte{0x03}};
+  const auto ka = unodb::key_view{buf_a.data(), 1};
+  const auto kb = unodb::key_view{buf_b.data(), 1};
+  const auto kc = unodb::key_view{buf_c.data(), 1};
+  verifier.insert(ka, val);
+  verifier.insert(kb, val);
+  verifier.insert(kc, val);
+
+  // Construct from/to keys in separate buffers where the "larger" key
+  // data (0x03) is at a LOWER address than the "smaller" key (0x01).
+  // This triggers the bug: cmp() compared pointer values, not key data.
+  std::array<std::byte, 256> mem{};
+  mem[0] = std::byte{0x03};    // larger key at lower address
+  mem[128] = std::byte{0x01};  // smaller key at higher address
+  const auto mem_span = std::span{mem};
+  const auto from_key = unodb::key_view{mem_span.subspan(128, 1)};  // 0x01
+  const auto to_key = unodb::key_view{mem_span.subspan(0, 1)};      // 0x03
+
+  // scan_range(0x01, 0x03) should visit 0x01 and 0x02 (forward scan,
+  // exclusive upper bound).
+  std::vector<std::byte> visited;
+  verifier.get_db().scan_range(from_key, to_key,
+                               [&visited](const auto& visitor) {
+                                 const auto k = visitor.get_key();
+                                 UNODB_DETAIL_ASSERT(k.size() == 1);
+                                 visited.push_back(k[0]);
+                                 return false;  // continue
+                               });
+  UNODB_ASSERT_EQ(visited.size(), 2U);
+  UNODB_EXPECT_EQ(visited[0], std::byte{0x01});
+  UNODB_EXPECT_EQ(visited[1], std::byte{0x02});
+}
 
 }  // namespace
