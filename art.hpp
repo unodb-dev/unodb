@@ -1435,8 +1435,9 @@ typename db<Key, Value>::get_result db<Key, Value>::get_internal(
     if (child_ptr == nullptr) return {};
 
     if constexpr (art_policy::can_eliminate_leaf) {
-      if (inode->is_value_in_slot(node_type, child_i)) {
-        return art_policy::unpack_value(*child_ptr);
+      constexpr auto high_bit = std::uintptr_t{1} << 63;
+      if (child_ptr->load().raw_val() & high_bit) {
+        return art_policy::unpack_value(child_ptr->load());
       }
     }
 

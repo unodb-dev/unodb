@@ -686,12 +686,9 @@ struct basic_art_policy final {
   /// Extract a value from a node_ptr slot (value-in-slot mode).
   [[nodiscard]] static Value unpack_value(node_ptr n) noexcept {
     static_assert(can_eliminate_leaf);
-    // Reverse the XOR sentinel.
     auto raw = n.raw_val() ^ pack_xor_sentinel;
-    node_ptr tmp{nullptr};
-    std::memcpy(&tmp, &raw, sizeof(raw));
     Value v{};
-    std::memcpy(&v, &tmp, sizeof(v));
+    std::memcpy(&v, &raw, sizeof(v));
     return v;
   }
 
