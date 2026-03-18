@@ -654,8 +654,7 @@ struct basic_art_policy final {
 
   /// Whether the full key is encoded in the inode path (prefix + dispatch
   /// bytes at every level).  True for key_view keys with small values.
-  static constexpr bool full_key_in_inode_path =
-      std::is_same_v<Key, key_view>;
+  static constexpr bool full_key_in_inode_path = std::is_same_v<Key, key_view>;
 
   /// Whether the key can be omitted from the leaf.
   static constexpr bool can_eliminate_key_in_leaf =
@@ -697,9 +696,9 @@ struct basic_art_policy final {
   }
 
   /// Leaf type — no_leaf_tag when can_eliminate_leaf (no leaf nodes in tree).
-  using leaf_type = std::conditional_t<
-      can_eliminate_leaf, no_leaf_tag,
-      basic_leaf<leaf_key_type<Key, Value>, header_type>>;
+  using leaf_type =
+      std::conditional_t<can_eliminate_leaf, no_leaf_tag,
+                         basic_leaf<leaf_key_type<Key, Value>, header_type>>;
 
   /// Database type.
   using db_type = Db<Key, Value>;
@@ -763,8 +762,9 @@ struct basic_art_policy final {
   [[nodiscard]] static auto make_db_leaf_ptr(
       art_key_type k, value_type v,
       db_type& db_instance UNODB_DETAIL_LIFETIMEBOUND) {
-    static_assert(!can_eliminate_leaf,
-                  "make_db_leaf_ptr must not be called when leaf is eliminated");
+    static_assert(
+        !can_eliminate_leaf,
+        "make_db_leaf_ptr must not be called when leaf is eliminated");
     return ::unodb::detail::make_db_leaf_ptr<Key, Value, Db>(k, v, db_instance);
   }
 
@@ -879,7 +879,8 @@ struct basic_art_policy final {
   [[nodiscard]] static auto make_db_leaf_ptr(
       leaf_type* leaf UNODB_DETAIL_LIFETIMEBOUND,
       db_type& db_instance UNODB_DETAIL_LIFETIMEBOUND) noexcept
-      requires(!can_eliminate_leaf) {
+    requires(!can_eliminate_leaf)
+  {
     return basic_db_leaf_unique_ptr<key_type, value_type, header_type, Db>{
         leaf, basic_db_leaf_deleter<db_type>{db_instance}};
   }
@@ -1642,8 +1643,8 @@ class basic_inode_impl : public ArtPolicy::header_type {
   }
 
   /// Clear value bitmask bit, dispatching by type.
-  constexpr void clear_value_bit(
-      node_type type, std::uint8_t child_i) noexcept {
+  constexpr void clear_value_bit(node_type type,
+                                 std::uint8_t child_i) noexcept {
     switch (type) {
       case node_type::I4:
         return static_cast<inode4_type*>(this)->clear_value_bit(child_i);
@@ -2238,8 +2239,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   /// \param child The single child node
   constexpr basic_inode_4(db_type&, key_view k1, art_key_type remaining_key,
                           // cppcheck-suppress passedByValue
-                          [[maybe_unused]] tree_depth_type depth, std::byte key_byte,
-                          node_ptr child) noexcept
+                          [[maybe_unused]] tree_depth_type depth,
+                          std::byte key_byte, node_ptr child) noexcept
       : parent_class{k1, remaining_key, depth,
                      typename parent_class::single_child_tag{}} {
     init(key_byte, child);
@@ -2308,7 +2309,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   /// Reads the dispatch byte from the leaf's key.
   template <typename LeafPtr>
   constexpr void init(node_ptr source_node, unsigned shared_prefix_len,
-                      [[maybe_unused]] tree_depth_type depth, LeafPtr&& child1) {
+                      [[maybe_unused]] tree_depth_type depth,
+                      LeafPtr&& child1) {
     const auto diff_key_byte_i = depth + shared_prefix_len;
     init(source_node, shared_prefix_len, depth, std::forward<LeafPtr>(child1),
          static_cast<std::byte>(this->leaf_key_byte_at(
@@ -2360,8 +2362,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
       std::uint8_t dst = 0;
       for (std::uint8_t src = 0; src < inode16_type::min_size; ++src) {
         if (src == child_to_delete) continue;
-        if (source_node.is_value_in_slot(src))
-          set_value_bit(dst);
+        if (source_node.is_value_in_slot(src)) set_value_bit(dst);
         ++dst;
       }
     }
@@ -2413,7 +2414,8 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
   /// have already loaded it.
   constexpr void add_to_nonfull(db_leaf_unique_ptr&& child,
                                 // cppcheck-suppress passedByValue
-                                [[maybe_unused]] tree_depth_type depth, std::byte key_byte,
+                                [[maybe_unused]] tree_depth_type depth,
+                                std::byte key_byte,
                                 std::uint8_t children_count_) noexcept {
     UNODB_DETAIL_ASSERT(children_count_ == this->children_count);
     UNODB_DETAIL_ASSERT(children_count_ < parent_class::capacity);
@@ -2819,8 +2821,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
   /// Add two children to an empty node (value-in-slot variant).
   constexpr void add_two_to_empty(std::byte key1, node_ptr child1,
-                                  std::byte key2,
-                                  node_ptr child2) noexcept {
+                                  std::byte key2, node_ptr child2) noexcept {
     UNODB_DETAIL_ASSERT(key1 != key2);
     UNODB_DETAIL_ASSERT(this->children_count == 2);
 
@@ -2975,7 +2976,8 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   /// \param child New child to add
   /// \param depth Current tree depth
   constexpr basic_inode_16(db_type& db_instance, inode4_type& source_node,
-                           db_leaf_unique_ptr&& child, [[maybe_unused]] tree_depth_type depth,
+                           db_leaf_unique_ptr&& child,
+                           [[maybe_unused]] tree_depth_type depth,
                            std::byte key_byte) noexcept
       : parent_class{source_node} {
     init(db_instance, source_node, std::move(child), depth, key_byte);
@@ -3008,7 +3010,8 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   /// \param child New child to add
   /// \param depth Current tree depth
   constexpr void init(db_type& db_instance, inode4_type& source_node,
-                      db_leaf_unique_ptr child, [[maybe_unused]] tree_depth_type depth,
+                      db_leaf_unique_ptr child,
+                      [[maybe_unused]] tree_depth_type depth,
                       std::byte key_byte) noexcept {
     init_grow(db_instance, source_node,
               node_ptr{child.release(), node_type::LEAF}, key_byte);
@@ -3136,7 +3139,8 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
   /// \note The node already keeps its current children count, but all callers
   /// have already loaded it.
   constexpr void add_to_nonfull(db_leaf_unique_ptr&& child,
-                                [[maybe_unused]] tree_depth_type depth, std::byte key_byte,
+                                [[maybe_unused]] tree_depth_type depth,
+                                std::byte key_byte,
                                 std::uint8_t children_count_) noexcept {
     UNODB_DETAIL_ASSERT(children_count_ == this->children_count);
     UNODB_DETAIL_ASSERT(children_count_ < parent_class::capacity);
@@ -3574,7 +3578,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   /// \param depth Current tree depth
   constexpr basic_inode_48(db_type& db_instance,
                            inode16_type& __restrict source_node,
-                           db_leaf_unique_ptr&& child, [[maybe_unused]] tree_depth_type depth,
+                           db_leaf_unique_ptr&& child,
+                           [[maybe_unused]] tree_depth_type depth,
                            std::byte key_byte) noexcept
       : parent_class{source_node} {
     init(db_instance, source_node, std::move(child), depth, key_byte);
@@ -3610,7 +3615,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   /// \param depth Current tree depth
   constexpr void init(db_type& db_instance,
                       inode16_type& __restrict source_node,
-                      db_leaf_unique_ptr child, [[maybe_unused]] tree_depth_type depth,
+                      db_leaf_unique_ptr child,
+                      [[maybe_unused]] tree_depth_type depth,
                       std::byte key_byte) noexcept {
     init_grow(db_instance, source_node,
               node_ptr{child.release(), node_type::LEAF}, key_byte);
@@ -3628,8 +3634,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   /// Common grow logic from I16.
   constexpr void init_grow(db_type& db_instance,
                            inode16_type& __restrict source_node,
-                           node_ptr child_val,
-                           std::byte key_byte) noexcept {
+                           node_ptr child_val, std::byte key_byte) noexcept {
     const auto reclaim_source_node{
         ArtPolicy::template make_db_inode_reclaimable_ptr<inode16_type>(
             &source_node, db_instance)};
@@ -3652,8 +3657,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     if constexpr (ArtPolicy::can_eliminate_leaf) {
       // Copy bitmask from source I16 (indexed by position).
       for (std::uint8_t j = 0; j < inode16_type::capacity; ++j) {
-        if (source_node.is_value_in_slot(j))
-          set_value_bit_by_ci(j);
+        if (source_node.is_value_in_slot(j)) set_value_bit_by_ci(j);
       }
       // The new child is a packed value.
       set_value_bit_by_ci(i);
@@ -3709,7 +3713,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
   /// \note The node already keeps its current children count, but all callers
   /// have already loaded it.
   constexpr void add_to_nonfull(db_leaf_unique_ptr&& child,
-                                [[maybe_unused]] tree_depth_type depth, std::byte key_byte,
+                                [[maybe_unused]] tree_depth_type depth,
+                                std::byte key_byte,
                                 std::uint8_t children_count_) noexcept {
     UNODB_DETAIL_ASSERT(this->children_count == children_count_);
     UNODB_DETAIL_ASSERT(children_count_ >= parent_class::min_size);
@@ -4093,8 +4098,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
           if (is_value_in_slot_by_ci(ci)) {
             os << "packed value\n";
           } else {
-            ArtPolicy::dump_node(
-                os, children.pointer_array[ci].load());
+            ArtPolicy::dump_node(os, children.pointer_array[ci].load());
           }
         }
 #ifndef NDEBUG
@@ -4144,7 +4148,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
  public:
   /// For I48, the child_index from find_child is the key byte.
   /// Resolve to children array index before accessing the bitmask.
-  [[nodiscard]] constexpr bool is_value_in_slot(std::uint8_t key_byte_i) const noexcept {
+  [[nodiscard]] constexpr bool is_value_in_slot(
+      std::uint8_t key_byte_i) const noexcept {
     if constexpr (!ArtPolicy::can_eliminate_leaf) return false;
     const auto ci = child_indexes[key_byte_i].load();
     if (ci == empty_child) return false;
@@ -4163,7 +4168,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     value_bitmask.clear(ci);
   }
   /// Check by children array index (for internal iteration).
-  [[nodiscard]] constexpr bool is_value_in_slot_by_ci(std::uint8_t ci) const noexcept {
+  [[nodiscard]] constexpr bool is_value_in_slot_by_ci(
+      std::uint8_t ci) const noexcept {
     return value_bitmask.test(ci);
   }
   constexpr void set_value_bit_by_ci(std::uint8_t ci) noexcept {
@@ -4315,7 +4321,8 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   /// \param child New child to add
   /// \param depth Current tree depth
   constexpr basic_inode_256(db_type& db_instance, inode48_type& source_node,
-                            db_leaf_unique_ptr&& child, [[maybe_unused]] tree_depth_type depth,
+                            db_leaf_unique_ptr&& child,
+                            [[maybe_unused]] tree_depth_type depth,
                             std::byte key_byte) noexcept
       : parent_class{source_node} {
     init(db_instance, source_node, std::move(child), depth, key_byte);
@@ -4338,7 +4345,8 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   /// \param depth Current tree depth
   constexpr void init(db_type& db_instance,
                       inode48_type& __restrict source_node,
-                      db_leaf_unique_ptr child, [[maybe_unused]] tree_depth_type depth,
+                      db_leaf_unique_ptr child,
+                      [[maybe_unused]] tree_depth_type depth,
                       std::byte key_byte) noexcept {
     init_grow(db_instance, source_node,
               node_ptr{child.release(), node_type::LEAF}, key_byte);
@@ -4356,8 +4364,7 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   /// Common grow logic from I48.
   constexpr void init_grow(db_type& db_instance,
                            inode48_type& __restrict source_node,
-                           node_ptr child_val,
-                           std::byte key_byte) noexcept {
+                           node_ptr child_val, std::byte key_byte) noexcept {
     const auto reclaim_source_node{
         ArtPolicy::template make_db_inode_reclaimable_ptr<inode48_type>(
             &source_node, db_instance)};
@@ -4404,7 +4411,8 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   /// \note The node already keeps its current children count, but all callers
   /// have already loaded it.
   constexpr void add_to_nonfull(db_leaf_unique_ptr&& child,
-                                [[maybe_unused]] tree_depth_type depth, std::byte key_byte,
+                                [[maybe_unused]] tree_depth_type depth,
+                                std::byte key_byte,
                                 std::uint8_t children_count_) noexcept {
     UNODB_DETAIL_ASSERT(this->children_count == children_count_);
     UNODB_DETAIL_ASSERT(children_count_ < parent_class::capacity);

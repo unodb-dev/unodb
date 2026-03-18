@@ -63,8 +63,8 @@ inline constexpr bool can_eliminate_key_in_leaf_v =
 /// the key can be eliminated, otherwise passes Key through unchanged.
 template <typename Key, typename Value>
 using leaf_key_type =
-    std::conditional_t<can_eliminate_key_in_leaf_v<Key, Value>,
-                       no_key_tag, Key>;
+    std::conditional_t<can_eliminate_key_in_leaf_v<Key, Value>, no_key_tag,
+                       Key>;
 
 }  // namespace detail
 

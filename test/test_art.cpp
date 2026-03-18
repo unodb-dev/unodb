@@ -9,7 +9,9 @@
 #include <limits>
 #include <stdexcept>
 #include <tuple>
+
 #include <gtest/gtest.h>
+
 #include "art_common.hpp"
 #include "db_test_utils.hpp"
 #include "gtest_utils.hpp"
@@ -27,8 +29,8 @@ constexpr std::uint64_t chain_i4_per_key =
 template <class Db>
 constexpr std::uint64_t olc_chain_collapse =
     (std::is_same_v<typename Db::key_type, unodb::key_view> &&
-     std::is_same_v<Db, unodb::olc_db<typename Db::key_type,
-                                       typename Db::value_type>>)
+     std::is_same_v<
+         Db, unodb::olc_db<typename Db::key_type, typename Db::value_type>>)
         ? 1
         : 0;
 
@@ -172,7 +174,7 @@ UNODB_TYPED_TEST(ARTCorrectnessTest, DbInsertNodeRecursion) {
 #ifdef UNODB_DETAIL_WITH_STATS
   verifier.assert_node_counts({4, 3 + (2 * ci4), 0, 0, 0});
   verifier.assert_growing_inodes({3 + (2 * ci4), 0, 0, 0});
-  
+
   verifier.assert_key_prefix_splits((1 + ci4));
 #endif  // UNODB_DETAIL_WITH_STATS
 }
@@ -527,8 +529,10 @@ UNODB_TYPED_TEST(ARTCorrectnessTest, Node16KeyPrefixMerge) {
   verifier.check_present_values();
   verifier.check_absent_keys({9, 16, 0x1020});
 #ifdef UNODB_DETAIL_WITH_STATS
-  verifier.assert_shrinking_inodes({1 + olc_chain_collapse<TypeParam>, 0, 0, 0});
-  verifier.assert_node_counts({5, ci4 - olc_chain_collapse<TypeParam>, 1, 0, 0});
+  verifier.assert_shrinking_inodes(
+      {1 + olc_chain_collapse<TypeParam>, 0, 0, 0});
+  verifier.assert_node_counts(
+      {5, ci4 - olc_chain_collapse<TypeParam>, 1, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 UNODB_TYPED_TEST(ARTCorrectnessTest, Node48DeleteBeginningMiddleEnd) {
@@ -602,8 +606,10 @@ UNODB_TYPED_TEST(ARTCorrectnessTest, Node48KeyPrefixMerge) {
   verifier.check_present_values();
   verifier.check_absent_keys({9, 0x2010, 28});
 #ifdef UNODB_DETAIL_WITH_STATS
-  verifier.assert_shrinking_inodes({1 + olc_chain_collapse<TypeParam>, 0, 0, 0});
-  verifier.assert_node_counts({17, ci4 - olc_chain_collapse<TypeParam>, 0, 1, 0});
+  verifier.assert_shrinking_inodes(
+      {1 + olc_chain_collapse<TypeParam>, 0, 0, 0});
+  verifier.assert_node_counts(
+      {17, ci4 - olc_chain_collapse<TypeParam>, 0, 1, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 UNODB_TYPED_TEST(ARTCorrectnessTest, Node256DeleteBeginningMiddleEnd) {
@@ -679,8 +685,10 @@ UNODB_TYPED_TEST(ARTCorrectnessTest, Node256KeyPrefixMerge) {
   verifier.check_present_values();
   verifier.check_absent_keys({9, 0x2010, 60});
 #ifdef UNODB_DETAIL_WITH_STATS
-  verifier.assert_shrinking_inodes({1 + olc_chain_collapse<TypeParam>, 0, 0, 0});
-  verifier.assert_node_counts({49, ci4 - olc_chain_collapse<TypeParam>, 0, 0, 1});
+  verifier.assert_shrinking_inodes(
+      {1 + olc_chain_collapse<TypeParam>, 0, 0, 0});
+  verifier.assert_node_counts(
+      {49, ci4 - olc_chain_collapse<TypeParam>, 0, 0, 1});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 UNODB_TYPED_TEST(ARTCorrectnessTest, MissingKeyWithPresentPrefix) {

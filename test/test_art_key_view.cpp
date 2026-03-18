@@ -1626,8 +1626,8 @@ UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, ScanRangeReversedPointerOrder) {
   // data (0x03) is at a LOWER address than the "smaller" key (0x01).
   // This triggers the bug: cmp() compared pointer values, not key data.
   std::array<std::byte, 256> mem{};
-  mem[0] = std::byte{0x03};       // larger key at lower address
-  mem[128] = std::byte{0x01};     // smaller key at higher address
+  mem[0] = std::byte{0x03};    // larger key at lower address
+  mem[128] = std::byte{0x01};  // smaller key at higher address
   const auto mem_span = std::span{mem};
   const auto from_key = unodb::key_view{mem_span.subspan(128, 1)};  // 0x01
   const auto to_key = unodb::key_view{mem_span.subspan(0, 1)};      // 0x03
@@ -1635,14 +1635,13 @@ UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, ScanRangeReversedPointerOrder) {
   // scan_range(0x01, 0x03) should visit 0x01 and 0x02 (forward scan,
   // exclusive upper bound).
   std::vector<std::byte> visited;
-  verifier.get_db().scan_range(
-      from_key, to_key,
-      [&visited](const auto& visitor) {
-        const auto k = visitor.get_key();
-        UNODB_DETAIL_ASSERT(k.size() == 1);
-        visited.push_back(k[0]);
-        return false;  // continue
-      });
+  verifier.get_db().scan_range(from_key, to_key,
+                               [&visited](const auto& visitor) {
+                                 const auto k = visitor.get_key();
+                                 UNODB_DETAIL_ASSERT(k.size() == 1);
+                                 visited.push_back(k[0]);
+                                 return false;  // continue
+                               });
   UNODB_ASSERT_EQ(visited.size(), 2U);
   UNODB_EXPECT_EQ(visited[0], std::byte{0x01});
   UNODB_EXPECT_EQ(visited[1], std::byte{0x02});
