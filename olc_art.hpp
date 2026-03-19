@@ -1000,8 +1000,8 @@ class db_leaf_qsbr_deleter {
 
   static_assert(std::is_trivially_destructible_v<leaf_type>);
 
-  constexpr explicit db_leaf_qsbr_deleter(Db& db_
-                                          UNODB_DETAIL_LIFETIMEBOUND) noexcept
+  constexpr explicit db_leaf_qsbr_deleter(
+      Db& db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : db_instance{db_} {}
 
   void operator()(leaf_type* to_delete) const {
@@ -1040,8 +1040,9 @@ class db_leaf_qsbr_deleter {
 /// associated with the unodb::detail::olc_node_ptr..
 ///
 /// \note This returns the lock rather than trying to acquire the lock.
-[[nodiscard]] inline auto& node_ptr_lock(const unodb::detail::olc_node_ptr& node
-                                         UNODB_DETAIL_LIFETIMEBOUND) noexcept {
+[[nodiscard]] inline auto& node_ptr_lock(
+    const unodb::detail::olc_node_ptr&
+        node UNODB_DETAIL_LIFETIMEBOUND) noexcept {
   return node.ptr<unodb::detail::olc_node_header*>()->lock();
 }
 
@@ -1049,16 +1050,16 @@ class db_leaf_qsbr_deleter {
 
 template <typename Key, typename Value>
 [[nodiscard]] auto& node_ptr_lock(
-    const unodb::detail::olc_leaf_type<Key, Value>* const node
-    UNODB_DETAIL_LIFETIMEBOUND) noexcept {
+    const unodb::detail::olc_leaf_type<Key, Value>* const
+        node UNODB_DETAIL_LIFETIMEBOUND) noexcept {
   return node->lock();
 }
 
 #endif
 
 template <class INode>
-[[nodiscard]] constexpr auto& lock(const INode& inode
-                                   UNODB_DETAIL_LIFETIMEBOUND) noexcept {
+[[nodiscard]] constexpr auto& lock(
+    const INode& inode UNODB_DETAIL_LIFETIMEBOUND) noexcept {
   return inode.lock();
 }
 
@@ -1639,24 +1640,12 @@ template <typename Key, typename Value, class INode>
         std::move(*child_critical_section)};
     if (UNODB_DETAIL_UNLIKELY(child_guard.must_restart())) return {};
 
-    // For variable-length keys, check leave_last_child precondition:
-    // prefix merge must not overflow key_prefix_capacity.
-    if constexpr (std::is_same_v<Key, key_view>) {
-      const std::uint8_t child_to_leave = (child_i == 0) ? 1U : 0U;
-      const auto remaining = inode.get_child(child_to_leave);
-      if (remaining.type() != node_type::LEAF) {
-        const auto* const ri{
-            remaining
-                .template ptr<detail::olc_inode_base<Key, Value> const*>()};
-        if (ri->get_key_prefix().length() + inode.get_key_prefix().length() +
-                1 >
-            detail::key_prefix_capacity) {
-          child_guard.unlock_and_obsolete();
-          inode.remove(child_i, db_instance);
-          *child_in_parent = nullptr;
-          return true;
-        }
-      }
+    // Prefix merge must not overflow key_prefix_capacity.
+    if (!inode.can_collapse(child_i)) {
+      child_guard.unlock_and_obsolete();
+      inode.remove(child_i, db_instance);
+      *child_in_parent = nullptr;
+      return true;
     }
     auto current_node{olc_art_policy<Key, Value>::make_db_inode_reclaimable_ptr(
         &inode, db_instance)};
@@ -3325,9 +3314,7 @@ olc_db<Key, Value>::try_chain_cut(
 
   // --- Step 4.4: Reclaim leaf and chain nodes ---
   leaf_guard.unlock_and_obsolete();
-  {
-    const auto r{art_policy::reclaim_leaf_on_scope_exit(leaf, *this)};
-  }
+  { const auto r{art_policy::reclaim_leaf_on_scope_exit(leaf, *this)}; }
 
   // chain_bottom_guard may have been consumed by init() in the shrink path.
   // must_restart() returns true when the guard is inactive (no lock).
