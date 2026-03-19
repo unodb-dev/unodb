@@ -1033,8 +1033,8 @@ class db_leaf_qsbr_deleter {
 
   static_assert(std::is_trivially_destructible_v<leaf_type>);
 
-  constexpr explicit db_leaf_qsbr_deleter(
-      Db& db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
+  constexpr explicit db_leaf_qsbr_deleter(Db& db_
+                                          UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : db_instance{db_} {}
 
   void operator()(leaf_type* to_delete) const {
@@ -1073,9 +1073,8 @@ class db_leaf_qsbr_deleter {
 /// associated with the unodb::detail::olc_node_ptr..
 ///
 /// \note This returns the lock rather than trying to acquire the lock.
-[[nodiscard]] inline auto& node_ptr_lock(
-    const unodb::detail::olc_node_ptr&
-        node UNODB_DETAIL_LIFETIMEBOUND) noexcept {
+[[nodiscard]] inline auto& node_ptr_lock(const unodb::detail::olc_node_ptr& node
+                                         UNODB_DETAIL_LIFETIMEBOUND) noexcept {
   return node.ptr<unodb::detail::olc_node_header*>()->lock();
 }
 
@@ -1083,16 +1082,16 @@ class db_leaf_qsbr_deleter {
 
 template <typename Key, typename Value>
 [[nodiscard]] auto& node_ptr_lock(
-    const unodb::detail::olc_leaf_type<Key, Value>* const
-        node UNODB_DETAIL_LIFETIMEBOUND) noexcept {
+    const unodb::detail::olc_leaf_type<Key, Value>* const node
+    UNODB_DETAIL_LIFETIMEBOUND) noexcept {
   return node->lock();
 }
 
 #endif
 
 template <class INode>
-[[nodiscard]] constexpr auto& lock(
-    const INode& inode UNODB_DETAIL_LIFETIMEBOUND) noexcept {
+[[nodiscard]] constexpr auto& lock(const INode& inode
+                                   UNODB_DETAIL_LIFETIMEBOUND) noexcept {
   return inode.lock();
 }
 

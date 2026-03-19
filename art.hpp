@@ -1868,8 +1868,8 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
     const auto count = inode->get_children_count();
 
     if (count > 1 || ntype != node_type::I4) {
-      const auto remove_result UNODB_DETAIL_USED_IN_DEBUG{
-          inode->template remove_or_choose_subtree<
+      const auto remove_result
+          UNODB_DETAIL_USED_IN_DEBUG{inode->template remove_or_choose_subtree<
               std::optional<detail::node_ptr*>>(ntype, remaining_key[0],
                                                 remove_key, *this, slot)};
       UNODB_DETAIL_ASSERT(remove_result.has_value());
@@ -1934,7 +1934,9 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
           return true;
         }
         *entry.slot = remaining;
-        { const auto ri{art_policy::make_db_inode_unique_ptr(pi4, *this)}; }
+        {
+          const auto ri{art_policy::make_db_inode_unique_ptr(pi4, *this)};
+        }
 #ifdef UNODB_DETAIL_WITH_STATS
         account_shrinking_inode<node_type::I4>();
 #endif

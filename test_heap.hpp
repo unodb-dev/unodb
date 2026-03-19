@@ -49,8 +49,8 @@ class allocation_failure_injector final {
   ///
   /// \note Do not call directly: use UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION()
   /// instead.
-  static void fail_on_nth_allocation(
-      std::uint64_t n UNODB_DETAIL_USED_IN_DEBUG) noexcept {
+  static void fail_on_nth_allocation(std::uint64_t n
+                                     UNODB_DETAIL_USED_IN_DEBUG) noexcept {
     fail_on_nth_allocation_.store(n, std::memory_order_release);
   }
 

@@ -188,8 +188,8 @@ void add_to_orphan_list(
 /// \param orphan_list Global orphaned request list
 /// \return Taken orphaned request list
 [[nodiscard]] detail::dealloc_vector_list_node* take_orphan_list(
-    std::atomic<detail::dealloc_vector_list_node*>&
-        orphan_list UNODB_DETAIL_LIFETIMEBOUND) noexcept {
+    std::atomic<detail::dealloc_vector_list_node*>& orphan_list
+    UNODB_DETAIL_LIFETIMEBOUND) noexcept {
   return orphan_list.exchange(nullptr, std::memory_order_acq_rel);
 }
 
