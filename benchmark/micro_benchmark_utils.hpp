@@ -286,8 +286,7 @@ extern template void
 destroy_tree<unodb::olc_db<unodb::key_view, unodb::value_view>>(
     unodb::olc_db<unodb::key_view, unodb::value_view>&, ::benchmark::State&);
 
-extern template void
-destroy_tree<unodb::db<unodb::key_view, std::uint64_t>>(
+extern template void destroy_tree<unodb::db<unodb::key_view, std::uint64_t>>(
     unodb::db<unodb::key_view, std::uint64_t>&, ::benchmark::State&);
 extern template void
 destroy_tree<unodb::olc_db<unodb::key_view, std::uint64_t>>(

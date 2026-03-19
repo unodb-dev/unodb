@@ -1744,23 +1744,21 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanChainMixedLengths) {
 
 template <class Db>
 void verify_stack(typename Db::iterator& it, unodb::key_view expected_key) {
-  ASSERT_TRUE(it.valid());
+  UNODB_ASSERT_TRUE(it.valid());
   auto stk = it.test_only_stack();
-  ASSERT_GE(stk.size(), 1U) << "Stack must have at least a leaf";
+  UNODB_ASSERT_TRUE(stk.size() >= 1U);
 
   // For can_eliminate_leaf types, the top is a packed value sentinel (0xFF).
   // For leaf types, the top is a LEAF node.
   if (stk.back().child_index == static_cast<std::uint8_t>(0xFFU)) {
     // Packed value — no type check possible.
   } else {
-    EXPECT_EQ(stk.back().node.type(), unodb::node_type::LEAF)
-        << "Top of stack must be a leaf";
+    UNODB_EXPECT_EQ(stk.back().node.type(), unodb::node_type::LEAF);
   }
 
   const auto inode_end = stk.size() - 1;
   for (std::size_t i = 0; i < inode_end; ++i) {
-    EXPECT_NE(stk[i].node.type(), unodb::node_type::LEAF)
-        << "Entry " << i << " should be an inode";
+    UNODB_EXPECT_NE(stk[i].node.type(), unodb::node_type::LEAF);
   }
 
   // Reconstruct key from inode prefix+dispatch bytes.
@@ -1771,11 +1769,9 @@ void verify_stack(typename Db::iterator& it, unodb::key_view expected_key) {
       reconstructed.push_back(prefix[j]);
     reconstructed.push_back(stk[i].key_byte);
   }
-  ASSERT_EQ(reconstructed.size(), expected_key.size())
-      << "Reconstructed key length mismatch";
+  UNODB_ASSERT_EQ(reconstructed.size(), expected_key.size());
   for (std::size_t i = 0; i < reconstructed.size(); ++i) {
-    EXPECT_EQ(reconstructed[i], expected_key[i])
-        << "Key byte mismatch at position " << i;
+    UNODB_EXPECT_EQ(reconstructed[i], expected_key[i]);
   }
 }
 
@@ -1907,7 +1903,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureFullScan) {
       verify_stack<TypeParam>(it, it.get_key().view());
       ++count;
     }
-    EXPECT_EQ(count, 4);
+    UNODB_EXPECT_EQ(count, 4);
   }
 
   // Reverse scan.
@@ -1918,7 +1914,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureFullScan) {
       verify_stack<TypeParam>(it, it.get_key().view());
       ++count;
     }
-    EXPECT_EQ(count, 4);
+    UNODB_EXPECT_EQ(count, 4);
   }
 }
 

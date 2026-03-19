@@ -659,7 +659,7 @@ class [[nodiscard]] tree_verifier final {
       return false;
     };
     const_cast<Db&>(test_db).scan(fn);
-    // FIXME(thompsonbry) variable length keys - enable this assert.
+    // TODO(thompsonbry) variable length keys - enable this assert (#8).
     // 3 OOM tests are failing (for each Db type) when this is enabled
     // (off by one).  What is going on there?
     //
