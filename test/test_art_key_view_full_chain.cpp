@@ -1931,4 +1931,50 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, EmptyKeyRejected) {
   UNODB_ASSERT_TRUE(db.empty());
 }
 
+// Regression test: scan_range with 1000 compound float keys must return
+// results in encoded key order.  A bug in keybuf_.pop() treated child_index
+// 0xFF as a VIS sentinel even when can_eliminate_leaf was false, corrupting
+// the reconstructed key during iterator ascent.
+TEST(ARTKeyViewValueViewTest, ScanRangeFloatCompoundKeyOrder) {
+  unodb::db<unodb::key_view, unodb::value_view> db;
+  unodb::key_encoder enc;
+  const std::uint8_t flag = 0x76;
+  const float step = 100.0f / 1000.0f;
+  const std::uint64_t dummy_val = 42;
+  const unodb::value_view val{
+      reinterpret_cast<const std::byte*>(&dummy_val), sizeof(dummy_val)};
+
+  for (int i = 0; i < 1000; i++) {
+    enc.reset();
+    enc.encode(step * static_cast<float>(i));
+    enc.encode(flag);
+    enc.encode(static_cast<std::uint64_t>(i));
+    ASSERT_TRUE(db.insert(enc.get_key_view(), val));
+  }
+
+  unodb::key_encoder e1;
+  unodb::key_encoder e2;
+  e1.reset();
+  e1.encode(0.0f);
+  e1.encode(std::uint8_t{0});
+  e1.encode(std::uint64_t{0});
+  e2.reset();
+  e2.encode(100.0f);
+  e2.encode(std::uint8_t{0xFF});
+  e2.encode(~std::uint64_t{0});
+
+  float prev = -1.0f;
+  int count = 0;
+  db.scan_range(e1.get_key_view(), e2.get_key_view(), [&](auto& v) {
+    unodb::key_decoder dec(v.get_key());
+    float decoded{};
+    dec.decode(decoded);
+    EXPECT_GE(decoded, prev);
+    prev = decoded;
+    count++;
+    return false;
+  });
+  EXPECT_EQ(count, 1000);
+}
+
 }  // namespace

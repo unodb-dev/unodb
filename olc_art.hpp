@@ -516,7 +516,9 @@ class olc_db final {
       // each of them.
       const auto& e = top();
       const auto n = static_cast<std::size_t>(
-          (e.child_index != 0xFF && e.node.type() != node_type::LEAF)
+          (e.node.type() != node_type::LEAF &&
+           !(art_policy::can_eliminate_leaf &&
+             e.child_index == static_cast<std::uint8_t>(0xFFU)))
               ? e.prefix.length() + 1
               : 0);
       keybuf_.pop(n);
