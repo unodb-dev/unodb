@@ -109,6 +109,7 @@ struct value_bitmask_field<false, Storage> {
   static constexpr void remove_at(std::uint8_t) noexcept {}
 };
 
+/// Disabled specialization for array-based bitmasks.
 template <class T, std::size_t N>
 struct value_bitmask_field<false, std::array<T, N>> {
   [[nodiscard]] static constexpr bool test(std::uint8_t) noexcept {
@@ -116,6 +117,7 @@ struct value_bitmask_field<false, std::array<T, N>> {
   }
   static constexpr void set(std::uint8_t) noexcept {}
   static constexpr void clear(std::uint8_t) noexcept {}
+  static constexpr void remove_at(std::uint8_t) noexcept {}
 };
 
 #ifdef UNODB_DETAIL_X86_64
@@ -2108,9 +2110,14 @@ using basic_inode_4_parent =
 ///
 /// \tparam ArtPolicy Policy class defining types and operations
 template <class ArtPolicy>
-class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
+class basic_inode_4
+    : public basic_inode_4_parent<ArtPolicy>,
+      private value_bitmask_field<ArtPolicy::can_eliminate_leaf, std::uint8_t> {
   /// Parent class type.
   using parent_class = basic_inode_4_parent<ArtPolicy>;
+  /// Bitmask base (empty via EBO when can_eliminate_leaf is false).
+  using bitmask_base =
+      value_bitmask_field<ArtPolicy::can_eliminate_leaf, std::uint8_t>;
 
   using typename parent_class::inode16_type;
   using typename parent_class::inode4_type;
@@ -2333,7 +2340,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
       *children_itr++ = *source_children_itr++;
     }
 
-    const auto r{
+    [[maybe_unused]] const auto r{
         ArtPolicy::reclaim_if_leaf(source_children_itr->load(), db_instance)};
 
     ++source_keys_itr;
@@ -2525,7 +2532,7 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
     // Shift bitmask bits to match shifted children array.
     if constexpr (ArtPolicy::can_eliminate_leaf) {
-      value_bitmask.remove_at(child_index);
+      bitmask_base::remove_at(child_index);
     }
 
     UNODB_DETAIL_ASSERT(std::is_sorted(
@@ -2850,23 +2857,18 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   };
 
-  /// Bitmask tracking which child slots hold packed values.
-  /// Empty (zero-sized) when can_eliminate_leaf is false.
-  value_bitmask_field<ArtPolicy::can_eliminate_leaf, std::uint8_t>
-      value_bitmask;
-
   /// Check if child at index holds a packed value (not a pointer).
  public:
   [[nodiscard]] constexpr bool is_value_in_slot(std::uint8_t i) const noexcept {
-    return value_bitmask.test(i);
+    return bitmask_base::test(i);
   }
   /// Mark child at index as holding a packed value.
   constexpr void set_value_bit(std::uint8_t i) noexcept {
-    value_bitmask.set(i);
+    bitmask_base::set(i);
   }
   /// Mark child at index as holding a pointer (clear value bit).
   constexpr void clear_value_bit(std::uint8_t i) noexcept {
-    value_bitmask.clear(i);
+    bitmask_base::clear(i);
   }
 
   /// Key bytes for child lookup.
@@ -2932,9 +2934,15 @@ using basic_inode_16_parent = basic_inode<
 ///
 /// \tparam ArtPolicy Policy class defining types and operations
 template <class ArtPolicy>
-class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
+class basic_inode_16
+    : public basic_inode_16_parent<ArtPolicy>,
+      private value_bitmask_field<ArtPolicy::can_eliminate_leaf,
+                                  std::uint16_t> {
   /// Parent class type.
   using parent_class = basic_inode_16_parent<ArtPolicy>;
+  /// Bitmask base (empty via EBO when can_eliminate_leaf is false).
+  using bitmask_base =
+      value_bitmask_field<ArtPolicy::can_eliminate_leaf, std::uint16_t>;
 
   using typename parent_class::inode16_type;
   using typename parent_class::inode48_type;
@@ -3234,7 +3242,7 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
 
     // Shift bitmask bits to match shifted children array.
     if constexpr (ArtPolicy::can_eliminate_leaf) {
-      value_bitmask.remove_at(child_index);
+      bitmask_base::remove_at(child_index);
     }
 
     UNODB_DETAIL_ASSERT(std::is_sorted(
@@ -3492,20 +3500,15 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   };
 
-  /// Bitmask tracking which child slots hold packed values.
-  /// Empty (zero-sized) when can_eliminate_leaf is false.
-  value_bitmask_field<ArtPolicy::can_eliminate_leaf, std::uint16_t>
-      value_bitmask;
-
  public:
   [[nodiscard]] constexpr bool is_value_in_slot(std::uint8_t i) const noexcept {
-    return value_bitmask.test(i);
+    return bitmask_base::test(i);
   }
   constexpr void set_value_bit(std::uint8_t i) noexcept {
-    value_bitmask.set(i);
+    bitmask_base::set(i);
   }
   constexpr void clear_value_bit(std::uint8_t i) noexcept {
-    value_bitmask.clear(i);
+    bitmask_base::clear(i);
   }
 
   /// Key bytes for child lookup.
@@ -3540,9 +3543,15 @@ using basic_inode_48_parent = basic_inode<
 ///
 /// \tparam ArtPolicy Policy class defining types and operations
 template <class ArtPolicy>
-class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
+class basic_inode_48
+    : public basic_inode_48_parent<ArtPolicy>,
+      private value_bitmask_field<ArtPolicy::can_eliminate_leaf,
+                                  std::array<std::uint8_t, 6>> {
   /// Base class type alias.
   using parent_class = basic_inode_48_parent<ArtPolicy>;
+  /// Bitmask base (empty via EBO when can_eliminate_leaf is false).
+  using bitmask_base = value_bitmask_field<ArtPolicy::can_eliminate_leaf,
+                                           std::array<std::uint8_t, 6>>;
 
   using typename parent_class::inode16_type;
   using typename parent_class::inode256_type;
@@ -3681,7 +3690,7 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     const auto reclaim_source_node{
         ArtPolicy::template make_db_inode_reclaimable_ptr<inode256_type>(
             &source_node, db_instance)};
-    const auto r{ArtPolicy::reclaim_if_leaf(
+    [[maybe_unused]] const auto r{ArtPolicy::reclaim_if_leaf(
         source_node.children[child_to_delete].load(), db_instance)};
 
     source_node.children[child_to_delete] = node_ptr{nullptr};
@@ -4131,19 +4140,13 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
                                              db_type& db_instance) noexcept {
     UNODB_DETAIL_ASSERT(children_i != empty_child);
 
-    const auto r{ArtPolicy::reclaim_if_leaf(
+    [[maybe_unused]] const auto r{ArtPolicy::reclaim_if_leaf(
         children.pointer_array[children_i].load(), db_instance)};
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Sentinel value for empty child slot.
   static constexpr std::uint8_t empty_child = 0xFF;
-
-  /// Bitmask tracking which child slots hold packed values (48 bits used).
-  /// Empty (zero-sized) when can_eliminate_leaf is false.
-  value_bitmask_field<ArtPolicy::can_eliminate_leaf,
-                      std::array<std::uint8_t, 6>>
-      value_bitmask;
 
  public:
   /// For I48, the child_index from find_child is the key byte.
@@ -4159,21 +4162,21 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
     if constexpr (!ArtPolicy::can_eliminate_leaf) return;
     const auto ci = child_indexes[key_byte_i].load();
     UNODB_DETAIL_ASSERT(ci != empty_child);
-    value_bitmask.set(ci);
+    bitmask_base::set(ci);
   }
   constexpr void clear_value_bit(std::uint8_t key_byte_i) noexcept {
     if constexpr (!ArtPolicy::can_eliminate_leaf) return;
     const auto ci = child_indexes[key_byte_i].load();
     UNODB_DETAIL_ASSERT(ci != empty_child);
-    value_bitmask.clear(ci);
+    bitmask_base::clear(ci);
   }
   /// Check by children array index (for internal iteration).
   [[nodiscard]] constexpr bool is_value_in_slot_by_ci(
       std::uint8_t ci) const noexcept {
-    return value_bitmask.test(ci);
+    return bitmask_base::test(ci);
   }
   constexpr void set_value_bit_by_ci(std::uint8_t ci) noexcept {
-    value_bitmask.set(ci);
+    bitmask_base::set(ci);
   }
   // The only way I found to initialize this array so that everyone is happy and
   // efficient. In the case of OLC, a std::fill compiles to a loop doing a
@@ -4292,9 +4295,15 @@ using basic_inode_256_parent =
 /// \tparam ArtPolicy Policy class defining types and operations
 /// \sa basic_inode for inherited template parameters
 template <class ArtPolicy>
-class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
+class basic_inode_256
+    : public basic_inode_256_parent<ArtPolicy>,
+      private value_bitmask_field<ArtPolicy::can_eliminate_leaf,
+                                  std::array<std::uint8_t, 32>> {
   /// Base class type alias.
   using parent_class = basic_inode_256_parent<ArtPolicy>;
+  /// Bitmask base (empty via EBO when can_eliminate_leaf is false).
+  using bitmask_base = value_bitmask_field<ArtPolicy::can_eliminate_leaf,
+                                           std::array<std::uint8_t, 32>>;
 
   using typename parent_class::inode48_type;
   using typename parent_class::leaf_type;
@@ -4644,9 +4653,10 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
   ///
   /// \param db_instance Database instance
   constexpr void delete_subtree(db_type& db_instance) noexcept {
-    for_each_child([this, &db_instance](unsigned i, node_ptr child) noexcept {
+    for_each_child([this, &db_instance]([[maybe_unused]] unsigned i,
+                                        node_ptr child) noexcept {
       if constexpr (ArtPolicy::can_eliminate_leaf) {
-        if (is_value_in_slot(static_cast<std::uint8_t>(i))) return;
+        if (this->is_value_in_slot(static_cast<std::uint8_t>(i))) return;
       }
       ArtPolicy::delete_subtree(child, db_instance);
     });
@@ -4674,22 +4684,15 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
     });
   }
 
- private:
-  /// Bitmask tracking which child slots hold packed values (256 bits).
-  /// Empty (zero-sized) when can_eliminate_leaf is false.
-  value_bitmask_field<ArtPolicy::can_eliminate_leaf,
-                      std::array<std::uint8_t, 32>>
-      value_bitmask;
-
  public:
   [[nodiscard]] constexpr bool is_value_in_slot(std::uint8_t i) const noexcept {
-    return value_bitmask.test(i);
+    return bitmask_base::test(i);
   }
   constexpr void set_value_bit(std::uint8_t i) noexcept {
-    value_bitmask.set(i);
+    bitmask_base::set(i);
   }
   constexpr void clear_value_bit(std::uint8_t i) noexcept {
-    value_bitmask.clear(i);
+    bitmask_base::clear(i);
   }
 
   /// Child pointers indexed directly by key byte.
