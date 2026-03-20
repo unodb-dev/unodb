@@ -2051,10 +2051,10 @@ typename olc_db<Key, Value>::try_get_result_type olc_db<Key, Value>::try_get(
           }
         }();
         if (key_matches) {
-          const auto val{leaf->template get_value<Value>()};
+          const auto leaf_val{leaf->template get_value<Value>()};
           if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
             return {};  // LCOV_EXCL_LINE
-          return std::make_optional<get_result>(val);
+          return std::make_optional<get_result>(leaf_val);
         }
         if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
           return {};  // LCOV_EXCL_LINE
@@ -2089,10 +2089,10 @@ typename olc_db<Key, Value>::try_get_result_type olc_db<Key, Value>::try_get(
 
     if constexpr (art_policy::can_eliminate_leaf) {
       if (inode->is_value_in_slot(node_type, child_i)) {
-        const auto val = art_policy::unpack_value(child_in_parent->load());
+        const auto leaf_val = art_policy::unpack_value(child_in_parent->load());
         if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
           return {};
-        return std::make_optional<get_result>(val);
+        return std::make_optional<get_result>(leaf_val);
       }
     }
 
@@ -2860,10 +2860,10 @@ template <typename Key, typename Value>
 typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::next() {
   const auto node = current_node();
   if (node != nullptr) {
-    const bool is_packed =
+    [[maybe_unused]] const bool is_packed =
         art_policy::can_eliminate_leaf &&
         stack_.top().child_index == static_cast<std::uint8_t>(0xFFU);
-    art_key_type akey{[&]() -> art_key_type {
+    art_key_type akey{[&]() noexcept -> art_key_type {
       if constexpr (art_policy::full_key_in_inode_path) {
         return art_key_type{keybuf_.get_key_view()};
       } else {
@@ -2953,10 +2953,10 @@ template <typename Key, typename Value>
 typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::prior() {
   const auto node = current_node();
   if (node != nullptr) {
-    const bool is_packed =
+    [[maybe_unused]] const bool is_packed =
         art_policy::can_eliminate_leaf &&
         stack_.top().child_index == static_cast<std::uint8_t>(0xFFU);
-    art_key_type akey{[&]() -> art_key_type {
+    art_key_type akey{[&]() noexcept -> art_key_type {
       if constexpr (art_policy::full_key_in_inode_path) {
         return art_key_type{keybuf_.get_key_view()};
       } else {

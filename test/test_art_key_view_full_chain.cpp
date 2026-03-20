@@ -1935,14 +1935,15 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, EmptyKeyRejected) {
 // results in encoded key order.  A bug in keybuf_.pop() treated child_index
 // 0xFF as a VIS sentinel even when can_eliminate_leaf was false, corrupting
 // the reconstructed key during iterator ascent.
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26426)
 TEST(ARTKeyViewValueViewTest, ScanRangeFloatCompoundKeyOrder) {
   unodb::db<unodb::key_view, unodb::value_view> db;
   unodb::key_encoder enc;
   const std::uint8_t flag = 0x76;
   const float step = 100.0f / 1000.0f;
   const std::uint64_t dummy_val = 42;
-  const unodb::value_view val{
-      reinterpret_cast<const std::byte*>(&dummy_val), sizeof(dummy_val)};
+  const unodb::value_view val{reinterpret_cast<const std::byte*>(&dummy_val),
+                              sizeof(dummy_val)};
 
   for (int i = 0; i < 1000; i++) {
     enc.reset();
@@ -1976,5 +1977,7 @@ TEST(ARTKeyViewValueViewTest, ScanRangeFloatCompoundKeyOrder) {
   });
   EXPECT_EQ(count, 1000);
 }
+
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 }  // namespace

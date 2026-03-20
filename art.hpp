@@ -472,8 +472,10 @@ class db final {
     iterator& right_most_traversal(detail::node_ptr node);
 
     /// Descend left if child is an inode, or push as leaf if value-in-slot.
-    iterator& descend_left(const auto* inode, node_type ntype,
-                           std::uint8_t child_i, detail::node_ptr child) {
+    iterator& descend_left([[maybe_unused]] const auto* inode,
+                           [[maybe_unused]] node_type ntype,
+                           [[maybe_unused]] std::uint8_t child_i,
+                           detail::node_ptr child) {
       if constexpr (art_policy::can_eliminate_leaf) {
         if (inode->is_value_in_slot(ntype, child_i)) {
           push_leaf(child);
@@ -484,8 +486,10 @@ class db final {
     }
 
     /// Descend right if child is an inode, or push as leaf if value-in-slot.
-    iterator& descend_right(const auto* inode, node_type ntype,
-                            std::uint8_t child_i, detail::node_ptr child) {
+    iterator& descend_right([[maybe_unused]] const auto* inode,
+                            [[maybe_unused]] node_type ntype,
+                            [[maybe_unused]] std::uint8_t child_i,
+                           detail::node_ptr child) {
       if constexpr (art_policy::can_eliminate_leaf) {
         if (inode->is_value_in_slot(ntype, child_i)) {
           push_leaf(child);
@@ -2155,7 +2159,7 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
       if (node_type == node_type::LEAF) {
         const auto* const leaf{node.template ptr<leaf_type*>()};
         push_leaf(node);
-        int cmp_;
+        int cmp_{0};
         if constexpr (art_policy::full_key_in_inode_path) {
           cmp_ =
               unodb::detail::compare(keybuf_.get_key_view(), k.get_key_view());

@@ -88,13 +88,13 @@ struct value_bitmask_field<Enabled, std::array<T, N>> {
   std::array<T, N> bits{};
 
   [[nodiscard]] constexpr bool test(std::uint8_t i) const noexcept {
-    return (bits[i / 8] >> (i % 8)) & 1U;
+    return (bits[static_cast<std::size_t>(i) / 8] >> (i % 8)) & 1U;
   }
   constexpr void set(std::uint8_t i) noexcept {
-    bits[i / 8] |= static_cast<T>(T{1} << (i % 8));
+    bits[static_cast<std::size_t>(i) / 8] |= static_cast<T>(T{1} << (i % 8));
   }
   constexpr void clear(std::uint8_t i) noexcept {
-    bits[i / 8] &= static_cast<T>(~(T{1} << (i % 8)));
+    bits[static_cast<std::size_t>(i) / 8] &= static_cast<T>(~(T{1} << (i % 8)));
   }
 };
 
@@ -377,6 +377,7 @@ class [[nodiscard]] basic_leaf<no_key_tag, Header> final : public Header {
   }
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Keyless leaf always matches — the key was verified by the inode path.
   template <typename ArtKey>
@@ -472,17 +473,17 @@ template <typename Key, typename Value, template <typename, typename> class Db>
   }
 
   // Serialize value to bytes for leaf storage.
-  value_view val_bytes;
+  value_view leaf_val_bytes;
   [[maybe_unused]] std::byte val_buf[sizeof(Value)];
   if constexpr (std::is_same_v<Value, value_view>) {
-    val_bytes = v;
+    leaf_val_bytes = v;
   } else {
     static_assert(std::is_trivially_copyable_v<Value>);
     std::memcpy(val_buf, &v, sizeof(v));
-    val_bytes = value_view{val_buf, sizeof(v)};
+    leaf_val_bytes = value_view{val_buf, sizeof(v)};
   }
 
-  if (UNODB_DETAIL_UNLIKELY(val_bytes.size_bytes() >
+  if (UNODB_DETAIL_UNLIKELY(leaf_val_bytes.size_bytes() >
                             leaf_type::max_value_size)) {
     throw std::length_error("Value length must fit in std::uint32_t");
   }
@@ -491,12 +492,12 @@ template <typename Key, typename Value, template <typename, typename> class Db>
   if constexpr (can_eliminate_key_in_leaf_v<Key, Value>) {
     size = leaf_type::compute_size(
         static_cast<typename leaf_type::value_size_type>(
-            val_bytes.size_bytes()));
+            leaf_val_bytes.size_bytes()));
   } else {
     size = leaf_type::compute_size(
         static_cast<typename leaf_type::key_size_type>(k.size()),
         static_cast<typename leaf_type::value_size_type>(
-            val_bytes.size_bytes()));
+            leaf_val_bytes.size_bytes()));
   }
 
   auto* const leaf_mem = static_cast<std::byte*>(
@@ -506,15 +507,17 @@ template <typename Key, typename Value, template <typename, typename> class Db>
   db.increment_leaf_count(size);
 #endif  // UNODB_DETAIL_WITH_STATS
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26402)
   return basic_db_leaf_unique_ptr<Key, Value, header_type, Db>{
       [&]() {
         if constexpr (can_eliminate_key_in_leaf_v<Key, Value>) {
-          return new (leaf_mem) leaf_type{val_bytes};
+          return new (leaf_mem) leaf_type{leaf_val_bytes};
         } else {
-          return new (leaf_mem) leaf_type{k, val_bytes};
+          return new (leaf_mem) leaf_type{k, leaf_val_bytes};
         }
       }(),
       basic_db_leaf_deleter<db_type>{db}};
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 }
 
 /// Metaprogramming struct listing all concrete internal node types.
@@ -675,12 +678,12 @@ struct basic_art_policy final {
   /// The parent inode's value_bitmask distinguishes this from a pointer.
   [[nodiscard]] static node_ptr pack_value(Value v) noexcept {
     static_assert(can_eliminate_leaf);
+    std::uint64_t raw{};
+    static_assert(sizeof(v) <= sizeof(raw));
+    std::memcpy(&raw, &v, sizeof(v));
+    raw ^= pack_xor_sentinel;
     node_ptr result{nullptr};
-    static_assert(sizeof(v) <= sizeof(result));
-    std::memcpy(&result, &v, sizeof(v));
-    // XOR with sentinel so that value 0 doesn't produce nullptr.
-    auto raw = result.raw_val() ^ pack_xor_sentinel;
-    std::memcpy(&result, &raw, sizeof(raw));
+    std::memcpy(static_cast<void*>(&result), &raw, sizeof(raw));
     return result;
   }
 
@@ -4653,13 +4656,18 @@ class basic_inode_256
   ///
   /// \param db_instance Database instance
   constexpr void delete_subtree(db_type& db_instance) noexcept {
-    for_each_child([this, &db_instance]([[maybe_unused]] unsigned i,
-                                        node_ptr child) noexcept {
-      if constexpr (ArtPolicy::can_eliminate_leaf) {
+    if constexpr (ArtPolicy::can_eliminate_leaf) {
+      for_each_child([this, &db_instance](unsigned i,
+                                          node_ptr child) noexcept {
         if (this->is_value_in_slot(static_cast<std::uint8_t>(i))) return;
-      }
-      ArtPolicy::delete_subtree(child, db_instance);
-    });
+        ArtPolicy::delete_subtree(child, db_instance);
+      });
+    } else {
+      for_each_child([&db_instance]([[maybe_unused]] unsigned i,
+                                    node_ptr child) noexcept {
+        ArtPolicy::delete_subtree(child, db_instance);
+      });
+    }
   }
 
   /// Dump node contents to stream for debugging.
