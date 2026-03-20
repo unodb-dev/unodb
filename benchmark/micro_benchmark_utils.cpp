@@ -1,4 +1,4 @@
-// Copyright 2020-2025 UnoDB contributors
+// Copyright 2020-2026 UnoDB contributors
 
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep

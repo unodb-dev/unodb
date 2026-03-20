@@ -1,4 +1,4 @@
-// Copyright 2021-2025 UnoDB contributors
+// Copyright 2021-2026 UnoDB contributors
 
 // Should be the first include
 #include "global.hpp"

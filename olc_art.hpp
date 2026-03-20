@@ -1,4 +1,4 @@
-// Copyright 2019-2025 UnoDB contributors
+// Copyright 2019-2026 UnoDB contributors
 #ifndef UNODB_DETAIL_OLC_ART_HPP
 #define UNODB_DETAIL_OLC_ART_HPP
 
@@ -168,7 +168,9 @@ class olc_db final {
   /// The type of the value associated with the key in the index.
   using value_type = Value;
   using value_view = unodb::qsbr_value_view;
-  using get_result = std::optional<value_type>;
+  using get_result =
+      std::optional<std::conditional_t<std::is_same_v<Value, unodb::value_view>,
+                                       unodb::qsbr_value_view, value_type>>;
   using inode_base = detail::olc_inode_base<Key, Value>;
   using leaf_type = detail::olc_leaf_type<Key, Value>;
   using db_type = olc_db<Key, Value>;
@@ -1033,8 +1035,8 @@ class db_leaf_qsbr_deleter {
 
   static_assert(std::is_trivially_destructible_v<leaf_type>);
 
-  constexpr explicit db_leaf_qsbr_deleter(Db& db_
-                                          UNODB_DETAIL_LIFETIMEBOUND) noexcept
+  constexpr explicit db_leaf_qsbr_deleter(
+      Db& db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : db_instance{db_} {}
 
   void operator()(leaf_type* to_delete) const {
@@ -1073,8 +1075,9 @@ class db_leaf_qsbr_deleter {
 /// associated with the unodb::detail::olc_node_ptr..
 ///
 /// \note This returns the lock rather than trying to acquire the lock.
-[[nodiscard]] inline auto& node_ptr_lock(const unodb::detail::olc_node_ptr& node
-                                         UNODB_DETAIL_LIFETIMEBOUND) noexcept {
+[[nodiscard]] inline auto& node_ptr_lock(
+    const unodb::detail::olc_node_ptr&
+        node UNODB_DETAIL_LIFETIMEBOUND) noexcept {
   return node.ptr<unodb::detail::olc_node_header*>()->lock();
 }
 
@@ -1082,16 +1085,16 @@ class db_leaf_qsbr_deleter {
 
 template <typename Key, typename Value>
 [[nodiscard]] auto& node_ptr_lock(
-    const unodb::detail::olc_leaf_type<Key, Value>* const node
-    UNODB_DETAIL_LIFETIMEBOUND) noexcept {
+    const unodb::detail::olc_leaf_type<Key, Value>* const
+        node UNODB_DETAIL_LIFETIMEBOUND) noexcept {
   return node->lock();
 }
 
 #endif
 
 template <class INode>
-[[nodiscard]] constexpr auto& lock(const INode& inode
-                                   UNODB_DETAIL_LIFETIMEBOUND) noexcept {
+[[nodiscard]] constexpr auto& lock(
+    const INode& inode UNODB_DETAIL_LIFETIMEBOUND) noexcept {
   return inode.lock();
 }
 
@@ -2105,6 +2108,9 @@ template <typename Key, typename Value>
 bool olc_db<Key, Value>::insert_internal(art_key_type insert_key,
                                          value_type v) {
   if constexpr (std::is_same_v<Key, key_view>) {
+    if (UNODB_DETAIL_UNLIKELY(insert_key.size() == 0)) {
+      throw std::length_error("Key must not be empty");
+    }
     if (UNODB_DETAIL_UNLIKELY(
             insert_key.size() >
             std::numeric_limits<unodb::key_size_type>::max())) {
@@ -2133,39 +2139,46 @@ detail::olc_node_ptr olc_db<Key, Value>::build_chain(
   const auto start = static_cast<std::size_t>(start_depth);
   auto current = child;
   bool child_is_value = art_policy::can_eliminate_leaf;
-  std::size_t pos = key_len;
-  while (pos > start + cap) {
-    const auto depth = pos - cap - 1;
-    const auto dispatch = full_key[pos - 1];
-    auto remaining = k;
-    remaining.shift_right(depth);
-    auto chain{inode_4::create(
-        *this, full_key, remaining,
-        tree_depth_type{static_cast<std::uint32_t>(depth)}, dispatch, current)};
-    if (child_is_value) {
-      chain->set_value_bit(0);
-      child_is_value = false;
-    }
-    current = detail::olc_node_ptr{chain.release(), node_type::I4};
+  bool owns_current = false;
+  try {
+    std::size_t pos = key_len;
+    while (pos > start + cap) {
+      const auto depth = pos - cap - 1;
+      const auto dispatch = full_key[pos - 1];
+      auto remaining = k;
+      remaining.shift_right(depth);
+      auto chain{
+          inode_4::create(*this, full_key, remaining,
+                          tree_depth_type{static_cast<std::uint32_t>(depth)},
+                          dispatch, current)};
+      if (child_is_value) {
+        chain->set_value_bit(0);
+        child_is_value = false;
+      }
+      current = detail::olc_node_ptr{chain.release(), node_type::I4};
+      owns_current = true;
 #ifdef UNODB_DETAIL_WITH_STATS
-    account_growing_inode<node_type::I4>();
+      account_growing_inode<node_type::I4>();
 #endif
-    pos = depth;
-  }
-  if (pos > start) {
-    const auto dispatch = full_key[pos - 1];
-    auto chain{inode_4::create(
-        *this, full_key, tree_depth_type{static_cast<std::uint32_t>(start)},
-        static_cast<detail::key_prefix_size>(pos - start - 1), dispatch,
-        current)};
-    if (child_is_value) {
-      chain->set_value_bit(0);
-      child_is_value = false;
+      pos = depth;
     }
-    current = detail::olc_node_ptr{chain.release(), node_type::I4};
+    if (pos > start) {
+      const auto dispatch = full_key[pos - 1];
+      auto chain{inode_4::create(
+          *this, full_key, tree_depth_type{static_cast<std::uint32_t>(start)},
+          static_cast<detail::key_prefix_size>(pos - start - 1), dispatch,
+          current)};
+      if (child_is_value) {
+        chain->set_value_bit(0);
+      }
+      current = detail::olc_node_ptr{chain.release(), node_type::I4};
 #ifdef UNODB_DETAIL_WITH_STATS
-    account_growing_inode<node_type::I4>();
+      account_growing_inode<node_type::I4>();
 #endif
+    }
+  } catch (...) {
+    if (owns_current) art_policy::delete_subtree(current, *this);
+    throw;
   }
   return current;
 }

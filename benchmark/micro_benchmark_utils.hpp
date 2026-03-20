@@ -1,4 +1,4 @@
-// Copyright 2019-2025 UnoDB contributors
+// Copyright 2019-2026 UnoDB contributors
 #ifndef UNODB_DETAIL_MICRO_BENCHMARK_UTILS_HPP
 #define UNODB_DETAIL_MICRO_BENCHMARK_UTILS_HPP
 
@@ -302,7 +302,7 @@ destroy_tree<unodb::olc_db<unodb::key_view, std::uint64_t>>(
 /// point into it.  The buffer lifetime matches the key_view_set
 /// lifetime, so key_views remain valid as long as the set exists.
 ///
-/// Designed to be parameterized on value type in the future (PR #2)
+/// Supports parameterization on value type.
 /// for benchmarking Value=uint64_t (tuple identifier use case).
 class key_view_set {
  public:
@@ -443,16 +443,17 @@ template <class Db>
 void populate_tree(Db& instance, const key_view_set& ks,
                    unodb::value_view val) {
   for (const auto& k : ks.keys()) {
-    ::benchmark::DoNotOptimize(instance.insert(k, val));
+    std::ignore = instance.insert(k, val);
   }
 }
 
-/// OLC specialization — quiescent state not needed for insert.
+/// OLC specialization — QSBR quiescent state intentionally omitted:
+/// populate_tree is setup code, not the measured benchmark loop.
 template <>
 inline void populate_tree(kv_olc_db& instance, const key_view_set& ks,
                           unodb::value_view val) {
   for (const auto& k : ks.keys()) {
-    ::benchmark::DoNotOptimize(instance.insert(k, val));
+    std::ignore = instance.insert(k, val);
   }
 }
 

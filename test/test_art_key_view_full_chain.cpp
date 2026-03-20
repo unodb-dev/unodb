@@ -1,4 +1,4 @@
-// Copyright 2025 UnoDB contributors
+// Copyright 2025-2026 UnoDB contributors
 
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
@@ -1919,5 +1919,16 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureFullScan) {
 }
 
 #endif  // UNODB_DETAIL_WITH_STATS
+
+// Empty key_view must be rejected (not UB).
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, EmptyKeyRejected) {
+  TypeParam db;
+  const std::byte empty_buf{};
+  const unodb::key_view empty_key{&empty_buf, 0};
+  UNODB_ASSERT_THROW(std::ignore = db.insert(
+                         empty_key, unodb::test::get_test_value<TypeParam>(0)),
+                     std::length_error);
+  UNODB_ASSERT_TRUE(db.empty());
+}
 
 }  // namespace

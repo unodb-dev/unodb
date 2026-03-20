@@ -14,11 +14,6 @@
 /// @file
 /// key_view micro-benchmarks for ART tree operations.
 ///
-/// Establishes a performance baseline for key_view tree operations
-/// before PR #2 optimizations (remove key from leaf, lift small values
-/// into inodes).  Measures gains against this baseline as optimizations
-/// land.
-///
 /// ## Benchmark groups
 ///
 /// **Core chain benchmarks** (8-byte values):
@@ -320,13 +315,9 @@ BENCHMARK_CAPTURE(chain_remove<OLC>, kl16, gen_kl16)->Apply(kl_sizes);
 BENCHMARK_CAPTURE(chain_remove<OLC>, kl64, gen_kl64)->Apply(kl_sizes);
 BENCHMARK_CAPTURE(chain_remove<OLC>, kl256, gen_kl256)->Apply(kl_sizes);
 
-}  // namespace
-
-UNODB_BENCHMARK_MAIN();
-
 // ===================================================================
 // Value-in-slot benchmarks: db<key_view, uint64_t>
-// These trees eliminate leaves — values packed directly into inode slots.
+// Trees with leaf elimination — values packed directly into inode slots.
 // ===================================================================
 
 template <class Db>
@@ -410,5 +401,11 @@ BENCHMARK_CAPTURE(vis_insert<VIS_OLC>, compound, gen_compound)->Apply(kv_sizes);
 BENCHMARK_CAPTURE(vis_insert<VIS_OLC>, dense, gen_dense)->Apply(kv_sizes);
 BENCHMARK_CAPTURE(vis_get<VIS_OLC>, compound, gen_compound)->Apply(kv_sizes);
 BENCHMARK_CAPTURE(vis_get<VIS_OLC>, dense, gen_dense)->Apply(kv_sizes);
+// OLC vis_remove omitted: single-threaded remove benchmark not meaningful for
+// OLC (no contention to measure).
 BENCHMARK_CAPTURE(vis_scan<VIS_OLC>, compound, gen_compound)->Apply(kv_sizes);
 BENCHMARK_CAPTURE(vis_scan<VIS_OLC>, dense, gen_dense)->Apply(kv_sizes);
+
+}  // namespace
+
+UNODB_BENCHMARK_MAIN();

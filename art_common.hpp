@@ -1,4 +1,4 @@
-// Copyright 2019-2025 UnoDB contributors
+// Copyright 2019-2026 UnoDB contributors
 #ifndef UNODB_DETAIL_ART_COMMON_HPP
 #define UNODB_DETAIL_ART_COMMON_HPP
 
@@ -54,7 +54,7 @@ struct no_leaf_tag {
 };
 
 /// Whether the key can be omitted from the leaf.  True when Key is
-/// key_view and Value fits in a pointer-sized slot.
+/// key_view (full key is encoded in the inode prefix+dispatch chain).
 template <typename Key, typename Value>
 inline constexpr bool can_eliminate_key_in_leaf_v =
     std::is_same_v<Key, key_view>;

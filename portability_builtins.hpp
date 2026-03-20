@@ -1,4 +1,4 @@
-// Copyright 2022-2025 UnoDB contributors
+// Copyright 2022-2026 UnoDB contributors
 #ifndef UNODB_DETAIL_PORTABILITY_BUILTINS_HPP
 #define UNODB_DETAIL_PORTABILITY_BUILTINS_HPP
 
@@ -80,7 +80,7 @@ template <typename To, typename From>
 
 /// Workaround for #700: union type-pun causes stale reads under clang -O3.
 /// Forces the compiler to re-read the object through a volatile pointer.
-/// FIXME(@laurynas-biveinis): remove when #700 is fixed.
+/// TODO(#700): remove when type punning through unions is fixed.
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define UNODB_DETAIL_RELOAD(obj)                                       \
   (*const_cast<std::remove_cvref_t<decltype(obj)>*>(                   \

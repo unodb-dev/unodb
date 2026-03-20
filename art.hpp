@@ -1299,7 +1299,7 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
           const auto chain_start =
               static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
           if (chain_start < k.size()) {
-            // FIXME(@laurynas-biveinis): volatile works around #700.
+            // TODO(#700): volatile works around type punning through unions.
             const volatile auto* vp = node_in_parent;
             auto& new_inode =
                 *const_cast<detail::node_ptr&>(*vp)
@@ -1454,6 +1454,9 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
 template <typename Key, typename Value>
 bool db<Key, Value>::insert_internal(art_key_type insert_key, value_type v) {
   if constexpr (std::is_same_v<Key, key_view>) {
+    if (UNODB_DETAIL_UNLIKELY(insert_key.size() == 0)) {
+      throw std::length_error("Key must not be empty");
+    }
     if (UNODB_DETAIL_UNLIKELY(
             insert_key.size() >
             std::numeric_limits<unodb::key_size_type>::max())) {
@@ -1490,8 +1493,6 @@ bool db<Key, Value>::insert_internal_fixed(art_key_type insert_key,
                                            value_type v) {
   if constexpr (std::is_same_v<Key, key_view>) {
     // Never called for key_view — dispatch goes to insert_internal_key_view.
-    (void)insert_key;
-    (void)v;
     UNODB_DETAIL_CANNOT_HAPPEN();
   } else {
     auto* node = &root;
@@ -1549,7 +1550,7 @@ bool db<Key, Value>::insert_internal_fixed(art_key_type insert_key,
       if constexpr (art_policy::can_eliminate_leaf) {
         const auto [ci, _] = inode->find_child(node_type, remaining_key[0]);
         if (inode->is_value_in_slot(node_type, ci)) {
-          // FIXME(#707): chain split not implemented. Two keys share
+          // TODO(#707): chain split not implemented. Two keys share
           // a chain prefix but diverge deeper. Need to replace the
           // packed value with a new I4 holding both values.
           UNODB_DETAIL_CANNOT_HAPPEN();
@@ -1572,42 +1573,49 @@ detail::node_ptr db<Key, Value>::build_chain(art_key_type k,
   const auto start = static_cast<std::size_t>(start_depth);
   auto current = child;
   bool child_is_value = art_policy::can_eliminate_leaf;
+  bool owns_current = false;  // true once we've built at least one chain node
   // Build bottom-up: start from end of key, work toward start_depth.
   // Each chain I4 consumes up to cap prefix bytes + 1 dispatch byte.
-  std::size_t pos = key_len;
-  while (pos > start + cap) {
-    const auto depth = pos - cap - 1;
-    const auto dispatch = full_key[pos - 1];
-    auto remaining = k;
-    remaining.shift_right(depth);
-    auto chain{inode_4::create(
-        *this, full_key, remaining,
-        tree_depth_type{static_cast<std::uint32_t>(depth)}, dispatch, current)};
-    if (child_is_value) {
-      chain->set_value_bit(0);
-      child_is_value = false;
-    }
-    current = detail::node_ptr{chain.release(), node_type::I4};
+  try {
+    std::size_t pos = key_len;
+    while (pos > start + cap) {
+      const auto depth = pos - cap - 1;
+      const auto dispatch = full_key[pos - 1];
+      auto remaining = k;
+      remaining.shift_right(depth);
+      auto chain{
+          inode_4::create(*this, full_key, remaining,
+                          tree_depth_type{static_cast<std::uint32_t>(depth)},
+                          dispatch, current)};
+      if (child_is_value) {
+        chain->set_value_bit(0);
+        child_is_value = false;
+      }
+      current = detail::node_ptr{chain.release(), node_type::I4};
+      owns_current = true;
 #ifdef UNODB_DETAIL_WITH_STATS
-    account_growing_inode<node_type::I4>();
+      account_growing_inode<node_type::I4>();
 #endif
-    pos = depth;
-  }
-  // Tail: remaining bytes from start_depth to pos.
-  if (pos > start) {
-    const auto dispatch = full_key[pos - 1];
-    auto chain{inode_4::create(
-        *this, full_key, tree_depth_type{static_cast<std::uint32_t>(start)},
-        static_cast<detail::key_prefix_size>(pos - start - 1), dispatch,
-        current)};
-    if (child_is_value) {
-      chain->set_value_bit(0);
-      child_is_value = false;
+      pos = depth;
     }
-    current = detail::node_ptr{chain.release(), node_type::I4};
+    // Tail: remaining bytes from start_depth to pos.
+    if (pos > start) {
+      const auto dispatch = full_key[pos - 1];
+      auto chain{inode_4::create(
+          *this, full_key, tree_depth_type{static_cast<std::uint32_t>(start)},
+          static_cast<detail::key_prefix_size>(pos - start - 1), dispatch,
+          current)};
+      if (child_is_value) {
+        chain->set_value_bit(0);
+      }
+      current = detail::node_ptr{chain.release(), node_type::I4};
 #ifdef UNODB_DETAIL_WITH_STATS
-    account_growing_inode<node_type::I4>();
+      account_growing_inode<node_type::I4>();
 #endif
+    }
+  } catch (...) {
+    if (owns_current) art_policy::delete_subtree(current, *this);
+    throw;
   }
   return current;
 }
@@ -1868,8 +1876,8 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
     const auto count = inode->get_children_count();
 
     if (count > 1 || ntype != node_type::I4) {
-      const auto remove_result
-          UNODB_DETAIL_USED_IN_DEBUG{inode->template remove_or_choose_subtree<
+      const auto remove_result UNODB_DETAIL_USED_IN_DEBUG{
+          inode->template remove_or_choose_subtree<
               std::optional<detail::node_ptr*>>(ntype, remaining_key[0],
                                                 remove_key, *this, slot)};
       UNODB_DETAIL_ASSERT(remove_result.has_value());
@@ -1934,9 +1942,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
           return true;
         }
         *entry.slot = remaining;
-        {
-          const auto ri{art_policy::make_db_inode_unique_ptr(pi4, *this)};
-        }
+        { const auto ri{art_policy::make_db_inode_unique_ptr(pi4, *this)}; }
 #ifdef UNODB_DETAIL_WITH_STATS
         account_shrinking_inode<node_type::I4>();
 #endif

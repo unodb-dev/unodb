@@ -455,18 +455,17 @@ class [[nodiscard]] basic_leaf<no_key_tag, Header> final : public Header {
 ///
 /// \throws std::length_error if key or value exceeds maximum size
 template <typename Key, typename Value, template <typename, typename> class Db>
-[[nodiscard]] auto make_db_leaf_ptr(basic_art_key<Key> k, Value v,
-                                    Db<Key, Value>& db
-                                    UNODB_DETAIL_LIFETIMEBOUND) {
+[[nodiscard]] auto make_db_leaf_ptr(
+    basic_art_key<Key> k, Value v,
+    Db<Key, Value>& db UNODB_DETAIL_LIFETIMEBOUND) {
   using db_type = Db<Key, Value>;
   using header_type = typename db_type::header_type;
   using leaf_type = basic_leaf<leaf_key_type<Key, Value>, header_type>;
 
-  if constexpr (!can_eliminate_key_in_leaf_v<Key, Value>) {
-    if constexpr (std::is_same_v<Key, key_view>) {
-      if (UNODB_DETAIL_UNLIKELY(k.size() > leaf_type::max_key_size)) {
-        throw std::length_error("Key length must fit in std::uint32_t");
-      }
+  if constexpr (!can_eliminate_key_in_leaf_v<Key, Value> &&
+                std::is_same_v<Key, key_view>) {
+    if (UNODB_DETAIL_UNLIKELY(k.size() > leaf_type::max_key_size)) {
+      throw std::length_error("Key length must fit in std::uint32_t");
     }
   }
 
@@ -756,9 +755,9 @@ struct basic_art_policy final {
   /// \param db_instance Database for memory tracking
   ///
   /// \return Unique pointer to newly allocated leaf
-  [[nodiscard]] static auto make_db_leaf_ptr(art_key_type k, value_type v,
-                                             db_type& db_instance
-                                             UNODB_DETAIL_LIFETIMEBOUND) {
+  [[nodiscard]] static auto make_db_leaf_ptr(
+      art_key_type k, value_type v,
+      db_type& db_instance UNODB_DETAIL_LIFETIMEBOUND) {
     static_assert(
         !can_eliminate_leaf,
         "make_db_leaf_ptr must not be called when leaf is eliminated");
@@ -794,8 +793,6 @@ struct basic_art_policy final {
       node_ptr child,
       db_type& db_instance UNODB_DETAIL_LIFETIMEBOUND) noexcept {
     if constexpr (can_eliminate_leaf) {
-      (void)child;
-      (void)db_instance;
       struct noop_guard {};
       return noop_guard{};
     } else {
@@ -819,9 +816,8 @@ struct basic_art_policy final {
   /// \return Unique pointer to newly constructed node
   UNODB_DETAIL_DISABLE_GCC_11_WARNING("-Wmismatched-new-delete")
   template <class INode, class... Args>
-  [[nodiscard]] static auto make_db_inode_unique_ptr(db_type& db_instance
-                                                     UNODB_DETAIL_LIFETIMEBOUND,
-                                                     Args&&... args) {
+  [[nodiscard]] static auto make_db_inode_unique_ptr(
+      db_type& db_instance UNODB_DETAIL_LIFETIMEBOUND, Args&&... args) {
     auto* const inode_mem = static_cast<std::byte*>(
         allocate_aligned(sizeof(INode), alignment_for_new<INode>()));
 
@@ -1480,8 +1476,6 @@ class basic_inode_impl : public ArtPolicy::header_type {
   [[nodiscard]] static constexpr std::uint8_t leaf_key_byte_at(
       const leaf_type* leaf, tree_depth_type depth) noexcept {
     if constexpr (ArtPolicy::can_eliminate_key_in_leaf) {
-      (void)leaf;
-      (void)depth;
       UNODB_DETAIL_CANNOT_HAPPEN();
       return 0;
     } else {
@@ -3011,6 +3005,12 @@ class basic_inode_16 : public basic_inode_16_parent<ArtPolicy> {
                       db_leaf_unique_ptr child,
                       [[maybe_unused]] tree_depth_type depth,
                       std::byte key_byte) noexcept {
+    // This overload is only for trees with actual leaves.  When
+    // can_eliminate_leaf is true, init_grow unconditionally sets the
+    // value bit — which is correct because only the packed-value
+    // overload below can be called in that mode.
+    static_assert(!ArtPolicy::can_eliminate_leaf,
+                  "leaf init must not be called when leaves are eliminated");
     init_grow(db_instance, source_node,
               node_ptr{child.release(), node_type::LEAF}, key_byte);
   }
@@ -3616,6 +3616,8 @@ class basic_inode_48 : public basic_inode_48_parent<ArtPolicy> {
                       db_leaf_unique_ptr child,
                       [[maybe_unused]] tree_depth_type depth,
                       std::byte key_byte) noexcept {
+    static_assert(!ArtPolicy::can_eliminate_leaf,
+                  "leaf init must not be called when leaves are eliminated");
     init_grow(db_instance, source_node,
               node_ptr{child.release(), node_type::LEAF}, key_byte);
   }
@@ -4346,6 +4348,8 @@ class basic_inode_256 : public basic_inode_256_parent<ArtPolicy> {
                       db_leaf_unique_ptr child,
                       [[maybe_unused]] tree_depth_type depth,
                       std::byte key_byte) noexcept {
+    static_assert(!ArtPolicy::can_eliminate_leaf,
+                  "leaf init must not be called when leaves are eliminated");
     init_grow(db_instance, source_node,
               node_ptr{child.release(), node_type::LEAF}, key_byte);
   }
