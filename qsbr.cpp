@@ -45,6 +45,7 @@ struct set_qsbr_per_thread_in_main_thread {
   /// runs. This ensures the main thread starts out participating in QSBR.
   ///
   /// \note Fails fatally if unable to allocate the QSBR instance.
+  // NOLINTNEXTLINE(bugprone-exception-escape)
   set_qsbr_per_thread_in_main_thread() noexcept {
     try {
       auto main_thread_qsbr_reclamator_instance =
@@ -96,6 +97,7 @@ thread_local std::unique_ptr<qsbr_per_thread>
 // LCOV_EXCL_STOP
 
 [[nodiscard]] qsbr_state::type
+// NOLINTNEXTLINE(bugprone-exception-escape)
 qsbr_state::atomic_fetch_dec_threads_in_previous_epoch(
     std::atomic<qsbr_state::type>& word) noexcept {
   const auto old_word = word.fetch_sub(1, std::memory_order_acq_rel);
@@ -212,6 +214,7 @@ void free_orphan_list(detail::dealloc_vector_list_node* list) noexcept {
 
 }  // namespace
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 void qsbr_per_thread::orphan_pending_requests() noexcept {
   add_to_orphan_list(
       qsbr::instance().orphaned_previous_interval_dealloc_requests,
@@ -232,6 +235,7 @@ void qsbr_per_thread::orphan_pending_requests() noexcept {
 }
 
 UNODB_DETAIL_DISABLE_CLANG_21_WARNING("-Wnrvo")
+// NOLINTNEXTLINE(bugprone-exception-escape)
 qsbr_epoch qsbr::register_thread() noexcept {
   auto old_state = get_state();
 
@@ -417,6 +421,7 @@ void qsbr::thread_epoch_change_barrier() noexcept {
 #endif
 }
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 qsbr_epoch qsbr::remove_thread_from_previous_epoch(
     qsbr_epoch current_global_epoch
 #ifndef NDEBUG
@@ -498,6 +503,7 @@ void qsbr::epoch_change_barrier_and_handle_orphans(
   }
 }
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 qsbr_epoch qsbr::change_epoch(qsbr_epoch current_global_epoch,
                               bool single_thread_mode) noexcept {
   epoch_change_barrier_and_handle_orphans(single_thread_mode);
