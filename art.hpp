@@ -550,12 +550,12 @@ class db final {
     ///
     /// \param aleaf Leaf node pointer
     void push_leaf(detail::node_ptr aleaf) {
-      // Mock up a stack entry for the leaf.
       stack_.push({
           aleaf,
           static_cast<std::byte>(0xFFU),     // ignored for leaf
           static_cast<std::uint8_t>(0xFFU),  // ignored for leaf
-          detail::key_prefix_snapshot(0)     // ignored for leaf
+          detail::key_prefix_snapshot(0),    // ignored for leaf
+          true                               // packed_leaf
       });
       // No change in the key_buffer.
     }
@@ -577,8 +577,7 @@ class db final {
       const auto& e = top();
       const auto n = static_cast<std::size_t>(
           (e.node.type() != node_type::LEAF &&
-           !(art_policy::can_eliminate_leaf &&
-             e.child_index == static_cast<std::uint8_t>(0xFFU)))
+           !(art_policy::can_eliminate_leaf && e.packed_leaf))
               ? e.prefix.length() + 1
               : 0);
       keybuf_.pop(n);
@@ -2028,8 +2027,7 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::next() {
     UNODB_DETAIL_ASSERT(node != nullptr);
     const auto node_type = node.type();
     if (node_type == node_type::LEAF ||
-        (art_policy::can_eliminate_leaf &&
-         e.child_index == static_cast<std::uint8_t>(0xFFU))) {
+        (art_policy::can_eliminate_leaf && e.packed_leaf)) {
       pop();     // pop off the leaf
       continue;  // falls through loop if just a root leaf since stack now
                  // empty.
@@ -2065,8 +2063,7 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::prior() {
     UNODB_DETAIL_ASSERT(node != nullptr);
     const auto node_type = node.type();
     if (node_type == node_type::LEAF ||
-        (art_policy::can_eliminate_leaf &&
-         e.child_index == static_cast<std::uint8_t>(0xFFU))) {
+        (art_policy::can_eliminate_leaf && e.packed_leaf)) {
       pop();     // pop off the leaf
       continue;  // falls through loop if just a root leaf since stack now
                  // empty.

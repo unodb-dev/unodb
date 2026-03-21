@@ -1377,6 +1377,12 @@ struct iter_result {
 
   /// Snapshot of key prefix for node.
   key_prefix_snapshot prefix;
+
+  /// True when this entry represents a packed value (value-in-slot) rather
+  /// than an inode or leaf pointer.  Used by the iterator to distinguish
+  /// value-in-slot entries from regular children whose child_index happens
+  /// to equal 0xFF.
+  bool packed_leaf{false};
 };
 
 /// Optional wrapper for iter_result.

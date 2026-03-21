@@ -2012,6 +2012,40 @@ TEST(KeyViewFullChainRegression, CompoundKeyInsertStrictAliasing) {
   }
 }
 
+// Regression: scan key reconstruction with 0xFF child index in VIS trees.
+// The iterator used child_index==0xFF as a sentinel for value-in-slot entries,
+// but 0xFF is a valid child index.  With enough compound keys the c1 subtree
+// inode fills all 256 child slots including 0xFF, causing pop() to skip keybuf
+// truncation and corrupt every subsequent reconstructed key.
+TEST(KeyViewFullChainRegression, ScanKeyReconstructionFF) {
+  unodb::db<unodb::key_view, std::uint64_t> db;
+  constexpr int N = 321;  // enough to span the c1->c2 encoded-float boundary
+  const float step = 100.0f / 1000.0f;
+
+  for (int i = 0; i < N; ++i) {
+    unodb::key_encoder enc;
+    enc.encode(step * static_cast<float>(i));
+    enc.encode(static_cast<std::uint8_t>(0x76));
+    enc.encode(static_cast<std::uint64_t>(i));
+    ASSERT_TRUE(db.insert(enc.get_key_view(), static_cast<std::uint64_t>(i)));
+  }
+
+  int count = 0;
+  float prev = -1.0f;
+  db.scan([&](auto& v) {
+    auto tkv = v.get_key();
+    EXPECT_EQ(tkv.size(), 13u) << "wrong key size at index " << count;
+    unodb::key_decoder dec(unodb::key_view(tkv.data(), tkv.size()));
+    float val{};
+    dec.decode(val);
+    EXPECT_GE(val, prev) << "order violation at index " << count;
+    prev = val;
+    ++count;
+    return false;
+  });
+  EXPECT_EQ(count, N);
+}
+
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 }  // namespace
