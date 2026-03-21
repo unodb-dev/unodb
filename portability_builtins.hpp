@@ -78,13 +78,4 @@ template <typename To, typename From>
 
 }  // namespace unodb::detail
 
-/// Workaround for #700: union type-pun causes stale reads under clang -O3.
-/// Forces the compiler to re-read the object through a volatile pointer.
-/// TODO(#700): remove when type punning through unions is fixed.
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define UNODB_DETAIL_RELOAD(obj)                                       \
-  (*const_cast<std::remove_cvref_t<decltype(obj)>*>(                   \
-      static_cast<volatile const std::remove_cvref_t<decltype(obj)>*>( \
-          &(obj))))
-
 #endif

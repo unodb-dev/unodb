@@ -1,5 +1,14 @@
 // Copyright 2025-2026 UnoDB contributors
 
+/// \file
+/// Tests for db<key_view, uint64_t> (value-in-slot / leaf elimination mode).
+/// These exercise fundamentally different code paths from test_art_key_view.cpp
+/// (which uses db<key_view, value_view>): insert uses build_chain + pack_value
+/// instead of make_db_leaf_ptr, get uses is_value_in_slot + unpack_value,
+/// remove checks value bitmasks, and iterators use the packed_leaf flag.
+/// ~60 test names overlap to verify behavioral equivalence; 9 are unique
+/// (stack structure, collapse guards, empty key rejection).
+
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
 

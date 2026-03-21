@@ -1,4 +1,4 @@
-# Copyright 2020-2022 Laurynas Biveinis
+# Copyright 2020-2026 Laurynas Biveinis
 
 set(micro_benchmark_key_prefix_quick_arg "") # Benchmark is quick as-is
 set(micro_benchmark_n4_quick_arg "--benchmark_filter=\"/16$$|/25|/100\"")
