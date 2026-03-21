@@ -1978,6 +1978,40 @@ TEST(ARTKeyViewValueViewTest, ScanRangeFloatCompoundKeyOrder) {
   EXPECT_EQ(count, 1000);
 }
 
+// Regression test: compound key insert must not crash under GCC -O2 strict
+// aliasing.  After add_to_nonfull inserts a leaf, the full_key_in_inode_path
+// code calls find_child to locate the slot for chain wrapping.  GCC 12+ at -O2
+// can optimize away the re-read of inode data (strict aliasing / #700),
+// causing find_child to return nullptr and crash.  This test exercises the
+// exact pattern: 6 compound keys (float + uint8 + uint64) that diverge at
+// different prefix depths, forcing inode splits.
+TEST(KeyViewFullChainRegression, CompoundKeyInsertStrictAliasing) {
+  unodb::db<unodb::key_view, unodb::value_view> db;
+  unodb::key_encoder enc;
+  const float values[] = {-100.0f, -1.0f, 0.0f, 1.0f, 100.0f, 1000.0f};
+  constexpr std::uint8_t flag = 0x76;
+
+  for (int i = 0; i < 6; ++i) {
+    enc.reset();
+    enc.encode(values[i]);
+    enc.encode(flag);
+    enc.encode(static_cast<std::uint64_t>(i));
+    auto key = enc.get_key_view();
+    auto val =
+        unodb::value_view(reinterpret_cast<const std::byte*>(&i), sizeof(i));
+    ASSERT_TRUE(db.insert(key, val)) << "insert failed at i=" << i;
+  }
+
+  for (int i = 0; i < 6; ++i) {
+    enc.reset();
+    enc.encode(values[i]);
+    enc.encode(flag);
+    enc.encode(static_cast<std::uint64_t>(i));
+    ASSERT_TRUE(db.get(enc.get_key_view()).has_value())
+        << "get failed at i=" << i;
+  }
+}
+
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 }  // namespace

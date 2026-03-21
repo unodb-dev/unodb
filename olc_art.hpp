@@ -1706,10 +1706,12 @@ olc_impl_helpers::add_or_choose_subtree(
         depth, key_byte, children_count);
 
     // For full_key_in_inode_path: wrap the bare leaf in a chain.
+    // Compiler barrier: see #700 — GCC 12+ -O2 strict aliasing.
     if constexpr (detail::olc_art_policy<Key, Value>::full_key_in_inode_path) {
       const auto chain_start =
           static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
       if (chain_start < k.size()) {
+        std::atomic_signal_fence(std::memory_order_acq_rel);
         auto [ci_nf, slot_nf] = inode.find_child(key_byte);
         UNODB_DETAIL_ASSERT(slot_nf != nullptr);
         *slot_nf = db_instance.build_chain(k, slot_nf->load(), chain_start);

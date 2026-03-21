@@ -4657,16 +4657,15 @@ class basic_inode_256
   /// \param db_instance Database instance
   constexpr void delete_subtree(db_type& db_instance) noexcept {
     if constexpr (ArtPolicy::can_eliminate_leaf) {
-      for_each_child([this, &db_instance](unsigned i,
-                                          node_ptr child) noexcept {
+      for_each_child([this, &db_instance](unsigned i, node_ptr child) noexcept {
         if (this->is_value_in_slot(static_cast<std::uint8_t>(i))) return;
         ArtPolicy::delete_subtree(child, db_instance);
       });
     } else {
-      for_each_child([&db_instance]([[maybe_unused]] unsigned i,
-                                    node_ptr child) noexcept {
-        ArtPolicy::delete_subtree(child, db_instance);
-      });
+      for_each_child(
+          [&db_instance]([[maybe_unused]] unsigned i, node_ptr child) noexcept {
+            ArtPolicy::delete_subtree(child, db_instance);
+          });
     }
   }
 

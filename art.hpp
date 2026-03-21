@@ -14,6 +14,7 @@
 #include "global.hpp"
 
 #include <algorithm>
+#include <atomic>
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
@@ -489,7 +490,7 @@ class db final {
     iterator& descend_right([[maybe_unused]] const auto* inode,
                             [[maybe_unused]] node_type ntype,
                             [[maybe_unused]] std::uint8_t child_i,
-                           detail::node_ptr child) {
+                            detail::node_ptr child) {
       if constexpr (art_policy::can_eliminate_leaf) {
         if (inode->is_value_in_slot(ntype, child_i)) {
           push_leaf(child);
@@ -1273,12 +1274,13 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
       const auto chain_start =
           static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
       if (chain_start < k.size()) {
-        auto [ci2, slotraw2] = UNODB_DETAIL_RELOAD(inode).find_child(key_byte);
+        std::atomic_signal_fence(std::memory_order_acq_rel);
+        auto [ci2, slotraw2] = inode.find_child(key_byte);
         auto* const slot = unwrap_fake_critical_section(slotraw2);
         UNODB_DETAIL_ASSERT(slot != nullptr);
         *slot = db_instance.build_chain(k, *slot, chain_start);
         if constexpr (art_policy<Key, Value>::can_eliminate_leaf) {
-          UNODB_DETAIL_RELOAD(inode).clear_value_bit(ci2);
+          inode.clear_value_bit(ci2);
         }
       }
     }
@@ -1324,16 +1326,20 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
     // For full_key_in_inode_path: wrap the bare leaf in a chain encoding
     // the remaining key suffix.  The leaf was just inserted into the slot
     // for key_byte — find it and replace with the chain top.
+    // Compiler barrier required: GCC 12+ at -O2 can elide the re-read of
+    // inode data after add_to_nonfull due to strict aliasing (#700).
+    // atomic_signal_fence is a zero-cost compiler-only barrier.
     if constexpr (art_policy<Key, Value>::full_key_in_inode_path) {
       const auto chain_start =
           static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
       if (chain_start < k.size()) {
-        auto [ci, slotraw] = UNODB_DETAIL_RELOAD(inode).find_child(key_byte);
+        std::atomic_signal_fence(std::memory_order_acq_rel);
+        auto [ci, slotraw] = inode.find_child(key_byte);
         auto* const slot = unwrap_fake_critical_section(slotraw);
         UNODB_DETAIL_ASSERT(slot != nullptr);
         *slot = db_instance.build_chain(k, *slot, chain_start);
         if constexpr (art_policy<Key, Value>::can_eliminate_leaf) {
-          UNODB_DETAIL_RELOAD(inode).clear_value_bit(ci);
+          inode.clear_value_bit(ci);
         }
       }
     }

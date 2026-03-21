@@ -333,8 +333,8 @@ class basic_db_leaf_deleter {
   static_assert(std::is_trivially_destructible_v<leaf_type>);
 
   /// Construct leaf deleter for database \a db_
-  constexpr explicit basic_db_leaf_deleter(Db& db_
-                                           UNODB_DETAIL_LIFETIMEBOUND) noexcept
+  constexpr explicit basic_db_leaf_deleter(
+      Db& db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : db{db_} {}
 
   /// Delete a leaf node \a to_delete through the database.
@@ -377,8 +377,8 @@ template <class INode, class Db>
 class basic_db_inode_deleter {
  public:
   /// Construct internal node deleter for database \a db_.
-  constexpr explicit basic_db_inode_deleter(Db& db_
-                                            UNODB_DETAIL_LIFETIMEBOUND) noexcept
+  constexpr explicit basic_db_inode_deleter(
+      Db& db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : db{db_} {}
 
   /// Delete an internal node \a inode_ptr through the database.
