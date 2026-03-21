@@ -487,9 +487,10 @@ class olc_db final {
                        const optimistic_lock::read_critical_section& rcs) {
       // The [key], [child_index] and [prefix] are ignored for a leaf.
       stack_.push({{aleaf,
-                    static_cast<std::byte>(0xFFU),     // key_byte
-                    static_cast<std::uint8_t>(0xFFU),  // child_index
-                    detail::key_prefix_snapshot(0)},   // empty key_prefix
+                    static_cast<std::byte>(0xFFU),     // ignored for leaf
+                    static_cast<std::uint8_t>(0xFFU),  // ignored for leaf
+                    detail::key_prefix_snapshot(0),    // ignored for leaf
+                    true},                             // packed_leaf
                    rcs.get()});
       return true;
     }
@@ -517,8 +518,7 @@ class olc_db final {
       const auto& e = top();
       const auto n = static_cast<std::size_t>(
           (e.node.type() != node_type::LEAF &&
-           !(art_policy::can_eliminate_leaf &&
-             e.child_index == static_cast<std::uint8_t>(0xFFU)))
+           !(art_policy::can_eliminate_leaf && e.packed_leaf))
               ? e.prefix.length() + 1
               : 0);
       keybuf_.pop(n);
@@ -2863,8 +2863,7 @@ typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::next() {
   const auto node = current_node();
   if (node != nullptr) {
     [[maybe_unused]] const bool is_packed =
-        art_policy::can_eliminate_leaf &&
-        stack_.top().child_index == static_cast<std::uint8_t>(0xFFU);
+        art_policy::can_eliminate_leaf && stack_.top().packed_leaf;
     art_key_type akey{[&]() noexcept -> art_key_type {
       if constexpr (art_policy::full_key_in_inode_path) {
         return art_key_type{keybuf_.get_key_view()};
@@ -2897,10 +2896,10 @@ bool olc_db<Key, Value>::iterator::try_next() {
     const auto& e = top();
     const auto node{e.node};  // the node on the top of the stack.
     UNODB_DETAIL_ASSERT(node != nullptr);
-    // Packed values (value-in-slot) are pushed with child_index=0xFF.
+    // Packed values (value-in-slot) are pushed with packed_leaf=true.
     // They have no valid lock — just pop and continue.
     if constexpr (art_policy::can_eliminate_leaf) {
-      if (e.child_index == 0xFF) {
+      if (e.packed_leaf) {
         pop();
         continue;
       }
@@ -2956,8 +2955,7 @@ typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::prior() {
   const auto node = current_node();
   if (node != nullptr) {
     [[maybe_unused]] const bool is_packed =
-        art_policy::can_eliminate_leaf &&
-        stack_.top().child_index == static_cast<std::uint8_t>(0xFFU);
+        art_policy::can_eliminate_leaf && stack_.top().packed_leaf;
     art_key_type akey{[&]() noexcept -> art_key_type {
       if constexpr (art_policy::full_key_in_inode_path) {
         return art_key_type{keybuf_.get_key_view()};
@@ -2992,7 +2990,7 @@ bool olc_db<Key, Value>::iterator::try_prior() {
     const auto node{e.node};  // the node on the top of the stack.
     UNODB_DETAIL_ASSERT(node != nullptr);
     if constexpr (art_policy::can_eliminate_leaf) {
-      if (e.child_index == 0xFF) {
+      if (e.packed_leaf) {
         pop();
         continue;
       }
@@ -3486,7 +3484,7 @@ auto olc_db<Key, Value>::iterator::get_val() const noexcept
   const auto& e = stack_.top();
   const auto& node = e.node;
   if constexpr (art_policy::can_eliminate_leaf) {
-    if (e.child_index == 0xFF) {
+    if (e.packed_leaf) {
       return art_policy::unpack_value(node);
     }
     UNODB_DETAIL_CANNOT_HAPPEN();
