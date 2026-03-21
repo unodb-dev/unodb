@@ -1951,8 +1951,10 @@ TEST(ARTKeyViewValueViewTest, ScanRangeFloatCompoundKeyOrder) {
   const std::uint8_t flag = 0x76;
   const float step = 100.0f / 1000.0f;
   const std::uint64_t dummy_val = 42;
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
   const unodb::value_view val{reinterpret_cast<const std::byte*>(&dummy_val),
                               sizeof(dummy_val)};
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   for (int i = 0; i < 1000; i++) {
     enc.reset();
@@ -2006,8 +2008,10 @@ TEST(KeyViewFullChainRegression, CompoundKeyInsertStrictAliasing) {
     enc.encode(flag);
     enc.encode(static_cast<std::uint64_t>(i));
     auto key = enc.get_key_view();
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
     auto val =
         unodb::value_view(reinterpret_cast<const std::byte*>(&i), sizeof(i));
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
     ASSERT_TRUE(db.insert(key, val)) << "insert failed at i=" << i;
   }
 

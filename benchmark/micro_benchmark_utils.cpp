@@ -32,8 +32,6 @@ template void destroy_tree<unodb::olc_db<std::uint64_t, unodb::value_view>>(
 
 template void destroy_tree<unodb::db<unodb::key_view, unodb::value_view>>(
     unodb::db<unodb::key_view, unodb::value_view>&, ::benchmark::State&);
-template void destroy_tree<unodb::mutex_db<unodb::key_view, unodb::value_view>>(
-    unodb::mutex_db<unodb::key_view, unodb::value_view>&, ::benchmark::State&);
 template void destroy_tree<unodb::olc_db<unodb::key_view, unodb::value_view>>(
     unodb::olc_db<unodb::key_view, unodb::value_view>&, ::benchmark::State&);
 template void destroy_tree<unodb::db<unodb::key_view, std::uint64_t>>(

@@ -50,7 +50,6 @@ using olc_db = unodb::olc_db<std::uint64_t, unodb::value_view>;
 // Benchmarked tree types (key_view keys)
 
 using kv_db = unodb::db<unodb::key_view, unodb::value_view>;
-using kv_mutex_db = unodb::mutex_db<unodb::key_view, unodb::value_view>;
 using kv_olc_db = unodb::olc_db<unodb::key_view, unodb::value_view>;
 using kv_u64_db = unodb::db<unodb::key_view, std::uint64_t>;
 using kv_u64_olc_db = unodb::olc_db<unodb::key_view, std::uint64_t>;
@@ -280,9 +279,6 @@ extern template void
 destroy_tree<unodb::db<unodb::key_view, unodb::value_view>>(
     unodb::db<unodb::key_view, unodb::value_view>&, ::benchmark::State&);
 extern template void
-destroy_tree<unodb::mutex_db<unodb::key_view, unodb::value_view>>(
-    unodb::mutex_db<unodb::key_view, unodb::value_view>&, ::benchmark::State&);
-extern template void
 destroy_tree<unodb::olc_db<unodb::key_view, unodb::value_view>>(
     unodb::olc_db<unodb::key_view, unodb::value_view>&, ::benchmark::State&);
 
@@ -441,25 +437,6 @@ class key_view_set {
   std::vector<unodb::key_view> views_;
   std::size_t key_len_{0};
 };
-
-/// Insert all keys from a key_view_set into a tree.
-template <class Db>
-void populate_tree(Db& instance, const key_view_set& ks,
-                   unodb::value_view val) {
-  for (const auto& k : ks.keys()) {
-    std::ignore = instance.insert(k, val);
-  }
-}
-
-/// OLC specialization — QSBR quiescent state intentionally omitted:
-/// populate_tree is setup code, not the measured benchmark loop.
-template <>
-inline void populate_tree(kv_olc_db& instance, const key_view_set& ks,
-                          unodb::value_view val) {
-  for (const auto& k : ks.keys()) {
-    std::ignore = instance.insert(k, val);
-  }
-}
 
 }  // namespace unodb::benchmark
 
