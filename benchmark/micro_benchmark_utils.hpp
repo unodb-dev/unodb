@@ -340,13 +340,13 @@ class key_view_set {
     ks.views_.reserve(n);
     unodb::key_encoder enc;
     for (std::size_t i = 0; i < n; ++i) {
-      auto kv = enc.reset()
-                    .encode(tag)
-                    .encode(std::uint64_t{0x4242424242424242ULL})
-                    .encode(static_cast<std::uint8_t>(i & 0xFF))
-                    .encode(static_cast<std::uint64_t>(i))
-                    .get_key_view();
-      std::copy(kv.begin(), kv.end(), ks.buf_.data() + i * 18);
+      const auto kv = enc.reset()
+                          .encode(tag)
+                          .encode(std::uint64_t{0x4242424242424242ULL})
+                          .encode(static_cast<std::uint8_t>(i & 0xFF))
+                          .encode(static_cast<std::uint64_t>(i))
+                          .get_key_view();
+      std::ranges::copy(kv, ks.buf_.data() + i * 18);
       ks.views_.emplace_back(ks.buf_.data() + i * 18, 18);
     }
     return ks;

@@ -1945,6 +1945,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, EmptyKeyRejected) {
 // 0xFF as a VIS sentinel even when can_eliminate_leaf was false, corrupting
 // the reconstructed key during iterator ascent.
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26426)
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26409)
 TEST(ARTKeyViewValueViewTest, ScanRangeFloatCompoundKeyOrder) {
   unodb::db<unodb::key_view, unodb::value_view> db;
   unodb::key_encoder enc;
@@ -2059,6 +2060,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanKeyReconstructionFF) {
   EXPECT_EQ(count, N);
 }
 
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 }  // namespace

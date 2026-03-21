@@ -474,7 +474,7 @@ template <typename Key, typename Value, template <typename, typename> class Db>
 
   // Serialize value to bytes for leaf storage.
   value_view leaf_val_bytes;
-  [[maybe_unused]] std::byte val_buf[sizeof(Value)];
+  [[maybe_unused]] std::byte val_buf[sizeof(Value)]{};
   if constexpr (std::is_same_v<Value, value_view>) {
     leaf_val_bytes = v;
   } else {

@@ -2862,13 +2862,12 @@ template <typename Key, typename Value>
 typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::next() {
   const auto node = current_node();
   if (node != nullptr) {
-    [[maybe_unused]] const bool is_packed =
-        art_policy::can_eliminate_leaf && stack_.top().packed_leaf;
-    art_key_type akey{[&]() noexcept -> art_key_type {
+    const art_key_type akey{[&]() noexcept -> art_key_type {
       if constexpr (art_policy::full_key_in_inode_path) {
         return art_key_type{keybuf_.get_key_view()};
       } else {
-        UNODB_DETAIL_ASSERT(!is_packed);
+        UNODB_DETAIL_ASSERT(
+            !(art_policy::can_eliminate_leaf && stack_.top().packed_leaf));
         UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
         return node.template ptr<leaf_type*>()->get_key();
       }
@@ -2954,13 +2953,12 @@ template <typename Key, typename Value>
 typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::prior() {
   const auto node = current_node();
   if (node != nullptr) {
-    [[maybe_unused]] const bool is_packed =
-        art_policy::can_eliminate_leaf && stack_.top().packed_leaf;
-    art_key_type akey{[&]() noexcept -> art_key_type {
+    const art_key_type akey{[&]() noexcept -> art_key_type {
       if constexpr (art_policy::full_key_in_inode_path) {
         return art_key_type{keybuf_.get_key_view()};
       } else {
-        UNODB_DETAIL_ASSERT(!is_packed);
+        UNODB_DETAIL_ASSERT(
+            !(art_policy::can_eliminate_leaf && stack_.top().packed_leaf));
         UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
         return node.template ptr<leaf_type*>()->get_key();
       }
