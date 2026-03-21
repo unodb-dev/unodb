@@ -2030,8 +2030,8 @@ TEST(KeyViewFullChainRegression, CompoundKeyInsertStrictAliasing) {
 // but 0xFF is a valid child index.  With enough compound keys the c1 subtree
 // inode fills all 256 child slots including 0xFF, causing pop() to skip keybuf
 // truncation and corrupt every subsequent reconstructed key.
-TEST(KeyViewFullChainRegression, ScanKeyReconstructionFF) {
-  unodb::db<unodb::key_view, std::uint64_t> db;
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanKeyReconstructionFF) {
+  TypeParam db;
   constexpr int N = 321;  // enough to span the c1->c2 encoded-float boundary
   const float step = 100.0f / 1000.0f;
 
