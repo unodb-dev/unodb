@@ -360,6 +360,7 @@ class [[nodiscard]] basic_leaf final : public Header {
 /// get_key(), get_key_view(), cmp(), and matches() are intentionally
 /// absent.  Any call site that attempts to access the key from a keyless
 /// leaf will produce a compile error.
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
 template <class Header>
 class [[nodiscard]] basic_leaf<no_key_tag, Header> final : public Header {
  public:
@@ -441,10 +442,9 @@ class [[nodiscard]] basic_leaf<no_key_tag, Header> final : public Header {
  private:
   const value_size_type value_size;
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
   std::byte data[1];
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };  // class basic_leaf<no_key_tag, Header>
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 /// Create unique pointer to new leaf with given key and value.
 ///

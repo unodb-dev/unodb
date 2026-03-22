@@ -80,10 +80,10 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, TwoKeyMinimalRepro) {
   TypeParam db;
   unodb::key_encoder enc;
 
-  auto k1 = enc.reset().encode_text("").get_key_view();
+  const auto k1 = enc.reset().encode_text("").get_key_view();
   UNODB_ASSERT_TRUE(db.insert(k1, 100));
 
-  auto k2 = enc.reset().encode_text("a").get_key_view();
+  const auto k2 = enc.reset().encode_text("a").get_key_view();
   UNODB_ASSERT_TRUE(db.insert(k2, 200));
 }
 
