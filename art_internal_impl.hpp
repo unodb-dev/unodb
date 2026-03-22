@@ -4478,6 +4478,7 @@ class basic_inode_256
   // MSVC C26815 false positive: reclaim object intentionally destroyed at
   // scope exit while db_instance (passed by caller) remains valid.
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26460)
   constexpr void remove(std::uint8_t child_index,
                         db_type& db_instance) noexcept {
     if constexpr (!ArtPolicy::can_eliminate_leaf) {
@@ -4501,6 +4502,7 @@ class basic_inode_256
     children[child_index] = node_ptr{nullptr};
     --this->children_count;
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Find child by key byte.
