@@ -92,7 +92,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, TwoKeyMinimalRepro) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, EncodedTextKeys) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
   verifier.insert(enc.reset().encode_text("").get_key_view(), val);
   verifier.insert(enc.reset().encode_text("a").get_key_view(), val);
   verifier.insert(enc.reset().encode_text("abba").get_key_view(), val);
@@ -170,7 +170,7 @@ inline unodb::key_view make_long_key(unodb::key_encoder& enc, std::uint8_t tag,
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeysLongSharedPrefix) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   verifier.insert(make_key(enc, 0x42, 1), val);
   verifier.insert(make_key(enc, 0x42, 2), val);
@@ -185,7 +185,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeysLongSharedPrefix) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ThreeCompoundKeysLongSharedPrefix) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   verifier.insert(make_key(enc, 0x42, 1), val);
   verifier.insert(make_key(enc, 0x42, 2), val);
@@ -201,7 +201,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ThreeCompoundKeysLongSharedPrefix) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, NineByteCompoundKeysLongPrefix) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   verifier.insert(make_key(enc, 0x42, 1), val);
   verifier.insert(make_key(enc, 0x42, 2), val);
@@ -220,7 +220,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, NineByteCompoundKeysLongPrefix) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeysIdenticalExceptLastByte) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   verifier.insert(make_key(enc, 0x42, 1), val);
   verifier.insert(make_key(enc, 0x42, 2), val);
@@ -238,7 +238,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeysIdenticalExceptLastByte) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, MultiLevelChain) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   // 17 bytes: 0xAA × 16, then 0x01 vs 0x02.
   auto make17 = [&](std::uint8_t last) {
@@ -263,7 +263,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest,
                  InsertDivergingAtIntermediateChainDepth) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   auto make17 = [&](std::uint8_t byte10, std::uint8_t last) {
     enc.reset();
@@ -294,7 +294,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest,
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeysFiveChildren) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   for (std::uint64_t i = 1; i <= 5; ++i) {
     verifier.insert(make_key(enc, 0x42, i), val);
@@ -310,7 +310,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeysFiveChildren) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeysSeventeenChildren) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   for (std::uint64_t i = 1; i <= 17; ++i) {
     verifier.insert(make_key(enc, 0x42, i), val);
@@ -326,7 +326,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeysSeventeenChildren) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeysFiftyChildren) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   for (std::uint64_t i = 1; i <= 50; ++i) {
     verifier.insert(make_key(enc, 0x42, i), val);
@@ -349,7 +349,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeysFiftyChildren) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeysInsertThenRemove) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   verifier.insert(make_key(enc, 0x42, 1), val);
   verifier.insert(make_key(enc, 0x42, 2), val);
@@ -368,7 +368,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeysInsertThenRemove) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, RemoveFromChainLeavesInode) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   // Keys 1 and 2 share 8 bytes; key 3 diverges at byte 5.
   // key3 uint64 = 0x0000000100000000 differs at byte 5 (overall).
@@ -389,7 +389,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, RemoveFromChainLeavesInode) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, RemoveAllFromChainReverseOrder) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   verifier.insert(make_key(enc, 0x42, 1), val);
   verifier.insert(make_key(enc, 0x42, 2), val);
@@ -404,7 +404,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, RemoveAllFromChainReverseOrder) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, RemoveAllFromChainForwardOrder) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   verifier.insert(make_key(enc, 0x42, 1), val);
   verifier.insert(make_key(enc, 0x42, 2), val);
@@ -421,7 +421,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, RemoveAllFromChainForwardOrder) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ShrinkInode16InChain) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   for (std::uint64_t i = 1; i <= 5; ++i) {
     verifier.insert(make_key(enc, 0x42, i), val);
@@ -440,7 +440,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ShrinkInode16InChain) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ShrinkInode48InChain) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   for (std::uint64_t i = 1; i <= 17; ++i) {
     verifier.insert(make_key(enc, 0x42, i), val);
@@ -460,7 +460,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ShrinkInode48InChain) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ShrinkToEmptyFromInode16InChain) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   for (std::uint64_t i = 1; i <= 5; ++i) {
     verifier.insert(make_key(enc, 0x42, i), val);
@@ -483,7 +483,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ShrinkToEmptyFromInode16InChain) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, RemoveMixedLengthFromChain) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   verifier.insert(make_long_key(enc, 0x42, 1, 0xFF), val);
   verifier.insert(make_key(enc, 0x42, 2), val);
@@ -504,7 +504,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, RemoveMixedLengthFromChain) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StressInsertRemoveAtEveryPosition) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   constexpr unsigned key_len = 20;
   constexpr unsigned prefix_cap = 7;
@@ -572,7 +572,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StressInsertRemoveAtEveryPosition) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, MixedLengthKeysLongPrefix) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   verifier.insert(make_long_key(enc, 0x42, 1, 0xFF), val);
   verifier.insert(make_key(enc, 0x42, 2), val);
@@ -591,7 +591,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, MixedLengthKeysLongPrefix) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeyDuplicateInsert) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   verifier.insert(make_key(enc, 0x42, 1), val);
   // Second insert of same key should fail.
@@ -604,7 +604,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeyDuplicateInsert) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeyGetMissing) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   verifier.insert(make_key(enc, 0x42, 1), val);
   const auto result = verifier.get_db().get(make_key(enc, 0x42, 2));
@@ -642,7 +642,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeyGetMissing) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainPartialRemoveI4) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   for (std::uint64_t i = 1; i <= 3; ++i)
     verifier.insert(make_key(enc, 0x42, i), val);
@@ -658,7 +658,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainPartialRemoveI4) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainShrinkI16ToI4) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   for (std::uint64_t i = 1; i <= 5; ++i)
     verifier.insert(make_key(enc, 0x42, i), val);
@@ -675,7 +675,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainShrinkI16ToI4) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainShrinkI48ToI16) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   for (std::uint64_t i = 1; i <= 17; ++i)
     verifier.insert(make_key(enc, 0x42, i), val);
@@ -692,7 +692,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainShrinkI48ToI16) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainShrinkI256ToI48) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   for (std::uint64_t i = 1; i <= 49; ++i)
     verifier.insert(make_key(enc, 0x42, i), val);
@@ -713,7 +713,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainShrinkI256ToI48) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainRemoveAllFromI48) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   for (std::uint64_t i = 1; i <= 17; ++i)
     verifier.insert(make_key(enc, 0x42, i), val);
@@ -726,7 +726,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainRemoveAllFromI48) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainRemoveAllFromI256) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   for (std::uint64_t i = 1; i <= 49; ++i)
     verifier.insert(make_key(enc, 0x42, i), val);
@@ -751,7 +751,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainRemoveAllFromI256) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CascadeChainUnderI4) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   // Insert chain keys first so the chain forms at root level, then
   // insert a short key that splits the root prefix → parent I4.
@@ -776,7 +776,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CascadeChainUnderI4) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CascadeChainUnderI16) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   // Chain keys first, then 4 short keys → root I16(5 children).
   verifier.insert(make_key(enc, 0x42, 1), val);
@@ -799,7 +799,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CascadeChainUnderI16) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CascadeChainUnderI48) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   // Chain keys first, then 16 short keys → root I48(17 children).
   verifier.insert(make_key(enc, 0x42, 1), val);
@@ -820,7 +820,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CascadeChainUnderI48) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CascadeChainUnderI256) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   // Chain keys first, then 48 short keys → root I256(49 children).
   verifier.insert(make_key(enc, 0x42, 1), val);
@@ -842,7 +842,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CascadeChainUnderI256) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainRemoveFromI48AboveMin) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   verifier.insert(make_key(enc, 0x42, 1), val);
   verifier.insert(make_key(enc, 0x42, 2), val);
@@ -859,7 +859,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainRemoveFromI48AboveMin) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainRemoveFromI256AboveMin) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   verifier.insert(make_key(enc, 0x42, 1), val);
   verifier.insert(make_key(enc, 0x42, 2), val);
@@ -879,7 +879,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainRemoveFromI256AboveMin) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, MultiLevelChainRemoveAll) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   auto make17 = [&](std::uint8_t last) {
     enc.reset();
@@ -910,7 +910,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, MultiLevelChainRemoveAll) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainParentGrowthI4ToI16) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   // Chain subtree under tag=0x42.
   verifier.insert(make_key(enc, 0x42, 1), val);
@@ -928,7 +928,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainParentGrowthI4ToI16) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainParentGrowthI16ToI48) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   verifier.insert(make_key(enc, 0x42, 1), val);
   verifier.insert(make_key(enc, 0x42, 2), val);
@@ -943,7 +943,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainParentGrowthI16ToI48) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainParentGrowthI48ToI256) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   verifier.insert(make_key(enc, 0x42, 1), val);
   verifier.insert(make_key(enc, 0x42, 2), val);
@@ -962,7 +962,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainParentGrowthI48ToI256) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainBottomGrowthStats) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   // Insert 4 keys: chain-I4 + bottom-I4(4).
   for (std::uint64_t i = 1; i <= 4; ++i)
@@ -999,7 +999,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainBottomGrowthStats) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, MultiLevelChainFatBottom) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   auto make17 = [&](std::uint8_t last) {
     enc.reset();
@@ -1040,7 +1040,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, MultiLevelChainFatBottom) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, MidLevelInodeGrowth) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   auto make18 = [&](std::uint8_t mid, std::uint8_t bottom) {
     return enc.reset()
@@ -1065,7 +1065,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, MidLevelInodeGrowth) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, MidLevelInodeShrink) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   auto make18 = [&](std::uint8_t mid, std::uint8_t bottom) {
     return enc.reset()
@@ -1101,7 +1101,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, MidLevelInodeShrink) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainRemoveKeyNotFound) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   verifier.insert(make_key(enc, 0x42, 1), val);
   verifier.insert(make_key(enc, 0x42, 2), val);
@@ -1115,7 +1115,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainRemoveKeyNotFound) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, RemoveMissRootIsLeaf) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   verifier.insert(make_key(enc, 0x42, 1), val);
   UNODB_ASSERT_FALSE(verifier.get_db().remove(make_key(enc, 0x42, 2)));
@@ -1128,7 +1128,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, RemoveMissRootIsLeaf) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainRemoveLeafMismatch) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   verifier.insert(make_key(enc, 0x42, 1), val);
   verifier.insert(make_key(enc, 0x42, 2), val);
@@ -1151,7 +1151,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainRemoveLeafMismatch) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1CollapseToLeaf) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   auto make18 = [&](std::uint8_t tag, std::uint8_t mid, std::uint8_t bottom) {
     return enc.reset()
@@ -1192,7 +1192,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1CollapseToLeaf) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD0CollapseToInode) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   // A: 9-byte key with tag=0x10 → chain at depth 0.
   // B,C: 1-byte keys with tag=0x20, 0x30 → I4(2) at root, no prefix.
@@ -1228,7 +1228,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD0CollapseToInode) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1CollapseToInode) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   auto make18 = [&](std::uint8_t tag, std::uint8_t mid, std::uint8_t bottom) {
     return enc.reset()
@@ -1262,7 +1262,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1CollapseToInode) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1RemoveFromI4) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   auto make18 = [&](std::uint8_t tag, std::uint8_t mid, std::uint8_t bottom) {
     return enc.reset()
@@ -1294,7 +1294,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest,
                  ChainCutCD1CollapseToInodeShortPrefix) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   auto make18 = [&](std::uint8_t tag, std::uint8_t mid, std::uint8_t bottom) {
     return enc.reset()
@@ -1336,7 +1336,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest,
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD2CollapseToLeaf) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   // 26-byte keys: tag + uint64 + uint64 + uint64 + uint8.
   // Two keys sharing 25 bytes → 3 chain levels (depth 0,8,16).
@@ -1376,7 +1376,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD2CollapseToLeaf) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD0PrefixOverflow) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   // Both children are 9-byte keys with different tags.
   // Root I4 has empty prefix. Each child chain has 7-byte prefix.
@@ -1406,7 +1406,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD0PrefixOverflow) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1PrefixOverflow) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   auto make18 = [&](std::uint8_t tag, std::uint8_t mid, std::uint8_t bottom) {
     return enc.reset()
@@ -1442,7 +1442,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1PrefixOverflow) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1ShrinkI16) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   auto make18 = [&](std::uint8_t tag, std::uint8_t mid, std::uint8_t bottom) {
     return enc.reset()
@@ -1474,7 +1474,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1ShrinkI16) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1ShrinkI48) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   auto make18 = [&](std::uint8_t tag, std::uint8_t mid, std::uint8_t bottom) {
     return enc.reset()
@@ -1505,7 +1505,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1ShrinkI48) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1ShrinkI256) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   auto make18 = [&](std::uint8_t tag, std::uint8_t mid, std::uint8_t bottom) {
     return enc.reset()
@@ -1549,7 +1549,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1ShrinkI256) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, KeylessLeafNoCollapseGuard) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   // Two 1-byte keys with different dispatch bytes.
   std::array<std::byte, 1> buf_a{};
@@ -1587,7 +1587,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, KeylessLeafNoCollapseGuard) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CollapseToInodeAllowed) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   // A: 9-byte key tag=0x01.
   // B,C: 9-byte keys tag=0x02, different suffixes → I4(2) under 0x02.
@@ -1642,7 +1642,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CollapseToInodeAllowed) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ConcurrentTestTree26Byte) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   auto make26 = [&](std::uint8_t tag, std::uint8_t bottom) {
     return enc.reset()
@@ -1675,7 +1675,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ConcurrentTestTree26Byte) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ConcurrentTestTree34Byte) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   constexpr auto X = std::uint64_t{0x4242424242424242ULL};
   constexpr auto Z = std::uint64_t{0x4343434343434343ULL};
@@ -1715,7 +1715,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ConcurrentTestTree34Byte) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanChainMixedLengths) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   // 9-byte and 10-byte keys in the same chain subtree.
   // make_key(0x42, v) = 9 bytes.  make_long_key(0x42, v, s) = 10 bytes.
@@ -1788,7 +1788,7 @@ void verify_stack(typename Db::iterator& it, unodb::key_view expected_key) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureTwoChainKeys) {
   TypeParam db;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   std::array<std::byte, 9> buf_a{};
   std::array<std::byte, 9> buf_b{};

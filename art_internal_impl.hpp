@@ -348,7 +348,9 @@ class [[nodiscard]] basic_leaf final : public Header {
   /// followed by the data.
   //
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
   std::byte data[1];
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };  // class basic_leaf
 
 /// Keyless leaf specialization.  Stores only the value — no key data,
@@ -696,7 +698,7 @@ struct basic_art_policy final {
   /// Extract a value from a node_ptr slot (value-in-slot mode).
   [[nodiscard]] static Value unpack_value(node_ptr n) noexcept {
     static_assert(can_eliminate_leaf);
-    auto raw = n.raw_val() ^ pack_xor_sentinel;
+    const auto raw = n.raw_val() ^ pack_xor_sentinel;
     Value v{};
     std::memcpy(&v, &raw, sizeof(v));
     return v;
