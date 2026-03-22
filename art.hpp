@@ -1502,7 +1502,9 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
 bool db<Key, Value>::insert_internal_fixed(art_key_type insert_key,
                                            value_type v) {
   if constexpr (std::is_same_v<Key, key_view>) {
-    // Never called for key_view — dispatch goes to insert_internal_key_view.
+    // Unreachable: caller dispatches key_view to insert_internal_key_view.
+    std::ignore = insert_key;
+    std::ignore = v;
     UNODB_DETAIL_CANNOT_HAPPEN();
   } else {
     auto* node = &root;

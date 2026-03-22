@@ -40,6 +40,8 @@ class ARTKeyViewFullChainTest : public ::testing::Test {
  public:
   using Test::Test;
 
+  /// Leaf count adjustment: returns n when leaves are allocated (value_view
+  /// values), 0 when leaves are eliminated (VIS / small value types).
   static constexpr std::uint64_t LC(std::uint64_t n) {
     if constexpr (!std::is_same_v<typename Db::value_type, unodb::value_view>)
       return 0;

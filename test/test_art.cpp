@@ -1,9 +1,12 @@
 // Copyright 2019-2026 UnoDB contributors
+
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
+
 // IWYU pragma: no_include <__cstddef/byte.h>
 // IWYU pragma: no_include <array>
 // IWYU pragma: no_include <string>
+
 #include <cstddef>  // IWYU pragma: keep
 #include <cstdint>
 #include <limits>
@@ -17,15 +20,18 @@
 #include "gtest_utils.hpp"
 #include "test_utils.hpp"
 #include "thread_sync.hpp"
+
 namespace {
 using unodb::detail::thread_syncs;
 using unodb::test::test_values;
 /// For key_view types, build_chain creates 1 chain I4 per 8-byte key.
+/// These are counter adjustment values (0 or 1), not booleans.
 template <class Db>
 constexpr std::uint64_t chain_i4_per_key =
     std::is_same_v<typename Db::key_type, unodb::key_view> ? 1 : 0;
 
 /// OLC remove collapses chain I4s during prefix merge; db/mutex_db don't.
+/// Counter adjustment value (0 or 1), not a boolean.
 template <class Db>
 constexpr std::uint64_t olc_chain_collapse =
     (std::is_same_v<typename Db::key_type, unodb::key_view> &&
