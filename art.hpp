@@ -1873,7 +1873,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
       }
 
       // Found a leaf — verify it matches.
-      auto* const leaf{child_val.template ptr<leaf_type*>()};
+      const auto* const leaf{child_val.template ptr<const leaf_type*>()};
       if constexpr (art_policy::can_eliminate_key_in_leaf) {
         if (remaining_key.size() != 1) return false;
       } else {
@@ -1933,8 +1933,10 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
         auto* const pi4{parent_val.template ptr<inode_4*>()};
         const auto remaining_iter = pi4->begin();
         const auto remaining = pi4->get_child(0);
+        UNODB_DETAIL_DISABLE_MSVC_WARNING(26814)
         const bool remaining_is_value =
             art_policy::can_eliminate_leaf && pi4->is_value_in_slot(0);
+        UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
         if (!remaining_is_value && remaining.type() != node_type::LEAF) {
           auto* const remaining_inode{remaining.template ptr<inode_type*>()};
           const auto child_prefix_len =

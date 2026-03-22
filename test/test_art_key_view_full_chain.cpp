@@ -1999,6 +1999,7 @@ TEST(ARTKeyViewValueViewTest, ScanRangeFloatCompoundKeyOrder) {
 // causing find_child to return nullptr and crash.  This test exercises the
 // exact pattern: 6 compound keys (float + uint8 + uint64) that diverge at
 // different prefix depths, forcing inode splits.
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26455)
 TEST(KeyViewFullChainRegression, CompoundKeyInsertStrictAliasing) {
   unodb::db<unodb::key_view, unodb::value_view> db;
   unodb::key_encoder enc;
@@ -2027,6 +2028,7 @@ TEST(KeyViewFullChainRegression, CompoundKeyInsertStrictAliasing) {
         << "get failed at i=" << i;
   }
 }
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 // Regression: scan key reconstruction with 0xFF child index in VIS trees.
 // The iterator used child_index==0xFF as a sentinel for value-in-slot entries,

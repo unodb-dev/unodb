@@ -370,10 +370,12 @@ class key_view_set {
       UNODB_DETAIL_DISABLE_MSVC_WARNING(26493)
       const auto tag = static_cast<std::uint8_t>(1 + (i % tag_count));
       UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+      UNODB_DETAIL_DISABLE_MSVC_WARNING(26493)
       const auto kv = enc.reset()
                           .encode(tag)
                           .encode(std::uint64_t{i / tag_count})
                           .get_key_view();
+      UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
       UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
       std::ranges::copy(kv, ks.buf_.data() + i * 9);
       ks.views_.emplace_back(ks.buf_.data() + i * 9, 9);
