@@ -1483,9 +1483,9 @@ bool db<Key, Value>::insert_internal(art_key_type insert_key, value_type v) {
     } else {
       auto leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
       if constexpr (art_policy::can_eliminate_key_in_leaf) {
-        root = build_chain(insert_key,
-                           detail::node_ptr{leaf.release(), node_type::LEAF},
-                           tree_depth_type{0});
+        auto leaf_ptr = detail::node_ptr{leaf.get(), node_type::LEAF};
+        root = build_chain(insert_key, leaf_ptr, tree_depth_type{0});
+        leaf.release();  // build_chain succeeded; tree now owns the leaf
       } else {
         root = detail::node_ptr{leaf.release(), node_type::LEAF};
       }
@@ -1588,7 +1588,7 @@ detail::node_ptr db<Key, Value>::build_chain(art_key_type k,
   const auto start = static_cast<std::size_t>(start_depth);
   auto current = child;
   bool child_is_value = art_policy::can_eliminate_leaf;
-  bool owns_current = false;  // true once we've built at least one chain node
+  bool owns_current = false;  // set true once we've built at least one chain node
   // Build bottom-up: start from end of key, work toward start_depth.
   // Each chain I4 consumes up to cap prefix bytes + 1 dispatch byte.
   try {

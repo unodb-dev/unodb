@@ -396,6 +396,8 @@ class key_view_set {
   /// @param n Number of keys (must be <= 256 * 4 = 1024).
   static key_view_set chain_depth(std::size_t key_len, std::size_t n) {
     UNODB_DETAIL_ASSERT(key_len >= 2);
+    // 4 tag groups × 256 variants = 1024 unique keys max.
+    UNODB_DETAIL_ASSERT(n <= 1024);
     key_view_set ks;
     ks.key_len_ = key_len;
     ks.buf_.resize(n * key_len);

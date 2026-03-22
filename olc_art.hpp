@@ -2156,7 +2156,7 @@ detail::olc_node_ptr olc_db<Key, Value>::build_chain(
   const auto start = static_cast<std::size_t>(start_depth);
   auto current = child;
   bool child_is_value = art_policy::can_eliminate_leaf;
-  bool owns_current = false;
+  bool owns_current = false;  // set true once we've built at least one chain node
   try {
     std::size_t pos = key_len;
     while (pos > start + cap) {
@@ -2236,9 +2236,9 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
       root = build_chain(k, art_policy::pack_value(v), tree_depth_type{0});
       if (cached_leaf) cached_leaf.reset();
     } else if constexpr (art_policy::can_eliminate_key_in_leaf) {
-      root = build_chain(
-          k, detail::olc_node_ptr{cached_leaf.release(), node_type::LEAF},
-          tree_depth_type{0});
+      auto leaf_ptr = detail::olc_node_ptr{cached_leaf.get(), node_type::LEAF};
+      root = build_chain(k, leaf_ptr, tree_depth_type{0});
+      cached_leaf.release();  // build_chain succeeded; tree now owns the leaf
     } else {
       root = detail::olc_node_ptr{cached_leaf.release(), node_type::LEAF};
     }
