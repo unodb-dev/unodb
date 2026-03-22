@@ -718,6 +718,7 @@ class [[nodiscard]] tree_verifier final {
 
 #ifdef UNODB_DETAIL_WITH_STATS
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
   void assert_node_counts(
       const node_type_counter_array& expected_node_counts) const {
     // Dump the tree to a string. Do not attempt to check the dump format, only
@@ -732,6 +733,7 @@ class [[nodiscard]] tree_verifier final {
     UNODB_ASSERT_THAT(actual_node_counts,
                       ::testing::ElementsAreArray(expected_node_counts));
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   constexpr void assert_growing_inodes(
       const inode_type_counter_array& expected_growing_inode_counts)

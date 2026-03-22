@@ -123,7 +123,7 @@ void chain_scan(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
   for (std::size_t i = 0; i < n; ++i) std::ignore = db.insert(ks[i], val);
   for (const auto& _ : state) {
     std::size_t count = 0;
-    db.scan([&count](auto /*visitor*/) {
+    db.scan([&count](auto /*visitor*/) noexcept {
       ++count;
       return false;
     });
@@ -380,7 +380,7 @@ void vis_scan(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
     std::ignore = db.insert(ks[i], static_cast<std::uint64_t>(i));
   for (const auto& _ : state) {
     std::size_t count = 0;
-    db.scan([&count](auto /*visitor*/) {
+    db.scan([&count](auto /*visitor*/) noexcept {
       ++count;
       return false;
     });

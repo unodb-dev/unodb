@@ -1041,7 +1041,7 @@ class db_leaf_qsbr_deleter {
       Db& db_ UNODB_DETAIL_LIFETIMEBOUND) noexcept
       : db_instance{db_} {}
 
-  void operator()(leaf_type* to_delete) const {
+  void operator()(leaf_type* to_delete) const noexcept {
 #ifdef UNODB_DETAIL_WITH_STATS
     const auto leaf_size = to_delete->get_size();
 #endif  // UNODB_DETAIL_WITH_STATS

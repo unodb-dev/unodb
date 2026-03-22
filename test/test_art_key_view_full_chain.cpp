@@ -1879,7 +1879,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureSecondInsertChain) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureFullScan) {
   TypeParam db;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   struct kh {
     std::array<std::byte, 18> buf{};
@@ -1896,10 +1896,10 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureFullScan) {
     return h;
   };
 
-  auto k1 = make(0x01, 100);
-  auto k2 = make(0x01, 200);
-  auto k3 = make(0x02, 300);
-  auto k4 = make(0x03, 0);
+  const auto k1 = make(0x01, 100);
+  const auto k2 = make(0x01, 200);
+  const auto k3 = make(0x02, 300);
+  const auto k4 = make(0x03, 0);
 
   std::ignore = db.insert(k1.kv(), val);
   std::ignore = db.insert(k2.kv(), val);
