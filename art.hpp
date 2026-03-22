@@ -1415,6 +1415,9 @@ template <typename Key, typename Value>
 typename db<Key, Value>::get_result db<Key, Value>::get_internal(
     art_key_type k) const noexcept {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return {};
+  if constexpr (std::is_same_v<Key, key_view>) {
+    if (UNODB_DETAIL_UNLIKELY(k.size() == 0)) return {};
+  }
 
   auto node{root};
   auto remaining_key{k};
@@ -1779,6 +1782,9 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 template <typename Key, typename Value>
 bool db<Key, Value>::remove_internal(art_key_type remove_key) {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return false;
+  if constexpr (std::is_same_v<Key, key_view>) {
+    if (UNODB_DETAIL_UNLIKELY(remove_key.size() == 0)) return false;
+  }
 
   if constexpr (!art_policy::can_eliminate_leaf) {
     if (root.type() == node_type::LEAF) {

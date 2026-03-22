@@ -1995,6 +1995,9 @@ void olc_db<Key, Value>::clear() noexcept {
 template <typename Key, typename Value>
 typename olc_db<Key, Value>::get_result olc_db<Key, Value>::get_internal(
     art_key_type k) const noexcept {
+  if constexpr (std::is_same_v<Key, key_view>) {
+    if (UNODB_DETAIL_UNLIKELY(k.size() == 0)) return {};
+  }
   try_get_result_type result;
 
   while (true) {
@@ -2465,6 +2468,9 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
 
 template <typename Key, typename Value>
 bool olc_db<Key, Value>::remove_internal(art_key_type remove_key) {
+  if constexpr (std::is_same_v<Key, key_view>) {
+    if (UNODB_DETAIL_UNLIKELY(remove_key.size() == 0)) return false;
+  }
   try_update_result_type result;
   while (true) {
     result = try_remove(remove_key);
