@@ -401,6 +401,7 @@ class key_view_set {
     ks.buf_.resize(n * key_len);
     ks.views_.reserve(n);
     for (std::size_t i = 0; i < n; ++i) {
+      UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
       auto* const dst = ks.buf_.data() + i * key_len;
       // tag byte: rotate through 4 tags to create a root I4.
       dst[0] = static_cast<std::byte>(1 + (i / 256) % 4);
@@ -409,6 +410,7 @@ class key_view_set {
       // variant byte: unique within each tag group.
       dst[key_len - 1] = static_cast<std::byte>(i & 0xFF);
       ks.views_.emplace_back(dst, key_len);
+      UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
     }
     return ks;
   }

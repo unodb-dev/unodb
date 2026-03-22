@@ -2156,7 +2156,9 @@ detail::olc_node_ptr olc_db<Key, Value>::build_chain(
                           tree_depth_type{static_cast<std::uint32_t>(depth)},
                           dispatch, current)};
       if (child_is_value) {
+        UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
         chain->set_value_bit(0);
+        UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
         child_is_value = false;
       }
       current = detail::olc_node_ptr{chain.release(), node_type::I4};
@@ -2173,7 +2175,9 @@ detail::olc_node_ptr olc_db<Key, Value>::build_chain(
           static_cast<detail::key_prefix_size>(pos - start - 1), dispatch,
           current)};
       if (child_is_value) {
+        UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
         chain->set_value_bit(0);
+        UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
       }
       current = detail::olc_node_ptr{chain.release(), node_type::I4};
 #ifdef UNODB_DETAIL_WITH_STATS
