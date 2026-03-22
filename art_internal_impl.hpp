@@ -3878,12 +3878,13 @@ class basic_inode_48
     // temporary unique_ptr that immediately releases.  This avoids
     // duplicating the SIMD slot-finding logic.
     // TODO(#707): refactor to share slot-finding code without this hack.
-    (void)children_count_;
+    std::ignore = children_count_;
     UNODB_DETAIL_ASSERT(child_indexes[static_cast<std::uint8_t>(key_byte)] ==
                         empty_child);
     // Find first empty slot (same logic as leaf version, simplified).
     unsigned slot = 0;
     while (children.pointer_array[slot] != nullptr) ++slot;
+    UNODB_DETAIL_ASSERT(slot < 48);
     child_indexes[static_cast<std::uint8_t>(key_byte)] =
         static_cast<std::uint8_t>(slot);
     children.pointer_array[slot] = packed_value;

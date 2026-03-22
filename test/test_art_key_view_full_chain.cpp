@@ -2055,8 +2055,9 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanKeyReconstructionFF) {
 
   int count = 0;
   float prev = -1.0f;
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
   db.scan([&](auto& v) {
-    auto tkv = v.get_key();
+    const auto tkv = v.get_key();
     EXPECT_EQ(tkv.size(), 13u) << "wrong key size at index " << count;
     unodb::key_decoder dec(unodb::key_view(tkv.data(), tkv.size()));
     float val{};
@@ -2066,6 +2067,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanKeyReconstructionFF) {
     ++count;
     return false;
   });
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   EXPECT_EQ(count, N);
 }
 
