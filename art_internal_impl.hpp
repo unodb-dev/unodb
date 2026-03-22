@@ -474,7 +474,9 @@ template <typename Key, typename Value, template <typename, typename> class Db>
 
   // Serialize value to bytes for leaf storage.
   value_view leaf_val_bytes;
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
   [[maybe_unused]] std::byte val_buf[sizeof(Value)]{};
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   if constexpr (std::is_same_v<Value, value_view>) {
     leaf_val_bytes = v;
   } else {

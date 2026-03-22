@@ -1946,12 +1946,14 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, EmptyKeyRejected) {
 // the reconstructed key during iterator ascent.
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26426)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26409)
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26818)
+UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 TEST(ARTKeyViewValueViewTest, ScanRangeFloatCompoundKeyOrder) {
   unodb::db<unodb::key_view, unodb::value_view> db;
   unodb::key_encoder enc;
-  const std::uint8_t flag = 0x76;
-  const float step = 100.0f / 1000.0f;
-  const std::uint64_t dummy_val = 42;
+  constexpr std::uint8_t flag = 0x76;
+  constexpr float step = 100.0f / 1000.0f;
+  constexpr std::uint64_t dummy_val = 42;
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
   const unodb::value_view val{reinterpret_cast<const std::byte*>(&dummy_val),
                               sizeof(dummy_val)};
@@ -2060,6 +2062,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanKeyReconstructionFF) {
   EXPECT_EQ(count, N);
 }
 
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 

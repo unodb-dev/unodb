@@ -3113,7 +3113,7 @@ bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
       const auto* const leaf{node.template ptr<leaf_type*>()};
       if (UNODB_DETAIL_UNLIKELY(!try_push_leaf(node, node_critical_section)))
         return false;  // LCOV_EXCL_LINE
-      int cmp_;
+      int cmp_{0};
       if constexpr (art_policy::full_key_in_inode_path) {
         cmp_ = unodb::detail::compare(keybuf_.get_key_view(), k.get_key_view());
       } else {

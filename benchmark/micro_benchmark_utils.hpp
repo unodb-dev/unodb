@@ -346,8 +346,10 @@ class key_view_set {
                           .encode(static_cast<std::uint8_t>(i & 0xFF))
                           .encode(static_cast<std::uint64_t>(i))
                           .get_key_view();
+      UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
       std::ranges::copy(kv, ks.buf_.data() + i * 18);
       ks.views_.emplace_back(ks.buf_.data() + i * 18, 18);
+      UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
     }
     return ks;
   }
