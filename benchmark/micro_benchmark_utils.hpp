@@ -426,10 +426,12 @@ class key_view_set {
     ks.views_.reserve(n);
     unodb::key_encoder enc;
     for (std::size_t i = 0; i < n; ++i) {
-      auto kv =
+      const auto kv =
           enc.reset().encode(static_cast<std::uint64_t>(i)).get_key_view();
-      std::copy(kv.begin(), kv.end(), ks.buf_.data() + i * 8);
+      UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
+      std::ranges::copy(kv, ks.buf_.data() + i * 8);
       ks.views_.emplace_back(ks.buf_.data() + i * 8, 8);
+      UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
     }
     return ks;
   }

@@ -2039,7 +2039,7 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanKeyReconstructionFF) {
   TypeParam db;
   constexpr int N = 321;  // enough to span the c1->c2 encoded-float boundary
-  const float step = 100.0f / 1000.0f;
+  constexpr float step = 100.0f / 1000.0f;
 
   for (int i = 0; i < N; ++i) {
     unodb::key_encoder enc;

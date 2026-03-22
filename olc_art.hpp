@@ -2161,7 +2161,9 @@ detail::olc_node_ptr olc_db<Key, Value>::build_chain(
         UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
         child_is_value = false;
       }
+      UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
       current = detail::olc_node_ptr{chain.release(), node_type::I4};
+      UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
       owns_current = true;
 #ifdef UNODB_DETAIL_WITH_STATS
       account_growing_inode<node_type::I4>();
@@ -2179,7 +2181,9 @@ detail::olc_node_ptr olc_db<Key, Value>::build_chain(
         chain->set_value_bit(0);
         UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
       }
+      UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
       current = detail::olc_node_ptr{chain.release(), node_type::I4};
+      UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 #ifdef UNODB_DETAIL_WITH_STATS
       account_growing_inode<node_type::I4>();
 #endif
