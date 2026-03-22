@@ -1752,7 +1752,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanChainMixedLengths) {
 // ===================================================================
 
 template <class Db>
-void verify_stack(typename Db::iterator& it, unodb::key_view expected_key) {
+void verify_stack(const typename Db::iterator& it,
+                  unodb::key_view expected_key) {
   UNODB_ASSERT_TRUE(it.valid());
   auto stk = it.test_only_stack();
   UNODB_ASSERT_TRUE(stk.size() >= 1U);
@@ -1773,7 +1774,7 @@ void verify_stack(typename Db::iterator& it, unodb::key_view expected_key) {
   // Reconstruct key from inode prefix+dispatch bytes.
   std::vector<std::byte> reconstructed;
   for (std::size_t i = 0; i < inode_end; ++i) {
-    auto prefix = stk[i].prefix.get_key_view();
+    const auto prefix = stk[i].prefix.get_key_view();
     for (std::size_t j = 0; j < prefix.size(); ++j)
       reconstructed.push_back(prefix[j]);
     reconstructed.push_back(stk[i].key_byte);

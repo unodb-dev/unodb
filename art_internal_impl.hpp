@@ -3207,6 +3207,7 @@ class basic_inode_16
     UNODB_DETAIL_ASSERT(children_count_ < parent_class::capacity);
     const auto insert_pos_index =
         get_sorted_key_array_insert_position(key_byte);
+    UNODB_DETAIL_ASSUME(insert_pos_index < parent_class::capacity);
     if (insert_pos_index != children_count_) {
       std::copy_backward(keys.byte_array.cbegin() + insert_pos_index,
                          keys.byte_array.cbegin() + children_count_,
@@ -3884,7 +3885,7 @@ class basic_inode_48
     // Find first empty slot (same logic as leaf version, simplified).
     unsigned slot = 0;
     while (children.pointer_array[slot] != nullptr) ++slot;
-    UNODB_DETAIL_ASSERT(slot < 48);
+    UNODB_DETAIL_ASSUME(slot < 48);
     child_indexes[static_cast<std::uint8_t>(key_byte)] =
         static_cast<std::uint8_t>(slot);
     children.pointer_array[slot] = packed_value;
