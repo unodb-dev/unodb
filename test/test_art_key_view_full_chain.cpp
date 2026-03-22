@@ -2010,9 +2010,9 @@ TEST(KeyViewFullChainRegression, CompoundKeyInsertStrictAliasing) {
     enc.encode(values[i]);
     enc.encode(flag);
     enc.encode(static_cast<std::uint64_t>(i));
-    auto key = enc.get_key_view();
+    const auto key = enc.get_key_view();
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)
-    auto val =
+    const auto val =
         unodb::value_view(reinterpret_cast<const std::byte*>(&i), sizeof(i));
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
     ASSERT_TRUE(db.insert(key, val)) << "insert failed at i=" << i;

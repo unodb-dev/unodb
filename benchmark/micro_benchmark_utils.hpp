@@ -367,13 +367,17 @@ class key_view_set {
     ks.views_.reserve(n);
     unodb::key_encoder enc;
     for (std::size_t i = 0; i < n; ++i) {
+      UNODB_DETAIL_DISABLE_MSVC_WARNING(26493)
       const auto tag = static_cast<std::uint8_t>(1 + (i % tag_count));
-      auto kv = enc.reset()
-                    .encode(tag)
-                    .encode(std::uint64_t{i / tag_count})
-                    .get_key_view();
-      std::copy(kv.begin(), kv.end(), ks.buf_.data() + i * 9);
+      UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+      const auto kv = enc.reset()
+                          .encode(tag)
+                          .encode(std::uint64_t{i / tag_count})
+                          .get_key_view();
+      UNODB_DETAIL_DISABLE_MSVC_WARNING(26481)
+      std::ranges::copy(kv, ks.buf_.data() + i * 9);
       ks.views_.emplace_back(ks.buf_.data() + i * 9, 9);
+      UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
     }
     return ks;
   }

@@ -823,6 +823,7 @@ struct basic_art_policy final {
   /// \return Unique pointer to newly constructed node
   UNODB_DETAIL_DISABLE_GCC_11_WARNING("-Wmismatched-new-delete")
   template <class INode, class... Args>
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
   [[nodiscard]] static auto make_db_inode_unique_ptr(
       db_type& db_instance UNODB_DETAIL_LIFETIMEBOUND, Args&&... args) {
     auto* const inode_mem = static_cast<std::byte*>(
@@ -836,6 +837,7 @@ struct basic_art_policy final {
         new (inode_mem) INode{db_instance, std::forward<Args>(args)...},
         db_inode_deleter<INode>{db_instance}};
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   UNODB_DETAIL_RESTORE_GCC_11_WARNINGS()
 
   /// Wrap existing internal node pointer in unique pointer.
