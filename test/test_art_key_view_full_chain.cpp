@@ -1884,7 +1884,9 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureFullScan) {
   struct kh {
     std::array<std::byte, 18> buf{};
     std::size_t len{};
-    [[nodiscard]] unodb::key_view kv() const { return {buf.data(), len}; }
+    [[nodiscard]] unodb::key_view kv() const noexcept {
+      return {buf.data(), len};
+    }
   };
   auto make = [&](std::uint8_t tag, std::uint64_t v) {
     kh h;

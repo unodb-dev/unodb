@@ -1498,6 +1498,7 @@ bool db<Key, Value>::insert_internal(art_key_type insert_key, value_type v) {
 }
 
 template <typename Key, typename Value>
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
 bool db<Key, Value>::insert_internal_fixed(art_key_type insert_key,
                                            value_type v) {
   if constexpr (std::is_same_v<Key, key_view>) {
@@ -1628,6 +1629,7 @@ detail::node_ptr db<Key, Value>::build_chain(art_key_type k,
   }
   return current;
 }
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <typename Key, typename Value>
 bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,

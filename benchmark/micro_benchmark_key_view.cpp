@@ -13,6 +13,10 @@
 
 /// @file
 /// key_view micro-benchmarks for ART tree operations.
+
+// Google Benchmark uses `for (auto _ : state)` where _ is intentionally unused.
+UNODB_DETAIL_DISABLE_MSVC_WARNING(4189)
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
 ///
 /// ## Benchmark groups
 ///
@@ -409,3 +413,6 @@ BENCHMARK_CAPTURE(vis_scan<VIS_OLC>, dense, gen_dense)->Apply(kv_sizes);
 }  // namespace
 
 UNODB_BENCHMARK_MAIN();
+
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()

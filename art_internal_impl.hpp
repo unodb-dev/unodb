@@ -2575,8 +2575,10 @@ class basic_inode_4
 
     const std::uint8_t child_to_leave = (child_to_delete == 0) ? 1U : 0U;
     const auto child_to_leave_ptr = children[child_to_leave].load();
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26814)
     const bool remaining_is_value =
         ArtPolicy::can_eliminate_leaf && is_value_in_slot(child_to_leave);
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
     if (!remaining_is_value && child_to_leave_ptr.type() != node_type::LEAF) {
       auto* const inode_to_leave_ptr{
           child_to_leave_ptr.template ptr<inode_type*>()};
