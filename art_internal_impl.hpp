@@ -80,6 +80,13 @@ struct value_bitmask_field {
     const auto below = static_cast<Storage>(bits & ((Storage{1} << i) - 1));
     bits = static_cast<Storage>(below | (above << i));
   }
+  /// Insert space at position \p i, shifting higher bits up.
+  /// Does NOT set the new bit — caller decides whether to set or leave clear.
+  constexpr void insert_at(std::uint8_t i) noexcept {
+    const auto above = static_cast<Storage>(bits >> i);
+    const auto below = static_cast<Storage>(bits & ((Storage{1} << i) - 1));
+    bits = static_cast<Storage>(below | (above << (i + 1)));
+  }
 };
 
 /// Specialization for array-based bitmasks (I48 uses 6 bytes, I256 uses 32).
@@ -107,6 +114,7 @@ struct value_bitmask_field<false, Storage> {
   static constexpr void set(std::uint8_t) noexcept {}
   static constexpr void clear(std::uint8_t) noexcept {}
   static constexpr void remove_at(std::uint8_t) noexcept {}
+  static constexpr void insert_at(std::uint8_t) noexcept {}
 };
 
 /// Disabled specialization for array-based bitmasks.
@@ -118,6 +126,7 @@ struct value_bitmask_field<false, std::array<T, N>> {
   static constexpr void set(std::uint8_t) noexcept {}
   static constexpr void clear(std::uint8_t) noexcept {}
   static constexpr void remove_at(std::uint8_t) noexcept {}
+  static constexpr void insert_at(std::uint8_t) noexcept {}
 };
 
 #ifdef UNODB_DETAIL_X86_64
@@ -2463,6 +2472,12 @@ class basic_inode_4
     keys.byte_array[insert_pos_index] = key_byte;
     children[insert_pos_index] = node_ptr{child.release(), node_type::LEAF};
 
+    // Shift value bitmask to match shifted children array.
+    // The new entry is a leaf (not a packed value), so no bit is set for it.
+    if constexpr (ArtPolicy::can_eliminate_leaf) {
+      bitmask_base::insert_at(static_cast<std::uint8_t>(insert_pos_index));
+    }
+
     ++children_count_;
     this->children_count = children_count_;
 
@@ -2498,6 +2513,8 @@ class basic_inode_4
     }
     keys.byte_array[insert_pos_index] = key_byte;
     children[insert_pos_index] = packed_value;
+    // Shift existing value bits to match shifted children, then set new bit.
+    bitmask_base::insert_at(static_cast<std::uint8_t>(insert_pos_index));
     set_value_bit(static_cast<std::uint8_t>(insert_pos_index));
 
     ++children_count_;
@@ -3195,6 +3212,11 @@ class basic_inode_16
 
     keys.byte_array[insert_pos_index] = key_byte;
     children[insert_pos_index] = node_ptr{child.release(), node_type::LEAF};
+    // Shift value bitmask to match shifted children array.
+    if constexpr (ArtPolicy::can_eliminate_leaf) {
+      bitmask_base::insert_at(
+          static_cast<std::uint8_t>(insert_pos_index));
+    }
     ++children_count_;
     this->children_count = children_count_;
 
@@ -3222,6 +3244,8 @@ class basic_inode_16
     }
     keys.byte_array[insert_pos_index] = key_byte;
     children[insert_pos_index] = packed_value;
+    // Shift existing value bits to match shifted children, then set new bit.
+    bitmask_base::insert_at(static_cast<std::uint8_t>(insert_pos_index));
     set_value_bit(static_cast<std::uint8_t>(insert_pos_index));
     ++children_count_;
     this->children_count = children_count_;
