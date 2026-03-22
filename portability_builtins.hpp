@@ -1,4 +1,4 @@
-// Copyright 2022-2025 UnoDB contributors
+// Copyright 2022-2026 UnoDB contributors
 #ifndef UNODB_DETAIL_PORTABILITY_BUILTINS_HPP
 #define UNODB_DETAIL_PORTABILITY_BUILTINS_HPP
 

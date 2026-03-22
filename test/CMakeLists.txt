@@ -1,4 +1,4 @@
-# Copyright 2021-2024 Laurynas Biveinis
+# Copyright 2021-2026 Laurynas Biveinis
 
 enable_testing()
 
@@ -60,6 +60,7 @@ add_db_test_target(test_art)
 target_compile_options(test_art PRIVATE "$<${is_msvc}:/bigobj>")
 
 add_db_test_target(test_art_key_view)
+add_db_test_target(test_art_key_view_full_chain)
 add_db_test_target(test_art_iter)
 add_db_test_target(test_art_scan)
 add_db_test_target(test_art_concurrency)
@@ -91,7 +92,8 @@ add_custom_target(valgrind_tests
   COMMAND ${VALGRIND_COMMAND} ./test_key_encode_decode;
   COMMAND ${VALGRIND_COMMAND} ./test_art;
   COMMAND ${VALGRIND_COMMAND} ./test_art_key_view;
+  COMMAND ${VALGRIND_COMMAND} ./test_art_key_view_full_chain;
   COMMAND ${VALGRIND_COMMAND} ./test_art_iter;
   COMMAND ${VALGRIND_COMMAND} ./test_art_scan;
   COMMAND ${VALGRIND_COMMAND} ./test_art_concurrency
-  DEPENDS test_qsbr_ptr test_qsbr test_key_encode_decode test_art test_art_iter test_art_scan test_art_concurrency)
+  DEPENDS test_qsbr_ptr test_qsbr test_key_encode_decode test_art test_art_key_view test_art_key_view_full_chain test_art_iter test_art_scan test_art_concurrency)
