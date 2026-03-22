@@ -70,7 +70,7 @@ template <class Db>
 void chain_insert(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
   const auto n = static_cast<std::size_t>(state.range(0));
   const auto ks = gen(n);
-  for (auto _ : state) {
+  for (const auto& _ : state) {
     state.PauseTiming();
     Db db;
     benchmark::ClobberMemory();
@@ -89,7 +89,7 @@ void chain_get(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
   const auto ks = gen(n);
   Db db;
   for (std::size_t i = 0; i < n; ++i) std::ignore = db.insert(ks[i], val);
-  for (auto _ : state) {
+  for (const auto& _ : state) {
     for (std::size_t i = 0; i < n; ++i) benchmark::DoNotOptimize(db.get(ks[i]));
   }
   state.SetItemsProcessed(state.iterations() * static_cast<std::int64_t>(n));
@@ -99,7 +99,7 @@ template <class Db>
 void chain_remove(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
   const auto n = static_cast<std::size_t>(state.range(0));
   const auto ks = gen(n);
-  for (auto _ : state) {
+  for (const auto& _ : state) {
     state.PauseTiming();
     Db db;
     for (std::size_t i = 0; i < n; ++i) std::ignore = db.insert(ks[i], val);
@@ -117,7 +117,7 @@ void chain_scan(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
   const auto ks = gen(n);
   Db db;
   for (std::size_t i = 0; i < n; ++i) std::ignore = db.insert(ks[i], val);
-  for (auto _ : state) {
+  for (const auto& _ : state) {
     std::size_t count = 0;
     db.scan([&count](auto /*visitor*/) {
       ++count;
@@ -136,7 +136,7 @@ template <class Db>
 void kv_vs_u64_insert(benchmark::State& state) {
   const auto n = static_cast<std::size_t>(state.range(0));
   const auto ks = key_view_set::dense_sequential(n);
-  for (auto _ : state) {
+  for (const auto& _ : state) {
     state.PauseTiming();
     Db db;
     benchmark::ClobberMemory();
@@ -155,7 +155,7 @@ void kv_vs_u64_get(benchmark::State& state) {
   const auto ks = key_view_set::dense_sequential(n);
   Db db;
   for (std::size_t i = 0; i < n; ++i) std::ignore = db.insert(ks[i], val100);
-  for (auto _ : state) {
+  for (const auto& _ : state) {
     for (std::size_t i = 0; i < n; ++i) benchmark::DoNotOptimize(db.get(ks[i]));
   }
   state.SetItemsProcessed(state.iterations() * static_cast<std::int64_t>(n));
@@ -165,7 +165,7 @@ template <class Db>
 void kv_vs_u64_remove(benchmark::State& state) {
   const auto n = static_cast<std::size_t>(state.range(0));
   const auto ks = key_view_set::dense_sequential(n);
-  for (auto _ : state) {
+  for (const auto& _ : state) {
     state.PauseTiming();
     Db db;
     for (std::size_t i = 0; i < n; ++i) std::ignore = db.insert(ks[i], val100);
@@ -324,7 +324,7 @@ template <class Db>
 void vis_insert(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
   const auto n = static_cast<std::size_t>(state.range(0));
   const auto ks = gen(n);
-  for (auto _ : state) {
+  for (const auto& _ : state) {
     state.PauseTiming();
     Db db;
     benchmark::ClobberMemory();
@@ -344,7 +344,7 @@ void vis_get(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
   Db db;
   for (std::size_t i = 0; i < n; ++i)
     std::ignore = db.insert(ks[i], static_cast<std::uint64_t>(i));
-  for (auto _ : state) {
+  for (const auto& _ : state) {
     for (std::size_t i = 0; i < n; ++i) benchmark::DoNotOptimize(db.get(ks[i]));
   }
   state.SetItemsProcessed(state.iterations() * static_cast<std::int64_t>(n));
@@ -354,7 +354,7 @@ template <class Db>
 void vis_remove(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
   const auto n = static_cast<std::size_t>(state.range(0));
   const auto ks = gen(n);
-  for (auto _ : state) {
+  for (const auto& _ : state) {
     state.PauseTiming();
     Db db;
     for (std::size_t i = 0; i < n; ++i)
@@ -374,7 +374,7 @@ void vis_scan(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
   Db db;
   for (std::size_t i = 0; i < n; ++i)
     std::ignore = db.insert(ks[i], static_cast<std::uint64_t>(i));
-  for (auto _ : state) {
+  for (const auto& _ : state) {
     std::size_t count = 0;
     db.scan([&count](auto /*visitor*/) {
       ++count;

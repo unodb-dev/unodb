@@ -1930,6 +1930,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureFullScan) {
 #endif  // UNODB_DETAIL_WITH_STATS
 
 // Empty key_view must be rejected (not UB).
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, EmptyKeyRejected) {
   TypeParam db;
   const std::byte empty_buf{};
@@ -1939,6 +1940,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, EmptyKeyRejected) {
                      std::length_error);
   UNODB_ASSERT_TRUE(db.empty());
 }
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 // Regression test: scan_range with 1000 compound float keys must return
 // results in encoded key order.  A bug in keybuf_.pop() treated child_index

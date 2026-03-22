@@ -1697,7 +1697,7 @@ olc_impl_helpers::add_or_choose_subtree(
       return {};  // LCOV_EXCL_LINE
 
     inode.add_to_nonfull(
-        [&]() -> auto {
+        [&]() noexcept -> auto {
           if constexpr (detail::olc_art_policy<Key, Value>::can_eliminate_leaf)
             return detail::olc_art_policy<Key, Value>::pack_value(v);
           else
@@ -3655,7 +3655,7 @@ olc_db<Key, Value>::try_chain_cut(
     optimistic_lock::write_guard leaf_guard, remove_stack_type& stk,
     std::size_t stk_n) {
   [[maybe_unused]] const auto* const leaf =
-      [&]() -> const detail::olc_leaf_type<Key, Value>* {
+      [&]() noexcept -> const detail::olc_leaf_type<Key, Value>* {
     if constexpr (art_policy::can_eliminate_leaf)
       return nullptr;
     else
