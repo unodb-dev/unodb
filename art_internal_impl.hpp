@@ -2343,6 +2343,7 @@ class basic_inode_4
   // MSVC C26815 false positive: reclaim objects intentionally destroyed at
   // scope exit while db_instance (passed by caller) remains valid.
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26460)
   constexpr void init(db_type& db_instance, inode16_type& source_node,
                       std::uint8_t child_to_delete) {
     const auto reclaim_source_node{
@@ -2385,6 +2386,7 @@ class basic_inode_4
       }
     }
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Initialize with two leaf children from diverging keys.
@@ -2508,6 +2510,7 @@ class basic_inode_4
   /// \param db_instance Database instance
   // MSVC C26815 false positive: reclaim object intentionally destroyed at
   // scope exit while db_instance (passed by caller) remains valid.
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26460)
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
   constexpr void remove(std::uint8_t child_index,
                         db_type& db_instance) noexcept {
@@ -2557,6 +2560,7 @@ class basic_inode_4
     UNODB_DETAIL_ASSERT(std::is_sorted(
         keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// For a node with two children, remove one child and return the other one.
@@ -3228,6 +3232,7 @@ class basic_inode_16
   /// \param child_index Index of child to remove
   /// \param db_instance Database instance
   // MSVC C26815 false positive: reclaim object intentionally destroyed at
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26460)
   // scope exit while db_instance (passed by caller) remains valid.
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
   constexpr void remove(std::uint8_t child_index,
@@ -3270,6 +3275,7 @@ class basic_inode_16
     UNODB_DETAIL_ASSERT(std::is_sorted(
         keys.byte_array.cbegin(), keys.byte_array.cbegin() + children_count_));
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Find child by key byte.
@@ -3703,6 +3709,7 @@ class basic_inode_48
   /// \param db_instance Database instance
   /// \param source_node N256 node to shrink from
   /// \param child_to_delete Key byte of child to remove
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26460)
   // MSVC C26815 false positive: reclaim objects intentionally destroyed at
   // scope exit while db_instance (passed by caller) remains valid.
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
@@ -3733,6 +3740,7 @@ class basic_inode_48
       if (next_child == basic_inode_48::capacity) return;
     }
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Add child to non-full node.
@@ -4155,6 +4163,7 @@ class basic_inode_48
   /// Remove child pointer by direct children array index.
   ///
   /// \param children_i Index in children.pointer_array
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26460)
   /// \param db_instance Database for memory reclamation
   // MSVC C26815 false positive: reclaim object intentionally destroyed at
   // scope exit while db_instance (passed by caller) remains valid.
@@ -4166,6 +4175,7 @@ class basic_inode_48
     [[maybe_unused]] const auto r{ArtPolicy::reclaim_if_leaf(
         children.pointer_array[children_i].load(), db_instance)};
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Sentinel value for empty child slot.
