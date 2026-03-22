@@ -1008,7 +1008,7 @@ class db_inode_qsbr_deleter
   using db_inode_qsbr_deleter_parent<Key, Value,
                                      INode>::db_inode_qsbr_deleter_parent;
 
-  void operator()(INode* inode_ptr) {
+  void operator()(INode* inode_ptr) noexcept {
     static_assert(std::is_trivially_destructible_v<INode>);
 
     this_thread().on_next_epoch_deallocate(inode_ptr
@@ -1596,14 +1596,16 @@ void olc_inode_48<Key, Value>::init(
 }
 
 template <typename Key, typename Value>
-void create_leaf_if_needed(olc_db_leaf_unique_ptr<Key, Value>& cached_leaf,
-                           basic_art_key<Key> k, Value v,
-                           unodb::olc_db<Key, Value>& db_instance) {
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26411)
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26460) void create_leaf_if_needed(
+        olc_db_leaf_unique_ptr<Key, Value>& cached_leaf, basic_art_key<Key> k,
+        Value v, unodb::olc_db<Key, Value>& db_instance) {
   if constexpr (olc_art_policy<Key, Value>::can_eliminate_leaf) {
-    (void)cached_leaf;
-    (void)k;
-    (void)v;
-    (void)db_instance;
+    std::ignore = cached_leaf;
+    std::ignore = k;
+    std::ignore = v;
+    std::ignore = db_instance;
   } else {
     if (UNODB_DETAIL_LIKELY(cached_leaf == nullptr)) {
       UNODB_DETAIL_ASSERT(&cached_leaf.get_deleter().get_db() == &db_instance);
@@ -1615,6 +1617,9 @@ void create_leaf_if_needed(olc_db_leaf_unique_ptr<Key, Value>& cached_leaf,
     }
   }
 }
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26460)
 template <typename Key, typename Value, class INode>

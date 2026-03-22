@@ -1849,7 +1849,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureWideNode) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureSecondInsertChain) {
   TypeParam db;
   unodb::key_encoder enc;
-  const auto val = unodb::test::get_test_value<TypeParam>(0);
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   std::array<std::byte, 9> buf_a{};
   std::array<std::byte, 9> buf_b{};

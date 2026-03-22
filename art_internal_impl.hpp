@@ -685,7 +685,9 @@ struct basic_art_policy final {
     std::memcpy(&raw, &v, sizeof(v));
     raw ^= pack_xor_sentinel;
     node_ptr result{nullptr};
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26474)
     std::memcpy(static_cast<void*>(&result), &raw, sizeof(raw));
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
     return result;
   }
 
