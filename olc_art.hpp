@@ -1598,9 +1598,11 @@ void olc_inode_48<Key, Value>::init(
 template <typename Key, typename Value>
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26411)
-    UNODB_DETAIL_DISABLE_MSVC_WARNING(26460) void create_leaf_if_needed(
-        olc_db_leaf_unique_ptr<Key, Value>& cached_leaf, basic_art_key<Key> k,
-        Value v, unodb::olc_db<Key, Value>& db_instance) {
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26415)
+        UNODB_DETAIL_DISABLE_MSVC_WARNING(26460) void create_leaf_if_needed(
+            olc_db_leaf_unique_ptr<Key, Value>& cached_leaf,
+            basic_art_key<Key> k, Value v,
+            unodb::olc_db<Key, Value>& db_instance) {
   if constexpr (olc_art_policy<Key, Value>::can_eliminate_leaf) {
     std::ignore = cached_leaf;
     std::ignore = k;
@@ -1617,6 +1619,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26411)
     }
   }
 }
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()

@@ -439,7 +439,9 @@ class [[nodiscard]] basic_leaf<no_key_tag, Header> final : public Header {
  private:
   const value_size_type value_size;
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26495)
   std::byte data[1];
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 };  // class basic_leaf<no_key_tag, Header>
 
 /// Create unique pointer to new leaf with given key and value.
