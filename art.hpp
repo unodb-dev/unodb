@@ -1199,9 +1199,15 @@ std::optional<detail::node_ptr*> impl_helpers::remove_or_choose_subtree(
 
   if (UNODB_DETAIL_UNLIKELY(inode.is_min_size())) {
     if constexpr (std::is_same_v<INode, inode_4<Key, Value>>) {
-      auto current_node{art_policy<Key, Value>::make_db_inode_unique_ptr(
-          &inode, db_instance)};
-      *node_in_parent = current_node->leave_last_child(child_i, db_instance);
+      if (UNODB_DETAIL_LIKELY(inode.can_collapse(child_i))) {
+        auto current_node{art_policy<Key, Value>::make_db_inode_unique_ptr(
+            &inode, db_instance)};
+        *node_in_parent = current_node->leave_last_child(child_i, db_instance);
+      } else {
+        // Prefix overflow — cannot collapse.  Just remove the child.
+        inode.remove(child_i, db_instance);
+        return nullptr;
+      }
     } else {
       auto new_node{
           INode::smaller_derived_type::create(db_instance, inode, child_i)};
@@ -1511,8 +1517,8 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
     const auto count = inode->get_children_count();
 
     if (count > 1 || ntype != node_type::I4) {
-      const auto remove_result
-          UNODB_DETAIL_USED_IN_DEBUG{inode->template remove_or_choose_subtree<
+      const auto remove_result UNODB_DETAIL_USED_IN_DEBUG{
+          inode->template remove_or_choose_subtree<
               std::optional<detail::node_ptr*>>(ntype, remaining_key[0],
                                                 remove_key, *this, slot)};
       UNODB_DETAIL_ASSERT(remove_result.has_value());
@@ -1522,9 +1528,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
 
     // Single-child inode (chain node).  Reclaim leaf and chain,
     // then walk up cleaning any further empty chains.
-    {
-      const auto rl{art_policy::reclaim_leaf_on_scope_exit(leaf, *this)};
-    }
+    { const auto rl{art_policy::reclaim_leaf_on_scope_exit(leaf, *this)}; }
     {
       const auto ri{art_policy::make_db_inode_unique_ptr(
           node_val.template ptr<inode_4*>(), *this)};
@@ -1571,9 +1575,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
                                                     remaining_iter.key_byte);
         }
         *entry.slot = remaining;
-        {
-          const auto ri{art_policy::make_db_inode_unique_ptr(pi4, *this)};
-        }
+        { const auto ri{art_policy::make_db_inode_unique_ptr(pi4, *this)}; }
 #ifdef UNODB_DETAIL_WITH_STATS
         account_shrinking_inode<node_type::I4>();
 #endif

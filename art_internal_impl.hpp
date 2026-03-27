@@ -286,9 +286,9 @@ class [[nodiscard]] basic_leaf final : public Header {
 ///
 /// \throws std::length_error if key or value exceeds maximum size
 template <typename Key, typename Value, template <typename, typename> class Db>
-[[nodiscard]] auto make_db_leaf_ptr(basic_art_key<Key> k, value_view v,
-                                    Db<Key, Value>& db
-                                    UNODB_DETAIL_LIFETIMEBOUND) {
+[[nodiscard]] auto make_db_leaf_ptr(
+    basic_art_key<Key> k, value_view v,
+    Db<Key, Value>& db UNODB_DETAIL_LIFETIMEBOUND) {
   using db_type = Db<Key, Value>;
   using header_type = typename db_type::header_type;
   using leaf_type = basic_leaf<Key, header_type>;
@@ -512,9 +512,9 @@ struct basic_art_policy final {
   /// \param db_instance Database for memory tracking
   ///
   /// \return Unique pointer to newly allocated leaf
-  [[nodiscard]] static auto make_db_leaf_ptr(art_key_type k, value_view v,
-                                             db_type& db_instance
-                                             UNODB_DETAIL_LIFETIMEBOUND) {
+  [[nodiscard]] static auto make_db_leaf_ptr(
+      art_key_type k, value_view v,
+      db_type& db_instance UNODB_DETAIL_LIFETIMEBOUND) {
     return ::unodb::detail::make_db_leaf_ptr<Key, Value, Db>(k, v, db_instance);
   }
 
@@ -561,9 +561,8 @@ struct basic_art_policy final {
   /// \return Unique pointer to newly constructed node
   UNODB_DETAIL_DISABLE_GCC_11_WARNING("-Wmismatched-new-delete")
   template <class INode, class... Args>
-  [[nodiscard]] static auto make_db_inode_unique_ptr(db_type& db_instance
-                                                     UNODB_DETAIL_LIFETIMEBOUND,
-                                                     Args&&... args) {
+  [[nodiscard]] static auto make_db_inode_unique_ptr(
+      db_type& db_instance UNODB_DETAIL_LIFETIMEBOUND, Args&&... args) {
     auto* const inode_mem = static_cast<std::byte*>(
         allocate_aligned(sizeof(INode), alignment_for_new<INode>()));
 
@@ -2075,6 +2074,22 @@ class basic_inode_4 : public basic_inode_4_parent<ArtPolicy> {
 
   /// For a node with two children, remove one child and return the other one.
   ///
+  /// Check if collapsing this min-size I4 is safe (prefix merge fits).
+  /// \param child_to_delete Index of child to remove (0 or 1)
+  /// \return true if the remaining child's prefix can absorb this node's
+  ///         prefix + dispatch byte without exceeding key_prefix_capacity.
+  [[nodiscard]] constexpr bool can_collapse(
+      std::uint8_t child_to_delete) const noexcept {
+    UNODB_DETAIL_ASSERT(this->is_min_size());
+    const std::uint8_t child_to_leave = (child_to_delete == 0) ? 1U : 0U;
+    const auto child_ptr = children[child_to_leave].load();
+    if (child_ptr.type() == node_type::LEAF) return true;
+    const auto* const child_inode{child_ptr.template ptr<inode_type*>()};
+    return this->get_key_prefix().length() +
+               child_inode->get_key_prefix().length() <
+           detail::key_prefix_capacity;
+  }
+
   /// \param child_to_delete Index of child to remove (0 or 1)
   /// \param db_instance Database instance
   ///
