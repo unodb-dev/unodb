@@ -17,6 +17,7 @@ permissions:
 jobs:
   benchmark:
     runs-on: ${{matrix.os}}
+    environment: benchmarks
 
     strategy:
       fail-fast: false

@@ -24,6 +24,7 @@ jobs:
     #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
 
     runs-on: ubuntu-latest
+    environment: claude
 
     steps:
       - name: Checkout repository

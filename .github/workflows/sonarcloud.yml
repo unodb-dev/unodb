@@ -13,6 +13,7 @@ jobs:
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
+    environment: sonarcloud
     steps:
       - uses: actions/checkout@v6 # zizmor: ignore[unpinned-uses]
         with:
