@@ -421,8 +421,8 @@ class [[nodiscard]] basic_leaf<no_key_tag, Header> final : public Header {
       Value v{};                         // LCOV_EXCL_LINE
       std::memcpy(&v, data, sizeof(v));  // LCOV_EXCL_LINE
       return v;                          // LCOV_EXCL_LINE
-    }
-  }
+    }  // LCOV_EXCL_LINE
+  }  // LCOV_EXCL_LINE
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
@@ -1669,10 +1669,10 @@ class basic_inode_impl : public ArtPolicy::header_type {
       // LCOV_EXCL_START
       case node_type::LEAF:            // LCOV_EXCL_LINE
         UNODB_DETAIL_CANNOT_HAPPEN();  // LCOV_EXCL_LINE
-    }
+    }  // LCOV_EXCL_LINE
     UNODB_DETAIL_CANNOT_HAPPEN();  // LCOV_EXCL_LINE
     // LCOV_EXCL_STOP
-  }
+  }  // LCOV_EXCL_LINE
 
   /// Clear value bitmask bit, dispatching by type.
   constexpr void clear_value_bit(node_type type,
@@ -1692,10 +1692,10 @@ class basic_inode_impl : public ArtPolicy::header_type {
       // LCOV_EXCL_START
       case node_type::LEAF:            // LCOV_EXCL_LINE
         UNODB_DETAIL_CANNOT_HAPPEN();  // LCOV_EXCL_LINE
-    }
+    }  // LCOV_EXCL_LINE
     UNODB_DETAIL_CANNOT_HAPPEN();  // LCOV_EXCL_LINE
     // LCOV_EXCL_STOP
-  }
+  }  // LCOV_EXCL_LINE
 
   /// Remove child entry without reclaiming the child, dispatching by type.
   ///
@@ -2838,7 +2838,7 @@ class basic_inode_4
         if (is_value_in_slot(i)) {
           os << "  [" << static_cast<unsigned>(i)
              << "] packed value\n";  // LCOV_EXCL_LINE
-        } else {
+        } else {                     // LCOV_EXCL_LINE
           ArtPolicy::dump_node(os, children[i].load());
         }
       }
@@ -3136,8 +3136,8 @@ class basic_inode_16
       for (unsigned j = insert_pos_index; j < inode4_type::capacity; ++j) {
         if (source_node.is_value_in_slot(static_cast<std::uint8_t>(j)))
           set_value_bit(static_cast<std::uint8_t>(j + 1));  // LCOV_EXCL_LINE
-      }
-    }
+      }  // LCOV_EXCL_LINE
+    }  // LCOV_EXCL_LINE
   }
 
   /// Initialize by shrinking from basic_inode_48 and removing a child.
@@ -3496,7 +3496,7 @@ class basic_inode_16
         if (is_value_in_slot(i)) {
           os << "  [" << static_cast<unsigned>(i)
              << "] packed value\n";  // LCOV_EXCL_LINE
-        } else {
+        } else {                     // LCOV_EXCL_LINE
           ArtPolicy::dump_node(os, children[i].load());
         }
       }
@@ -4175,7 +4175,7 @@ class basic_inode_48
           const auto ci = child_indexes[i].load();
           if (is_value_in_slot_by_ci(ci)) {
             os << "packed value\n";  // LCOV_EXCL_LINE
-          } else {
+          } else {                   // LCOV_EXCL_LINE
             ArtPolicy::dump_node(os, children.pointer_array[ci].load());
           }
         }
@@ -4539,7 +4539,7 @@ class basic_inode_256
           db_instance)};                    // LCOV_EXCL_LINE
     } else {                                // LCOV_EXCL_LINE
       (void)db_instance;                    // LCOV_EXCL_LINE
-    }
+    }  // LCOV_EXCL_LINE
 
     remove_child_entry(child_index);
   }
@@ -4758,7 +4758,7 @@ class basic_inode_256
       if (recursive) {
         if (is_value_in_slot(static_cast<std::uint8_t>(i))) {
           os << "packed value\n";  // LCOV_EXCL_LINE
-        } else {
+        } else {                   // LCOV_EXCL_LINE
           ArtPolicy::dump_node(os, child);
         }
       }

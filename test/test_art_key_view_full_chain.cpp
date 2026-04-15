@@ -49,8 +49,8 @@ class ARTKeyViewFullChainTest : public ::testing::Test {
       return 0;                                        // LCOV_EXCL_LINE
     else                                               // LCOV_EXCL_LINE
       return n;                                        // LCOV_EXCL_LINE
-  }
-};
+  }  // LCOV_EXCL_LINE
+};  // LCOV_EXCL_LINE
 
 using ARTTypes = ::testing::Types<unodb::test::key_view_u64val_db,
                                   unodb::test::key_view_u64val_mutex_db,
@@ -1769,7 +1769,7 @@ void verify_stack(const typename Db::iterator& it,
   } else {
     UNODB_EXPECT_EQ(stk.back().node.type(),
                     unodb::node_type::LEAF);  // LCOV_EXCL_LINE
-  }
+  }  // LCOV_EXCL_LINE
 
   const auto inode_end = stk.size() - 1;
   for (std::size_t i = 0; i < inode_end; ++i) {
