@@ -1,4 +1,4 @@
-// Copyright 2020-2025 UnoDB contributors
+// Copyright 2020-2026 UnoDB contributors
 
 // Should be the first include
 #include "global.hpp"  // IWYU pragma: keep
@@ -29,5 +29,14 @@ template void destroy_tree<unodb::mutex_db<std::uint64_t, unodb::value_view>>(
     unodb::mutex_db<std::uint64_t, unodb::value_view>&, ::benchmark::State&);
 template void destroy_tree<unodb::olc_db<std::uint64_t, unodb::value_view>>(
     unodb::olc_db<std::uint64_t, unodb::value_view>&, ::benchmark::State&);
+
+template void destroy_tree<unodb::db<unodb::key_view, unodb::value_view>>(
+    unodb::db<unodb::key_view, unodb::value_view>&, ::benchmark::State&);
+template void destroy_tree<unodb::olc_db<unodb::key_view, unodb::value_view>>(
+    unodb::olc_db<unodb::key_view, unodb::value_view>&, ::benchmark::State&);
+template void destroy_tree<unodb::db<unodb::key_view, std::uint64_t>>(
+    unodb::db<unodb::key_view, std::uint64_t>&, ::benchmark::State&);
+template void destroy_tree<unodb::olc_db<unodb::key_view, std::uint64_t>>(
+    unodb::olc_db<unodb::key_view, std::uint64_t>&, ::benchmark::State&);
 
 }  // namespace unodb::benchmark

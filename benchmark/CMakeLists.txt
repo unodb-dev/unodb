@@ -1,4 +1,4 @@
-# Copyright 2020-2022 Laurynas Biveinis
+# Copyright 2020-2026 Laurynas Biveinis
 
 set(micro_benchmark_key_prefix_quick_arg "") # Benchmark is quick as-is
 set(micro_benchmark_n4_quick_arg "--benchmark_filter=\"/16$$|/25|/100\"")
@@ -88,6 +88,7 @@ function(ADD_CONCURRENT_BENCHMARK_TARGET TARGET)
 endfunction()
 
 add_benchmark_target(micro_benchmark_key_prefix)
+add_benchmark_target(micro_benchmark_key_view)
 add_node_benchmark_target(micro_benchmark_n4)
 add_node_benchmark_target(micro_benchmark_n16)
 add_node_benchmark_target(micro_benchmark_n48)

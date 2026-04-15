@@ -1,4 +1,4 @@
-// Copyright 2019-2025 UnoDB contributors
+// Copyright 2019-2026 UnoDB contributors
 #ifndef UNODB_DETAIL_ART_INTERNAL_HPP
 #define UNODB_DETAIL_ART_INTERNAL_HPP
 
@@ -136,7 +136,7 @@ struct [[nodiscard]] basic_art_key final {
   [[nodiscard, gnu::pure]] constexpr int cmp(
       basic_art_key<KeyType> key2) const noexcept {
     if constexpr (std::is_same_v<KeyType, key_view>) {
-      return compare(&key, sizeof(KeyType), &key2.key, sizeof(KeyType));
+      return compare(key, key2.key);
     } else {
       return std::memcmp(&key, &key2.key, sizeof(KeyType));
     }
@@ -326,7 +326,9 @@ template <class Db>
 class basic_db_leaf_deleter {
  public:
   /// Leaf type managed by this deleter.
-  using leaf_type = basic_leaf<typename Db::key_type, typename Db::header_type>;
+  using leaf_type =
+      basic_leaf<leaf_key_type<typename Db::key_type, typename Db::value_type>,
+                 typename Db::header_type>;
 
   static_assert(std::is_trivially_destructible_v<leaf_type>);
 
@@ -359,7 +361,7 @@ class basic_db_leaf_deleter {
 template <typename Key, typename Value, class Header,
           template <typename, typename> class Db>
 using basic_db_leaf_unique_ptr =
-    std::unique_ptr<basic_leaf<Key, Header>,
+    std::unique_ptr<basic_leaf<leaf_key_type<Key, Value>, Header>,
                     basic_db_leaf_deleter<Db<Key, Value>>>;
 
 // TODO(laurynas): extract a base class db_ref?

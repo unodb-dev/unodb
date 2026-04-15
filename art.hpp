@@ -13,12 +13,15 @@
 // Should be the first include
 #include "global.hpp"
 
+#include <algorithm>
+#include <atomic>
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <optional>
 #include <stack>
 #include <type_traits>
+#include <vector>
 
 #include <boost/container/small_vector.hpp>
 
@@ -96,9 +99,9 @@ using inode_base = basic_inode_impl<art_policy<Key, Value>>;
 
 /// Leaf node type for non-thread-safe ART.
 ///
-/// Stores a key-value pair at the leaf level of the tree.
-template <typename Key>
-using leaf_type = basic_leaf<Key, node_header>;
+/// Stores a key-value pair (or value only for keyless leaves).
+template <typename Key, typename Value>
+using leaf_type = basic_leaf<leaf_key_type<Key, Value>, node_header>;
 
 /// Internal node base class for non-thread-safe ART.
 ///
@@ -133,20 +136,17 @@ class db final {
   /// Result type for get operations.
   ///
   /// Contains value_view if key was found, otherwise empty.
-  using get_result = std::optional<value_view>;
+  using get_result = std::optional<value_type>;
 
   /// Base class type for internal nodes.
   using inode_base = detail::inode_base<Key, Value>;
-
-  // TODO(laurynas): added temporarily during development
-  static_assert(std::is_same_v<value_type, unodb::value_view>);
 
  private:
   /// Internal encoded key type used for tree operations.
   using art_key_type = detail::basic_art_key<Key>;
 
-  /// Leaf node type storing key-value pairs.
-  using leaf_type = detail::leaf_type<Key>;
+  /// Leaf node type (keyless when can_eliminate_key_in_leaf).
+  using leaf_type = detail::leaf_type<Key, Value>;
 
   /// Database type (self-reference for template instantiation).
   using db_type = db<Key, Value>;
@@ -173,6 +173,23 @@ class db final {
   /// Insert for variable-length keys (may create chain I4 nodes).
   [[nodiscard]] bool insert_internal_key_view(art_key_type insert_key,
                                               value_type v);
+
+  /// Build an inode chain for the first key_view insert into an empty tree.
+  ///
+  /// For key_view keys, the tree must always have at least one inode above
+  /// every leaf so that the iterator's key buffer (keybuf_) is populated
+  /// during traversal.  This method wraps \a child in a chain of single-child
+  /// I4 nodes, each consuming up to key_prefix_capacity prefix bytes + 1
+  /// dispatch byte from the key.  Built bottom-up: the last I4 created
+  /// (with prefix from the start of the key) becomes the root.
+  ///
+  /// \param k The full encoded key
+  /// \param child The node to place at the bottom of the chain
+  /// \param start_depth Depth at which the chain starts (default 0)
+  /// \return The chain top node, or \a child if no bytes to encode
+  [[nodiscard]] detail::node_ptr build_chain(
+      art_key_type k, detail::node_ptr child,
+      detail::tree_depth<art_key_type> start_depth);
 
   /// Remove the entry associated with the encoded key \a remove_key.
   ///
@@ -355,17 +372,26 @@ class db final {
     /// LTE the search_key and invalidated if there is no such entry.
     iterator& seek(art_key_type search_key, bool& match, bool fwd = true);
 
-    /// Return the key_view associated with the current position of
-    /// the iterator.
+    /// Return type for get_key(): key_view when the leaf stores the key,
+    /// transient_key_view when the key is reconstructed from the inode path.
+    using get_key_result = std::conditional_t<
+        detail::art_policy<Key, Value>::full_key_in_inode_path,
+        transient_key_view, key_view>;
+
+    /// Return the key associated with the current position of the iterator.
+    ///
+    /// For full_key_in_inode_path trees, returns a transient_key_view that is
+    /// valid only until the next iterator movement.  For other trees,
+    /// returns a key_view into the leaf (stable for the leaf's lifetime).
     ///
     /// \pre The iterator MUST be valid().
-    [[nodiscard]] key_view get_key() noexcept;
+    [[nodiscard]] get_key_result get_key() noexcept;
 
     /// Return the value_view associated with the current position of
     /// the iterator.
     ///
     /// \pre The iterator MUST be valid().
-    [[nodiscard, gnu::pure]] value_view get_val() const noexcept;
+    [[nodiscard, gnu::pure]] value_type get_val() const noexcept;
 
     /// Output iterator state to stream \a os for debugging.
     // LCOV_EXCL_START
@@ -413,6 +439,20 @@ class db final {
     /// Return true unless the stack is empty (exposed to tests).
     [[nodiscard]] bool valid() const noexcept { return !stack_.empty(); }
 
+#ifdef UNODB_DETAIL_WITH_STATS
+    /// Return stack entries bottom-to-top (test only).
+    [[nodiscard]] std::vector<stack_entry> test_only_stack() const {
+      auto tmp = stack_;
+      std::vector<stack_entry> result;
+      while (!tmp.empty()) {
+        result.push_back(tmp.top());
+        tmp.pop();
+      }
+      std::reverse(result.begin(), result.end());
+      return result;
+    }
+#endif  // UNODB_DETAIL_WITH_STATS
+
    protected:
     /// Descend to left-most leaf from given \a node.
     ///
@@ -432,19 +472,50 @@ class db final {
     /// \return Reference to this iterator
     iterator& right_most_traversal(detail::node_ptr node);
 
+    /// Descend left if child is an inode, or push as leaf if value-in-slot.
+    iterator& descend_left([[maybe_unused]] const auto* inode,
+                           [[maybe_unused]] node_type ntype,
+                           [[maybe_unused]] std::uint8_t child_i,
+                           detail::node_ptr child) {
+      if constexpr (art_policy::can_eliminate_leaf) {
+        if (inode->is_value_in_slot(ntype, child_i)) {
+          push_leaf(child);
+          return *this;
+        }
+      }
+      return left_most_traversal(child);
+    }
+
+    /// Descend right if child is an inode, or push as leaf if value-in-slot.
+    iterator& descend_right([[maybe_unused]] const auto* inode,
+                            [[maybe_unused]] node_type ntype,
+                            [[maybe_unused]] std::uint8_t child_i,
+                            detail::node_ptr child) {
+      if constexpr (art_policy::can_eliminate_leaf) {
+        if (inode->is_value_in_slot(ntype, child_i)) {
+          push_leaf(child);
+          return *this;
+        }
+      }
+      return right_most_traversal(child);
+    }
+
     /// Compare the given key \a akey to the current key in the internal buffer.
     ///
     /// \return -1, 0, or 1 if this key is LT, EQ, or GT the other
     /// key.
     [[nodiscard]] int cmp(art_key_type akey) const noexcept {
-      // TODO(thompsonbry) : variable length keys. Explore a cheaper way to
-      // handle the exclusive bound case when developing variable length key
-      // support based on the maintained key buffer.
       UNODB_DETAIL_ASSERT(!stack_.empty());
-      auto& node = stack_.top().node;
-      UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
-      const auto* const leaf{node.template ptr<leaf_type*>()};
-      return unodb::detail::compare(leaf->get_key_view(), akey.get_key_view());
+      if constexpr (art_policy::full_key_in_inode_path) {
+        return unodb::detail::compare(keybuf_.get_key_view(),
+                                      akey.get_key_view());
+      } else {
+        auto& node = stack_.top().node;
+        UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
+        const auto* const leaf{node.template ptr<leaf_type*>()};
+        return unodb::detail::compare(leaf->get_key_view(),
+                                      akey.get_key_view());
+      }
     }
 
     /// \name Stack access methods
@@ -479,12 +550,12 @@ class db final {
     ///
     /// \param aleaf Leaf node pointer
     void push_leaf(detail::node_ptr aleaf) {
-      // Mock up a stack entry for the leaf.
       stack_.push({
           aleaf,
           static_cast<std::byte>(0xFFU),     // ignored for leaf
           static_cast<std::uint8_t>(0xFFU),  // ignored for leaf
-          detail::key_prefix_snapshot(0)     // ignored for leaf
+          detail::key_prefix_snapshot(0),    // ignored for leaf
+          true                               // packed_leaf
       });
       // No change in the key_buffer.
     }
@@ -494,6 +565,7 @@ class db final {
       const auto node_type = e.node.type();
       if (UNODB_DETAIL_UNLIKELY(node_type == node_type::LEAF)) {
         push_leaf(e.node);
+        return;
       }
       push(e.node, e.key_byte, e.child_index, e.prefix);
     }
@@ -502,8 +574,13 @@ class db final {
     void pop() noexcept {
       UNODB_DETAIL_ASSERT(!empty());
 
-      const auto prefix_len = top().prefix.length();
-      keybuf_.pop(prefix_len);
+      const auto& e = top();
+      const auto n = static_cast<std::size_t>(
+          (e.node.type() != node_type::LEAF &&
+           !(art_policy::can_eliminate_leaf && e.packed_leaf))
+              ? e.prefix.length() + 1
+              : 0);
+      keybuf_.pop(n);
       stack_.pop();
     }
 
@@ -868,7 +945,7 @@ class db final {
   // Type names in the Doxygen comments below make them clickable in the output
 
   /// detail::make_db_leaf_ptr
-  friend auto detail::make_db_leaf_ptr<Key, Value, db>(art_key_type, value_view,
+  friend auto detail::make_db_leaf_ptr<Key, Value, db>(art_key_type, value_type,
                                                        db&);
 
   /// detail::basic_db_leaf_deleter
@@ -926,7 +1003,7 @@ struct impl_helpers {
   /// \return Pointer to location for further descent or insertion
   template <typename Key, typename Value, class INode>
   [[nodiscard]] static detail::node_ptr* add_or_choose_subtree(
-      INode& inode, std::byte key_byte, basic_art_key<Key> k, value_view v,
+      INode& inode, std::byte key_byte, basic_art_key<Key> k, Value v,
       db<Key, Value>& db_instance, tree_depth<basic_art_key<Key>> depth,
       detail::node_ptr* node_in_parent);
 
@@ -1149,7 +1226,7 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 /// byte, create the leaf and insert it in the current node.
 template <typename Key, typename Value, class INode>
 detail::node_ptr* impl_helpers::add_or_choose_subtree(
-    INode& inode, std::byte key_byte, basic_art_key<Key> k, value_view v,
+    INode& inode, std::byte key_byte, basic_art_key<Key> k, Value v,
     db<Key, Value>& db_instance, tree_depth<basic_art_key<Key>> depth,
     detail::node_ptr* node_in_parent) {
   auto* const child =
@@ -1157,24 +1234,134 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
 
   if (child != nullptr) return child;
 
-  auto leaf = art_policy<Key, Value>::make_db_leaf_ptr(k, v, db_instance);
-  const auto children_count = inode.get_children_count();
+  if constexpr (art_policy<Key, Value>::can_eliminate_leaf) {
+    // Value-in-slot: pack value directly, no leaf allocation.
+    const auto packed = art_policy<Key, Value>::pack_value(v);
+    const auto children_count = inode.get_children_count();
 
-  if constexpr (!std::is_same_v<INode, inode_256<Key, Value>>) {
-    if (UNODB_DETAIL_UNLIKELY(children_count == INode::capacity)) {
-      auto larger_node{INode::larger_derived_type::create(
-          db_instance, inode, std::move(leaf), depth)};
-      *node_in_parent =
-          node_ptr{larger_node.release(), INode::larger_derived_type::type};
+    if constexpr (!std::is_same_v<INode, inode_256<Key, Value>>) {
+      if (UNODB_DETAIL_UNLIKELY(children_count == INode::capacity)) {
+        if constexpr (art_policy<Key, Value>::full_key_in_inode_path) {
+          const auto chain_start =
+              static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
+          if (chain_start < k.size()) {
+            // OOM safety: build chain BEFORE creating the larger node.
+            auto chain_top = db_instance.build_chain(k, packed, chain_start);
+            // If create throws, clean up the pre-built chain.
+            try {
+              auto larger_node{INode::larger_derived_type::create(
+                  db_instance, inode, chain_top, depth, key_byte)};
+              *node_in_parent = node_ptr{larger_node.release(),
+                                         INode::larger_derived_type::type};
+            } catch (...) {
+              art_policy<Key, Value>::delete_subtree(chain_top, db_instance);
+              throw;
+            }
 #ifdef UNODB_DETAIL_WITH_STATS
-      db_instance
-          .template account_growing_inode<INode::larger_derived_type::type>();
-#endif  // UNODB_DETAIL_WITH_STATS
-      return child;
+            db_instance.template account_growing_inode<
+                INode::larger_derived_type::type>();
+#endif
+            // chain_top passed as node_ptr → value bit was set; clear it.
+            auto& new_inode =
+                *node_in_parent
+                     ->template ptr<typename INode::larger_derived_type*>();
+            auto [ci, slotraw] = new_inode.find_child(key_byte);
+            new_inode.clear_value_bit(ci);
+            return child;
+          }
+        }
+        auto larger_node{INode::larger_derived_type::create(
+            db_instance, inode, packed, depth, key_byte)};
+        *node_in_parent =
+            node_ptr{larger_node.release(), INode::larger_derived_type::type};
+#ifdef UNODB_DETAIL_WITH_STATS
+        db_instance
+            .template account_growing_inode<INode::larger_derived_type::type>();
+#endif
+        return child;
+      }
     }
-  }
-  inode.add_to_nonfull(std::move(leaf), depth, children_count);
-  return child;
+    if constexpr (art_policy<Key, Value>::full_key_in_inode_path) {
+      const auto chain_start =
+          static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
+      if (chain_start < k.size()) {
+        // OOM safety: build chain BEFORE mutating the tree.  If
+        // build_chain throws, the tree is unchanged.
+        const auto chain_top = db_instance.build_chain(k, packed, chain_start);
+        // Insert the packed value first (sets value bit correctly),
+        // then overwrite the slot with the chain top and clear the bit.
+        inode.add_to_nonfull(packed, depth, key_byte, children_count);
+        std::atomic_signal_fence(std::memory_order_acq_rel);
+        auto [ci2, slotraw2] = inode.find_child(key_byte);
+        auto* const slot = unwrap_fake_critical_section(slotraw2);
+        UNODB_DETAIL_ASSERT(slot != nullptr);
+        *slot = chain_top;
+        inode.clear_value_bit(ci2);
+        return child;
+      }
+    }
+    inode.add_to_nonfull(packed, depth, key_byte, children_count);
+    return child;
+  } else {
+    // Leaf-based: allocate leaf as before.
+    auto leaf = art_policy<Key, Value>::make_db_leaf_ptr(k, v, db_instance);
+    const auto children_count = inode.get_children_count();
+
+    if constexpr (!std::is_same_v<INode, inode_256<Key, Value>>) {
+      if (UNODB_DETAIL_UNLIKELY(children_count == INode::capacity)) {
+        if constexpr (art_policy<Key, Value>::full_key_in_inode_path) {
+          const auto chain_start =
+              static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
+          if (chain_start < k.size()) {
+            // OOM safety: build chain BEFORE creating the larger node.
+            const auto leaf_ptr =
+                detail::node_ptr{leaf.release(), node_type::LEAF};
+            auto chain_top = db_instance.build_chain(k, leaf_ptr, chain_start);
+            try {
+              auto larger_node{INode::larger_derived_type::create(
+                  db_instance, inode, chain_top, depth, key_byte)};
+              *node_in_parent = node_ptr{larger_node.release(),
+                                         INode::larger_derived_type::type};
+            } catch (...) {
+              art_policy<Key, Value>::delete_subtree(chain_top, db_instance);
+              throw;
+            }
+#ifdef UNODB_DETAIL_WITH_STATS
+            db_instance.template account_growing_inode<
+                INode::larger_derived_type::type>();
+#endif  // UNODB_DETAIL_WITH_STATS
+            return child;
+          }
+        }
+        auto larger_node{INode::larger_derived_type::create(
+            db_instance, inode, std::move(leaf), depth, key_byte)};
+        *node_in_parent =
+            node_ptr{larger_node.release(), INode::larger_derived_type::type};
+#ifdef UNODB_DETAIL_WITH_STATS
+        db_instance
+            .template account_growing_inode<INode::larger_derived_type::type>();
+#endif  // UNODB_DETAIL_WITH_STATS
+        return child;
+      }
+    }
+    if constexpr (art_policy<Key, Value>::full_key_in_inode_path) {
+      const auto chain_start =
+          static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
+      if (chain_start < k.size()) {
+        // OOM safety: build chain BEFORE mutating the tree.
+        const auto leaf_ptr = detail::node_ptr{leaf.release(), node_type::LEAF};
+        const auto chain_top =
+            db_instance.build_chain(k, leaf_ptr, chain_start);
+        // node_ptr overload of add_to_nonfull; value bitmask is disabled
+        // when can_eliminate_leaf is false, so set_value_bit is a no-op.
+        inode.add_to_nonfull(chain_top, depth, key_byte, children_count);
+        return child;
+      }
+    }
+    inode.add_to_nonfull(std::move(leaf), depth, key_byte, children_count);
+
+    return child;
+  }  // else (leaf-based)
 }
 
 // MSVC C26815 false positive: create() returns smart pointer with LIFETIMEBOUND
@@ -1190,27 +1377,42 @@ std::optional<detail::node_ptr*> impl_helpers::remove_or_choose_subtree(
   if (child_ptr == nullptr) return {};
 
   const auto child_ptr_val{child_ptr->load()};
-  if (child_ptr_val.type() != node_type::LEAF)
-    return unwrap_fake_critical_section(child_ptr);
 
-  const auto* const leaf{
-      child_ptr_val.template ptr<typename db<Key, Value>::leaf_type*>()};
-  if (!leaf->matches(k)) return {};
+  if constexpr (art_policy<Key, Value>::can_eliminate_leaf) {
+    if (!inode.is_value_in_slot(child_i)) {
+      return unwrap_fake_critical_section(child_ptr);
+    }
+  } else {
+    if (child_ptr_val.type() != node_type::LEAF)
+      return unwrap_fake_critical_section(child_ptr);
+
+    const auto* const leaf{
+        child_ptr_val.template ptr<typename db<Key, Value>::leaf_type*>()};
+    if (!leaf->matches(k)) return {};
+  }
 
   if (UNODB_DETAIL_UNLIKELY(inode.is_min_size())) {
     if constexpr (std::is_same_v<INode, inode_4<Key, Value>>) {
-      auto current_node{art_policy<Key, Value>::make_db_inode_unique_ptr(
-          &inode, db_instance)};
-      *node_in_parent = current_node->leave_last_child(child_i, db_instance);
+      if (UNODB_DETAIL_LIKELY(inode.can_collapse(child_i))) {
+        auto current_node{art_policy<Key, Value>::make_db_inode_unique_ptr(
+            &inode, db_instance)};
+        *node_in_parent = current_node->leave_last_child(child_i, db_instance);
+#ifdef UNODB_DETAIL_WITH_STATS
+        db_instance.template account_shrinking_inode<INode::type>();
+#endif
+      } else {
+        // Prefix overflow — cannot collapse.  Just remove the child entry.
+        inode.remove(child_i, db_instance);
+      }
     } else {
       auto new_node{
           INode::smaller_derived_type::create(db_instance, inode, child_i)};
       *node_in_parent =
           node_ptr{new_node.release(), INode::smaller_derived_type::type};
-    }
 #ifdef UNODB_DETAIL_WITH_STATS
-    db_instance.template account_shrinking_inode<INode::type>();
-#endif  // UNODB_DETAIL_WITH_STATS
+      db_instance.template account_shrinking_inode<INode::type>();
+#endif
+    }
     return nullptr;
   }
 
@@ -1230,6 +1432,9 @@ template <typename Key, typename Value>
 typename db<Key, Value>::get_result db<Key, Value>::get_internal(
     art_key_type k) const noexcept {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return {};
+  if constexpr (std::is_same_v<Key, key_view>) {
+    if (UNODB_DETAIL_UNLIKELY(k.size() == 0)) return {};
+  }
 
   auto node{root};
   auto remaining_key{k};
@@ -1238,7 +1443,12 @@ typename db<Key, Value>::get_result db<Key, Value>::get_internal(
     const auto node_type = node.type();
     if (node_type == node_type::LEAF) {
       const auto* const leaf{node.template ptr<leaf_type*>()};
-      if (leaf->matches(k)) return leaf->get_value_view();
+      if constexpr (art_policy::can_eliminate_key_in_leaf) {
+        if (remaining_key.size() == 0)
+          return leaf->template get_value<value_type>();
+      } else {
+        if (leaf->matches(k)) return leaf->template get_value<value_type>();
+      }
       return {};
     }
 
@@ -1250,11 +1460,17 @@ typename db<Key, Value>::get_result db<Key, Value>::get_internal(
     if (key_prefix.get_shared_length(remaining_key) < key_prefix_length)
       return {};
     remaining_key.shift_right(key_prefix_length);
-    const auto* const child{
-        inode->find_child(node_type, remaining_key[0]).second};
-    if (child == nullptr) return {};
+    const auto [child_i,
+                child_ptr]{inode->find_child(node_type, remaining_key[0])};
+    if (child_ptr == nullptr) return {};
 
-    node = *child;
+    if constexpr (art_policy::can_eliminate_leaf) {
+      if (inode->is_value_in_slot(node_type, child_i)) {
+        return art_policy::unpack_value(child_ptr->load());
+      }
+    }
+
+    node = *child_ptr;
     remaining_key.shift_right(1);
   }
 }
@@ -1266,9 +1482,31 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26430)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
 template <typename Key, typename Value>
 bool db<Key, Value>::insert_internal(art_key_type insert_key, value_type v) {
+  if constexpr (std::is_same_v<Key, key_view>) {
+    if (UNODB_DETAIL_UNLIKELY(insert_key.size() == 0)) {
+      throw std::length_error("Key must not be empty");
+    }
+    if (UNODB_DETAIL_UNLIKELY(
+            insert_key.size() >
+            std::numeric_limits<unodb::key_size_type>::max())) {
+      throw std::length_error("Key length must fit in std::uint32_t");
+    }
+  }
+
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) {
-    auto leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
-    root = detail::node_ptr{leaf.release(), node_type::LEAF};
+    if constexpr (art_policy::can_eliminate_leaf) {
+      root = build_chain(insert_key, art_policy::pack_value(v),
+                         tree_depth_type{0});
+    } else {
+      auto leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
+      if constexpr (art_policy::can_eliminate_key_in_leaf) {
+        const auto leaf_ptr = detail::node_ptr{leaf.get(), node_type::LEAF};
+        root = build_chain(insert_key, leaf_ptr, tree_depth_type{0});
+        leaf.release();  // build_chain succeeded; tree now owns the leaf
+      } else {
+        root = detail::node_ptr{leaf.release(), node_type::LEAF};
+      }
+    }
     return true;
   }
 
@@ -1279,64 +1517,164 @@ bool db<Key, Value>::insert_internal(art_key_type insert_key, value_type v) {
   }
 }
 
+UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=noreturn")
+UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
+UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
 template <typename Key, typename Value>
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
+// cppcheck-suppress missingReturn
 bool db<Key, Value>::insert_internal_fixed(art_key_type insert_key,
                                            value_type v) {
-  auto* node = &root;
-  tree_depth_type depth{};
-  auto remaining_key{insert_key};
+  if constexpr (std::is_same_v<Key, key_view>) {
+    // Unreachable: caller dispatches key_view to insert_internal_key_view.
+    std::ignore = insert_key;
+    std::ignore = v;
+    UNODB_DETAIL_CANNOT_HAPPEN();  // cppcheck-suppress missingReturn
+  } else {
+    auto* node = &root;
+    tree_depth_type depth{};
+    auto remaining_key{insert_key};
 
-  while (true) {
-    const auto node_type = node->type();
-    if (node_type == node_type::LEAF) {
-      auto* const leaf{node->template ptr<leaf_type*>()};
-      const auto existing_key{leaf->get_key_view()};
-      const auto cmp = insert_key.cmp(existing_key);
-      if (UNODB_DETAIL_UNLIKELY(cmp == 0)) {
-        return false;  // exists
+    while (true) {
+      const auto node_type = node->type();
+      if (node_type == node_type::LEAF) {
+        auto* const leaf{node->template ptr<leaf_type*>()};
+        const auto existing_key{leaf->get_key_view()};
+        const auto cmp = insert_key.cmp(existing_key);
+        if (UNODB_DETAIL_UNLIKELY(cmp == 0)) {
+          return false;  // exists
+        }
+        auto new_leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
+        auto new_node{inode_4::create(*this, existing_key, remaining_key, depth,
+                                      leaf, std::move(new_leaf))};
+        *node = detail::node_ptr{new_node.release(), node_type::I4};
+#ifdef UNODB_DETAIL_WITH_STATS
+        account_growing_inode<node_type::I4>();
+#endif  // UNODB_DETAIL_WITH_STATS
+        return true;
       }
-      auto new_leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
-      auto new_node{inode_4::create(*this, existing_key, remaining_key, depth,
-                                    leaf, std::move(new_leaf))};
-      *node = detail::node_ptr{new_node.release(), node_type::I4};
+
+      UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
+
+      auto* const inode{node->template ptr<inode_type*>()};
+      const auto& key_prefix{inode->get_key_prefix()};
+      const auto key_prefix_length{key_prefix.length()};
+      const auto shared_prefix_len{key_prefix.get_shared_length(remaining_key)};
+      if (shared_prefix_len < key_prefix_length) {
+        auto leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
+        auto new_node =
+            inode_4::create(*this, *node, shared_prefix_len, depth,
+                            std::move(leaf), remaining_key[shared_prefix_len]);
+        *node = detail::node_ptr{new_node.release(), node_type::I4};
 #ifdef UNODB_DETAIL_WITH_STATS
-      account_growing_inode<node_type::I4>();
+        account_growing_inode<node_type::I4>();
+        ++key_prefix_splits;
+        UNODB_DETAIL_ASSERT(growing_inode_counts[internal_as_i<node_type::I4>] >
+                            key_prefix_splits);
 #endif  // UNODB_DETAIL_WITH_STATS
-      return true;
+        return true;
+      }
+      UNODB_DETAIL_ASSERT(shared_prefix_len == key_prefix_length);
+      depth += key_prefix_length;
+      remaining_key.shift_right(key_prefix_length);
+
+      node = inode->template add_or_choose_subtree<detail::node_ptr*>(
+          node_type, remaining_key[0], insert_key, v, *this, depth, node);
+
+      if (node == nullptr) return true;
+
+      if constexpr (art_policy::can_eliminate_leaf) {
+        const auto [ci, _] = inode->find_child(node_type, remaining_key[0]);
+        if (inode->is_value_in_slot(node_type, ci)) {
+          // TODO(#707): chain split not implemented. Two keys share
+          // a chain prefix but diverge deeper. Need to replace the
+          // packed value with a new I4 holding both values.
+          UNODB_DETAIL_CANNOT_HAPPEN();
+        }
+      }
+
+      ++depth;
+      remaining_key.shift_right(1);
     }
-
-    UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
-
-    auto* const inode{node->template ptr<inode_type*>()};
-    const auto& key_prefix{inode->get_key_prefix()};
-    const auto key_prefix_length{key_prefix.length()};
-    const auto shared_prefix_len{key_prefix.get_shared_length(remaining_key)};
-    if (shared_prefix_len < key_prefix_length) {
-      auto leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
-      auto new_node = inode_4::create(*this, *node, shared_prefix_len, depth,
-                                      std::move(leaf));
-      *node = detail::node_ptr{new_node.release(), node_type::I4};
-#ifdef UNODB_DETAIL_WITH_STATS
-      account_growing_inode<node_type::I4>();
-      ++key_prefix_splits;
-      UNODB_DETAIL_ASSERT(growing_inode_counts[internal_as_i<node_type::I4>] >
-                          key_prefix_splits);
-#endif  // UNODB_DETAIL_WITH_STATS
-      return true;
-    }
-    UNODB_DETAIL_ASSERT(shared_prefix_len == key_prefix_length);
-    depth += key_prefix_length;
-    remaining_key.shift_right(key_prefix_length);
-
-    node = inode->template add_or_choose_subtree<detail::node_ptr*>(
-        node_type, remaining_key[0], insert_key, v, *this, depth, node);
-
-    if (node == nullptr) return true;
-
-    ++depth;
-    remaining_key.shift_right(1);
-  }
+  }  // else (non-key_view)
 }
+
+template <typename Key, typename Value>
+detail::node_ptr db<Key, Value>::build_chain(art_key_type k,
+                                             detail::node_ptr child,
+                                             tree_depth_type start_depth) {
+  constexpr std::size_t cap = detail::key_prefix_capacity;
+  const auto full_key = k.get_key_view();
+  const auto key_len = k.size();
+  const auto start = static_cast<std::size_t>(start_depth);
+  auto current = child;
+  bool child_is_value = art_policy::can_eliminate_leaf;
+  bool owns_current =
+      false;  // set true once we've built at least one chain node
+  // Build bottom-up: start from end of key, work toward start_depth.
+  // Each chain I4 consumes up to cap prefix bytes + 1 dispatch byte.
+  try {
+    std::size_t pos = key_len;
+    while (pos > start + cap) {
+      const auto depth = pos - cap - 1;
+      const auto dispatch = full_key[pos - 1];
+      auto remaining = k;
+      remaining.shift_right(depth);
+      auto chain{
+          inode_4::create(*this, full_key, remaining,
+                          tree_depth_type{static_cast<std::uint32_t>(depth)},
+                          dispatch, current)};
+      if (child_is_value) {
+        chain->set_value_bit(0);
+        child_is_value = false;
+      }
+      current = detail::node_ptr{chain.release(), node_type::I4};
+      owns_current = true;
+#ifdef UNODB_DETAIL_WITH_STATS
+      account_growing_inode<node_type::I4>();
+#endif
+      pos = depth;
+    }
+    // Tail: remaining bytes from start_depth to pos.
+    if (pos > start) {
+      const auto dispatch = full_key[pos - 1];
+      auto chain{inode_4::create(
+          *this, full_key, tree_depth_type{static_cast<std::uint32_t>(start)},
+          static_cast<detail::key_prefix_size>(pos - start - 1), dispatch,
+          current)};
+      if (child_is_value) {
+        chain->set_value_bit(0);
+      }
+      current = detail::node_ptr{chain.release(), node_type::I4};
+      owns_current = true;
+#ifdef UNODB_DETAIL_WITH_STATS
+      account_growing_inode<node_type::I4>();
+#endif
+    }
+  } catch (...) {
+    // On failure, free whatever current points to.  If owns_current is
+    // true, current is a partial chain (I4 tree).  If false, current is
+    // the original child — a leaf node_ptr on the leaf path, or a packed
+    // value on the VIS path.  delete_subtree handles both I4 and LEAF.
+    // For VIS packed values (!child_is_value is false only after the
+    // first chain node is built), the caller's packed bits are not a
+    // real pointer — but we only reach here with a packed value if
+    // owns_current is false AND child_is_value is true, meaning no
+    // chain was built and the packed value was never wrapped.  In that
+    // case we must NOT call delete_subtree on packed bits.
+    if (owns_current) {
+      art_policy::delete_subtree(current, *this);
+    } else if (!child_is_value) {
+      art_policy::delete_subtree(current, *this);
+    }
+    throw;
+  }
+  return current;
+}
+UNODB_DETAIL_RESTORE_GCC_WARNINGS()
+UNODB_DETAIL_RESTORE_GCC_WARNINGS()
+UNODB_DETAIL_RESTORE_GCC_WARNINGS()
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <typename Key, typename Value>
 bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
@@ -1346,40 +1684,60 @@ bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
   auto remaining_key{insert_key};
 
   while (true) {
-    const auto node_type = node->type();
-    if (node_type == node_type::LEAF) {
-      auto* const leaf{node->template ptr<leaf_type*>()};
-      const auto existing_key{leaf->get_key_view()};
-      const auto cmp = insert_key.cmp(existing_key);
-      if (UNODB_DETAIL_UNLIKELY(cmp == 0)) {
-        return false;  // exists
-      }
-      constexpr auto cap = detail::key_prefix_capacity;
-      const auto remaining_existing = existing_key.subspan(depth);
-      const auto shared = detail::key_prefix_snapshot::shared_len(
-          detail::get_u64(remaining_existing), remaining_key.get_u64(), cap);
-      if (shared >= cap && remaining_existing.size() > cap &&
-          remaining_key.size() > cap &&
-          remaining_existing[cap] == remaining_key[cap]) {
-        const auto dispatch = remaining_existing[cap];
-        auto chain{inode_4::create(*this, existing_key, remaining_key, depth,
-                                   dispatch, *node)};
-        *node = detail::node_ptr{chain.release(), node_type::I4};
+    if constexpr (art_policy::can_eliminate_leaf) {
+      // Value-in-slot: no LEAF nodes in the tree. The insert loop
+      // only descends through inodes. Packed values are detected
+      // by is_value_in_slot after add_or_choose_subtree above.
+    } else {
+      const auto node_type = node->type();
+      if (node_type == node_type::LEAF) {
+        if constexpr (art_policy::can_eliminate_key_in_leaf) {
+          // Keyless leaf: the inode path consumed all bytes of the existing
+          // key.  The ART prefix restriction guarantees no key is a prefix
+          // of another, so remaining_key must be empty → duplicate.
+          UNODB_DETAIL_ASSERT(remaining_key.size() == 0);
+          return false;
+        } else {
+          auto* const leaf{node->template ptr<leaf_type*>()};
+          const auto existing_key{leaf->get_key_view()};
+          const auto cmp = insert_key.cmp(existing_key);
+          if (UNODB_DETAIL_UNLIKELY(cmp == 0)) {
+            return false;  // exists
+          }
+          constexpr auto cap = detail::key_prefix_capacity;
+          const auto remaining_existing = existing_key.subspan(depth);
+          const auto shared = detail::key_prefix_snapshot::shared_len(
+              detail::get_u64(remaining_existing), remaining_key.get_u64(),
+              cap);
+          if (shared >= cap && remaining_existing.size() > cap &&
+              remaining_key.size() > cap &&
+              remaining_existing[cap] == remaining_key[cap]) {
+            const auto dispatch = remaining_existing[cap];
+            auto chain{inode_4::create(*this, existing_key, remaining_key,
+                                       depth, dispatch, *node)};
+            *node = detail::node_ptr{chain.release(), node_type::I4};
 #ifdef UNODB_DETAIL_WITH_STATS
-        account_growing_inode<node_type::I4>();
+            account_growing_inode<node_type::I4>();
 #endif  // UNODB_DETAIL_WITH_STATS
-        continue;
-      }
-      auto new_leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
-      auto new_node{inode_4::create(*this, existing_key, remaining_key, depth,
-                                    leaf, std::move(new_leaf))};
-      *node = detail::node_ptr{new_node.release(), node_type::I4};
+            continue;
+          }
+          auto new_leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
+          // full_key_in_inode_path == can_eliminate_key_in_leaf, so
+          // inside !can_eliminate_key_in_leaf the chain path is dead.
+          static_assert(!art_policy::full_key_in_inode_path);
+          auto new_node{inode_4::create(*this, existing_key, remaining_key,
+                                        depth, leaf, std::move(new_leaf))};
+          *node = detail::node_ptr{new_node.release(), node_type::I4};
 #ifdef UNODB_DETAIL_WITH_STATS
-      account_growing_inode<node_type::I4>();
+          account_growing_inode<node_type::I4>();
 #endif  // UNODB_DETAIL_WITH_STATS
-      return true;
-    }
 
+          return true;
+        }  // else (keyed leaf)
+      }
+    }  // else (!can_eliminate_leaf)
+
+    const auto node_type = node->type();
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
 
     auto* const inode{node->template ptr<inode_type*>()};
@@ -1387,10 +1745,66 @@ bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
     const auto key_prefix_length{key_prefix.length()};
     const auto shared_prefix_len{key_prefix.get_shared_length(remaining_key)};
     if (shared_prefix_len < key_prefix_length) {
-      auto leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
-      auto new_node = inode_4::create(*this, *node, shared_prefix_len, depth,
-                                      std::move(leaf));
-      *node = detail::node_ptr{new_node.release(), node_type::I4};
+      if constexpr (art_policy::full_key_in_inode_path) {
+        const auto chain_start =
+            static_cast<tree_depth_type>(depth + shared_prefix_len + 1);
+        if (chain_start < insert_key.size()) {
+          // OOM safety: build chain BEFORE creating the prefix-split I4.
+          if constexpr (art_policy::can_eliminate_leaf) {
+            auto chain_top =
+                build_chain(insert_key, art_policy::pack_value(v), chain_start);
+            try {
+              auto new_node =
+                  inode_4::create(*this, *node, shared_prefix_len, depth,
+                                  chain_top, remaining_key[shared_prefix_len]);
+              *node = detail::node_ptr{new_node.release(), node_type::I4};
+            } catch (...) {
+              art_policy::delete_subtree(chain_top, *this);
+              throw;
+            }
+            // chain_top passed as node_ptr → value bit set; clear it.
+            auto* const new_inode = node->template ptr<inode_type*>();
+            auto [ci4, slotraw4] = new_inode->find_child(
+                node_type::I4, remaining_key[shared_prefix_len]);
+            new_inode->clear_value_bit(node_type::I4, ci4);
+          } else {
+            auto leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
+            const auto leaf_ptr =
+                detail::node_ptr{leaf.release(), node_type::LEAF};
+            auto chain_top = build_chain(insert_key, leaf_ptr, chain_start);
+            try {
+              auto new_node =
+                  inode_4::create(*this, *node, shared_prefix_len, depth,
+                                  chain_top, remaining_key[shared_prefix_len]);
+              *node = detail::node_ptr{new_node.release(), node_type::I4};
+            } catch (...) {
+              art_policy::delete_subtree(chain_top, *this);
+              throw;
+            }
+          }
+#ifdef UNODB_DETAIL_WITH_STATS
+          account_growing_inode<node_type::I4>();
+          ++key_prefix_splits;
+          UNODB_DETAIL_ASSERT(
+              growing_inode_counts[internal_as_i<node_type::I4>] >
+              key_prefix_splits);
+#endif  // UNODB_DETAIL_WITH_STATS
+          return true;
+        }
+      }
+      // No chain needed (short key or !full_key_in_inode_path).
+      if constexpr (art_policy::can_eliminate_leaf) {
+        auto new_node = inode_4::create(*this, *node, shared_prefix_len, depth,
+                                        art_policy::pack_value(v),
+                                        remaining_key[shared_prefix_len]);
+        *node = detail::node_ptr{new_node.release(), node_type::I4};
+      } else {
+        auto leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
+        auto new_node =
+            inode_4::create(*this, *node, shared_prefix_len, depth,
+                            std::move(leaf), remaining_key[shared_prefix_len]);
+        *node = detail::node_ptr{new_node.release(), node_type::I4};
+      }
 #ifdef UNODB_DETAIL_WITH_STATS
       account_growing_inode<node_type::I4>();
       ++key_prefix_splits;
@@ -1407,6 +1821,15 @@ bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
         node_type, remaining_key[0], insert_key, v, *this, depth, node);
 
     if (node == nullptr) return true;
+
+    if constexpr (art_policy::can_eliminate_leaf) {
+      const auto [ci, _] = inode->find_child(node_type, remaining_key[0]);
+      if (inode->is_value_in_slot(node_type, ci)) {
+        // The chain encoded the full key. Reaching a packed value
+        // means the key already exists (duplicate).
+        return false;
+      }
+    }
 
     ++depth;
     remaining_key.shift_right(1);
@@ -1418,15 +1841,20 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 template <typename Key, typename Value>
 bool db<Key, Value>::remove_internal(art_key_type remove_key) {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return false;
+  if constexpr (std::is_same_v<Key, key_view>) {
+    if (UNODB_DETAIL_UNLIKELY(remove_key.size() == 0)) return false;
+  }
 
-  if (root.type() == node_type::LEAF) {
-    auto* const root_leaf{root.ptr<leaf_type*>()};
-    if (root_leaf->matches(remove_key)) {
-      const auto r{art_policy::reclaim_leaf_on_scope_exit(root_leaf, *this)};
-      root = nullptr;
-      return true;
+  if constexpr (!art_policy::can_eliminate_leaf) {
+    if (root.type() == node_type::LEAF) {
+      auto* const root_leaf{root.ptr<leaf_type*>()};
+      if (root_leaf->matches(remove_key)) {
+        const auto r{art_policy::reclaim_leaf_on_scope_exit(root_leaf, *this)};
+        root = nullptr;
+        return true;
+      }
+      return false;
     }
-    return false;
   }
 
   if constexpr (std::is_same_v<Key, key_view>) {
@@ -1496,16 +1924,31 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
     if (child_ptr == nullptr) return false;
 
     const auto child_val{child_ptr->load()};
-    if (child_val.type() != node_type::LEAF) {
-      stack.push_back({slot, child_i});
-      slot = detail::unwrap_fake_critical_section(child_ptr);
-      remaining_key.shift_right(1);
-      continue;
-    }
+    if constexpr (art_policy::can_eliminate_leaf) {
+      if (!inode->is_value_in_slot(ntype, child_i)) {
+        stack.push_back({slot, child_i});
+        slot = detail::unwrap_fake_critical_section(child_ptr);
+        remaining_key.shift_right(1);
+        continue;
+      }
+      // Found a packed value — verify key bytes consumed.
+      if (remaining_key.size() != 1) return false;
+    } else {
+      if (child_val.type() != node_type::LEAF) {
+        stack.push_back({slot, child_i});
+        slot = detail::unwrap_fake_critical_section(child_ptr);
+        remaining_key.shift_right(1);
+        continue;
+      }
 
-    // Found a leaf — verify it matches.
-    auto* const leaf{child_val.template ptr<leaf_type*>()};
-    if (!leaf->matches(remove_key)) return false;
+      // Found a leaf — verify it matches.
+      const auto* const leaf{child_val.template ptr<const leaf_type*>()};
+      if constexpr (art_policy::can_eliminate_key_in_leaf) {
+        if (remaining_key.size() != 1) return false;
+      } else {
+        if (!leaf->matches(remove_key)) return false;
+      }
+    }
 
     // --- Upward pass ---
     const auto count = inode->get_children_count();
@@ -1522,7 +1965,8 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
 
     // Single-child inode (chain node).  Reclaim leaf and chain,
     // then walk up cleaning any further empty chains.
-    {
+    if constexpr (!art_policy::can_eliminate_leaf) {
+      auto* const leaf{child_val.template ptr<leaf_type*>()};
       const auto rl{art_policy::reclaim_leaf_on_scope_exit(leaf, *this)};
     }
     {
@@ -1558,7 +2002,11 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
         auto* const pi4{parent_val.template ptr<inode_4*>()};
         const auto remaining_iter = pi4->begin();
         const auto remaining = pi4->get_child(0);
-        if (remaining.type() != node_type::LEAF) {
+        UNODB_DETAIL_DISABLE_MSVC_WARNING(26814)
+        const bool remaining_is_value =
+            art_policy::can_eliminate_leaf && pi4->is_value_in_slot(0);
+        UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+        if (!remaining_is_value && remaining.type() != node_type::LEAF) {
           auto* const remaining_inode{remaining.template ptr<inode_type*>()};
           const auto child_prefix_len =
               remaining_inode->get_key_prefix().length();
@@ -1569,6 +2017,9 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
           }
           remaining_inode->get_key_prefix().prepend(pi4->get_key_prefix(),
                                                     remaining_iter.key_byte);
+        } else if constexpr (art_policy::can_eliminate_key_in_leaf) {
+          // Keyless leaf: don't collapse — keep the chain intact.
+          return true;
         }
         *entry.slot = remaining;
         {
@@ -1647,7 +2098,8 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::next() {
     const auto node{e.node};
     UNODB_DETAIL_ASSERT(node != nullptr);
     const auto node_type = node.type();
-    if (node_type == node_type::LEAF) {
+    if (node_type == node_type::LEAF ||
+        (art_policy::can_eliminate_leaf && e.packed_leaf)) {
       pop();     // pop off the leaf
       continue;  // falls through loop if just a root leaf since stack now
                  // empty.
@@ -1664,6 +2116,12 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::next() {
     pop();
     push(e2);
     const auto child = inode->get_child(node_type, e2.child_index);  // descend
+    if constexpr (art_policy::can_eliminate_leaf) {
+      if (inode->is_value_in_slot(node_type, e2.child_index)) {
+        push_leaf(child);
+        return *this;
+      }
+    }
     return left_most_traversal(child);
   }
   return *this;  // stack is empty, so iterator is at the end
@@ -1676,7 +2134,8 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::prior() {
     const auto node{e.node};
     UNODB_DETAIL_ASSERT(node != nullptr);
     const auto node_type = node.type();
-    if (node_type == node_type::LEAF) {
+    if (node_type == node_type::LEAF ||
+        (art_policy::can_eliminate_leaf && e.packed_leaf)) {
       pop();     // pop off the leaf
       continue;  // falls through loop if just a root leaf since stack now
                  // empty.
@@ -1693,6 +2152,12 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::prior() {
     pop();
     push(e2);
     auto child = inode->get_child(node_type, e2.child_index);  // descend
+    if constexpr (art_policy::can_eliminate_leaf) {
+      if (inode->is_value_in_slot(node_type, e2.child_index)) {
+        push_leaf(child);
+        return *this;
+      }
+    }
     return right_most_traversal(child);
   }
   return *this;  // stack is empty, so iterator is at the end.
@@ -1713,7 +2178,14 @@ db<Key, Value>::iterator::left_most_traversal(detail::node_ptr node) {
     const auto e =
         inode->begin(node_type);  // first child of current internal node
     push(e);                      // push the entry on the stack.
-    node = inode->get_child(node_type, e.child_index);  // get the child
+    const auto child = inode->get_child(node_type, e.child_index);
+    if constexpr (art_policy::can_eliminate_leaf) {
+      if (inode->is_value_in_slot(node_type, e.child_index)) {
+        push_leaf(child);
+        return *this;
+      }
+    }
+    node = child;
   }
   UNODB_DETAIL_CANNOT_HAPPEN();
 }
@@ -1731,9 +2203,16 @@ db<Key, Value>::iterator::right_most_traversal(detail::node_ptr node) {
     // recursive descent.
     auto* const inode{node.ptr<inode_type*>()};
     const auto e =
-        inode->last(node_type);  // first child of current internal node
+        inode->last(node_type);  // last child of current internal node
     push(e);                     // push the entry on the stack.
-    node = inode->get_child(node_type, e.child_index);  // get the child
+    const auto child = inode->get_child(node_type, e.child_index);
+    if constexpr (art_policy::can_eliminate_leaf) {
+      if (inode->is_value_in_slot(node_type, e.child_index)) {
+        push_leaf(child);
+        return *this;
+      }
+    }
+    node = child;
   }
   UNODB_DETAIL_CANNOT_HAPPEN();
 }
@@ -1745,27 +2224,42 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
   match = false;  // unless we wind up with an exact match.
   if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // aka end
 
+  // Empty key_view sorts before all keys — go to first (fwd) or end (rev).
+  if constexpr (std::is_same_v<Key, key_view>) {
+    if (UNODB_DETAIL_UNLIKELY(search_key.size() == 0)) {
+      return fwd ? left_most_traversal(db_.root) : *this;
+    }
+  }
+
   auto node{db_.root};
   const auto k = search_key;
   auto remaining_key{k};
 
   while (true) {
     const auto node_type = node.type();
-    if (node_type == node_type::LEAF) {
-      const auto* const leaf{node.template ptr<leaf_type*>()};
-      push_leaf(node);
-      const auto cmp_ = leaf->cmp(k);
-      if (cmp_ == 0) {
-        match = true;
-        return *this;
+    if constexpr (!art_policy::can_eliminate_leaf) {
+      if (node_type == node_type::LEAF) {
+        const auto* const leaf{node.template ptr<leaf_type*>()};
+        push_leaf(node);
+        int cmp_{0};
+        if constexpr (art_policy::full_key_in_inode_path) {
+          cmp_ =
+              unodb::detail::compare(keybuf_.get_key_view(), k.get_key_view());
+        } else {
+          cmp_ = leaf->cmp(k);
+        }
+        if (cmp_ == 0) {
+          match = true;
+          return *this;
+        }
+        if (fwd) {  // GTE semantics
+          // if search_key < leaf, use the leaf, else next().
+          return (cmp_ < 0) ? *this : next();
+        }
+        // LTE semantics: if search_key > leaf, use the leaf, else prior().
+        return (cmp_ > 0) ? *this : prior();
       }
-      if (fwd) {  // GTE semantics
-        // if search_key < leaf, use the leaf, else next().
-        return (cmp_ < 0) ? *this : next();
-      }
-      // LTE semantics: if search_key > leaf, use the leaf, else prior().
-      return (cmp_ > 0) ? *this : prior();
-    }
+    }  // if constexpr (!can_eliminate_leaf)
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
     auto* const inode{node.template ptr<inode_type*>()};  // some internal node.
     const auto key_prefix{inode->get_key_prefix().get_snapshot()};  // prefix
@@ -1837,7 +2331,8 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
                 cnode.type(), centry.child_index);  // right-sibling.
             if (cnxt) {
               auto nchild = icnode->get_child(cnode.type(), centry.child_index);
-              return left_most_traversal(nchild);
+              return descend_left(icnode, cnode.type(), centry.child_index,
+                                  nchild);
             }
             pop();
           }
@@ -1847,7 +2342,7 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
         const auto child_index = tmp.child_index;
         const auto child = inode->get_child(node_type, child_index);
         push(node, tmp.key_byte, child_index, tmp.prefix);  // the path we took
-        return left_most_traversal(child);  // left most traversal
+        return descend_left(inode, node_type, child_index, child);
       }
       // REV: Take the prior child_index that is mapped and then do
       // a right-most descent to land on the key that is the
@@ -1867,7 +2362,8 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
               icnode->prior(cnode.type(), centry.child_index);  // left-sibling.
           if (cnxt) {
             auto nchild = icnode->get_child(cnode.type(), centry.child_index);
-            return right_most_traversal(nchild);
+            return descend_right(icnode, cnode.type(), centry.child_index,
+                                 nchild);
           }
           pop();
         }
@@ -1877,12 +2373,20 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
       const auto child_index{tmp.child_index};
       const auto child = inode->get_child(node_type, child_index);
       push(node, tmp.key_byte, child_index, tmp.prefix);  // the path we took
-      return right_most_traversal(child);  // right most traversal
+      return descend_right(inode, node_type, child_index, child);
     }
     // Simple case. There is a child for the current key byte.
     const auto child_index{res.first};
     const auto* const child{res.second};
     push(node, remaining_key[0], child_index, key_prefix);
+    if constexpr (art_policy::can_eliminate_leaf) {
+      if (inode->is_value_in_slot(node_type, child_index)) {
+        push_leaf(*child);
+        // Exact match — remaining key consumed by prefix + dispatch bytes.
+        match = (remaining_key.size() <= 1);
+        return *this;
+      }
+    }
     node = *child;
     remaining_key.shift_right(1);
   }  // while ( true )
@@ -1891,30 +2395,34 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
 
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
 template <typename Key, typename Value>
-key_view db<Key, Value>::iterator::get_key() noexcept {
+typename db<Key, Value>::iterator::get_key_result
+db<Key, Value>::iterator::get_key() noexcept {
   UNODB_DETAIL_ASSERT(valid());  // by contract
-  // TODO(thompsonbry) : variable length keys. The simplest case
-  // where this does not work today is a single root leaf.  In that
-  // case, there is no inode path and we can not properly track the
-  // key in the key_buffer.
-  //
-  // return keybuf_.get_key_view();
-  const auto& e = stack_.top();
-  const auto& node = e.node;
-  UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);      // On a leaf.
-  const auto* const leaf{node.template ptr<leaf_type*>()};  // current leaf.
-  return leaf->get_key_view();
+  if constexpr (art_policy::full_key_in_inode_path) {
+    return transient_key_view{keybuf_.get_key_view()};
+  } else {
+    const auto& e = stack_.top();
+    const auto& node = e.node;
+    UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
+    const auto* const leaf{node.template ptr<leaf_type*>()};
+    return leaf->get_key_view();
+  }
 }
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
 template <typename Key, typename Value>
-value_view db<Key, Value>::iterator::get_val() const noexcept {
+typename db<Key, Value>::value_type db<Key, Value>::iterator::get_val()
+    const noexcept {
   UNODB_DETAIL_ASSERT(valid());  // by contract
   const auto& e = stack_.top();
   const auto& node = e.node;
-  UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);      // On a leaf.
-  const auto* const leaf{node.template ptr<leaf_type*>()};  // current leaf.
-  return leaf->get_value_view();
+  if constexpr (art_policy::can_eliminate_leaf) {
+    return art_policy::unpack_value(node);
+  } else {
+    UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
+    const auto* const leaf{node.template ptr<leaf_type*>()};
+    return leaf->template get_value<value_type>();
+  }
 }
 
 //
