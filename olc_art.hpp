@@ -50,6 +50,10 @@ inline sync_point sync_between_chain_locks;
 /// and min_size read, before write guard acquisition.
 inline sync_point sync_before_remove_write_guard;
 
+/// Sync point: fires in add_or_choose_subtree before write guard acquisition
+/// during node growth (I4→I16 etc.).
+inline sync_point sync_before_insert_grow_guard;
+
 /// OLC ART node header contains an unodb::optimistic_lock object for this node.
 ///
 /// The node type is constant throughout the node lifetime, is stored outside of
@@ -1668,6 +1672,7 @@ olc_impl_helpers::add_or_choose_subtree(
             }
             auto larger_node{
                 INode::larger_derived_type::create(db_instance, inode)};
+            detail::sync(detail::sync_before_insert_grow_guard);
             {
               const optimistic_lock::write_guard write_unlock_on_exit{
                   std::move(parent_critical_section)};
@@ -2369,7 +2374,7 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
         if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
           return {};
         if (UNODB_DETAIL_UNLIKELY(cached_leaf != nullptr)) {
-          cached_leaf.reset();
+          cached_leaf.reset();  // LCOV_EXCL_LINE
         }
         return false;
       } else {
