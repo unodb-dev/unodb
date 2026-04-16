@@ -2307,4 +2307,110 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, PrefixSplitNoChain) {
   verifier.check_present_values();
 }
 
+// Exercise VIS push_leaf in iterator next()/prior() and
+// left/right_most_traversal. Uses short keys (1-byte) that become VIS children
+// directly in the root inode, mixed with a long key (9-byte) that creates a
+// chain subtree.  Scanning across the boundary between chain subtree and VIS
+// sibling exercises descend_left/right.
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanMixedVISAndChainChildren) {
+  TypeParam db;
+  unodb::key_encoder enc;
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
+
+  // Short VIS keys at 0x10 and 0x30 (1 byte each).
+  std::ignore = db.insert(make_short_key(enc, 0x10), val);
+  std::ignore = db.insert(make_short_key(enc, 0x30), val);
+  // Long chain key at 0x20 (9 bytes) — between the two VIS keys.
+  std::ignore = db.insert(make_key(enc, 0x20, 1), val);
+
+  // Forward scan: first() lands on 0x10 (VIS), next() goes to 0x20 (chain),
+  // next() goes to 0x30 (VIS sibling — hits push_leaf in next()).
+  {
+    auto it = db.test_only_iterator();
+    int count = 0;
+    for (it.first(); it.valid(); it.next()) ++count;
+    UNODB_EXPECT_EQ(count, 3);
+  }
+
+  // Reverse scan: last() lands on 0x30 (VIS), prior() goes to 0x20 (chain),
+  // prior() goes to 0x10 (VIS sibling — hits push_leaf in prior()).
+  {
+    auto it = db.test_only_iterator();
+    int count = 0;
+    for (it.last(); it.valid(); it.prior()) ++count;
+    UNODB_EXPECT_EQ(count, 3);
+  }
+
+  // scan_from with non-existent key 0x25 (between 0x20 chain and 0x30 VIS).
+  // Forward: gte backtrack finds 0x30 (VIS) — hits descend_left VIS path.
+  {
+    int count = 0;
+    db.scan_from(
+        make_short_key(enc, 0x25),
+        [&count](const auto& /*v*/) {
+          ++count;
+          return false;
+        },
+        /*fwd=*/true);
+    UNODB_EXPECT_EQ(count, 1);  // finds 0x30
+  }
+
+  // Reverse scan_from 0x25: lte backtrack finds 0x20 (chain) — then prior()
+  // reaches 0x10 (VIS).
+  {
+    int count = 0;
+    db.scan_from(
+        make_short_key(enc, 0x25),
+        [&count](const auto& /*v*/) {
+          ++count;
+          return false;
+        },
+        /*fwd=*/false);
+    UNODB_EXPECT_EQ(count, 2);  // finds 0x20 and 0x10
+  }
+}
+
+// Exercise get_val() on VIS children — unpack_value path.
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, GetValOnVISChild) {
+  TypeParam db;
+  unodb::key_encoder enc;
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
+
+  std::ignore = db.insert(make_short_key(enc, 0x10), val);
+  std::ignore = db.insert(make_short_key(enc, 0x20), val);
+
+  // Scan and read values — exercises unpack_value in get_val().
+  int count = 0;
+  db.scan([&count, val](const auto& visitor) {
+    UNODB_EXPECT_EQ(visitor.get_value(), val);
+    ++count;
+    return false;
+  });
+  UNODB_EXPECT_EQ(count, 2);
+}
+
+// Exercise OLC dispatch-byte collision: two keys sharing >7 prefix bytes
+// with the same dispatch byte, forcing chain creation and restart.
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, DispatchByteCollision) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+  unodb::key_encoder enc;
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
+
+  // make_key(0x42, 1) = [0x42, 0,0,0,0,0,0,0, 0x01] (9 bytes)
+  // make_key(0x42, 2) = [0x42, 0,0,0,0,0,0,0, 0x02] (9 bytes)
+  // These share 8 bytes (> key_prefix_capacity=7) and byte[7]=0x00 is the
+  // same dispatch byte.  This triggers the dispatch-byte collision path.
+  verifier.insert(make_key(enc, 0x42, 1), val);
+  verifier.insert(make_key(enc, 0x42, 2), val);
+  verifier.check_present_values();
+
+  // Add a third key with same collision pattern.
+  verifier.insert(make_key(enc, 0x42, 3), val);
+  verifier.check_present_values();
+
+  // Remove and verify.
+  verifier.remove(make_key(enc, 0x42, 2));
+  verifier.check_present_values();
+}
+
 }  // namespace
