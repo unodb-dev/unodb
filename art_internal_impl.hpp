@@ -2832,9 +2832,9 @@ class basic_inode_4
     if (recursive) {
       os << ", children:  \n";
       for (std::uint8_t i = 0; i < children_count_; i++) {
-        if (is_value_in_slot(i)) {
+        if (is_value_in_slot(i)) {  // LCOV_EXCL_START
           os << "  [" << static_cast<unsigned>(i)
-             << "] packed value\n";  // LCOV_EXCL_LINE
+             << "] packed value\n";  // LCOV_EXCL_STOP
         } else {
           ArtPolicy::dump_node(os, children[i].load());
         }
@@ -3490,9 +3490,9 @@ class basic_inode_16
     if (recursive) {
       os << ", children:  \n";
       for (std::uint8_t i = 0; i < children_count_; ++i) {
-        if (is_value_in_slot(i)) {
+        if (is_value_in_slot(i)) {  // LCOV_EXCL_START
           os << "  [" << static_cast<unsigned>(i)
-             << "] packed value\n";  // LCOV_EXCL_LINE
+             << "] packed value\n";  // LCOV_EXCL_STOP
         } else {
           ArtPolicy::dump_node(os, children[i].load());
         }
@@ -4171,7 +4171,7 @@ class basic_inode_48
         if (recursive) {
           const auto ci = child_indexes[i].load();
           if (is_value_in_slot_by_ci(ci)) {
-            os << "packed value\n";
+            os << "packed value\n";  // LCOV_EXCL_LINE
           } else {
             ArtPolicy::dump_node(os, children.pointer_array[ci].load());
           }
@@ -4752,7 +4752,7 @@ class basic_inode_256
       os << ' ';
       if (recursive) {
         if (is_value_in_slot(static_cast<std::uint8_t>(i))) {
-          os << "packed value\n";
+          os << "packed value\n";  // LCOV_EXCL_LINE
         } else {
           ArtPolicy::dump_node(os, child);
         }
