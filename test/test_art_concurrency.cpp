@@ -1486,7 +1486,8 @@ TEST(OLCNonfullChainRestart, ConcurrentRemoveDuringChainInsert) {
   auto t2 = unodb::qsbr_thread([&] {
     const unodb::quiescent_state_on_scope_exit q{};
     unodb::detail::thread_syncs[0].wait();
-    std::ignore = db.remove(enc2.reset().encode(std::uint8_t{0x20}).get_key_view());
+    std::ignore =
+        db.remove(enc2.reset().encode(std::uint8_t{0x20}).get_key_view());
     unodb::detail::thread_syncs[1].notify();
   });
 
