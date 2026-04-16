@@ -2832,7 +2832,8 @@ class basic_inode_4
     if (recursive) {
       os << ", children:  \n";
       for (std::uint8_t i = 0; i < children_count_; i++) {
-        if (is_value_in_slot(i)) {  // LCOV_EXCL_START
+        // LCOV_EXCL_START
+        if (is_value_in_slot(i)) {
           os << "  [" << static_cast<unsigned>(i)
              << "] packed value\n";  // LCOV_EXCL_STOP
         } else {
@@ -3490,7 +3491,8 @@ class basic_inode_16
     if (recursive) {
       os << ", children:  \n";
       for (std::uint8_t i = 0; i < children_count_; ++i) {
-        if (is_value_in_slot(i)) {  // LCOV_EXCL_START
+        // LCOV_EXCL_START
+        if (is_value_in_slot(i)) {
           os << "  [" << static_cast<unsigned>(i)
              << "] packed value\n";  // LCOV_EXCL_STOP
         } else {
