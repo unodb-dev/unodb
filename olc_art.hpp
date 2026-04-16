@@ -2377,6 +2377,10 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
           cached_leaf.reset();  // LCOV_EXCL_LINE
         }
         return false;
+        // LCOV_EXCL_START — dead for key_view: can_eliminate_key_in_leaf is
+        // always true when Key == key_view, so this else branch (keyed-leaf
+        // comparison, dispatch-byte collision, and leaf-vs-leaf insert) is
+        // never compiled for any key_view instantiation.
       } else {
         const auto* const leaf{node.template ptr<leaf_type*>()};
         const auto existing_key{leaf->get_key_view()};
@@ -2580,6 +2584,7 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
         if (UNODB_DETAIL_UNLIKELY(cached_leaf != nullptr)) cached_leaf.reset();
         return false;
       }
+      // LCOV_EXCL_STOP
     }
 
     if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))

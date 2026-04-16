@@ -1655,8 +1655,10 @@ UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, DispatchByteCollision) {
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::test_value_1;
 
-  // make_key(0x42, 1) and make_key(0x42, 2) share 8 bytes and have the
-  // same dispatch byte at position 7 — triggers dispatch-byte collision.
+  // make_key(0x42, 1) and make_key(0x42, 2) share 8 bytes — exercises
+  // the chain-creation path for keys with long shared prefixes.
+  // Note: for key_view types, can_eliminate_key_in_leaf is true so the
+  // dispatch-byte collision branch is dead; this tests the VIS chain path.
   verifier.insert(make_key(enc, 0x42, 1), val);
   verifier.insert(make_key(enc, 0x42, 2), val);
   verifier.check_present_values();
