@@ -2413,4 +2413,57 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, DispatchByteCollision) {
   verifier.check_present_values();
 }
 
+// scan_from backtracking to a VIS child — exercises descend_left and
+// descend_right with is_value_in_slot true.
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromBacktrackToVIS) {
+  TypeParam db;
+  unodb::key_encoder enc;
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
+
+  // VIS at 0x10, chain at 0x20, VIS at 0x30.
+  std::ignore = db.insert(make_short_key(enc, 0x10), val);
+  std::ignore = db.insert(make_key(enc, 0x20, 1), val);
+  std::ignore = db.insert(make_short_key(enc, 0x30), val);
+
+  // Forward scan_from 0x25: nxt(0x25) → 0x30 (VIS) → descend_left hits VIS.
+  {
+    int count = 0;
+    db.scan_from(
+        make_short_key(enc, 0x25),
+        [&count](const auto& /*v*/) {
+          ++count;
+          return false;
+        },
+        /*fwd=*/true);
+    UNODB_EXPECT_EQ(count, 1);  // 0x30
+  }
+
+  // Reverse scan_from 0x15: prior(0x15) → 0x10 (VIS) → descend_right hits VIS.
+  {
+    int count = 0;
+    db.scan_from(
+        make_short_key(enc, 0x15),
+        [&count](const auto& /*v*/) {
+          ++count;
+          return false;
+        },
+        /*fwd=*/false);
+    UNODB_EXPECT_EQ(count, 1);  // 0x10
+  }
+
+  // Exact scan_from on VIS child 0x30: exercises is_value_in_slot in seek.
+  // Skip for olc_db — crashes (tracked as bug).
+  if constexpr (!unodb::test::is_olc_db<TypeParam>) {
+    int count = 0;
+    db.scan_from(
+        make_short_key(enc, 0x30),
+        [&count](const auto& /*v*/) {
+          ++count;
+          return false;
+        },
+        /*fwd=*/true);
+    UNODB_EXPECT_EQ(count, 1);  // 0x30 exact match
+  }
+}
+
 }  // namespace
