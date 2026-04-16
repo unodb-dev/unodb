@@ -81,10 +81,9 @@ jobs:
           path: ${{github.workspace}}/build/test/coverage-*.info
 
       - name: Upload coverage data
-        if: ${{secrets.CODECOV_TOKEN != ''}}
         uses: codecov/codecov-action@v5 # zizmor: ignore[unpinned-uses]
         with:
           token: ${{secrets.CODECOV_TOKEN}}
           flags: ${{matrix.BUILD_TYPE}}
-          fail_ci_if_error: true
+          fail_ci_if_error: ${{secrets.CODECOV_TOKEN != ''}}
           directory: ${{github.workspace}}/build
