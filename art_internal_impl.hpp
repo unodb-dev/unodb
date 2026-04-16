@@ -2833,7 +2833,8 @@ class basic_inode_4
       os << ", children:  \n";
       for (std::uint8_t i = 0; i < children_count_; i++) {
         if (is_value_in_slot(i)) {
-          os << "  [" << static_cast<unsigned>(i) << "] packed value\n";  // LCOV_EXCL_LINE
+          os << "  [" << static_cast<unsigned>(i)
+             << "] packed value\n";  // LCOV_EXCL_LINE
         } else {
           ArtPolicy::dump_node(os, children[i].load());
         }
@@ -3490,7 +3491,8 @@ class basic_inode_16
       os << ", children:  \n";
       for (std::uint8_t i = 0; i < children_count_; ++i) {
         if (is_value_in_slot(i)) {
-          os << "  [" << static_cast<unsigned>(i) << "] packed value\n";  // LCOV_EXCL_LINE
+          os << "  [" << static_cast<unsigned>(i)
+             << "] packed value\n";  // LCOV_EXCL_LINE
         } else {
           ArtPolicy::dump_node(os, children[i].load());
         }
