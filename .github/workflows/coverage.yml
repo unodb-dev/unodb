@@ -78,9 +78,10 @@ jobs:
         uses: actions/upload-artifact@v4 # zizmor: ignore[unpinned-uses]
         with:
           name: lcov-${{matrix.BUILD_TYPE}}
-          path: ${{github.workspace}}/build/coverage-*.info
+          path: ${{github.workspace}}/build/test/coverage-*.info
 
       - name: Upload coverage data
+        if: ${{secrets.CODECOV_TOKEN != ''}}
         uses: codecov/codecov-action@v5 # zizmor: ignore[unpinned-uses]
         with:
           token: ${{secrets.CODECOV_TOKEN}}
