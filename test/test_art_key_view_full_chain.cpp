@@ -1766,7 +1766,8 @@ void verify_stack(const typename Db::iterator& it,
   if (stk.back().child_index == static_cast<std::uint8_t>(0xFFU)) {
     // Packed value — no type check possible.
   } else {
-    UNODB_EXPECT_EQ(stk.back().node.type(), unodb::node_type::LEAF);  // LCOV_EXCL_LINE
+    UNODB_EXPECT_EQ(stk.back().node.type(),
+                    unodb::node_type::LEAF);  // LCOV_EXCL_LINE
   }
 
   const auto inode_end = stk.size() - 1;
@@ -2173,5 +2174,137 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
+
+// -------------------------------------------------------------------
+// Coverage gap tests: VIS paths not exercised by existing tests.
+// -------------------------------------------------------------------
+
+// Exercise clear_value_bit for I16: insert >4 VIS children, remove one.
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ClearValueBitI16) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+  unodb::key_encoder enc;
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
+
+  // 5 keys with different first bytes → root grows to I16.
+  for (std::uint8_t i = 1; i <= 5; ++i)
+    verifier.insert(make_key(enc, i, 1), val);
+  verifier.check_present_values();
+
+  // Remove one VIS child from the I16.
+  verifier.remove(make_key(enc, 3, 1));
+  verifier.check_present_values();
+}
+
+// Exercise clear_value_bit for I48: insert >16 VIS children, remove one.
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ClearValueBitI48) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+  unodb::key_encoder enc;
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
+
+  for (std::uint8_t i = 1; i <= 17; ++i)
+    verifier.insert(make_key(enc, i, 1), val);
+  verifier.check_present_values();
+
+  verifier.remove(make_key(enc, 10, 1));
+  verifier.check_present_values();
+}
+
+// Exercise clear_value_bit for I256: insert >48 VIS children, remove one.
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ClearValueBitI256) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+  unodb::key_encoder enc;
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
+
+  for (std::uint8_t i = 1; i <= 49; ++i)
+    verifier.insert(make_key(enc, i, 1), val);
+  verifier.check_present_values();
+
+  verifier.remove(make_key(enc, 25, 1));
+  verifier.check_present_values();
+}
+
+// Exercise can_collapse with VIS remaining child: I4 with 2 children,
+// remove the non-VIS child (an inode subtree), leaving 1 VIS child.
+// The I4 should NOT collapse because the remaining child is a packed value.
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CollapseBlockedByVISChild) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+  unodb::key_encoder enc;
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
+
+  // Key A: short (1 byte) → becomes VIS child of root I4.
+  verifier.insert(make_short_key(enc, 0x10), val);
+  // Keys B,C: share prefix → create an inode subtree under root I4.
+  verifier.insert(make_key(enc, 0x20, 1), val);
+  verifier.insert(make_key(enc, 0x20, 2), val);
+  verifier.check_present_values();
+
+  // Remove both B,C → root I4 has 1 remaining child (VIS key A).
+  verifier.remove(make_key(enc, 0x20, 1));
+  verifier.remove(make_key(enc, 0x20, 2));
+  verifier.check_present_values();
+}
+
+// Exercise scan_from with non-matching key to trigger gte/lte backtracking.
+// This covers art.hpp descend_left/descend_right in scan_from.
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromBacktracking) {
+  TypeParam db;
+  unodb::key_encoder enc;
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
+
+  // Insert keys at 0x10 and 0x30 — gap at 0x20.
+  std::ignore = db.insert(make_key(enc, 0x10, 1), val);
+  std::ignore = db.insert(make_key(enc, 0x30, 1), val);
+
+  // Forward scan_from 0x20: no exact match, must backtrack and find 0x30.
+  {
+    int count = 0;
+    db.scan_from(
+        make_key(enc, 0x20, 1),
+        [&count](const auto& /*v*/) {
+          ++count;
+          return false;
+        },
+        /*fwd=*/true);
+    UNODB_EXPECT_EQ(count, 1);  // should find 0x30
+  }
+
+  // Reverse scan_from 0x20: no exact match, must backtrack and find 0x10.
+  {
+    int count = 0;
+    db.scan_from(
+        make_key(enc, 0x20, 1),
+        [&count](const auto& /*v*/) {
+          ++count;
+          return false;
+        },
+        /*fwd=*/false);
+    UNODB_EXPECT_EQ(count, 1);  // should find 0x10
+  }
+}
+
+// Exercise prefix split without chain (short key diverges from inode prefix).
+// Covers art.hpp pack_value in the "no chain needed" path.
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, PrefixSplitNoChain) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+  unodb::key_encoder enc;
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
+
+  // Insert two 9-byte keys sharing a 7-byte prefix → creates chain inode.
+  // make_key(0x42, 1) = [0x42, 0,0,0,0,0,0,0, 0x01]
+  // make_key(0x42, 2) = [0x42, 0,0,0,0,0,0,0, 0x02]
+  verifier.insert(make_key(enc, 0x42, 1), val);
+  verifier.insert(make_key(enc, 0x42, 2), val);
+
+  // Insert a 2-byte key [0x42, 0xFF] that shares byte 0 with the inode prefix
+  // but diverges at byte 1 (0xFF vs 0x00). chain_start = 0+1+1 = 2 >= 2,
+  // so the "no chain needed" prefix-split path is taken.
+  verifier.insert(enc.reset()
+                      .encode(static_cast<std::uint8_t>(0x42))
+                      .encode(static_cast<std::uint8_t>(0xFF))
+                      .get_key_view(),
+                  val);
+
+  verifier.check_present_values();
+}
 
 }  // namespace
