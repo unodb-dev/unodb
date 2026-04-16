@@ -1647,4 +1647,25 @@ UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, ScanRangeReversedPointerOrder) {
   UNODB_EXPECT_EQ(visited[1], std::byte{0x02});
 }
 
+// Dispatch-byte collision: two keys sharing >7 prefix bytes with the same
+// dispatch byte.  Exercises the chain-creation path in try_insert for
+// value_view (keyed-leaf) instantiations.
+UNODB_TYPED_TEST(ARTKeyViewCorrectnessTest, DispatchByteCollision) {
+  unodb::test::tree_verifier<TypeParam> verifier;
+  unodb::key_encoder enc;
+  constexpr auto val = unodb::test::test_value_1;
+
+  // make_key(0x42, 1) and make_key(0x42, 2) share 8 bytes and have the
+  // same dispatch byte at position 7 — triggers dispatch-byte collision.
+  verifier.insert(make_key(enc, 0x42, 1), val);
+  verifier.insert(make_key(enc, 0x42, 2), val);
+  verifier.check_present_values();
+
+  verifier.insert(make_key(enc, 0x42, 3), val);
+  verifier.check_present_values();
+
+  verifier.remove(make_key(enc, 0x42, 2));
+  verifier.check_present_values();
+}
+
 }  // namespace
