@@ -53,6 +53,7 @@ inline sync_point sync_before_remove_write_guard;
 /// Sync point: fires in add_or_choose_subtree before write guard acquisition
 /// during node growth (I4→I16 etc.).
 inline sync_point sync_before_insert_grow_guard;
+inline sync_point sync_before_nonfull_chain_guard;
 
 /// OLC ART node header contains an unodb::optimistic_lock object for this node.
 ///
@@ -1768,6 +1769,7 @@ olc_impl_helpers::add_or_choose_subtree(
           chain_top = db_instance.build_chain(k, leaf_ptr, chain_start);
         }
 
+        detail::sync(detail::sync_before_nonfull_chain_guard);
         const optimistic_lock::write_guard write_unlock_on_exit{
             std::move(node_critical_section)};
         if (UNODB_DETAIL_UNLIKELY(write_unlock_on_exit.must_restart())) {

@@ -1449,6 +1449,66 @@ UNODB_TEST(OLCInsertGrowth, ConcurrentInsertDuringGrowth) {
   UNODB_ASSERT_TRUE(db.get(t2_key).has_value());
 }
 
+// T1 builds a chain for a non-full inode insert, then a concurrent T2
+// removes a sibling, invalidating T1's node version.  T1's write guard
+// must_restart, so T1 deletes the chain it built and retries.
+TEST(OLCNonfullChainRestart, ConcurrentRemoveDuringChainInsert) {
+  using db_type = unodb::olc_db<unodb::key_view, std::uint64_t>;
+  db_type db;
+  unodb::key_encoder enc;
+  unodb::key_encoder enc2;  // separate encoder for T2
+  constexpr std::uint64_t val = 42;
+
+  // Seed: two keys with different first bytes → root I4 with 2 children.
+  auto k_seed1 = enc.reset().encode(std::uint8_t{0x10}).get_key_view();
+  db.insert(k_seed1, val);
+  auto k_seed2 = enc2.reset().encode(std::uint8_t{0x20}).get_key_view();
+  db.insert(k_seed2, val);
+
+  // T1 will insert a long key under 0x30 → add_to_nonfull builds a chain.
+  unodb::key_encoder enc_t1;
+  auto t1_key = enc_t1.reset()
+                    .encode(std::uint8_t{0x30})
+                    .encode(std::uint64_t{1})
+                    .get_key_view();
+
+  const sync_point_guard guard{unodb::detail::sync_before_nonfull_chain_guard};
+  unodb::detail::sync_before_nonfull_chain_guard.arm([&]() {
+    unodb::detail::sync_before_nonfull_chain_guard.disarm();
+    // Signal T2 to remove a sibling, invalidating the node version.
+    unodb::detail::thread_syncs[0].notify();
+    unodb::detail::thread_syncs[1].wait();
+  });
+
+  unodb::this_thread().qsbr_pause();
+
+  // T2: wait for T1 to pause, then remove seed2 (modifies root I4).
+  auto t2 = unodb::qsbr_thread([&] {
+    const unodb::quiescent_state_on_scope_exit q{};
+    unodb::detail::thread_syncs[0].wait();
+    db.remove(enc2.reset().encode(std::uint8_t{0x20}).get_key_view());
+    unodb::detail::thread_syncs[1].notify();
+  });
+
+  // T1: insert t1_key.  Hits sync point after building chain, pauses.
+  // T2 removes seed2, invalidating node version.  T1 resumes, write guard
+  // must_restart → deletes chain, retries, succeeds.
+  auto t1 = unodb::qsbr_thread([&] {
+    const unodb::quiescent_state_on_scope_exit q{};
+    std::ignore = db.insert(t1_key, val);
+  });
+
+  t1.join();
+  t2.join();
+  unodb::this_thread().qsbr_resume();
+  unodb::this_thread().quiescent();
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_TRUE(db.get(t1_key).has_value());
+  UNODB_ASSERT_TRUE(db.get(k_seed1).has_value());
+  UNODB_ASSERT_FALSE(db.get(k_seed2).has_value());
+}
+
 #endif  // NDEBUG
 
 }  // namespace
