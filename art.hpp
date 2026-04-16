@@ -478,13 +478,13 @@ class db final {
                            [[maybe_unused]] std::uint8_t child_i,
                            detail::node_ptr child) {
       if constexpr (art_policy::can_eliminate_leaf) {
-        if (inode->is_value_in_slot(ntype, child_i)) {  // LCOV_EXCL_LINE
-          push_leaf(child);                             // LCOV_EXCL_LINE
-          return *this;                                 // LCOV_EXCL_LINE
-        }  // LCOV_EXCL_LINE
-      }  // LCOV_EXCL_LINE
-      return left_most_traversal(child);  // LCOV_EXCL_LINE
-    }  // LCOV_EXCL_LINE
+        if (inode->is_value_in_slot(ntype, child_i)) {
+          push_leaf(child);
+          return *this;
+        }
+      }
+      return left_most_traversal(child);
+    }
 
     /// Descend right if child is an inode, or push as leaf if value-in-slot.
     iterator& descend_right([[maybe_unused]] const auto* inode,
@@ -492,13 +492,13 @@ class db final {
                             [[maybe_unused]] std::uint8_t child_i,
                             detail::node_ptr child) {
       if constexpr (art_policy::can_eliminate_leaf) {
-        if (inode->is_value_in_slot(ntype, child_i)) {  // LCOV_EXCL_LINE
-          push_leaf(child);                             // LCOV_EXCL_LINE
-          return *this;                                 // LCOV_EXCL_LINE
-        }  // LCOV_EXCL_LINE
-      }  // LCOV_EXCL_LINE
-      return right_most_traversal(child);  // LCOV_EXCL_LINE
-    }  // LCOV_EXCL_LINE
+        if (inode->is_value_in_slot(ntype, child_i)) {
+          push_leaf(child);
+          return *this;
+        }
+      }
+      return right_most_traversal(child);
+    }
 
     /// Compare the given key \a akey to the current key in the internal buffer.
     ///
@@ -565,7 +565,7 @@ class db final {
       const auto node_type = e.node.type();
       if (UNODB_DETAIL_UNLIKELY(node_type == node_type::LEAF)) {
         push_leaf(e.node);
-        return;  // LCOV_EXCL_LINE
+        return;
       }
       push(e.node, e.key_byte, e.child_index, e.prefix);
     }
@@ -1380,9 +1380,9 @@ std::optional<detail::node_ptr*> impl_helpers::remove_or_choose_subtree(
 
   if constexpr (art_policy<Key, Value>::can_eliminate_leaf) {
     if (!inode.is_value_in_slot(child_i)) {
-      return unwrap_fake_critical_section(child_ptr);  // LCOV_EXCL_LINE
-    }  // LCOV_EXCL_LINE
-  } else {  // LCOV_EXCL_LINE
+      return unwrap_fake_critical_section(child_ptr);
+    }
+  } else {
     if (child_ptr_val.type() != node_type::LEAF)
       return unwrap_fake_critical_section(child_ptr);
 
@@ -1526,10 +1526,12 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
 bool db<Key, Value>::insert_internal_fixed(art_key_type insert_key,
                                            value_type v) {
   if constexpr (std::is_same_v<Key, key_view>) {
-    // Unreachable: caller dispatches key_view to insert_internal_key_view.
+    // LCOV_EXCL_START — dead: caller dispatches key_view to
+    // insert_internal_key_view.
     std::ignore = insert_key;
     std::ignore = v;
     UNODB_DETAIL_CANNOT_HAPPEN();  // cppcheck-suppress missingReturn
+    // LCOV_EXCL_STOP
   } else {
     auto* node = &root;
     tree_depth_type depth{};
@@ -1672,9 +1674,9 @@ detail::node_ptr db<Key, Value>::build_chain(art_key_type k,
   return current;
 }
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
-UNODB_DETAIL_RESTORE_GCC_WARNINGS()   // LCOV_EXCL_LINE
-UNODB_DETAIL_RESTORE_GCC_WARNINGS()   // LCOV_EXCL_LINE
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()  // LCOV_EXCL_LINE
+UNODB_DETAIL_RESTORE_GCC_WARNINGS()
+UNODB_DETAIL_RESTORE_GCC_WARNINGS()
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <typename Key, typename Value>
 bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
@@ -1697,54 +1699,44 @@ bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
           // of another, so remaining_key must be empty → duplicate.
           UNODB_DETAIL_ASSERT(remaining_key.size() == 0);
           return false;
-        } else {                                               // LCOV_EXCL_LINE
-          auto* const leaf{node->template ptr<leaf_type*>()};  // LCOV_EXCL_LINE
-          const auto existing_key{leaf->get_key_view()};       // LCOV_EXCL_LINE
-          const auto cmp = insert_key.cmp(existing_key);       // LCOV_EXCL_LINE
-          if (UNODB_DETAIL_UNLIKELY(cmp == 0)) {               // LCOV_EXCL_LINE
-            return false;  // exists  // LCOV_EXCL_LINE
-          }  // LCOV_EXCL_LINE
-          constexpr auto cap = detail::key_prefix_capacity;  // LCOV_EXCL_LINE
-          const auto remaining_existing =
-              existing_key.subspan(depth);  // LCOV_EXCL_LINE
-          const auto shared =
-              detail::key_prefix_snapshot::shared_len(  // LCOV_EXCL_LINE
-                  detail::get_u64(remaining_existing),
-                  remaining_key.get_u64(),  // LCOV_EXCL_LINE
-                  cap);                     // LCOV_EXCL_LINE
-          if (shared >= cap &&
-              remaining_existing.size() > cap &&  // LCOV_EXCL_LINE
-              remaining_key.size() > cap &&       // LCOV_EXCL_LINE
-              remaining_existing[cap] ==
-                  remaining_key[cap]) {                     // LCOV_EXCL_LINE
-            const auto dispatch = remaining_existing[cap];  // LCOV_EXCL_LINE
-            auto chain{inode_4::create(
-                *this, existing_key, remaining_key,  // LCOV_EXCL_LINE
-                depth, dispatch, *node)};            // LCOV_EXCL_LINE
-            *node = detail::node_ptr{chain.release(),
-                                     node_type::I4};  // LCOV_EXCL_LINE
+        } else {  // LCOV_EXCL_START — dead for can_eliminate_key_in_leaf
+          auto* const leaf{node->template ptr<leaf_type*>()};
+          const auto existing_key{leaf->get_key_view()};
+          const auto cmp = insert_key.cmp(existing_key);
+          if (UNODB_DETAIL_UNLIKELY(cmp == 0)) {
+            return false;  // exists
+          }
+          constexpr auto cap = detail::key_prefix_capacity;
+          const auto remaining_existing = existing_key.subspan(depth);
+          const auto shared = detail::key_prefix_snapshot::shared_len(
+              detail::get_u64(remaining_existing), remaining_key.get_u64(),
+              cap);
+          if (shared >= cap && remaining_existing.size() > cap &&
+              remaining_key.size() > cap &&
+              remaining_existing[cap] == remaining_key[cap]) {
+            const auto dispatch = remaining_existing[cap];
+            auto chain{inode_4::create(*this, existing_key, remaining_key,
+                                       depth, dispatch, *node)};
+            *node = detail::node_ptr{chain.release(), node_type::I4};
 #ifdef UNODB_DETAIL_WITH_STATS
-            account_growing_inode<node_type::I4>();  // LCOV_EXCL_LINE
-#endif                 // UNODB_DETAIL_WITH_STATS  // LCOV_EXCL_LINE
-            continue;  // LCOV_EXCL_LINE
-          }  // LCOV_EXCL_LINE
-          auto new_leaf = art_policy::make_db_leaf_ptr(
-              insert_key, v, *this);  // LCOV_EXCL_LINE
+            account_growing_inode<node_type::I4>();
+#endif  // UNODB_DETAIL_WITH_STATS
+            continue;
+          }
+          auto new_leaf = art_policy::make_db_leaf_ptr(insert_key, v, *this);
           // full_key_in_inode_path == can_eliminate_key_in_leaf, so
           // inside !can_eliminate_key_in_leaf the chain path is dead.
           static_assert(!art_policy::full_key_in_inode_path);
-          auto new_node{inode_4::create(
-              *this, existing_key, remaining_key,  // LCOV_EXCL_LINE
-              depth, leaf, std::move(new_leaf))};  // LCOV_EXCL_LINE
-          *node = detail::node_ptr{new_node.release(),
-                                   node_type::I4};  // LCOV_EXCL_LINE
+          auto new_node{inode_4::create(*this, existing_key, remaining_key,
+                                        depth, leaf, std::move(new_leaf))};
+          *node = detail::node_ptr{new_node.release(), node_type::I4};
 #ifdef UNODB_DETAIL_WITH_STATS
-          account_growing_inode<node_type::I4>();  // LCOV_EXCL_LINE
-#endif  // UNODB_DETAIL_WITH_STATS  // LCOV_EXCL_LINE
+          account_growing_inode<node_type::I4>();
+#endif  // UNODB_DETAIL_WITH_STATS
 
-          return true;  // LCOV_EXCL_LINE
-        }  // else (keyed leaf)  // LCOV_EXCL_LINE
-      }  // LCOV_EXCL_LINE
+          return true;
+        }  // else (keyed leaf) LCOV_EXCL_STOP
+      }
     }  // else (!can_eliminate_leaf)
 
     const auto node_type = node->type();
@@ -1782,12 +1774,10 @@ bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
             const auto leaf_ptr =
                 detail::node_ptr{leaf.release(), node_type::LEAF};
             auto chain_top = build_chain(insert_key, leaf_ptr, chain_start);
-            try {              // LCOV_EXCL_LINE
-              auto new_node =  // LCOV_EXCL_LINE
-                  inode_4::create(
-                      *this, *node, shared_prefix_len, depth,  // LCOV_EXCL_LINE
-                      chain_top,
-                      remaining_key[shared_prefix_len]);  // LCOV_EXCL_LINE
+            try {
+              auto new_node =
+                  inode_4::create(*this, *node, shared_prefix_len, depth,
+                                  chain_top, remaining_key[shared_prefix_len]);
               *node = detail::node_ptr{new_node.release(), node_type::I4};
             } catch (...) {
               art_policy::delete_subtree(chain_top, *this);
@@ -1957,10 +1947,10 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
       const auto* const leaf{child_val.template ptr<const leaf_type*>()};
       if constexpr (art_policy::can_eliminate_key_in_leaf) {
         if (remaining_key.size() != 1) return false;
-      } else {                                         // LCOV_EXCL_LINE
-        if (!leaf->matches(remove_key)) return false;  // LCOV_EXCL_LINE
-      }  // LCOV_EXCL_LINE
-    }  // LCOV_EXCL_LINE
+      } else {
+        if (!leaf->matches(remove_key)) return false;
+      }
+    }
 
     // --- Upward pass ---
     const auto count = inode->get_children_count();
@@ -2343,9 +2333,8 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
                 cnode.type(), centry.child_index);  // right-sibling.
             if (cnxt) {
               auto nchild = icnode->get_child(cnode.type(), centry.child_index);
-              return descend_left(icnode, cnode.type(),
-                                  centry.child_index,  // LCOV_EXCL_LINE
-                                  nchild);             // LCOV_EXCL_LINE
+              return descend_left(icnode, cnode.type(), centry.child_index,
+                                  nchild);
             }
             pop();
           }
@@ -2375,9 +2364,8 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
               icnode->prior(cnode.type(), centry.child_index);  // left-sibling.
           if (cnxt) {
             auto nchild = icnode->get_child(cnode.type(), centry.child_index);
-            return descend_right(icnode, cnode.type(),
-                                 centry.child_index,  // LCOV_EXCL_LINE
-                                 nchild);             // LCOV_EXCL_LINE
+            return descend_right(icnode, cnode.type(), centry.child_index,
+                                 nchild);
           }
           pop();
         }
@@ -2394,13 +2382,13 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
     const auto* const child{res.second};
     push(node, remaining_key[0], child_index, key_prefix);
     if constexpr (art_policy::can_eliminate_leaf) {
-      if (inode->is_value_in_slot(node_type, child_index)) {  // LCOV_EXCL_LINE
-        push_leaf(*child);                                    // LCOV_EXCL_LINE
+      if (inode->is_value_in_slot(node_type, child_index)) {
+        push_leaf(*child);
         // Exact match — remaining key consumed by prefix + dispatch bytes.
-        match = (remaining_key.size() <= 1);  // LCOV_EXCL_LINE
-        return *this;                         // LCOV_EXCL_LINE
-      }  // LCOV_EXCL_LINE
-    }  // LCOV_EXCL_LINE
+        match = (remaining_key.size() <= 1);
+        return *this;
+      }
+    }
     node = *child;
     remaining_key.shift_right(1);
   }  // while ( true )
@@ -2411,29 +2399,28 @@ UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
 template <typename Key, typename Value>
 typename db<Key, Value>::iterator::get_key_result
 db<Key, Value>::iterator::get_key() noexcept {
-  UNODB_DETAIL_ASSERT(valid());                               // by contract
-  if constexpr (art_policy::full_key_in_inode_path) {         // LCOV_EXCL_LINE
-    return transient_key_view{keybuf_.get_key_view()};        // LCOV_EXCL_LINE
-  } else {                                                    // LCOV_EXCL_LINE
-    const auto& e = stack_.top();                             // LCOV_EXCL_LINE
-    const auto& node = e.node;                                // LCOV_EXCL_LINE
-    UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);      // LCOV_EXCL_LINE
-    const auto* const leaf{node.template ptr<leaf_type*>()};  // LCOV_EXCL_LINE
+  UNODB_DETAIL_ASSERT(valid());  // by contract
+  if constexpr (art_policy::full_key_in_inode_path) {
+    return transient_key_view{keybuf_.get_key_view()};
+  } else {
+    const auto& e = stack_.top();
+    const auto& node = e.node;
+    UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
+    const auto* const leaf{node.template ptr<leaf_type*>()};
     return leaf->get_key_view();
-  }  // LCOV_EXCL_LINE
+  }
 }
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
 template <typename Key, typename Value>
-typename db<Key, Value>::value_type
-db<Key, Value>::iterator::get_val()  // LCOV_EXCL_LINE
-    const noexcept {                 // LCOV_EXCL_LINE
-  UNODB_DETAIL_ASSERT(valid());      // by contract
+typename db<Key, Value>::value_type db<Key, Value>::iterator::get_val()
+    const noexcept {
+  UNODB_DETAIL_ASSERT(valid());  // by contract
   const auto& e = stack_.top();
   const auto& node = e.node;
-  if constexpr (art_policy::can_eliminate_leaf) {  // LCOV_EXCL_LINE
-    return art_policy::unpack_value(node);         // LCOV_EXCL_LINE
-  } else {                                         // LCOV_EXCL_LINE
+  if constexpr (art_policy::can_eliminate_leaf) {
+    return art_policy::unpack_value(node);
+  } else {
     UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
     const auto* const leaf{node.template ptr<leaf_type*>()};
     return leaf->template get_value<value_type>();

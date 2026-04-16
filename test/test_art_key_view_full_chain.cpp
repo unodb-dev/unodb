@@ -43,14 +43,13 @@ class ARTKeyViewFullChainTest : public ::testing::Test {
 
   /// Leaf count adjustment: returns n when leaves are allocated (value_view
   /// values), 0 when leaves are eliminated (VIS / small value types).
-  static constexpr std::uint64_t LC(std::uint64_t n) {  // LCOV_EXCL_LINE
-    if constexpr (!std::is_same_v<typename Db::value_type,
-                                  unodb::value_view>)  // LCOV_EXCL_LINE
-      return 0;                                        // LCOV_EXCL_LINE
-    else                                               // LCOV_EXCL_LINE
-      return n;                                        // LCOV_EXCL_LINE
-  }  // LCOV_EXCL_LINE
-};  // LCOV_EXCL_LINE
+  static constexpr std::uint64_t LC(std::uint64_t n) {
+    if constexpr (!std::is_same_v<typename Db::value_type, unodb::value_view>)
+      return 0;
+    else
+      return n;
+  }
+};
 
 using ARTTypes = ::testing::Types<unodb::test::key_view_u64val_db,
                                   unodb::test::key_view_u64val_mutex_db,
@@ -1767,9 +1766,8 @@ void verify_stack(const typename Db::iterator& it,
   if (stk.back().child_index == static_cast<std::uint8_t>(0xFFU)) {
     // Packed value — no type check possible.
   } else {
-    UNODB_EXPECT_EQ(stk.back().node.type(),
-                    unodb::node_type::LEAF);  // LCOV_EXCL_LINE
-  }  // LCOV_EXCL_LINE
+    UNODB_EXPECT_EQ(stk.back().node.type(), unodb::node_type::LEAF);  // LCOV_EXCL_LINE
+  }
 
   const auto inode_end = stk.size() - 1;
   for (std::size_t i = 0; i < inode_end; ++i) {
