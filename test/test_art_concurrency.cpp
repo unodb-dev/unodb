@@ -1461,9 +1461,9 @@ TEST(OLCNonfullChainRestart, ConcurrentRemoveDuringChainInsert) {
 
   // Seed: two keys with different first bytes → root I4 with 2 children.
   auto k_seed1 = enc.reset().encode(std::uint8_t{0x10}).get_key_view();
-  db.insert(k_seed1, val);
+  std::ignore = db.insert(k_seed1, val);
   auto k_seed2 = enc2.reset().encode(std::uint8_t{0x20}).get_key_view();
-  db.insert(k_seed2, val);
+  std::ignore = db.insert(k_seed2, val);
 
   // T1 will insert a long key under 0x30 → add_to_nonfull builds a chain.
   unodb::key_encoder enc_t1;
@@ -1486,7 +1486,7 @@ TEST(OLCNonfullChainRestart, ConcurrentRemoveDuringChainInsert) {
   auto t2 = unodb::qsbr_thread([&] {
     const unodb::quiescent_state_on_scope_exit q{};
     unodb::detail::thread_syncs[0].wait();
-    db.remove(enc2.reset().encode(std::uint8_t{0x20}).get_key_view());
+    std::ignore = db.remove(enc2.reset().encode(std::uint8_t{0x20}).get_key_view());
     unodb::detail::thread_syncs[1].notify();
   });
 
