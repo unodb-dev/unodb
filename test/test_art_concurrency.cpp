@@ -1343,7 +1343,11 @@ UNODB_TEST(OLCInsertGrowth, ConcurrentRemoveDuringGrowth) {
 
   // 4 keys with DIFFERENT first bytes → root I4 with 4 children.
   // 5th key triggers I4→I16 growth at the root.
-  std::array<std::byte, 9> buf_a{}, buf_b{}, buf_c{}, buf_d{}, buf_new{};
+  std::array<std::byte, 9> buf_a{};
+  std::array<std::byte, 9> buf_b{};
+  std::array<std::byte, 9> buf_c{};
+  std::array<std::byte, 9> buf_d{};
+  std::array<std::byte, 9> buf_new{};
   const auto key_a = make_chain_key(enc, 0x10, 1, buf_a);
   const auto key_b = make_chain_key(enc, 0x20, 1, buf_b);
   const auto key_c = make_chain_key(enc, 0x30, 1, buf_c);
@@ -1402,8 +1406,12 @@ UNODB_TEST(OLCInsertGrowth, ConcurrentInsertDuringGrowth) {
   db_type db;
   unodb::key_encoder enc;
 
-  std::array<std::byte, 9> buf_a{}, buf_b{}, buf_c{}, buf_d{};
-  std::array<std::byte, 9> buf_t1{}, buf_t2{};
+  std::array<std::byte, 9> buf_a{};
+  std::array<std::byte, 9> buf_b{};
+  std::array<std::byte, 9> buf_c{};
+  std::array<std::byte, 9> buf_d{};
+  std::array<std::byte, 9> buf_t1{};
+  std::array<std::byte, 9> buf_t2{};
   const auto key_a = make_chain_key(enc, 0x10, 1, buf_a);
   const auto key_b = make_chain_key(enc, 0x20, 1, buf_b);
   const auto key_c = make_chain_key(enc, 0x30, 1, buf_c);

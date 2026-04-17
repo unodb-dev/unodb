@@ -2475,41 +2475,41 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, PrefixOverflowBlocksCollapse) {
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   // A = [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09] (9 bytes)
-  auto ka = enc.reset()
-                .encode(std::uint8_t{0x01})
-                .encode(std::uint8_t{0x02})
-                .encode(std::uint8_t{0x03})
-                .encode(std::uint8_t{0x04})
-                .encode(std::uint8_t{0x05})
-                .encode(std::uint8_t{0x06})
-                .encode(std::uint8_t{0x07})
-                .encode(std::uint8_t{0x08})
-                .encode(std::uint8_t{0x09})
-                .get_key_view();
+  const auto ka = enc.reset()
+                      .encode(std::uint8_t{0x01})
+                      .encode(std::uint8_t{0x02})
+                      .encode(std::uint8_t{0x03})
+                      .encode(std::uint8_t{0x04})
+                      .encode(std::uint8_t{0x05})
+                      .encode(std::uint8_t{0x06})
+                      .encode(std::uint8_t{0x07})
+                      .encode(std::uint8_t{0x08})
+                      .encode(std::uint8_t{0x09})
+                      .get_key_view();
   verifier.insert(ka, val);
 
   // B = same first 8 bytes, differs at byte 8 → I4 at depth 8
-  auto kb = enc.reset()
-                .encode(std::uint8_t{0x01})
-                .encode(std::uint8_t{0x02})
-                .encode(std::uint8_t{0x03})
-                .encode(std::uint8_t{0x04})
-                .encode(std::uint8_t{0x05})
-                .encode(std::uint8_t{0x06})
-                .encode(std::uint8_t{0x07})
-                .encode(std::uint8_t{0x08})
-                .encode(std::uint8_t{0x0A})
-                .get_key_view();
+  const auto kb = enc.reset()
+                      .encode(std::uint8_t{0x01})
+                      .encode(std::uint8_t{0x02})
+                      .encode(std::uint8_t{0x03})
+                      .encode(std::uint8_t{0x04})
+                      .encode(std::uint8_t{0x05})
+                      .encode(std::uint8_t{0x06})
+                      .encode(std::uint8_t{0x07})
+                      .encode(std::uint8_t{0x08})
+                      .encode(std::uint8_t{0x0A})
+                      .get_key_view();
   verifier.insert(kb, val);
 
   // C = diverges at byte 4 → I4 at depth 4 with prefix [01,02,03,04]
-  auto kc = enc.reset()
-                .encode(std::uint8_t{0x01})
-                .encode(std::uint8_t{0x02})
-                .encode(std::uint8_t{0x03})
-                .encode(std::uint8_t{0x04})
-                .encode(std::uint8_t{0xFF})
-                .get_key_view();
+  const auto kc = enc.reset()
+                      .encode(std::uint8_t{0x01})
+                      .encode(std::uint8_t{0x02})
+                      .encode(std::uint8_t{0x03})
+                      .encode(std::uint8_t{0x04})
+                      .encode(std::uint8_t{0xFF})
+                      .get_key_view();
   verifier.insert(kc, val);
   verifier.check_present_values();
 
