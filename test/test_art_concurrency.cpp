@@ -1460,6 +1460,7 @@ UNODB_TEST(OLCInsertGrowth, ConcurrentInsertDuringGrowth) {
 // T1 builds a chain for a non-full inode insert, then a concurrent T2
 // removes a sibling, invalidating T1's node version.  T1's write guard
 // must_restart, so T1 deletes the chain it built and retries.
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26426)
 TEST(OLCNonfullChainRestart, ConcurrentRemoveDuringChainInsert) {
   using db_type = unodb::olc_db<unodb::key_view, std::uint64_t>;
   db_type db;
