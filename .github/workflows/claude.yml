@@ -22,6 +22,7 @@ jobs:
                                           contains(github.event.issue.title, '@claude')))
     runs-on: ubuntu-latest
     permissions: {}
+    environment: claude
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6 # zizmor: ignore[unpinned-uses]
