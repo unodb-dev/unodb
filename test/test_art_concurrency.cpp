@@ -1470,9 +1470,9 @@ TEST(OLCNonfullChainRestart, ConcurrentRemoveDuringChainInsert) {
   constexpr std::uint64_t val = 42;
 
   // Seed: two keys with different first bytes → root I4 with 2 children.
-  auto k_seed1 = enc.reset().encode(std::uint8_t{0x10}).get_key_view();
+  const auto k_seed1 = enc.reset().encode(std::uint8_t{0x10}).get_key_view();
   std::ignore = db.insert(k_seed1, val);
-  auto k_seed2 = enc2.reset().encode(std::uint8_t{0x20}).get_key_view();
+  const auto k_seed2 = enc2.reset().encode(std::uint8_t{0x20}).get_key_view();
   std::ignore = db.insert(k_seed2, val);
 
   // T1 will insert a long key under 0x30 → add_to_nonfull builds a chain.
