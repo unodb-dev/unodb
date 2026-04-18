@@ -1518,6 +1518,7 @@ TEST(OLCNonfullChainRestart, ConcurrentRemoveDuringChainInsert) {
   UNODB_ASSERT_TRUE(db.get(k_seed1).has_value());
   UNODB_ASSERT_FALSE(db.get(k_seed2).has_value());
 }
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 #endif  // NDEBUG
 
