@@ -1462,6 +1462,8 @@ UNODB_TEST(OLCInsertGrowth, ConcurrentInsertDuringGrowth) {
 // must_restart, so T1 deletes the chain it built and retries.
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26426)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26409)
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26455)
+UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 TEST(OLCNonfullChainRestart, ConcurrentRemoveDuringChainInsert) {
   using db_type = unodb::olc_db<unodb::key_view, std::uint64_t>;
   db_type db;
@@ -1519,6 +1521,8 @@ TEST(OLCNonfullChainRestart, ConcurrentRemoveDuringChainInsert) {
   UNODB_ASSERT_TRUE(db.get(k_seed1).has_value());
   UNODB_ASSERT_FALSE(db.get(k_seed2).has_value());
 }
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
