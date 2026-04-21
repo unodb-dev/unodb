@@ -17,7 +17,6 @@
 // Google Benchmark uses `for (auto _ : state)` where _ is intentionally unused.
 UNODB_DETAIL_DISABLE_MSVC_WARNING(4189)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
-// size_t == uint64_t on Linux but not macOS; casts are needed for portability.
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wuseless-cast")
 ///
 /// ## Benchmark groups
@@ -65,12 +64,10 @@ const auto val = unodb::value_view{val_bytes};
 constexpr auto val100_bytes = std::array<std::byte, 100>{};
 const auto val100 = unodb::value_view{val100_bytes};
 
-// ===================================================================
 // Core benchmarks — timing matches u64 dense_insert exactly:
 //   PauseTiming → construct → ClobberMemory → ResumeTiming
 //   ... timed work ...
 //   PauseTiming → destroy_tree (clear + ClobberMemory + ResumeTiming)
-// ===================================================================
 
 template <class Db>
 void chain_insert(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
@@ -134,9 +131,7 @@ void chain_scan(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
   state.SetItemsProcessed(state.iterations() * static_cast<std::int64_t>(n));
 }
 
-// ===================================================================
 // Comparison vs u64: 100-byte values, dense 8B keys.
-// ===================================================================
 
 template <class Db>
 void kv_vs_u64_insert(benchmark::State& state) {
@@ -183,148 +178,8 @@ void kv_vs_u64_remove(benchmark::State& state) {
   state.SetItemsProcessed(state.iterations() * static_cast<std::int64_t>(n));
 }
 
-// ===================================================================
-// Key generators
-// ===================================================================
-
-key_view_set gen_compound(std::size_t n) {
-  return key_view_set::compound(0x42, n);
-}
-key_view_set gen_deep(std::size_t n) {
-  return key_view_set::deep_compound(0x42, n);
-}
-key_view_set gen_multi_tag(std::size_t n) {
-  return key_view_set::multi_tag(8, n);
-}
-key_view_set gen_dense(std::size_t n) {
-  return key_view_set::dense_sequential(n);
-}
-
-// ===================================================================
-// Sizes
-// ===================================================================
-
-void kv_sizes(benchmark::internal::Benchmark* b) {
-  for (auto n : {1 << 10, 1 << 14, 1 << 18}) b->Arg(n);
-}
-
-void u64_sizes(benchmark::internal::Benchmark* b) {
-  for (auto n : {1 << 12, 1 << 15, 1 << 18}) b->Arg(n);
-}
-
-// ===================================================================
-// Registration: db
-// ===================================================================
-
-using DB = unodb::benchmark::kv_db;
-
-BENCHMARK_CAPTURE(chain_insert<DB>, compound, gen_compound)->Apply(kv_sizes);
-BENCHMARK_CAPTURE(chain_insert<DB>, deep, gen_deep)->Apply(kv_sizes);
-BENCHMARK_CAPTURE(chain_insert<DB>, multi_tag, gen_multi_tag)->Apply(kv_sizes);
-BENCHMARK_CAPTURE(chain_insert<DB>, dense, gen_dense)->Apply(kv_sizes);
-
-BENCHMARK_CAPTURE(chain_get<DB>, compound, gen_compound)->Apply(kv_sizes);
-BENCHMARK_CAPTURE(chain_get<DB>, deep, gen_deep)->Apply(kv_sizes);
-BENCHMARK_CAPTURE(chain_get<DB>, multi_tag, gen_multi_tag)->Apply(kv_sizes);
-BENCHMARK_CAPTURE(chain_get<DB>, dense, gen_dense)->Apply(kv_sizes);
-
-BENCHMARK_CAPTURE(chain_remove<DB>, compound, gen_compound)->Apply(kv_sizes);
-BENCHMARK_CAPTURE(chain_remove<DB>, deep, gen_deep)->Apply(kv_sizes);
-BENCHMARK_CAPTURE(chain_remove<DB>, multi_tag, gen_multi_tag)->Apply(kv_sizes);
-BENCHMARK_CAPTURE(chain_remove<DB>, dense, gen_dense)->Apply(kv_sizes);
-
-BENCHMARK_CAPTURE(chain_scan<DB>, compound, gen_compound)->Apply(kv_sizes);
-BENCHMARK_CAPTURE(chain_scan<DB>, dense, gen_dense)->Apply(kv_sizes);
-
-// ===================================================================
-// Registration: olc_db (same functions — destroy_tree handles OLC)
-// ===================================================================
-
-using OLC = unodb::benchmark::kv_olc_db;
-
-BENCHMARK_CAPTURE(chain_insert<OLC>, compound, gen_compound)->Apply(kv_sizes);
-BENCHMARK_CAPTURE(chain_insert<OLC>, dense, gen_dense)->Apply(kv_sizes);
-
-BENCHMARK_CAPTURE(chain_get<OLC>, compound, gen_compound)->Apply(kv_sizes);
-BENCHMARK_CAPTURE(chain_get<OLC>, dense, gen_dense)->Apply(kv_sizes);
-
-BENCHMARK_CAPTURE(chain_remove<OLC>, compound, gen_compound)->Apply(kv_sizes);
-BENCHMARK_CAPTURE(chain_remove<OLC>, dense, gen_dense)->Apply(kv_sizes);
-
-BENCHMARK_CAPTURE(chain_scan<OLC>, compound, gen_compound)->Apply(kv_sizes);
-BENCHMARK_CAPTURE(chain_scan<OLC>, dense, gen_dense)->Apply(kv_sizes);
-
-// ===================================================================
-// Registration: kv vs u64 comparison (100B values)
-// ===================================================================
-
-BENCHMARK(kv_vs_u64_insert<DB>)->Apply(u64_sizes);
-BENCHMARK(kv_vs_u64_get<DB>)->Apply(u64_sizes);
-BENCHMARK(kv_vs_u64_remove<DB>)->Apply(u64_sizes);
-BENCHMARK(kv_vs_u64_insert<OLC>)->Apply(u64_sizes);
-
-// ===================================================================
-// Key length sweep (G6): chain depth = (key_len-2)/8
-// key_len:    8   16   32   64  128  256
-// chain depth: 0    1    3    7   15   31
-// ===================================================================
-
-key_view_set gen_kl8(std::size_t n) { return key_view_set::chain_depth(8, n); }
-key_view_set gen_kl16(std::size_t n) {
-  return key_view_set::chain_depth(16, n);
-}
-key_view_set gen_kl32(std::size_t n) {
-  return key_view_set::chain_depth(32, n);
-}
-key_view_set gen_kl64(std::size_t n) {
-  return key_view_set::chain_depth(64, n);
-}
-key_view_set gen_kl128(std::size_t n) {
-  return key_view_set::chain_depth(128, n);
-}
-key_view_set gen_kl256(std::size_t n) {
-  return key_view_set::chain_depth(256, n);
-}
-
-void kl_sizes(benchmark::internal::Benchmark* b) { b->Arg(1024); }
-
-BENCHMARK_CAPTURE(chain_insert<DB>, kl8, gen_kl8)->Apply(kl_sizes);
-BENCHMARK_CAPTURE(chain_insert<DB>, kl16, gen_kl16)->Apply(kl_sizes);
-BENCHMARK_CAPTURE(chain_insert<DB>, kl32, gen_kl32)->Apply(kl_sizes);
-BENCHMARK_CAPTURE(chain_insert<DB>, kl64, gen_kl64)->Apply(kl_sizes);
-BENCHMARK_CAPTURE(chain_insert<DB>, kl128, gen_kl128)->Apply(kl_sizes);
-BENCHMARK_CAPTURE(chain_insert<DB>, kl256, gen_kl256)->Apply(kl_sizes);
-
-BENCHMARK_CAPTURE(chain_get<DB>, kl8, gen_kl8)->Apply(kl_sizes);
-BENCHMARK_CAPTURE(chain_get<DB>, kl16, gen_kl16)->Apply(kl_sizes);
-BENCHMARK_CAPTURE(chain_get<DB>, kl32, gen_kl32)->Apply(kl_sizes);
-BENCHMARK_CAPTURE(chain_get<DB>, kl64, gen_kl64)->Apply(kl_sizes);
-BENCHMARK_CAPTURE(chain_get<DB>, kl128, gen_kl128)->Apply(kl_sizes);
-BENCHMARK_CAPTURE(chain_get<DB>, kl256, gen_kl256)->Apply(kl_sizes);
-
-BENCHMARK_CAPTURE(chain_remove<DB>, kl8, gen_kl8)->Apply(kl_sizes);
-BENCHMARK_CAPTURE(chain_remove<DB>, kl16, gen_kl16)->Apply(kl_sizes);
-BENCHMARK_CAPTURE(chain_remove<DB>, kl32, gen_kl32)->Apply(kl_sizes);
-BENCHMARK_CAPTURE(chain_remove<DB>, kl64, gen_kl64)->Apply(kl_sizes);
-BENCHMARK_CAPTURE(chain_remove<DB>, kl128, gen_kl128)->Apply(kl_sizes);
-BENCHMARK_CAPTURE(chain_remove<DB>, kl256, gen_kl256)->Apply(kl_sizes);
-
-BENCHMARK_CAPTURE(chain_insert<OLC>, kl16, gen_kl16)->Apply(kl_sizes);
-BENCHMARK_CAPTURE(chain_insert<OLC>, kl64, gen_kl64)->Apply(kl_sizes);
-BENCHMARK_CAPTURE(chain_insert<OLC>, kl256, gen_kl256)->Apply(kl_sizes);
-
-BENCHMARK_CAPTURE(chain_get<OLC>, kl16, gen_kl16)->Apply(kl_sizes);
-BENCHMARK_CAPTURE(chain_get<OLC>, kl64, gen_kl64)->Apply(kl_sizes);
-BENCHMARK_CAPTURE(chain_get<OLC>, kl256, gen_kl256)->Apply(kl_sizes);
-
-BENCHMARK_CAPTURE(chain_remove<OLC>, kl16, gen_kl16)->Apply(kl_sizes);
-BENCHMARK_CAPTURE(chain_remove<OLC>, kl64, gen_kl64)->Apply(kl_sizes);
-BENCHMARK_CAPTURE(chain_remove<OLC>, kl256, gen_kl256)->Apply(kl_sizes);
-
-// ===================================================================
 // Value-in-slot benchmarks: db<key_view, uint64_t>
 // Trees with leaf elimination — values packed directly into inode slots.
-// ===================================================================
 
 template <class Db>
 void vis_insert(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
@@ -390,6 +245,132 @@ void vis_scan(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
   }
   state.SetItemsProcessed(state.iterations() * static_cast<std::int64_t>(n));
 }
+
+// Key generators
+
+key_view_set gen_compound(std::size_t n) {
+  return key_view_set::compound(0x42, n);
+}
+key_view_set gen_deep(std::size_t n) {
+  return key_view_set::deep_compound(0x42, n);
+}
+key_view_set gen_multi_tag(std::size_t n) {
+  return key_view_set::multi_tag(8, n);
+}
+key_view_set gen_dense(std::size_t n) {
+  return key_view_set::dense_sequential(n);
+}
+
+// Key length sweep generators: chain depth = (key_len - 2) / 8
+
+key_view_set gen_kl8(std::size_t n) { return key_view_set::chain_depth(8, n); }
+key_view_set gen_kl16(std::size_t n) {
+  return key_view_set::chain_depth(16, n);
+}
+key_view_set gen_kl32(std::size_t n) {
+  return key_view_set::chain_depth(32, n);
+}
+key_view_set gen_kl64(std::size_t n) {
+  return key_view_set::chain_depth(64, n);
+}
+key_view_set gen_kl128(std::size_t n) {
+  return key_view_set::chain_depth(128, n);
+}
+key_view_set gen_kl256(std::size_t n) {
+  return key_view_set::chain_depth(256, n);
+}
+
+// Sizes
+
+void kv_sizes(benchmark::internal::Benchmark* b) {
+  for (auto n : {1 << 10, 1 << 14, 1 << 18}) b->Arg(n);
+}
+
+void u64_sizes(benchmark::internal::Benchmark* b) {
+  for (auto n : {1 << 12, 1 << 15, 1 << 18}) b->Arg(n);
+}
+
+void kl_sizes(benchmark::internal::Benchmark* b) { b->Arg(1024); }
+
+// Registration: db
+
+using DB = unodb::benchmark::kv_db;
+
+BENCHMARK_CAPTURE(chain_insert<DB>, compound, gen_compound)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(chain_insert<DB>, deep, gen_deep)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(chain_insert<DB>, multi_tag, gen_multi_tag)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(chain_insert<DB>, dense, gen_dense)->Apply(kv_sizes);
+
+BENCHMARK_CAPTURE(chain_get<DB>, compound, gen_compound)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(chain_get<DB>, deep, gen_deep)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(chain_get<DB>, multi_tag, gen_multi_tag)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(chain_get<DB>, dense, gen_dense)->Apply(kv_sizes);
+
+BENCHMARK_CAPTURE(chain_remove<DB>, compound, gen_compound)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(chain_remove<DB>, deep, gen_deep)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(chain_remove<DB>, multi_tag, gen_multi_tag)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(chain_remove<DB>, dense, gen_dense)->Apply(kv_sizes);
+
+BENCHMARK_CAPTURE(chain_scan<DB>, compound, gen_compound)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(chain_scan<DB>, dense, gen_dense)->Apply(kv_sizes);
+
+BENCHMARK_CAPTURE(chain_insert<DB>, kl8, gen_kl8)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_insert<DB>, kl16, gen_kl16)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_insert<DB>, kl32, gen_kl32)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_insert<DB>, kl64, gen_kl64)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_insert<DB>, kl128, gen_kl128)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_insert<DB>, kl256, gen_kl256)->Apply(kl_sizes);
+
+BENCHMARK_CAPTURE(chain_get<DB>, kl8, gen_kl8)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_get<DB>, kl16, gen_kl16)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_get<DB>, kl32, gen_kl32)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_get<DB>, kl64, gen_kl64)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_get<DB>, kl128, gen_kl128)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_get<DB>, kl256, gen_kl256)->Apply(kl_sizes);
+
+BENCHMARK_CAPTURE(chain_remove<DB>, kl8, gen_kl8)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_remove<DB>, kl16, gen_kl16)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_remove<DB>, kl32, gen_kl32)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_remove<DB>, kl64, gen_kl64)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_remove<DB>, kl128, gen_kl128)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_remove<DB>, kl256, gen_kl256)->Apply(kl_sizes);
+
+// Registration: olc_db
+
+using OLC = unodb::benchmark::kv_olc_db;
+
+BENCHMARK_CAPTURE(chain_insert<OLC>, compound, gen_compound)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(chain_insert<OLC>, dense, gen_dense)->Apply(kv_sizes);
+
+BENCHMARK_CAPTURE(chain_get<OLC>, compound, gen_compound)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(chain_get<OLC>, dense, gen_dense)->Apply(kv_sizes);
+
+BENCHMARK_CAPTURE(chain_remove<OLC>, compound, gen_compound)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(chain_remove<OLC>, dense, gen_dense)->Apply(kv_sizes);
+
+BENCHMARK_CAPTURE(chain_scan<OLC>, compound, gen_compound)->Apply(kv_sizes);
+BENCHMARK_CAPTURE(chain_scan<OLC>, dense, gen_dense)->Apply(kv_sizes);
+
+BENCHMARK_CAPTURE(chain_insert<OLC>, kl16, gen_kl16)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_insert<OLC>, kl64, gen_kl64)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_insert<OLC>, kl256, gen_kl256)->Apply(kl_sizes);
+
+BENCHMARK_CAPTURE(chain_get<OLC>, kl16, gen_kl16)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_get<OLC>, kl64, gen_kl64)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_get<OLC>, kl256, gen_kl256)->Apply(kl_sizes);
+
+BENCHMARK_CAPTURE(chain_remove<OLC>, kl16, gen_kl16)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_remove<OLC>, kl64, gen_kl64)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_remove<OLC>, kl256, gen_kl256)->Apply(kl_sizes);
+
+// Registration: kv vs u64 comparison (100B values)
+
+BENCHMARK(kv_vs_u64_insert<DB>)->Apply(u64_sizes);
+BENCHMARK(kv_vs_u64_get<DB>)->Apply(u64_sizes);
+BENCHMARK(kv_vs_u64_remove<DB>)->Apply(u64_sizes);
+BENCHMARK(kv_vs_u64_insert<OLC>)->Apply(u64_sizes);
+
+// Registration: value-in-slot (VIS)
 
 using VIS = unodb::benchmark::kv_u64_db;
 using VIS_OLC = unodb::benchmark::kv_u64_olc_db;

@@ -43,7 +43,7 @@ class ARTKeyViewFullChainTest : public ::testing::Test {
 
   /// Leaf count adjustment: returns n when leaves are allocated (value_view
   /// values), 0 when leaves are eliminated (VIS / small value types).
-  static constexpr std::uint64_t LC(std::uint64_t n) {
+  static constexpr std::uint64_t leaf_count(std::uint64_t n) {
     if constexpr (!std::is_same_v<typename Db::value_type, unodb::value_view>)
       return 0;
     else
@@ -180,7 +180,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeysLongSharedPrefix) {
   verifier.check_present_values();
 #ifdef UNODB_DETAIL_WITH_STATS
   // chain I4 (prefix=7, 1 child) + bottom I4 (2 children) + 2 leaves
-  verifier.assert_node_counts({TestFixture::LC(2), 2, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(2), 2, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
@@ -196,7 +196,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ThreeCompoundKeysLongSharedPrefix) {
   verifier.check_present_values();
 #ifdef UNODB_DETAIL_WITH_STATS
   // chain I4 + bottom I4 (3 children) + 3 leaves
-  verifier.assert_node_counts({TestFixture::LC(3), 2, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(3), 2, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
@@ -210,7 +210,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, NineByteCompoundKeysLongPrefix) {
   verifier.insert(make_key(enc, 0x42, 2), val);
   verifier.check_present_values();
 #ifdef UNODB_DETAIL_WITH_STATS
-  verifier.assert_node_counts({TestFixture::LC(2), 2, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(2), 2, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
@@ -232,7 +232,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeysIdenticalExceptLastByte) {
   verifier.check_present_values();
 #ifdef UNODB_DETAIL_WITH_STATS
   // chain I4 + bottom I4 (4 children, at capacity) + 4 leaves
-  verifier.assert_node_counts({TestFixture::LC(4), 2, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(4), 2, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
@@ -255,7 +255,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, MultiLevelChain) {
   verifier.check_present_values();
 #ifdef UNODB_DETAIL_WITH_STATS
   // 2 chain I4s (depth 0→8, 8→16) + bottom I4 (2 children) + 2 leaves
-  verifier.assert_node_counts({TestFixture::LC(2), 3, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(2), 3, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
@@ -285,7 +285,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest,
 #ifdef UNODB_DETAIL_WITH_STATS
   // chain I4 (bytes 0-7) + split I4 (at byte 10) + chain I4 (bytes 11-15)
   // + bottom I4 (A,B) + chain I4 for C's suffix + 3 leaves
-  verifier.assert_node_counts({TestFixture::LC(3), 5, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(3), 5, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
@@ -305,7 +305,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeysFiveChildren) {
   verifier.check_present_values();
 #ifdef UNODB_DETAIL_WITH_STATS
   // chain I4 + I16 (5 children) + 5 leaves
-  verifier.assert_node_counts({TestFixture::LC(5), 1, 1, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(5), 1, 1, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
@@ -321,7 +321,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeysSeventeenChildren) {
   verifier.check_present_values();
 #ifdef UNODB_DETAIL_WITH_STATS
   // chain I4 + I48 (17 children) + 17 leaves
-  verifier.assert_node_counts({TestFixture::LC(17), 1, 0, 1, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(17), 1, 0, 1, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
@@ -337,7 +337,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeysFiftyChildren) {
   verifier.check_present_values();
 #ifdef UNODB_DETAIL_WITH_STATS
   // chain I4 + I256 (50 children) + 50 leaves
-  verifier.assert_node_counts({TestFixture::LC(50), 1, 0, 0, 1});
+  verifier.assert_node_counts({TestFixture::leaf_count(50), 1, 0, 0, 1});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
@@ -361,7 +361,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeysInsertThenRemove) {
 #ifdef UNODB_DETAIL_WITH_STATS
   // For keyless leaves, the chain I4 above the leaf is NOT collapsed
   // (collapsing would lose key bytes from the inode path).
-  verifier.assert_node_counts({TestFixture::LC(1), 2, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(1), 2, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
@@ -384,7 +384,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, RemoveFromChainLeavesInode) {
   // Root I4 (2 children: key3 chain + key2 chain) + chain I4s for
   // each key's suffix + 2 leaves.  Extra I4 because keyless leaf
   // prevents collapse of the chain node above key2's leaf.
-  verifier.assert_node_counts({TestFixture::LC(2), 4, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(2), 4, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
@@ -435,7 +435,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ShrinkInode16InChain) {
   verifier.check_present_values();
 #ifdef UNODB_DETAIL_WITH_STATS
   // I16(5) shrinks to I4(4) on first remove, then 2 more removes → I4(2).
-  verifier.assert_node_counts({TestFixture::LC(2), 2, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(2), 2, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
@@ -455,7 +455,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ShrinkInode48InChain) {
 #ifdef UNODB_DETAIL_WITH_STATS
   // I48(17) shrinks to I16(16) on first remove, then I16(5) shrinks
   // to I4(4) on 13th remove.
-  verifier.assert_node_counts({TestFixture::LC(4), 2, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(4), 2, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
@@ -494,7 +494,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, RemoveMixedLengthFromChain) {
   verifier.check_present_values();
 #ifdef UNODB_DETAIL_WITH_STATS
   // Chain I4 + 1 surviving leaf.  Extra I4 for keyless leaf no-collapse.
-  verifier.assert_node_counts({TestFixture::LC(1), 2, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(1), 2, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
   verifier.remove(make_key(enc, 0x42, 2));
   verifier.assert_empty();
@@ -582,7 +582,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, MixedLengthKeysLongPrefix) {
   verifier.check_present_values();
 #ifdef UNODB_DETAIL_WITH_STATS
   // chain I4 + divergence I4 + chain I4 for shorter key's suffix + 2 leaves
-  verifier.assert_node_counts({TestFixture::LC(2), 3, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(2), 3, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
@@ -649,12 +649,12 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainPartialRemoveI4) {
 
   for (std::uint64_t i = 1; i <= 3; ++i)
     verifier.insert(make_key(enc, 0x42, i), val);
-  verifier.assert_node_counts({TestFixture::LC(3), 2, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(3), 2, 0, 0, 0});
 
   verifier.remove(make_key(enc, 0x42, 1));
   verifier.check_present_values();
   // I4(3) → remove → I4(2).  Chain I4 unchanged.
-  verifier.assert_node_counts({TestFixture::LC(2), 2, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(2), 2, 0, 0, 0});
 }
 
 /// Insert 5 keys (→I16), remove 1 (I16 at min_size → shrink to I4).
@@ -665,12 +665,12 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainShrinkI16ToI4) {
 
   for (std::uint64_t i = 1; i <= 5; ++i)
     verifier.insert(make_key(enc, 0x42, i), val);
-  verifier.assert_node_counts({TestFixture::LC(5), 1, 1, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(5), 1, 1, 0, 0});
 
   verifier.remove(make_key(enc, 0x42, 1));
   verifier.check_present_values();
   // I16(5) at min_size → shrink to I4(4).  Chain I4 + bottom I4.
-  verifier.assert_node_counts({TestFixture::LC(4), 2, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(4), 2, 0, 0, 0});
   verifier.assert_shrinking_inodes({0, 1, 0, 0});
 }
 
@@ -682,12 +682,12 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainShrinkI48ToI16) {
 
   for (std::uint64_t i = 1; i <= 17; ++i)
     verifier.insert(make_key(enc, 0x42, i), val);
-  verifier.assert_node_counts({TestFixture::LC(17), 1, 0, 1, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(17), 1, 0, 1, 0});
 
   verifier.remove(make_key(enc, 0x42, 1));
   verifier.check_present_values();
   // I48(17) at min_size → shrink to I16(16).  Chain I4 + I16.
-  verifier.assert_node_counts({TestFixture::LC(16), 1, 1, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(16), 1, 1, 0, 0});
   verifier.assert_shrinking_inodes({0, 0, 1, 0});
 }
 
@@ -699,12 +699,12 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainShrinkI256ToI48) {
 
   for (std::uint64_t i = 1; i <= 49; ++i)
     verifier.insert(make_key(enc, 0x42, i), val);
-  verifier.assert_node_counts({TestFixture::LC(49), 1, 0, 0, 1});
+  verifier.assert_node_counts({TestFixture::leaf_count(49), 1, 0, 0, 1});
 
   verifier.remove(make_key(enc, 0x42, 1));
   verifier.check_present_values();
   // I256(49) at min_size → shrink to I48(48).  Chain I4 + I48.
-  verifier.assert_node_counts({TestFixture::LC(48), 1, 0, 1, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(48), 1, 0, 1, 0});
   verifier.assert_shrinking_inodes({0, 0, 0, 1});
 }
 
@@ -763,16 +763,16 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CascadeChainUnderI4) {
   verifier.insert(make_short_key(enc, 0x01), val);
   // root I4(2: 0x42→chain, 0x01→bare leaf) + chain I4 + bottom I4 + 3 leaves
   // Short key (1 byte) has no suffix → no chain wrapper.
-  verifier.assert_node_counts({TestFixture::LC(3), 2, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(3), 2, 0, 0, 0});
 
   verifier.remove(make_key(enc, 0x42, 1));
   // Keyless leaf prevents collapse.  Chain I4 above surviving leaf stays.
-  verifier.assert_node_counts({TestFixture::LC(2), 2, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(2), 2, 0, 0, 0});
 
   verifier.remove(make_key(enc, 0x42, 2));
   verifier.check_present_values();
   // Short key's leaf is under its own chain I4 (keyless, no collapse).
-  verifier.assert_node_counts({TestFixture::LC(1), 1, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(1), 1, 0, 0, 0});
 }
 
 /// Chain under I16(5 children).  Remove chain → I16 shrinks to I4.
@@ -788,14 +788,14 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CascadeChainUnderI16) {
     verifier.insert(make_short_key(enc, t), val);
   // root I16(5) + chain I4 + bottom I4 + 6 leaves
   // Short keys (1 byte) have no suffix → no chain wrappers → I4=1 not 2.
-  verifier.assert_node_counts({TestFixture::LC(6), 1, 1, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(6), 1, 1, 0, 0});
 
   verifier.remove(make_key(enc, 0x42, 1));
   verifier.remove(make_key(enc, 0x42, 2));
   verifier.check_present_values();
   // Chain reclaimed.  I16(5) → remove chain slot → is_min_size →
   // shrink to I4(4).
-  verifier.assert_node_counts({TestFixture::LC(4), 1, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(4), 1, 0, 0, 0});
 }
 
 /// Chain under I48(17 children).  Remove chain → I48 shrinks to I16.
@@ -810,13 +810,13 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CascadeChainUnderI48) {
   for (std::uint8_t t = 0x01; t <= 0x10; ++t)
     verifier.insert(make_short_key(enc, t), val);
   // root I48(17) + chain I4 + bottom I4 + 18 leaves
-  verifier.assert_node_counts({TestFixture::LC(18), 1, 0, 1, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(18), 1, 0, 1, 0});
 
   verifier.remove(make_key(enc, 0x42, 1));
   verifier.remove(make_key(enc, 0x42, 2));
   verifier.check_present_values();
   // Chain reclaimed.  I48(17) → remove chain slot → shrink to I16(16).
-  verifier.assert_node_counts({TestFixture::LC(16), 0, 1, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(16), 0, 1, 0, 0});
 }
 
 /// Chain under I256(49 children).  Remove chain → I256 shrinks to I48.
@@ -831,13 +831,13 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CascadeChainUnderI256) {
   for (std::uint8_t t = 0x01; t <= 0x30; ++t)
     verifier.insert(make_short_key(enc, t), val);
   // root I256(49) + chain I4 + bottom I4 + 50 leaves
-  verifier.assert_node_counts({TestFixture::LC(50), 1, 0, 0, 1});
+  verifier.assert_node_counts({TestFixture::leaf_count(50), 1, 0, 0, 1});
 
   verifier.remove(make_key(enc, 0x42, 1));
   verifier.remove(make_key(enc, 0x42, 2));
   verifier.check_present_values();
   // Chain reclaimed.  I256(49) → remove chain slot → shrink to I48(48).
-  verifier.assert_node_counts({TestFixture::LC(48), 0, 0, 1, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(48), 0, 0, 1, 0});
 }
 
 // Chain under I48(18 children, above min_size).  Remove chain child
@@ -892,11 +892,11 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, MultiLevelChainRemoveAll) {
   };
   verifier.insert(make17(0x01), val);
   verifier.insert(make17(0x02), val);
-  verifier.assert_node_counts({TestFixture::LC(2), 3, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(2), 3, 0, 0, 0});
 
   verifier.remove(make17(0x01));
   // Keyless leaf prevents collapse.  Three chain I4s remain.
-  verifier.assert_node_counts({TestFixture::LC(1), 3, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(1), 3, 0, 0, 0});
 
   verifier.remove(make17(0x02));
   verifier.assert_empty();
@@ -924,7 +924,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainParentGrowthI4ToI16) {
   verifier.check_present_values();
   // root I16(5: 0x42→chain, 0x01..0x04→bare leaves) + chain-I4 + bottom-I4
   // Short keys have no suffix → no chain wrappers → I4=1.
-  verifier.assert_node_counts({TestFixture::LC(6), 1, 1, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(6), 1, 1, 0, 0});
 }
 
 /// Parent I16→I48 growth with a chain child.
@@ -939,7 +939,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainParentGrowthI16ToI48) {
     verifier.insert(make_short_key(enc, t), val);
   verifier.check_present_values();
   // root I48(17) + chain-I4 + bottom-I4
-  verifier.assert_node_counts({TestFixture::LC(18), 1, 0, 1, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(18), 1, 0, 1, 0});
 }
 
 /// Parent I48→I256 growth with a chain child.
@@ -954,7 +954,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainParentGrowthI48ToI256) {
     verifier.insert(make_short_key(enc, t), val);
   verifier.check_present_values();
   // root I256(49) + chain-I4 + bottom-I4
-  verifier.assert_node_counts({TestFixture::LC(50), 1, 0, 0, 1});
+  verifier.assert_node_counts({TestFixture::leaf_count(50), 1, 0, 0, 1});
 }
 
 // -------------------------------------------------------------------
@@ -970,25 +970,25 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainBottomGrowthStats) {
   // Insert 4 keys: chain-I4 + bottom-I4(4).
   for (std::uint64_t i = 1; i <= 4; ++i)
     verifier.insert(make_key(enc, 0x42, i), val);
-  verifier.assert_node_counts({TestFixture::LC(4), 2, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(4), 2, 0, 0, 0});
   // chain-I4 creation + bottom-I4 creation = 2 I4 grows.
   verifier.assert_growing_inodes({2, 0, 0, 0});
 
   // 5th key: bottom I4→I16.
   verifier.insert(make_key(enc, 0x42, 5), val);
-  verifier.assert_node_counts({TestFixture::LC(5), 1, 1, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(5), 1, 1, 0, 0});
   verifier.assert_growing_inodes({2, 1, 0, 0});
 
   // 17th key: bottom I16→I48.
   for (std::uint64_t i = 6; i <= 17; ++i)
     verifier.insert(make_key(enc, 0x42, i), val);
-  verifier.assert_node_counts({TestFixture::LC(17), 1, 0, 1, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(17), 1, 0, 1, 0});
   verifier.assert_growing_inodes({2, 1, 1, 0});
 
   // 49th key: bottom I48→I256.
   for (std::uint64_t i = 18; i <= 49; ++i)
     verifier.insert(make_key(enc, 0x42, i), val);
-  verifier.assert_node_counts({TestFixture::LC(49), 1, 0, 0, 1});
+  verifier.assert_node_counts({TestFixture::leaf_count(49), 1, 0, 0, 1});
   verifier.assert_growing_inodes({2, 1, 1, 1});
 
   verifier.check_present_values();
@@ -1014,12 +1014,12 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, MultiLevelChainFatBottom) {
   for (std::uint8_t i = 1; i <= 5; ++i) verifier.insert(make17(i), val);
   verifier.check_present_values();
   // 2 chain-I4s + bottom I16(5) + 5 leaves
-  verifier.assert_node_counts({TestFixture::LC(5), 2, 1, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(5), 2, 1, 0, 0});
   verifier.assert_growing_inodes({3, 1, 0, 0});
 
   // Remove 1 → I16 at min_size → shrink to I4.
   verifier.remove(make17(1));
-  verifier.assert_node_counts({TestFixture::LC(4), 3, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(4), 3, 0, 0, 0});
   verifier.assert_shrinking_inodes({0, 1, 0, 0});
 
   // Remove remaining → chains collapse.
@@ -1061,7 +1061,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, MidLevelInodeGrowth) {
   verifier.check_present_values();
   // chain(0) → mid-I16(5) → 5×(chain(9) → bottom-I4(2) → 2 leaves)
   // I4: 1 top-chain + 5 depth-9-chains + 5 bottoms = 11
-  verifier.assert_node_counts({TestFixture::LC(10), 11, 1, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(10), 11, 1, 0, 0});
 }
 
 /// Mid-level inode shrinkage with chains above and below.
@@ -1091,7 +1091,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, MidLevelInodeShrink) {
   verifier.check_present_values();
   // chain(0) → mid-I4(4) → 4×(chain(9) → bottom-I4(2) → 2 leaves)
   // I4: 1 top-chain + 4 depth-9-chains + 4 bottoms + 1 mid = 10
-  verifier.assert_node_counts({TestFixture::LC(8), 10, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(8), 10, 0, 0, 0});
   verifier.assert_shrinking_inodes({2, 1, 0, 0});
 }
 
@@ -1182,7 +1182,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1CollapseToLeaf) {
   // Tree: root-I4(1) → chain-I4 → leaf(C).
   verifier.remove(make18(0x01, 0x00, 0x01));
   verifier.check_present_values();
-  verifier.assert_node_counts({TestFixture::LC(1), 2, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(1), 2, 0, 0, 0});
 
   // Remove C: tree empty.
   verifier.remove(make18(0x02, 0x00, 0x01));
@@ -1469,7 +1469,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1ShrinkI16) {
   verifier.check_present_values();
   // 8 leaves, 4 tag groups each with chain(depth 0)→chain(depth 8)→I4(2).
   // Top-level I4(4) + 4×(chain + bottom-I4) = 1 + 8 = 9 I4s.
-  verifier.assert_node_counts({TestFixture::LC(8), 9, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(8), 9, 0, 0, 0});
   verifier.assert_shrinking_inodes({2, 1, 0, 0});
 }
 
@@ -1500,7 +1500,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1ShrinkI48) {
   verifier.check_present_values();
   // 32 leaves, 16 tag groups each with chain→chain→I4(2).
   // Top-level I16(16) + 16×(chain + bottom-I4) = 0 + 32 = 32 I4s.
-  verifier.assert_node_counts({TestFixture::LC(32), 32, 1, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(32), 32, 1, 0, 0});
   verifier.assert_shrinking_inodes({2, 0, 1, 0});
 }
 
@@ -1531,7 +1531,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1ShrinkI256) {
   verifier.check_present_values();
   // 96 leaves, 48 tag groups each with chain→chain→I4(2).
   // Top-level I48(48) + 48×(chain + bottom-I4) = 0 + 96 = 96 I4s.
-  verifier.assert_node_counts({TestFixture::LC(96), 96, 0, 1, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(96), 96, 0, 1, 0});
   verifier.assert_shrinking_inodes({2, 0, 0, 1});
 }
 
@@ -1570,7 +1570,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, KeylessLeafNoCollapseGuard) {
 
   // 2 leaves + root-I4.  1-byte keys have no prefix bytes, so no
   // chain I4s are created — leaves go directly into root.
-  verifier.assert_node_counts({TestFixture::LC(2), 1, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(2), 1, 0, 0, 0});
 
   // Remove A.  Root-I4(2→1).  Surviving child is leaf(B) (keyless).
   // can_collapse returns false (keyless leaf guard).  Root-I4(1) stays.
@@ -1578,7 +1578,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, KeylessLeafNoCollapseGuard) {
   verifier.check_present_values();
 
   // Root-I4(1) + 1 leaf.  No collapse.
-  verifier.assert_node_counts({TestFixture::LC(1), 1, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(1), 1, 0, 0, 0});
 
   verifier.remove(key_b);
   verifier.assert_empty();
@@ -1629,7 +1629,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CollapseToInodeAllowed) {
   // After collapse: root-I4 merged into chain-I4 (prefix overflow
   // prevents further collapse into bottom-I4).
   // Root-chain-I4(1 child) + bottom-I4(2 children) + 2 leaves.
-  verifier.assert_node_counts({TestFixture::LC(2), 2, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(2), 2, 0, 0, 0});
 
   verifier.remove(key_b);
   verifier.remove(key_c);
@@ -1730,7 +1730,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanChainMixedLengths) {
   // check_present_values does a full scan + per-key probe.
   verifier.check_present_values();
   // Chain I4 (prefix) + divergence I4 + chain I4s for each key's suffix
-  verifier.assert_node_counts({TestFixture::LC(4), 4, 0, 0, 0});
+  verifier.assert_node_counts({TestFixture::leaf_count(4), 4, 0, 0, 0});
 
   // Remove a 10-byte key, verify scan still works.
   verifier.remove(make_long_key(enc, 0x42, 3, 0x01));
