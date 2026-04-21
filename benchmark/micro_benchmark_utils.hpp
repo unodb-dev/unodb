@@ -301,8 +301,8 @@ destroy_tree<unodb::olc_db<unodb::key_view, std::uint64_t>>(
 /// point into it.  The buffer lifetime matches the key_view_set
 /// lifetime, so key_views remain valid as long as the set exists.
 ///
-/// Supports parameterization on value type.
-/// for benchmarking Value=uint64_t (tuple identifier use case).
+/// Supports parameterization on value type (e.g., uint64_t for tuple
+/// identifier use cases).
 class key_view_set {
  public:
   /// G1: 9-byte compound keys (tag + uint64).

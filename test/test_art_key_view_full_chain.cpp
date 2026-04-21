@@ -2519,4 +2519,81 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, PrefixOverflowBlocksCollapse) {
   verifier.check_present_values();
 }
 
+// -------------------------------------------------------------------
+// Group 14: Deep scan_from ascent (covers iterator pop-up loops)
+// -------------------------------------------------------------------
+
+/// Forward scan_from with a key that misses deep in the tree, forcing
+/// the iterator to ascend past multiple parents before finding a sibling.
+/// Covers art.hpp forward ascent loop (lines ~2330-2340).
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromDeepAscent) {
+  TypeParam db;
+  unodb::key_encoder enc;
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
+
+  // Build a tree with two subtrees under different first bytes.
+  // Subtree under 0x10: key at (0x10, 1).
+  std::ignore = db.insert(make_key(enc, 0x10, 1), val);
+  // Subtree under 0x30: key at (0x30, 1).
+  std::ignore = db.insert(make_key(enc, 0x30, 1), val);
+
+  // Forward: scan_from a key under 0x20 (between the two subtrees).
+  // No 0x20 subtree exists, so the iterator must find the next sibling
+  // at the root level (0x30).
+  {
+    int count = 0;
+    db.scan_from(
+        make_key(enc, 0x20, 1),
+        [&count](const auto& /*v*/) {
+          ++count;
+          return false;
+        },
+        /*fwd=*/true);
+    UNODB_EXPECT_EQ(count, 1);  // should find 0x30/1
+  }
+
+  // Reverse: scan_from a key under 0x20 (between the two subtrees).
+  // No 0x20 subtree exists, so the iterator must find the previous sibling
+  // at the root level (0x10).
+  {
+    int count = 0;
+    db.scan_from(
+        make_key(enc, 0x20, 1),
+        [&count](const auto& /*v*/) {
+          ++count;
+          return false;
+        },
+        /*fwd=*/false);
+    UNODB_EXPECT_EQ(count, 1);  // should find 0x10/1
+  }
+}
+
+// -------------------------------------------------------------------
+// Group 15: OLC VIS scan_from with empty key (reverse)
+// -------------------------------------------------------------------
+
+/// Reverse scan_from with empty key_view on OLC tree.
+/// Covers olc_art.hpp empty-key reverse path (line ~3264).
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromEmptyKeyReverse) {
+  TypeParam db;
+  unodb::key_encoder enc;
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
+
+  std::ignore = db.insert(make_key(enc, 0x10, 1), val);
+  std::ignore = db.insert(make_key(enc, 0x20, 1), val);
+
+  // Reverse scan_from empty key: should visit nothing (empty key sorts
+  // before all keys, so reverse from there has no predecessors).
+  const auto empty_key = enc.reset().get_key_view();
+  int count = 0;
+  db.scan_from(
+      empty_key,
+      [&count](const auto& /*v*/) {
+        ++count;
+        return false;
+      },
+      /*fwd=*/false);
+  UNODB_EXPECT_EQ(count, 0);
+}
+
 }  // namespace

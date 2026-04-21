@@ -492,7 +492,9 @@ class ARTKeyViewOOMTest : public ::testing::Test {
 };
 
 using ARTKeyViewTypes =
-    ::testing::Types<unodb::test::key_view_u64val_db, unodb::test::key_view_db>;
+    ::testing::Types<unodb::test::key_view_u64val_db, unodb::test::key_view_db,
+                     unodb::test::key_view_u64val_olc_db,
+                     unodb::test::key_view_olc_db>;
 
 UNODB_TYPED_TEST_SUITE(ARTKeyViewOOMTest, ARTKeyViewTypes)
 

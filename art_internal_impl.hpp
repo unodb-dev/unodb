@@ -417,10 +417,12 @@ class [[nodiscard]] basic_leaf<no_key_tag, Header> final : public Header {
     if constexpr (std::is_same_v<Value, value_view>) {
       return get_value_view();
     } else {
+      // LCOV_EXCL_START — keyless leaf only instantiated with value_view
       static_assert(std::is_trivially_copyable_v<Value>);
       Value v{};
       std::memcpy(&v, data, sizeof(v));
       return v;
+      // LCOV_EXCL_STOP
     }
   }
 
@@ -1657,6 +1659,7 @@ class basic_inode_impl : public ArtPolicy::header_type {
     switch (type) {
       case node_type::I4:
         return static_cast<const inode4_type*>(this)->is_value_in_slot(child_i);
+      // LCOV_EXCL_START — dispatch only called with I4 today
       case node_type::I16:
         return static_cast<const inode16_type*>(this)->is_value_in_slot(
             child_i);
@@ -1666,7 +1669,6 @@ class basic_inode_impl : public ArtPolicy::header_type {
       case node_type::I256:
         return static_cast<const inode256_type*>(this)->is_value_in_slot(
             child_i);
-      // LCOV_EXCL_START
       case node_type::LEAF:
         UNODB_DETAIL_CANNOT_HAPPEN();
     }
@@ -1680,13 +1682,13 @@ class basic_inode_impl : public ArtPolicy::header_type {
     switch (type) {
       case node_type::I4:
         return static_cast<inode4_type*>(this)->clear_value_bit(child_i);
+      // LCOV_EXCL_START — dispatch only called with I4 today
       case node_type::I16:
         return static_cast<inode16_type*>(this)->clear_value_bit(child_i);
       case node_type::I48:
         return static_cast<inode48_type*>(this)->clear_value_bit(child_i);
       case node_type::I256:
         return static_cast<inode256_type*>(this)->clear_value_bit(child_i);
-      // LCOV_EXCL_START
       case node_type::LEAF:
         UNODB_DETAIL_CANNOT_HAPPEN();
     }
