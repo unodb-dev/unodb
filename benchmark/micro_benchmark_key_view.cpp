@@ -78,8 +78,7 @@ void chain_insert(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
     Db db;
     benchmark::ClobberMemory();
     state.ResumeTiming();
-    for (std::size_t i = 0; i < n; ++i)
-      benchmark::DoNotOptimize(db.insert(ks[i], val));
+    for (std::size_t i = 0; i < n; ++i) std::ignore = db.insert(ks[i], val);
     state.PauseTiming();
     unodb::benchmark::destroy_tree(db, state);
   }
@@ -142,8 +141,7 @@ void kv_vs_u64_insert(benchmark::State& state) {
     Db db;
     benchmark::ClobberMemory();
     state.ResumeTiming();
-    for (std::size_t i = 0; i < n; ++i)
-      benchmark::DoNotOptimize(db.insert(ks[i], val100));
+    for (std::size_t i = 0; i < n; ++i) std::ignore = db.insert(ks[i], val100);
     state.PauseTiming();
     unodb::benchmark::destroy_tree(db, state);
   }
@@ -191,7 +189,7 @@ void vis_insert(benchmark::State& state, key_view_set (*gen)(std::size_t)) {
     benchmark::ClobberMemory();
     state.ResumeTiming();
     for (std::size_t i = 0; i < n; ++i)
-      benchmark::DoNotOptimize(db.insert(ks[i], static_cast<std::uint64_t>(i)));
+      std::ignore = db.insert(ks[i], static_cast<std::uint64_t>(i));
     state.PauseTiming();
     unodb::benchmark::destroy_tree(db, state);
   }

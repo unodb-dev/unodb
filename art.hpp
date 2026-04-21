@@ -1528,8 +1528,6 @@ bool db<Key, Value>::insert_internal_fixed(art_key_type insert_key,
   if constexpr (std::is_same_v<Key, key_view>) {
     // LCOV_EXCL_START — dead: caller dispatches key_view to
     // insert_internal_key_view.
-    std::ignore = insert_key;
-    std::ignore = v;
     UNODB_DETAIL_CANNOT_HAPPEN();  // cppcheck-suppress missingReturn
     // LCOV_EXCL_STOP
   } else {

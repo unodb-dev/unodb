@@ -2548,8 +2548,6 @@ class basic_inode_4
       const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
           children[child_index].load().template ptr<leaf_type*>(),
           db_instance)};
-    } else {
-      (void)db_instance;
     }
 
     remove_child_entry(child_index);
@@ -3279,8 +3277,6 @@ class basic_inode_16
       const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
           children[child_index].load().template ptr<leaf_type*>(),
           db_instance)};
-    } else {
-      (void)db_instance;
     }
 
     remove_child_entry(child_index);
@@ -4535,8 +4531,6 @@ class basic_inode_256
       const auto r{ArtPolicy::reclaim_leaf_on_scope_exit(
           children[child_index].load().template ptr<leaf_type*>(),
           db_instance)};
-    } else {
-      (void)db_instance;
     }
 
     remove_child_entry(child_index);

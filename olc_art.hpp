@@ -1612,10 +1612,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26411)
             basic_art_key<Key> k, Value v,
             unodb::olc_db<Key, Value>& db_instance) {
   if constexpr (olc_art_policy<Key, Value>::can_eliminate_leaf) {
-    std::ignore = cached_leaf;
-    std::ignore = k;
-    std::ignore = v;
-    std::ignore = db_instance;
+    // No leaf allocation needed — values are packed in inode slots.
   } else {
     if (UNODB_DETAIL_LIKELY(cached_leaf == nullptr)) {
       UNODB_DETAIL_ASSERT(&cached_leaf.get_deleter().get_db() == &db_instance);
