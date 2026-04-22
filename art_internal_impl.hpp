@@ -533,12 +533,13 @@ template <typename Key, typename Value, template <typename, typename> class Db>
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26402)
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26400)
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
-  leaf_type* leaf = nullptr;
-  if constexpr (can_eliminate_key_in_leaf_v<Key, Value>) {
-    leaf = new (leaf_mem) leaf_type{leaf_val_bytes};
-  } else {
-    leaf = new (leaf_mem) leaf_type{k, leaf_val_bytes};
-  }
+  auto* const leaf = [&]() noexcept {
+    if constexpr (can_eliminate_key_in_leaf_v<Key, Value>) {
+      return new (leaf_mem) leaf_type{leaf_val_bytes};
+    } else {
+      return new (leaf_mem) leaf_type{k, leaf_val_bytes};
+    }
+  }();
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   return basic_db_leaf_unique_ptr<Key, Value, header_type, Db>{
