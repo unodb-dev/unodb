@@ -1668,8 +1668,11 @@ olc_impl_helpers::add_or_choose_subtree(
               UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
               chain_top = db_instance.build_chain(k, leaf_ptr, chain_start);
             }
+            typename detail::olc_art_policy<Key, Value>::subtree_guard
+                chain_guard{chain_top, db_instance};
             auto larger_node{
                 INode::larger_derived_type::create(db_instance, inode)};
+            chain_guard.release();
             detail::sync(detail::sync_before_insert_grow_guard);
             {
               const optimistic_lock::write_guard write_unlock_on_exit{
@@ -2484,7 +2487,9 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
             UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
             chain_top = build_chain(k, leaf_ptr, chain_start);
           }
+          typename art_policy::subtree_guard chain_guard{chain_top, *this};
           auto new_node{inode_4::create(*this, node, shared_prefix_length)};
+          chain_guard.release();
 
           {
             const optimistic_lock::write_guard parent_guard{

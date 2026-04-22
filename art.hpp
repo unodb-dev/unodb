@@ -1247,16 +1247,13 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
           if (chain_start < k.size()) {
             // OOM safety: build chain BEFORE creating the larger node.
             auto chain_top = db_instance.build_chain(k, packed, chain_start);
-            // If create throws, clean up the pre-built chain.
-            try {
-              auto larger_node{INode::larger_derived_type::create(
-                  db_instance, inode, chain_top, depth, key_byte)};
-              *node_in_parent = node_ptr{larger_node.release(),
-                                         INode::larger_derived_type::type};
-            } catch (...) {
-              art_policy<Key, Value>::delete_subtree(chain_top, db_instance);
-              throw;
-            }
+            typename art_policy<Key, Value>::subtree_guard chain_guard{
+                chain_top, db_instance};
+            auto larger_node{INode::larger_derived_type::create(
+                db_instance, inode, chain_top, depth, key_byte)};
+            *node_in_parent = node_ptr{larger_node.release(),
+                                       INode::larger_derived_type::type};
+            chain_guard.release();
 #ifdef UNODB_DETAIL_WITH_STATS
             db_instance.template account_growing_inode<
                 INode::larger_derived_type::type>();
@@ -1317,15 +1314,13 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
             const auto leaf_ptr =
                 detail::node_ptr{leaf.release(), node_type::LEAF};
             auto chain_top = db_instance.build_chain(k, leaf_ptr, chain_start);
-            try {
-              auto larger_node{INode::larger_derived_type::create(
-                  db_instance, inode, chain_top, depth, key_byte)};
-              *node_in_parent = node_ptr{larger_node.release(),
-                                         INode::larger_derived_type::type};
-            } catch (...) {
-              art_policy<Key, Value>::delete_subtree(chain_top, db_instance);
-              throw;
-            }
+            typename art_policy<Key, Value>::subtree_guard chain_guard{
+                chain_top, db_instance};
+            auto larger_node{INode::larger_derived_type::create(
+                db_instance, inode, chain_top, depth, key_byte)};
+            *node_in_parent = node_ptr{larger_node.release(),
+                                       INode::larger_derived_type::type};
+            chain_guard.release();
 #ifdef UNODB_DETAIL_WITH_STATS
             db_instance.template account_growing_inode<
                 INode::larger_derived_type::type>();
@@ -1753,15 +1748,12 @@ bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
           if constexpr (art_policy::can_eliminate_leaf) {
             auto chain_top =
                 build_chain(insert_key, art_policy::pack_value(v), chain_start);
-            try {
-              auto new_node =
-                  inode_4::create(*this, *node, shared_prefix_len, depth,
-                                  chain_top, remaining_key[shared_prefix_len]);
-              *node = detail::node_ptr{new_node.release(), node_type::I4};
-            } catch (...) {
-              art_policy::delete_subtree(chain_top, *this);
-              throw;
-            }
+            typename art_policy::subtree_guard chain_guard{chain_top, *this};
+            auto new_node =
+                inode_4::create(*this, *node, shared_prefix_len, depth,
+                                chain_top, remaining_key[shared_prefix_len]);
+            *node = detail::node_ptr{new_node.release(), node_type::I4};
+            chain_guard.release();
             // chain_top passed as node_ptr → value bit set; clear it.
             auto* const new_inode = node->template ptr<inode_type*>();
             auto [ci4, slotraw4] = new_inode->find_child(
@@ -1772,15 +1764,12 @@ bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
             const auto leaf_ptr =
                 detail::node_ptr{leaf.release(), node_type::LEAF};
             auto chain_top = build_chain(insert_key, leaf_ptr, chain_start);
-            try {
-              auto new_node =
-                  inode_4::create(*this, *node, shared_prefix_len, depth,
-                                  chain_top, remaining_key[shared_prefix_len]);
-              *node = detail::node_ptr{new_node.release(), node_type::I4};
-            } catch (...) {
-              art_policy::delete_subtree(chain_top, *this);
-              throw;
-            }
+            typename art_policy::subtree_guard chain_guard{chain_top, *this};
+            auto new_node =
+                inode_4::create(*this, *node, shared_prefix_len, depth,
+                                chain_top, remaining_key[shared_prefix_len]);
+            *node = detail::node_ptr{new_node.release(), node_type::I4};
+            chain_guard.release();
           }
 #ifdef UNODB_DETAIL_WITH_STATS
           account_growing_inode<node_type::I4>();

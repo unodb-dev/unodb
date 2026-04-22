@@ -992,6 +992,32 @@ struct basic_art_policy final {
   };
 
  public:
+  /// RAII guard that deletes a subtree on scope exit unless released.
+  ///
+  /// Use to protect a pre-built chain (from build_chain) across an
+  /// allocating call that might throw.  Call release() after the
+  /// chain has been safely transferred to its new owner.
+  struct subtree_guard final {
+    constexpr subtree_guard(NodePtr node,
+                            db_type& db UNODB_DETAIL_LIFETIMEBOUND) noexcept
+        : node_{node}, db_{db} {}
+
+    ~subtree_guard() noexcept {
+      if (node_ != nullptr) delete_subtree(node_, db_);
+    }
+
+    void release() noexcept { node_ = nullptr; }
+
+    subtree_guard(const subtree_guard&) = delete;
+    subtree_guard(subtree_guard&&) = delete;
+    auto& operator=(const subtree_guard&) = delete;
+    auto& operator=(subtree_guard&&) = delete;
+
+   private:
+    NodePtr node_;
+    db_type& db_;
+  };
+
   /// \name Tree operations
   /// \{
 
