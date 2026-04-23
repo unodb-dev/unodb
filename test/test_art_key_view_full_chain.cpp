@@ -2463,6 +2463,49 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromBacktrackToVIS) {
         /*fwd=*/true);
     UNODB_EXPECT_EQ(count, 1);  // 0x30 exact match
   }
+
+  // Reverse exact scan_from on VIS child 0x10.
+  {
+    int count = 0;
+    db.scan_from(
+        make_short_key(enc, 0x10),
+        [&count](const auto& /*v*/) {
+          ++count;
+          return false;
+        },
+        /*fwd=*/false);
+    UNODB_EXPECT_EQ(count, 1);  // 0x10 exact match
+  }
+
+  // Forward scan_from with key longer than VIS child (match=false path).
+  // Search key [0x30, 0x01] is longer than VIS key [0x30].  Seek lands on
+  // the VIS leaf (the only entry whose prefix matches the search key).
+  {
+    int count = 0;
+    db.scan_from(
+        make_key(enc, 0x30, 1),
+        [&count](const auto& /*v*/) {
+          ++count;
+          return false;
+        },
+        /*fwd=*/true);
+    UNODB_EXPECT_EQ(count, 1);  // 0x30 (VIS leaf seek landed on)
+  }
+
+  // Reverse scan_from with key longer than VIS child (match=false path).
+  // Search key [0x30, 0x01] > VIS key [0x30].  Seek lands on 0x30, then
+  // reverse iteration visits all preceding entries.
+  {
+    int count = 0;
+    db.scan_from(
+        make_key(enc, 0x30, 1),
+        [&count](const auto& /*v*/) {
+          ++count;
+          return false;
+        },
+        /*fwd=*/false);
+    UNODB_EXPECT_EQ(count, 3);  // 0x30, 0x20+0x01, 0x10
+  }
 }
 
 // Prefix overflow prevents I4 collapse on remove.
