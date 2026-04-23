@@ -3507,6 +3507,20 @@ bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
     if (UNODB_DETAIL_UNLIKELY(!try_push(node, remaining_key[0], child_index,
                                         key_prefix, node_critical_section)))
       return false;  // LCOV_EXCL_LINE
+    if constexpr (art_policy::can_eliminate_leaf) {
+      if (inode->is_value_in_slot(node_type, child_index)) {
+        node = *child;
+        if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))
+          return false;  // LCOV_EXCL_LINE
+        if (UNODB_DETAIL_UNLIKELY(
+                !parent_critical_section.try_read_unlock()))  // unlock parent
+          return false;                                       // LCOV_EXCL_LINE
+        if (UNODB_DETAIL_UNLIKELY(!try_push_leaf(node, node_critical_section)))
+          return false;  // LCOV_EXCL_LINE
+        match = (remaining_key.size() <= 1);
+        return UNODB_DETAIL_LIKELY(node_critical_section.try_read_unlock());
+      }
+    }
     node = *child;
     remaining_key.shift_right(1);
     // check node before using [child] and before we std::move() the RCS.

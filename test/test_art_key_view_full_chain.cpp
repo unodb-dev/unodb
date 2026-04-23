@@ -2452,8 +2452,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromBacktrackToVIS) {
   }
 
   // Exact scan_from on VIS child 0x30: exercises is_value_in_slot in seek.
-  // Skip for olc_db — crashes (tracked as bug).
-  if constexpr (!unodb::test::is_olc_db<TypeParam>) {
+  {
     int count = 0;
     db.scan_from(
         make_short_key(enc, 0x30),
