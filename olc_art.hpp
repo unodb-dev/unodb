@@ -3509,6 +3509,7 @@ bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
       return false;  // LCOV_EXCL_LINE
     if constexpr (art_policy::can_eliminate_leaf) {
       if (inode->is_value_in_slot(node_type, child_index)) {
+        // Value-in-slot: child is a packed value, not a subtree pointer.
         node = *child;
         if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))
           return false;  // LCOV_EXCL_LINE
@@ -3517,6 +3518,7 @@ bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
           return false;                                       // LCOV_EXCL_LINE
         if (UNODB_DETAIL_UNLIKELY(!try_push_leaf(node, node_critical_section)))
           return false;  // LCOV_EXCL_LINE
+        // Exact match iff remaining key consumed by prefix + dispatch byte.
         match = (remaining_key.size() <= 1);
         return UNODB_DETAIL_LIKELY(node_critical_section.try_read_unlock());
       }
