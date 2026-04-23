@@ -1,4 +1,4 @@
-// Copyright 2019-2025 UnoDB contributors
+// Copyright 2019-2026 UnoDB contributors
 #ifndef UNODB_DETAIL_DB_TEST_UTILS_HPP
 #define UNODB_DETAIL_DB_TEST_UTILS_HPP
 
@@ -47,6 +47,16 @@ extern template class unodb::db<unodb::key_view, unodb::value_view>;
 extern template class unodb::mutex_db<unodb::key_view, unodb::value_view>;
 extern template class unodb::olc_db<unodb::key_view, unodb::value_view>;
 
+// When building with coverage, allow each TU to instantiate the VIS types
+// so gcov can instrument them.  Without this, gcov attributes coverage to
+// db_test_utils.cpp (the explicit instantiation TU) and the header lines
+// show as uncovered.
+#ifndef COVERAGE
+extern template class unodb::db<unodb::key_view, std::uint64_t>;
+extern template class unodb::mutex_db<unodb::key_view, std::uint64_t>;
+extern template class unodb::olc_db<unodb::key_view, std::uint64_t>;
+#endif
+
 namespace unodb::test {
 
 template <class TestDb>
@@ -84,6 +94,17 @@ constexpr std::array<unodb::value_view, 6> test_values = {
     unodb::value_view{empty_test_value}  // [5] {                 }
 };
 
+constexpr std::array<std::uint64_t, 6> test_values_u64 = {0, 1, 2, 3, 4, 5};
+
+/// Return a test value appropriate for the db's value type.
+template <class Db>
+constexpr typename Db::value_type get_test_value(std::size_t i) {
+  if constexpr (std::is_same_v<typename Db::value_type, unodb::value_view>)
+    return test_values[i % test_values.size()];
+  else
+    return test_values_u64[i % test_values_u64.size()];
+}
+
 namespace detail {
 
 UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wused-but-marked-unused")
@@ -91,14 +112,20 @@ UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wunused-parameter")
 
 template <class Db>
 void assert_value_eq(const typename Db::get_result& result,
-                     unodb::value_view expected) noexcept {
+                     typename Db::value_type expected) noexcept {
   if constexpr (is_mutex_db<Db>) {
     UNODB_DETAIL_ASSERT(result.second.owns_lock());
     UNODB_DETAIL_ASSERT(result.first.has_value());
-    UNODB_ASSERT_TRUE(std::ranges::equal(*result.first, expected));
+    if constexpr (std::is_same_v<typename Db::value_type, unodb::value_view>)
+      UNODB_ASSERT_TRUE(std::ranges::equal(*result.first, expected));
+    else
+      UNODB_ASSERT_EQ(*result.first, expected);
   } else {
     UNODB_DETAIL_ASSERT(result.has_value());
-    UNODB_ASSERT_TRUE(std::ranges::equal(*result, expected));
+    if constexpr (std::is_same_v<typename Db::value_type, unodb::value_view>)
+      UNODB_ASSERT_TRUE(std::ranges::equal(*result, expected));
+    else
+      UNODB_ASSERT_EQ(*result, expected);
   }
 }
 
@@ -114,7 +141,7 @@ void assert_not_found(const typename Db::get_result& result) noexcept {
 
 template <class Db>
 void do_assert_result_eq(const Db& db, typename Db::key_type key,
-                         unodb::value_view expected, const char* file,
+                         typename Db::value_type expected, const char* file,
                          int line) {
   std::ostringstream msg;
   unodb::detail::dump_key(msg, key);
@@ -136,7 +163,8 @@ UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 
 template <class Db>
 void assert_result_eq(const Db& db, typename Db::key_type key,
-                      unodb::value_view expected, const char* file, int line) {
+                      typename Db::value_type expected, const char* file,
+                      int line) {
   if constexpr (is_olc_db<Db>) {
     const quiescent_state_on_scope_exit qsbr_after_get{};
     do_assert_result_eq<Db>(db, key, expected, file, line);
@@ -270,14 +298,12 @@ class [[nodiscard]] tree_verifier final {
   // mangled names.
   // NOLINTBEGIN(modernize-use-constraints)
   template <class Db2 = Db>
-  std::enable_if_t<!is_olc_db<Db2>, void> do_insert(key_type k,
-                                                    unodb::value_view v) {
+  std::enable_if_t<!is_olc_db<Db2>, void> do_insert(key_type k, value_type v) {
     UNODB_ASSERT_TRUE(test_db.insert(k, v));
   }
 
   template <class Db2 = Db>
-  std::enable_if_t<is_olc_db<Db2>, void> do_insert(key_type k,
-                                                   unodb::value_view v) {
+  std::enable_if_t<is_olc_db<Db2>, void> do_insert(key_type k, value_type v) {
     const quiescent_state_on_scope_exit qsbr_after_get{};
     UNODB_ASSERT_TRUE(test_db.insert(k, v));
   }
@@ -293,8 +319,10 @@ class [[nodiscard]] tree_verifier final {
 #ifdef UNODB_DETAIL_WITH_STATS
     const auto node_counts_before = test_db.get_node_counts();
     const auto mem_use_before = test_db.get_current_memory_use();
-    UNODB_ASSERT_GT(node_counts_before[as_i<unodb::node_type::LEAF>], 0);
     UNODB_ASSERT_GT(mem_use_before, 0);
+    if constexpr (std::is_same_v<value_type, unodb::value_view>) {
+      UNODB_ASSERT_GT(node_counts_before[as_i<unodb::node_type::LEAF>], 0);
+    }
     const auto growing_inodes_before = test_db.get_growing_inode_counts();
     const auto shrinking_inodes_before = test_db.get_shrinking_inode_counts();
     const auto key_prefix_splits_before = test_db.get_key_prefix_splits();
@@ -330,12 +358,15 @@ class [[nodiscard]] tree_verifier final {
 #ifdef UNODB_DETAIL_WITH_STATS
     if (!parallel_test) {
       const auto mem_use_after = test_db.get_current_memory_use();
-      UNODB_ASSERT_LT(mem_use_after, mem_use_before);
+      if constexpr (std::is_same_v<value_type, unodb::value_view>)
+        UNODB_ASSERT_LT(mem_use_after, mem_use_before);
 
       const auto leaf_count_after =
           test_db.template get_node_count<::unodb::node_type::LEAF>();
-      UNODB_ASSERT_EQ(leaf_count_after,
-                      node_counts_before[as_i<unodb::node_type::LEAF>] - 1);
+      if constexpr (std::is_same_v<value_type, unodb::value_view>) {
+        UNODB_ASSERT_EQ(leaf_count_after,
+                        node_counts_before[as_i<unodb::node_type::LEAF>] - 1);
+      }
     }
 #endif  // UNODB_DETAIL_WITH_STATS
   }
@@ -362,8 +393,7 @@ class [[nodiscard]] tree_verifier final {
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   // cppcheck-suppress passedByValue
-  void insert_internal(key_type k, unodb::value_view v,
-                       bool bypass_verifier = false) {
+  void insert_internal(key_type k, value_type v, bool bypass_verifier = false) {
     const auto empty_before = test_db.empty();
 #ifdef UNODB_DETAIL_WITH_STATS
     const auto mem_use_before =
@@ -400,16 +430,18 @@ class [[nodiscard]] tree_verifier final {
     const auto mem_use_after = test_db.get_current_memory_use();
     if (parallel_test)
       UNODB_ASSERT_GT(mem_use_after, 0);
-    else
+    else if constexpr (std::is_same_v<value_type, unodb::value_view>)
       UNODB_ASSERT_LT(mem_use_before, mem_use_after);
 
     const auto leaf_count_after =
         test_db.template get_node_count<unodb::node_type::LEAF>();
-    if (parallel_test)
-      UNODB_ASSERT_GT(leaf_count_after, 0);
-    else
-      UNODB_ASSERT_EQ(leaf_count_after,
-                      node_counts_before[as_i<unodb::node_type::LEAF>] + 1);
+    if constexpr (std::is_same_v<value_type, unodb::value_view>) {
+      if (parallel_test)
+        UNODB_ASSERT_GT(leaf_count_after, 0);
+      else
+        UNODB_ASSERT_EQ(leaf_count_after,
+                        node_counts_before[as_i<unodb::node_type::LEAF>] + 1);
+    }
 #endif  // UNODB_DETAIL_WITH_STATS
 
     if (!bypass_verifier) {
@@ -433,12 +465,12 @@ class [[nodiscard]] tree_verifier final {
       dec.decode(start_key_dec);
       unodb::key_encoder enc;
       for (auto key = start_key_dec; key < start_key_dec + count; ++key) {
-        insert(enc.reset().encode(key).get_key_view(),
-               test_values[key % test_values.size()], bypass_verifier);
+        insert(enc.reset().encode(key).get_key_view(), get_test_value<Db>(key),
+               bypass_verifier);
       }
     } else {
       for (auto key = start_key; key < start_key + count; ++key) {
-        insert(key, test_values[key % test_values.size()], bypass_verifier);
+        insert(key, get_test_value<Db>(key), bypass_verifier);
       }
     }
   }
@@ -457,7 +489,7 @@ class [[nodiscard]] tree_verifier final {
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   template <typename T>
-  void insert(T k, unodb::value_view v, bool bypass_verifier = false) {
+  void insert(T k, value_type v, bool bypass_verifier = false) {
     insert_internal(coerce_key(k), v, bypass_verifier);
   }
 
@@ -468,8 +500,13 @@ class [[nodiscard]] tree_verifier final {
   }
 
   template <typename T>
-  bool try_insert(T k, unodb::value_view v) {
-    return test_db.insert(coerce_key(k), v);
+  bool try_insert(T k, value_type v) {
+    if constexpr (is_olc_db<Db>) {
+      const quiescent_state_on_scope_exit qsbr_after_insert{};
+      return test_db.insert(coerce_key(k), v);
+    } else {
+      return test_db.insert(coerce_key(k), v);
+    }
   }
 
   template <typename T>
@@ -483,14 +520,14 @@ class [[nodiscard]] tree_verifier final {
       for (auto key = start_key_dec; key < start_key_dec + count; ++key) {
         auto tmp = to_ikey(enc.reset().encode(key).get_key_view());
         const auto [pos, insert_succeeded] =
-            values.try_emplace(tmp, test_values[key % test_values.size()]);
+            values.try_emplace(tmp, get_test_value<Db>(key));
         (void)pos;
         UNODB_ASSERT_TRUE(insert_succeeded);
       }
     } else {
       for (auto key = start_key; key < start_key + count; ++key) {
-        const auto [pos, insert_succeeded] = values.try_emplace(
-            to_ikey(key), test_values[key % test_values.size()]);
+        const auto [pos, insert_succeeded] =
+            values.try_emplace(to_ikey(key), get_test_value<Db>(key));
         (void)pos;
         UNODB_ASSERT_TRUE(insert_succeeded);
       }
@@ -507,11 +544,11 @@ class [[nodiscard]] tree_verifier final {
       unodb::key_encoder enc;
       for (auto key = start_key_dec; key < start_key_dec + count; ++key) {
         do_insert(enc.reset().encode(key).get_key_view(),
-                  test_values[key % test_values.size()]);
+                  get_test_value<Db>(key));
       }
     } else {
       for (auto key = start_key; key < start_key + count; ++key) {
-        do_insert(key, test_values[key % test_values.size()]);
+        do_insert(key, get_test_value<Db>(key));
       }
     }
   }
@@ -614,28 +651,26 @@ class [[nodiscard]] tree_verifier final {
     UNODB_DETAIL_PAUSE_HEAP_TRACKING_GUARD();
     std::size_t n{0};
     bool first = true;
-    unodb::key_view prev{};
-    auto fn =
-        [&n, &first,
-         &prev](const unodb::visitor<typename Db::iterator>& visitor) noexcept {
-          // We can't tell cheap and expensive to copy types apart in an
-          // useful way here
-          UNODB_DETAIL_DISABLE_MSVC_WARNING(26445)
-          const auto& kv = visitor.get_key();
-          UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+    std::vector<std::byte> prev_copy{};
+    auto fn = [&n, &first, &prev_copy](
+                  const unodb::visitor<typename Db::iterator>& visitor) {
+      UNODB_DETAIL_DISABLE_MSVC_WARNING(26445)
+      const auto kv = static_cast<unodb::key_view>(visitor.get_key());
+      UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-          if (UNODB_DETAIL_UNLIKELY(first)) {
-            prev = kv;
-            first = false;
-          } else {
-            UNODB_EXPECT_LT(unodb::detail::compare(prev, kv), 0);
-            prev = kv;
-          }
-          n++;
-          return false;
-        };
+      if (UNODB_DETAIL_UNLIKELY(first)) {
+        prev_copy.assign(kv.begin(), kv.end());
+        first = false;
+      } else {
+        const unodb::key_view prev{prev_copy};
+        UNODB_EXPECT_LT(unodb::detail::compare(prev, kv), 0);
+        prev_copy.assign(kv.begin(), kv.end());
+      }
+      n++;
+      return false;
+    };
     const_cast<Db&>(test_db).scan(fn);
-    // FIXME(thompsonbry) variable length keys - enable this assert.
+    // TODO(thompsonbry) variable length keys - enable this assert (#8).
     // 3 OOM tests are failing (for each Db type) when this is enabled
     // (off by one).  What is going on there?
     //
@@ -694,17 +729,22 @@ class [[nodiscard]] tree_verifier final {
 
 #ifdef UNODB_DETAIL_WITH_STATS
 
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
   void assert_node_counts(
       const node_type_counter_array& expected_node_counts) const {
     // Dump the tree to a string. Do not attempt to check the dump format, only
     // that dumping does not crash
-    std::stringstream dump_sink;
-    test_db.dump(dump_sink);
+    // TODO(#707): dump does not yet handle value-in-slot children.
+    if constexpr (std::is_same_v<value_type, unodb::value_view>) {
+      std::stringstream dump_sink;
+      test_db.dump(dump_sink);
+    }
 
     const auto actual_node_counts = test_db.get_node_counts();
     UNODB_ASSERT_THAT(actual_node_counts,
                       ::testing::ElementsAreArray(expected_node_counts));
   }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   constexpr void assert_growing_inodes(
       const inode_type_counter_array& expected_growing_inode_counts)
@@ -772,7 +812,7 @@ class [[nodiscard]] tree_verifier final {
   /// \note The `std::map` and `std::unordered_map` do not support non-owned
   /// unodb::key_view objects as keys.  To handle this, unodb::key_view keys are
   /// wrapped as an owning type.
-  std::map<ikey_type<Db>, unodb::value_view, comparator> values;
+  std::map<ikey_type<Db>, value_type, comparator> values;
 
   const bool parallel_test;
 
@@ -788,6 +828,11 @@ using key_view_db = unodb::db<unodb::key_view, unodb::value_view>;
 using key_view_mutex_db = unodb::mutex_db<unodb::key_view, unodb::value_view>;
 using key_view_olc_db = unodb::olc_db<unodb::key_view, unodb::value_view>;
 
+using key_view_u64val_db = unodb::db<unodb::key_view, std::uint64_t>;
+using key_view_u64val_mutex_db =
+    unodb::mutex_db<unodb::key_view, std::uint64_t>;
+using key_view_u64val_olc_db = unodb::olc_db<unodb::key_view, std::uint64_t>;
+
 extern template class tree_verifier<u64_db>;
 extern template class tree_verifier<u64_mutex_db>;
 extern template class tree_verifier<u64_olc_db>;
@@ -795,6 +840,10 @@ extern template class tree_verifier<u64_olc_db>;
 extern template class tree_verifier<key_view_db>;
 extern template class tree_verifier<key_view_mutex_db>;
 extern template class tree_verifier<key_view_olc_db>;
+
+extern template class tree_verifier<key_view_u64val_db>;
+extern template class tree_verifier<key_view_u64val_mutex_db>;
+extern template class tree_verifier<key_view_u64val_olc_db>;
 
 }  // namespace unodb::test
 

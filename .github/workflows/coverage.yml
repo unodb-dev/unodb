@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - master
+      - coverage-check
   pull_request:
 
 permissions: {}
@@ -74,10 +75,16 @@ jobs:
         run: |
           make -j3 -k coverage
 
+      - name: Upload lcov artifact
+        uses: actions/upload-artifact@v4 # zizmor: ignore[unpinned-uses]
+        with:
+          name: lcov-${{matrix.BUILD_TYPE}}
+          path: ${{github.workspace}}/build/test/coverage-*.info
+
       - name: Upload coverage data
         uses: codecov/codecov-action@v5 # zizmor: ignore[unpinned-uses]
         with:
           token: ${{secrets.CODECOV_TOKEN}}
           flags: ${{matrix.BUILD_TYPE}}
-          fail_ci_if_error: true
+          fail_ci_if_error: ${{secrets.CODECOV_TOKEN != ''}}
           directory: ${{github.workspace}}/build

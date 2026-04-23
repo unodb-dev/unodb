@@ -1,4 +1,4 @@
-// Copyright 2019-2025 UnoDB contributors
+// Copyright 2019-2026 UnoDB contributors
 #ifndef UNODB_DETAIL_MUTEX_ART_HPP
 #define UNODB_DETAIL_MUTEX_ART_HPP
 
@@ -32,11 +32,8 @@ class mutex_db final {
   /// then the second member is a locked tree mutex which must be released ASAP
   /// after reading the first pair member. Otherwise, the second member is
   /// undefined.
-  using get_result = std::pair<typename db<Key, value_view>::get_result,
+  using get_result = std::pair<typename db<Key, Value>::get_result,
                                std::unique_lock<std::mutex>>;
-
-  // TODO(laurynas): added temporarily during development
-  static_assert(std::is_same_v<value_type, unodb::value_view>);
 
  private:
   using art_key_type = detail::basic_art_key<Key>;

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 UnoDB contributors
+// Copyright 2019-2026 UnoDB contributors
 
 /// \file
 /// QSBR implementation details.

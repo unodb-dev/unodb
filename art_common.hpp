@@ -1,4 +1,4 @@
-// Copyright 2019-2025 UnoDB contributors
+// Copyright 2019-2026 UnoDB contributors
 #ifndef UNODB_DETAIL_ART_COMMON_HPP
 #define UNODB_DETAIL_ART_COMMON_HPP
 
@@ -40,6 +40,62 @@ using key_size_type = std::uint32_t;
 
 /// Non-owning view of key bytes, copied into index upon insertion.
 using key_view = std::span<const std::byte>;
+
+namespace detail {
+
+/// Tag type used as the Key parameter for keyless leaves.  When the full
+/// key is encoded in the inode path, the leaf stores only the value.
+struct no_key_tag {};
+
+/// Tag type indicating that no leaf nodes exist in the tree.
+/// Used when can_eliminate_leaf is true (values packed into inode slots).
+struct no_leaf_tag {
+  no_leaf_tag() = delete;
+};
+
+/// Whether the key can be omitted from the leaf.  True when Key is
+/// key_view (full key is encoded in the inode prefix+dispatch chain).
+template <typename Key, typename Value>
+inline constexpr bool can_eliminate_key_in_leaf_v =
+    std::is_same_v<Key, key_view>;
+
+/// The Key type used for the leaf template.  Maps to no_key_tag when
+/// the key can be eliminated, otherwise passes Key through unchanged.
+template <typename Key, typename Value>
+using leaf_key_type =
+    std::conditional_t<can_eliminate_key_in_leaf_v<Key, Value>, no_key_tag,
+                       Key>;
+
+}  // namespace detail
+
+/// Non-owning view of key bytes with scoped lifetime.  Returned by
+/// iterator get_key() when the key is reconstructed from the inode
+/// path (full_key_in_inode_path trees).  The view is valid only until
+/// the next iterator movement (next/prior/seek/invalidate).
+///
+/// Does NOT allow implicit construction from key_view, preventing accidental
+/// storage of a key_view where a transient_key_view is expected.  Does NOT
+/// implicitly convert to key_view — use .view() for explicit access.
+class transient_key_view {
+  key_view kv_;
+
+ public:
+  explicit constexpr transient_key_view(key_view kv) noexcept : kv_{kv} {}
+
+  [[nodiscard]] constexpr key_view view() const noexcept { return kv_; }
+
+  [[nodiscard]] constexpr auto data() const noexcept { return kv_.data(); }
+  [[nodiscard]] constexpr auto size() const noexcept { return kv_.size(); }
+  [[nodiscard]] constexpr auto size_bytes() const noexcept {
+    return kv_.size_bytes();
+  }
+  [[nodiscard]] constexpr auto operator[](std::size_t i) const noexcept {
+    return kv_[i];
+  }
+  [[nodiscard]] constexpr auto begin() const noexcept { return kv_.begin(); }
+  [[nodiscard]] constexpr auto end() const noexcept { return kv_.end(); }
+  [[nodiscard]] constexpr bool empty() const noexcept { return kv_.empty(); }
+};
 
 /// Type alias determining the maximum size of a value that may be stored in the
 /// index.

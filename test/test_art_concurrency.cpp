@@ -1,4 +1,4 @@
-// Copyright 2021-2025 UnoDB contributors
+// Copyright 2021-2026 UnoDB contributors
 
 // Should be the first include
 #include "global.hpp"
@@ -228,7 +228,7 @@ class ARTConcurrencyTest : public ::testing::Test {
   ARTConcurrencyTest<Db>& operator=(ARTConcurrencyTest<Db>&&) = delete;
 };
 
-// FIXME(thompsonbry) variable length keys - enable key_view variants
+// TODO(thompsonbry) variable length keys - enable key_view variants (#8)
 // once some critical bug fixes are resolved in master.
 using ConcurrentARTTypes =
     ::testing::Types<unodb::test::u64_mutex_db, unodb::test::u64_olc_db
@@ -1132,5 +1132,400 @@ UNODB_TEST(OLCChainCut, DISABLED_DeepChainStressHeavy) {
   const int cores = static_cast<int>(std::thread::hardware_concurrency());
   deep_chain_stress(cores, 100000, 10);
 }
+
+// ===================================================================
+// RT tests: verify remove_or_choose_subtree OLC guards under
+// concurrent modification.  These validate that the version checks
+// inside remove_or_choose_subtree correctly detect concurrent
+// mutations — the precondition for making matches() unconditional
+// for keyless key_view leaves.
+//
+// Sync point: sync_before_remove_write_guard fires after leaf match
+// confirmed and is_min_size read, before write guard acquisition.
+// ===================================================================
+
+#ifndef NDEBUG
+
+// RT1: T1 removes key_a.  T2 inserts a new key into the same inode
+// between T1's match check and write guard acquisition.  T1's write
+// guard upgrade should detect the version change and restart.
+UNODB_TEST(OLCRemoveChooseSubtree, ConcurrentInsertIntoSameInode) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  constexpr auto val_bytes = std::array<std::byte, 1>{std::byte{0x42}};
+  const auto val = unodb::value_view{val_bytes};
+
+  db_type db;
+  unodb::key_encoder enc;
+
+  // 9-byte keys with same tag → same chain → same bottom inode.
+  // Insert 3 keys so the bottom inode is I4(3), above min_size.
+  std::array<std::byte, 9> buf_a{};
+  std::array<std::byte, 9> buf_b{};
+  std::array<std::byte, 9> buf_c{};
+  std::array<std::byte, 9> buf_new{};
+  const auto key_a = make_chain_key(enc, 0x10, 1, buf_a);
+  const auto key_b = make_chain_key(enc, 0x10, 2, buf_b);
+  const auto key_c = make_chain_key(enc, 0x10, 3, buf_c);
+  const auto new_key = make_chain_key(enc, 0x10, 4, buf_new);
+
+  UNODB_ASSERT_TRUE(db.insert(key_a, val));
+  UNODB_ASSERT_TRUE(db.insert(key_b, val));
+  UNODB_ASSERT_TRUE(db.insert(key_c, val));
+
+  const sync_point_guard guard{unodb::detail::sync_before_remove_write_guard};
+  unodb::detail::sync_before_remove_write_guard.arm([&]() {
+    unodb::detail::sync_before_remove_write_guard.disarm();
+    unodb::detail::thread_syncs[0].notify();
+    unodb::detail::thread_syncs[1].wait();
+  });
+
+  unodb::this_thread().qsbr_pause();
+
+  auto t2 = unodb::qsbr_thread([&] {
+    unodb::detail::thread_syncs[0].wait();
+    const unodb::quiescent_state_on_scope_exit q{};
+    std::ignore = db.insert(new_key, val);
+    unodb::detail::thread_syncs[1].notify();
+  });
+
+  auto t1 = unodb::qsbr_thread([&] {
+    const unodb::quiescent_state_on_scope_exit q{};
+    std::ignore = db.remove(key_a);
+  });
+
+  t1.join();
+  t2.join();
+  unodb::this_thread().qsbr_resume();
+  unodb::this_thread().quiescent();
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_FALSE(db.get(key_a).has_value());
+  UNODB_ASSERT_TRUE(db.get(key_b).has_value());
+  UNODB_ASSERT_TRUE(db.get(key_c).has_value());
+  UNODB_ASSERT_TRUE(db.get(new_key).has_value());
+}
+
+// RT2: T1 removes key_a from an I4 at min_size (2 children).
+// T2 removes key_b (the other child) concurrently.  One thread
+// succeeds, the other restarts and finds the key gone.
+UNODB_TEST(OLCRemoveChooseSubtree, ConcurrentRemoveFromMinSizeI4) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  constexpr auto val_bytes = std::array<std::byte, 1>{std::byte{0x42}};
+  const auto val = unodb::value_view{val_bytes};
+
+  db_type db;
+  unodb::key_encoder enc;
+
+  // 9-byte keys: 2 keys with same tag → chain + I4(2) at bottom.
+  // Plus a sibling with different tag so the chain has a parent.
+  std::array<std::byte, 9> buf_a{};
+  std::array<std::byte, 9> buf_b{};
+  std::array<std::byte, 9> buf_sib{};
+  const auto key_a = make_chain_key(enc, 0x10, 1, buf_a);
+  const auto key_b = make_chain_key(enc, 0x10, 2, buf_b);
+  const auto sibling = make_chain_key(enc, 0x20, 1, buf_sib);
+
+  UNODB_ASSERT_TRUE(db.insert(key_a, val));
+  UNODB_ASSERT_TRUE(db.insert(key_b, val));
+  UNODB_ASSERT_TRUE(db.insert(sibling, val));
+
+  const sync_point_guard guard{unodb::detail::sync_before_remove_write_guard};
+  unodb::detail::sync_before_remove_write_guard.arm([&]() {
+    unodb::detail::sync_before_remove_write_guard.disarm();
+    unodb::detail::thread_syncs[0].notify();
+    unodb::detail::thread_syncs[1].wait();
+  });
+
+  unodb::this_thread().qsbr_pause();
+
+  auto t2 = unodb::qsbr_thread([&] {
+    unodb::detail::thread_syncs[0].wait();
+    const unodb::quiescent_state_on_scope_exit q{};
+    std::ignore = db.remove(key_b);
+    unodb::detail::thread_syncs[1].notify();
+  });
+
+  auto t1 = unodb::qsbr_thread([&] {
+    const unodb::quiescent_state_on_scope_exit q{};
+    std::ignore = db.remove(key_a);
+  });
+
+  t1.join();
+  t2.join();
+  unodb::this_thread().qsbr_resume();
+  unodb::this_thread().quiescent();
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_FALSE(db.get(key_a).has_value());
+  UNODB_ASSERT_FALSE(db.get(key_b).has_value());
+  UNODB_ASSERT_TRUE(db.get(sibling).has_value());
+}
+
+// RT3: T1 removes key_a.  T2 replaces key_a's leaf by removing and
+// re-inserting it with a different value.  T1's child version check
+// should detect the change.
+UNODB_TEST(OLCRemoveChooseSubtree, ConcurrentLeafReplacement) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  constexpr auto val_bytes1 = std::array<std::byte, 1>{std::byte{0x42}};
+  constexpr auto val_bytes2 = std::array<std::byte, 1>{std::byte{0x99}};
+  const auto val1 = unodb::value_view{val_bytes1};
+  const auto val2 = unodb::value_view{val_bytes2};
+
+  db_type db;
+  unodb::key_encoder enc;
+
+  std::array<std::byte, 9> buf_a{};
+  std::array<std::byte, 9> buf_b{};
+  std::array<std::byte, 9> buf_c{};
+  const auto key_a = make_chain_key(enc, 0x10, 1, buf_a);
+  const auto key_b = make_chain_key(enc, 0x10, 2, buf_b);
+  const auto key_c = make_chain_key(enc, 0x10, 3, buf_c);
+
+  UNODB_ASSERT_TRUE(db.insert(key_a, val1));
+  UNODB_ASSERT_TRUE(db.insert(key_b, val1));
+  UNODB_ASSERT_TRUE(db.insert(key_c, val1));
+
+  const sync_point_guard guard{unodb::detail::sync_before_remove_write_guard};
+  unodb::detail::sync_before_remove_write_guard.arm([&]() {
+    unodb::detail::sync_before_remove_write_guard.disarm();
+    unodb::detail::thread_syncs[0].notify();
+    unodb::detail::thread_syncs[1].wait();
+  });
+
+  unodb::this_thread().qsbr_pause();
+
+  auto t2 = unodb::qsbr_thread([&] {
+    unodb::detail::thread_syncs[0].wait();
+    {
+      const unodb::quiescent_state_on_scope_exit q{};
+      std::ignore = db.remove(key_a);
+    }
+    {
+      const unodb::quiescent_state_on_scope_exit q{};
+      std::ignore = db.insert(key_a, val2);
+    }
+    unodb::detail::thread_syncs[1].notify();
+  });
+
+  auto t1 = unodb::qsbr_thread([&] {
+    const unodb::quiescent_state_on_scope_exit q{};
+    std::ignore = db.remove(key_a);
+  });
+
+  t1.join();
+  t2.join();
+  unodb::this_thread().qsbr_resume();
+  unodb::this_thread().quiescent();
+
+  // key_a may or may not exist depending on who won the race.
+  // The important thing is no crash, no hang, no corruption.
+  const unodb::quiescent_state_on_scope_exit q2{};
+  UNODB_ASSERT_TRUE(db.get(key_b).has_value());
+  UNODB_ASSERT_TRUE(db.get(key_c).has_value());
+}
+
+// ===================================================================
+// Insert growth contention: sync_before_insert_grow_guard fires in
+// add_or_choose_subtree after building the larger node but before
+// acquiring write guards.  T2 modifies the same inode, causing T1's
+// write guard to detect a version mismatch and restart.
+// Covers: olc_art.hpp must_restart + delete_subtree in growth path.
+// ===================================================================
+
+// IGT1: T1 inserts the 5th key (triggers I4→I16 growth).  T2 removes
+// a sibling key between T1's larger-node creation and write guard.
+UNODB_TEST(OLCInsertGrowth, ConcurrentRemoveDuringGrowth) {
+  using db_type = unodb::olc_db<unodb::key_view, std::uint64_t>;
+  constexpr std::uint64_t val = 42;
+
+  db_type db;
+  unodb::key_encoder enc;
+
+  // 4 keys with DIFFERENT first bytes → root I4 with 4 children.
+  // 5th key triggers I4→I16 growth at the root.
+  std::array<std::byte, 9> buf_a{};
+  std::array<std::byte, 9> buf_b{};
+  std::array<std::byte, 9> buf_c{};
+  std::array<std::byte, 9> buf_d{};
+  std::array<std::byte, 9> buf_new{};
+  const auto key_a = make_chain_key(enc, 0x10, 1, buf_a);
+  const auto key_b = make_chain_key(enc, 0x20, 1, buf_b);
+  const auto key_c = make_chain_key(enc, 0x30, 1, buf_c);
+  const auto key_d = make_chain_key(enc, 0x40, 1, buf_d);
+  const auto new_key = make_chain_key(enc, 0x50, 1, buf_new);
+
+  UNODB_ASSERT_TRUE(db.insert(key_a, val));
+  UNODB_ASSERT_TRUE(db.insert(key_b, val));
+  UNODB_ASSERT_TRUE(db.insert(key_c, val));
+  UNODB_ASSERT_TRUE(db.insert(key_d, val));
+
+  const sync_point_guard guard{unodb::detail::sync_before_insert_grow_guard};
+  unodb::detail::sync_before_insert_grow_guard.arm([&]() {
+    unodb::detail::sync_before_insert_grow_guard.disarm();
+    unodb::detail::thread_syncs[0].notify();
+    unodb::detail::thread_syncs[1].wait();
+  });
+
+  unodb::this_thread().qsbr_pause();
+
+  // T2: remove key_d from the root I4, modifying its version.
+  auto t2 = unodb::qsbr_thread([&] {
+    unodb::detail::thread_syncs[0].wait();
+    const unodb::quiescent_state_on_scope_exit q{};
+    std::ignore = db.remove(key_d);
+    unodb::detail::thread_syncs[1].notify();
+  });
+
+  // T1: insert new_key, triggering I4→I16 growth at root.
+  // Hits sync point, pauses while T2 modifies the node, then restarts.
+  auto t1 = unodb::qsbr_thread([&] {
+    const unodb::quiescent_state_on_scope_exit q{};
+    std::ignore = db.insert(new_key, val);
+  });
+
+  t1.join();
+  t2.join();
+  unodb::this_thread().qsbr_resume();
+  unodb::this_thread().quiescent();
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_FALSE(db.get(key_d).has_value());
+  UNODB_ASSERT_TRUE(db.get(new_key).has_value());
+  UNODB_ASSERT_TRUE(db.get(key_a).has_value());
+  UNODB_ASSERT_TRUE(db.get(key_b).has_value());
+  UNODB_ASSERT_TRUE(db.get(key_c).has_value());
+}
+
+// IGT2: T1 inserts the 5th key (triggers I4→I16 growth).  T2 inserts
+// a different key into the same inode.  T1's write guard detects the
+// version change and restarts.
+UNODB_TEST(OLCInsertGrowth, ConcurrentInsertDuringGrowth) {
+  using db_type = unodb::olc_db<unodb::key_view, std::uint64_t>;
+  constexpr std::uint64_t val = 42;
+
+  db_type db;
+  unodb::key_encoder enc;
+
+  std::array<std::byte, 9> buf_a{};
+  std::array<std::byte, 9> buf_b{};
+  std::array<std::byte, 9> buf_c{};
+  std::array<std::byte, 9> buf_d{};
+  std::array<std::byte, 9> buf_t1{};
+  std::array<std::byte, 9> buf_t2{};
+  const auto key_a = make_chain_key(enc, 0x10, 1, buf_a);
+  const auto key_b = make_chain_key(enc, 0x20, 1, buf_b);
+  const auto key_c = make_chain_key(enc, 0x30, 1, buf_c);
+  const auto key_d = make_chain_key(enc, 0x40, 1, buf_d);
+  const auto t1_key = make_chain_key(enc, 0x50, 1, buf_t1);
+  const auto t2_key = make_chain_key(enc, 0x60, 1, buf_t2);
+
+  UNODB_ASSERT_TRUE(db.insert(key_a, val));
+  UNODB_ASSERT_TRUE(db.insert(key_b, val));
+  UNODB_ASSERT_TRUE(db.insert(key_c, val));
+  UNODB_ASSERT_TRUE(db.insert(key_d, val));
+
+  const sync_point_guard guard{unodb::detail::sync_before_insert_grow_guard};
+  unodb::detail::sync_before_insert_grow_guard.arm([&]() {
+    unodb::detail::sync_before_insert_grow_guard.disarm();
+    unodb::detail::thread_syncs[0].notify();
+    unodb::detail::thread_syncs[1].wait();
+  });
+
+  unodb::this_thread().qsbr_pause();
+
+  // T2: insert t2_key, also triggering growth and modifying the inode.
+  auto t2 = unodb::qsbr_thread([&] {
+    unodb::detail::thread_syncs[0].wait();
+    const unodb::quiescent_state_on_scope_exit q{};
+    std::ignore = db.insert(t2_key, val);
+    unodb::detail::thread_syncs[1].notify();
+  });
+
+  // T1: insert t1_key, triggering growth.  Hits sync point, pauses.
+  auto t1 = unodb::qsbr_thread([&] {
+    const unodb::quiescent_state_on_scope_exit q{};
+    std::ignore = db.insert(t1_key, val);
+  });
+
+  t1.join();
+  t2.join();
+  unodb::this_thread().qsbr_resume();
+  unodb::this_thread().quiescent();
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_TRUE(db.get(t1_key).has_value());
+  UNODB_ASSERT_TRUE(db.get(t2_key).has_value());
+}
+
+// T1 builds a chain for a non-full inode insert, then a concurrent T2
+// removes a sibling, invalidating T1's node version.  T1's write guard
+// must_restart, so T1 deletes the chain it built and retries.
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26426)
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26409)
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26455)
+UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
+TEST(OLCNonfullChainRestart, ConcurrentRemoveDuringChainInsert) {
+  using db_type = unodb::olc_db<unodb::key_view, std::uint64_t>;
+  db_type db;
+  unodb::key_encoder enc;
+  unodb::key_encoder enc2;  // separate encoder for T2
+  constexpr std::uint64_t val = 42;
+
+  // Seed: two keys with different first bytes → root I4 with 2 children.
+  const auto k_seed1 = enc.reset().encode(std::uint8_t{0x10}).get_key_view();
+  std::ignore = db.insert(k_seed1, val);
+  const auto k_seed2 = enc2.reset().encode(std::uint8_t{0x20}).get_key_view();
+  std::ignore = db.insert(k_seed2, val);
+
+  // T1 will insert a long key under 0x30 → add_to_nonfull builds a chain.
+  unodb::key_encoder enc_t1;
+  auto t1_key = enc_t1.reset()
+                    .encode(std::uint8_t{0x30})
+                    .encode(std::uint64_t{1})
+                    .get_key_view();
+
+  const sync_point_guard guard{unodb::detail::sync_before_nonfull_chain_guard};
+  unodb::detail::sync_before_nonfull_chain_guard.arm([&]() {
+    unodb::detail::sync_before_nonfull_chain_guard.disarm();
+    // Signal T2 to remove a sibling, invalidating the node version.
+    unodb::detail::thread_syncs[0].notify();
+    unodb::detail::thread_syncs[1].wait();
+  });
+
+  unodb::this_thread().qsbr_pause();
+
+  // T2: wait for T1 to pause, then remove seed2 (modifies root I4).
+  auto t2 = unodb::qsbr_thread([&] {
+    const unodb::quiescent_state_on_scope_exit q{};
+    unodb::detail::thread_syncs[0].wait();
+    std::ignore =
+        db.remove(enc2.reset().encode(std::uint8_t{0x20}).get_key_view());
+    unodb::detail::thread_syncs[1].notify();
+  });
+
+  // T1: insert t1_key.  Hits sync point after building chain, pauses.
+  // T2 removes seed2, invalidating node version.  T1 resumes, write guard
+  // must_restart → deletes chain, retries, succeeds.
+  auto t1 = unodb::qsbr_thread([&] {
+    const unodb::quiescent_state_on_scope_exit q{};
+    std::ignore = db.insert(t1_key, val);
+  });
+
+  t1.join();
+  t2.join();
+  unodb::this_thread().qsbr_resume();
+  unodb::this_thread().quiescent();
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_TRUE(db.get(t1_key).has_value());
+  UNODB_ASSERT_TRUE(db.get(k_seed1).has_value());
+  UNODB_ASSERT_FALSE(db.get(k_seed2).has_value());
+}
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+#endif  // NDEBUG
 
 }  // namespace
