@@ -2478,8 +2478,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromBacktrackToVIS) {
   }
 
   // Forward scan_from with key longer than VIS child (match=false path).
-  // Search key [0x30, 0x01] is longer than VIS key [0x30].  Seek lands on
-  // the VIS leaf (the only entry whose prefix matches the search key).
+  // Search key [0x30, 0x01] is longer than VIS key [0x30].  VIS < search,
+  // so fwd (GTE) skips VIS via next() — no keys >= [0x30, 0x01] exist.
   {
     int count = 0;
     db.scan_from(
@@ -2489,7 +2489,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromBacktrackToVIS) {
           return false;
         },
         /*fwd=*/true);
-    UNODB_EXPECT_EQ(count, 1);  // 0x30 (VIS leaf seek landed on)
+    UNODB_EXPECT_EQ(count, 0);  // nothing >= [0x30, 0x01]
   }
 
   // Reverse scan_from with key longer than VIS child (match=false path).
@@ -2505,6 +2505,63 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromBacktrackToVIS) {
         },
         /*fwd=*/false);
     UNODB_EXPECT_EQ(count, 3);  // 0x30, 0x20+0x01, 0x10
+  }
+}
+
+// scan_from where the search key is a proper prefix of all stored keys.
+// Exercises the remaining_key exhaustion guard after prefix matching.
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromKeyIsPrefixOfStored) {
+  TypeParam db;
+  unodb::key_encoder enc;
+  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
+
+  // Two 3-byte keys sharing a 2-byte prefix.
+  // Tree: I4 with prefix [0x41, 0x42], VIS children at 0x00 and 0x01.
+  std::ignore = db.insert(enc.reset()
+                              .encode(std::uint8_t{0x41})
+                              .encode(std::uint8_t{0x42})
+                              .encode(std::uint8_t{0x00})
+                              .get_key_view(),
+                          val);
+  std::ignore = db.insert(enc.reset()
+                              .encode(std::uint8_t{0x41})
+                              .encode(std::uint8_t{0x42})
+                              .encode(std::uint8_t{0x01})
+                              .get_key_view(),
+                          val);
+
+  // Forward scan_from [0x41, 0x42]: key consumed by prefix, remaining empty.
+  // GTE lands on leftmost child [0x41, 0x42, 0x00].
+  {
+    int count = 0;
+    db.scan_from(
+        enc.reset()
+            .encode(std::uint8_t{0x41})
+            .encode(std::uint8_t{0x42})
+            .get_key_view(),
+        [&count](const auto& /*v*/) {
+          ++count;
+          return false;
+        },
+        /*fwd=*/true);
+    UNODB_EXPECT_EQ(count, 2);  // both children
+  }
+
+  // Reverse scan_from [0x41, 0x42]: key consumed by prefix, remaining empty.
+  // Search key < all stored keys, so LTE has no result.
+  {
+    int count = 0;
+    db.scan_from(
+        enc.reset()
+            .encode(std::uint8_t{0x41})
+            .encode(std::uint8_t{0x42})
+            .get_key_view(),
+        [&count](const auto& /*v*/) {
+          ++count;
+          return false;
+        },
+        /*fwd=*/false);
+    UNODB_EXPECT_EQ(count, 0);  // nothing <= [0x41, 0x42]
   }
 }
 

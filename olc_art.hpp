@@ -3358,6 +3358,21 @@ bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
           try_right_most_traversal(node, parent_critical_section));
     }
     remaining_key.shift_right(key_prefix_length);
+    // Key fully consumed by prefix — search key is a proper prefix of
+    // all keys under this inode.  Leftmost leaf is GTE, prior is LTE.
+    if constexpr (std::is_same_v<Key, key_view>) {
+      if (UNODB_DETAIL_UNLIKELY(remaining_key.size() == 0)) {
+        if (fwd) {
+          return unlock_and_return(
+              node_critical_section,
+              try_left_most_traversal(node, parent_critical_section));
+        }
+        return unlock_and_return(
+                   node_critical_section,
+                   try_left_most_traversal(node, parent_critical_section)) &&
+               try_prior();
+      }
+    }
     const auto res = inode->find_child(node_type, remaining_key[0]);
     if (res.second == nullptr) {
       // We are on a key byte during the descent that is not mapped by
@@ -3518,9 +3533,15 @@ bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
           return false;                                       // LCOV_EXCL_LINE
         if (UNODB_DETAIL_UNLIKELY(!try_push_leaf(node, node_critical_section)))
           return false;  // LCOV_EXCL_LINE
-        // Exact match iff remaining key consumed by prefix + dispatch byte.
-        match = (remaining_key.size() <= 1);
-        return UNODB_DETAIL_LIKELY(node_critical_section.try_read_unlock());
+        if (UNODB_DETAIL_UNLIKELY(
+                !node_critical_section.try_read_unlock()))  // unlock node
+          return false;                                     // LCOV_EXCL_LINE
+        if (remaining_key.size() <= 1) {
+          match = true;
+          return true;
+        }
+        // VIS key is a strict prefix of search key (VIS < search).
+        return fwd ? try_next() : true;
       }
     }
     node = *child;

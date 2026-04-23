@@ -2287,6 +2287,14 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
       return right_most_traversal(node);
     }
     remaining_key.shift_right(key_prefix_length);
+    // Key fully consumed by prefix — search key is a proper prefix of
+    // all keys under this inode.  Leftmost leaf is GTE, prior is LTE.
+    if constexpr (std::is_same_v<Key, key_view>) {
+      if (UNODB_DETAIL_UNLIKELY(remaining_key.size() == 0)) {
+        return fwd ? left_most_traversal(node)
+                   : left_most_traversal(node).prior();
+      }
+    }
     const auto res = inode->find_child(node_type, remaining_key[0]);
     if (res.second == nullptr) {
       // We are on a key byte during the descent that is not mapped by
@@ -2371,9 +2379,12 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
     if constexpr (art_policy::can_eliminate_leaf) {
       if (inode->is_value_in_slot(node_type, child_index)) {
         push_leaf(*child);
-        // Exact match — remaining key consumed by prefix + dispatch bytes.
-        match = (remaining_key.size() <= 1);
-        return *this;
+        if (remaining_key.size() <= 1) {
+          match = true;
+          return *this;
+        }
+        // VIS key is a strict prefix of search key (VIS < search).
+        return fwd ? next() : *this;
       }
     }
     node = *child;
