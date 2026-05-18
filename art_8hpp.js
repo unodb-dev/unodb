@@ -19,7 +19,7 @@ var art_8hpp =
     [ "inode_4_test_type", "art_8hpp.html#a968066c430fa50f96fb3d07081ec4248", null ],
     [ "inode_base", "art_8hpp.html#af486b3ba28a2f7e238e2db1946e3b8fb", null ],
     [ "inode_defs", "art_8hpp.html#a6e0155f4cc9c31cf3cc24939b69c13d0", null ],
-    [ "leaf_type", "art_8hpp.html#aab561be018ef4d04aa8a144bb388b721", null ],
+    [ "leaf_type", "art_8hpp.html#a4c1fb4a85ef87c7a61e214c4871eb76f", null ],
     [ "node_ptr", "art_8hpp.html#aaa98550b35b9c4011a17dd6d7f96f25a", null ],
     [ "unwrap_fake_critical_section", "art_8hpp.html#a315446f662ab93a69546e61c3c72a492", null ]
 ];

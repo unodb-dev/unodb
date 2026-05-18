@@ -32,7 +32,8 @@ var hierarchy =
     [ "unodb::fake_read_critical_section", "classunodb_1_1fake__read__critical__section.html", null ],
     [ "unodb::benchmark::growing_tree_node_stats< Db >", "classunodb_1_1benchmark_1_1growing__tree__node__stats.html", null ],
     [ "Header", null, [
-      [ "unodb::detail::basic_leaf< Key, Header >", "classunodb_1_1detail_1_1basic__leaf.html", null ]
+      [ "unodb::detail::basic_leaf< Key, Header >", "classunodb_1_1detail_1_1basic__leaf.html", null ],
+      [ "unodb::detail::basic_leaf< no_key_tag, Header >", "classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4.html", null ]
     ] ],
     [ "ArtPolicy::header_type", null, [
       [ "unodb::detail::basic_inode_impl< ArtPolicy >", "classunodb_1_1detail_1_1basic__inode__impl.html", [
@@ -78,7 +79,10 @@ var hierarchy =
     [ "unodb::detail::key_prefix_snapshot", "unionunodb_1_1detail_1_1key__prefix__snapshot.html", null ],
     [ "unodb::detail::basic_inode_16< ArtPolicy >::key_union", "unionunodb_1_1detail_1_1basic__inode__16_1_1key__union.html", null ],
     [ "unodb::detail::basic_inode_4< ArtPolicy >::key_union", "unionunodb_1_1detail_1_1basic__inode__4_1_1key__union.html", null ],
+    [ "unodb::benchmark::key_view_set", "classunodb_1_1benchmark_1_1key__view__set.html", null ],
     [ "unodb::mutex_db< Key, Value >", "classunodb_1_1mutex__db.html", null ],
+    [ "unodb::detail::no_key_tag", "structunodb_1_1detail_1_1no__key__tag.html", null ],
+    [ "unodb::detail::no_leaf_tag", "structunodb_1_1detail_1_1no__leaf__tag.html", null ],
     [ "unodb::detail::node_header", "structunodb_1_1detail_1_1node__header.html", null ],
     [ "unodb::olc_db< Key, Value >", "classunodb_1_1olc__db.html", null ],
     [ "unodb::detail::olc_impl_helpers", "structunodb_1_1detail_1_1olc__impl__helpers.html", null ],
@@ -97,6 +101,7 @@ var hierarchy =
     [ "unodb::olc_db< Key, Value >::remove_entry", "structunodb_1_1olc__db_1_1remove__entry.html", null ],
     [ "unodb::detail::set_qsbr_per_thread_in_main_thread", "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html", null ],
     [ "unodb::detail::basic_inode< ArtPolicy, MinSize, Capacity, NodeType, SmallerDerived, LargerDerived, Derived >::single_child_tag", "structunodb_1_1detail_1_1basic__inode_1_1single__child__tag.html", null ],
+    [ "unodb::detail::basic_art_policy< Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator >::subtree_guard", "structunodb_1_1detail_1_1basic__art__policy_1_1subtree__guard.html", null ],
     [ "unodb::detail::sync_point", "structunodb_1_1detail_1_1sync__point.html", null ],
     [ "anonymous_namespace{test_art_concurrency.cpp}::sync_point_guard", "structanonymous__namespace_02test__art__concurrency_8cpp_03_1_1sync__point__guard.html", null ],
     [ "testing::Test", null, [
@@ -106,6 +111,8 @@ var hierarchy =
       ] ],
       [ "anonymous_namespace{test_art_iter.cpp}::ARTIteratorTest< Db >", "classanonymous__namespace_02test__art__iter_8cpp_03_1_1ARTIteratorTest.html", null ],
       [ "anonymous_namespace{test_art_key_view.cpp}::ARTKeyViewCorrectnessTest< Db >", "classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html", null ],
+      [ "anonymous_namespace{test_art_key_view_full_chain.cpp}::ARTKeyViewFullChainTest< Db >", "classanonymous__namespace_02test__art__key__view__full__chain_8cpp_03_1_1ARTKeyViewFullChainTest.html", null ],
+      [ "anonymous_namespace{test_art_oom.cpp}::ARTKeyViewOOMTest< Db >", "classanonymous__namespace_02test__art__oom_8cpp_03_1_1ARTKeyViewOOMTest.html", null ],
       [ "anonymous_namespace{test_art_oom.cpp}::ARTOOMTest< Db >", "classanonymous__namespace_02test__art__oom_8cpp_03_1_1ARTOOMTest.html", null ],
       [ "anonymous_namespace{test_art_scan.cpp}::ARTScanTest< Db >", "classanonymous__namespace_02test__art__scan_8cpp_03_1_1ARTScanTest.html", null ],
       [ "anonymous_namespace{test_key_encode_decode.cpp}::ARTKeyEncodeDecodeTest< Db >", "classanonymous__namespace_02test__key__encode__decode_8cpp_03_1_1ARTKeyEncodeDecodeTest.html", null ],
@@ -116,10 +123,27 @@ var hierarchy =
     ] ],
     [ "anonymous_namespace{test_qsbr_fuzz_deepstate.cpp}::thread_info", "structanonymous__namespace_02test__qsbr__fuzz__deepstate_8cpp_03_1_1thread__info.html", null ],
     [ "unodb::detail::thread_sync", "classunodb_1_1detail_1_1thread__sync.html", null ],
+    [ "unodb::transient_key_view", "classunodb_1_1transient__key__view.html", null ],
     [ "unodb::detail::tree_depth< ArtKey >", "classunodb_1_1detail_1_1tree__depth.html", null ],
     [ "unodb::benchmark::detail::tree_shape_snapshot< Db >", "classunodb_1_1benchmark_1_1detail_1_1tree__shape__snapshot.html", null ],
     [ "unodb::benchmark::tree_stats< Db >", "structunodb_1_1benchmark_1_1tree__stats.html", null ],
     [ "unodb::test::tree_verifier< Db >", "classunodb_1_1test_1_1tree__verifier.html", null ],
+    [ "unodb::detail::value_bitmask_field< Enabled, Storage >", "structunodb_1_1detail_1_1value__bitmask__field.html", null ],
+    [ "unodb::detail::value_bitmask_field< ArtPolicy::can_eliminate_leaf, std::array< std::uint8_t, 32 > >", "structunodb_1_1detail_1_1value__bitmask__field.html", [
+      [ "unodb::detail::basic_inode_256< ArtPolicy >", "classunodb_1_1detail_1_1basic__inode__256.html", null ]
+    ] ],
+    [ "unodb::detail::value_bitmask_field< ArtPolicy::can_eliminate_leaf, std::array< std::uint8_t, 6 > >", "structunodb_1_1detail_1_1value__bitmask__field.html", [
+      [ "unodb::detail::basic_inode_48< ArtPolicy >", "classunodb_1_1detail_1_1basic__inode__48.html", null ]
+    ] ],
+    [ "unodb::detail::value_bitmask_field< ArtPolicy::can_eliminate_leaf, std::uint16_t >", "structunodb_1_1detail_1_1value__bitmask__field.html", [
+      [ "unodb::detail::basic_inode_16< ArtPolicy >", "classunodb_1_1detail_1_1basic__inode__16.html", null ]
+    ] ],
+    [ "unodb::detail::value_bitmask_field< ArtPolicy::can_eliminate_leaf, std::uint8_t >", "structunodb_1_1detail_1_1value__bitmask__field.html", [
+      [ "unodb::detail::basic_inode_4< ArtPolicy >", "classunodb_1_1detail_1_1basic__inode__4.html", null ]
+    ] ],
+    [ "unodb::detail::value_bitmask_field< Enabled, std::array< T, N > >", "structunodb_1_1detail_1_1value__bitmask__field_3_01Enabled_00_01std_1_1array_3_01T_00_01N_01_4_01_4.html", null ],
+    [ "unodb::detail::value_bitmask_field< false, std::array< T, N > >", "structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01std_1_1array_3_01T_00_01N_01_4_01_4.html", null ],
+    [ "unodb::detail::value_bitmask_field< false, Storage >", "structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01Storage_01_4.html", null ],
     [ "unodb::optimistic_lock::version_type", "classunodb_1_1optimistic__lock_1_1version__type.html", null ],
     [ "std::ranges::view_base", null, [
       [ "unodb::qsbr_ptr_span< T >", "classunodb_1_1qsbr__ptr__span.html", null ]

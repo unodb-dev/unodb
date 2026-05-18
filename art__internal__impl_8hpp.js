@@ -1,9 +1,15 @@
 var art__internal__impl_8hpp =
 [
+    [ "unodb::detail::value_bitmask_field< Enabled, Storage >", "structunodb_1_1detail_1_1value__bitmask__field.html", "structunodb_1_1detail_1_1value__bitmask__field" ],
+    [ "unodb::detail::value_bitmask_field< Enabled, std::array< T, N > >", "structunodb_1_1detail_1_1value__bitmask__field_3_01Enabled_00_01std_1_1array_3_01T_00_01N_01_4_01_4.html", null ],
+    [ "unodb::detail::value_bitmask_field< false, Storage >", "structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01Storage_01_4.html", null ],
+    [ "unodb::detail::value_bitmask_field< false, std::array< T, N > >", "structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01std_1_1array_3_01T_00_01N_01_4_01_4.html", null ],
     [ "unodb::detail::basic_leaf< Key, Header >", "classunodb_1_1detail_1_1basic__leaf.html", "classunodb_1_1detail_1_1basic__leaf" ],
+    [ "unodb::detail::basic_leaf< no_key_tag, Header >", "classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4.html", "classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4" ],
     [ "unodb::detail::basic_inode_def< INode, Node4, Node16, Node48, Node256 >", "structunodb_1_1detail_1_1basic__inode__def.html", "structunodb_1_1detail_1_1basic__inode__def" ],
     [ "unodb::detail::basic_art_policy< Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator >", "structunodb_1_1detail_1_1basic__art__policy.html", "structunodb_1_1detail_1_1basic__art__policy" ],
     [ "unodb::detail::basic_art_policy< Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator >::delete_db_node_ptr_at_scope_exit", "structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html", "structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit" ],
+    [ "unodb::detail::basic_art_policy< Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator >::subtree_guard", "structunodb_1_1detail_1_1basic__art__policy_1_1subtree__guard.html", null ],
     [ "unodb::detail::key_prefix_snapshot", "unionunodb_1_1detail_1_1key__prefix__snapshot.html", "unionunodb_1_1detail_1_1key__prefix__snapshot" ],
     [ "unodb::detail::key_prefix_snapshot::inode_fields", "structunodb_1_1detail_1_1key__prefix__snapshot_1_1inode__fields.html", "structunodb_1_1detail_1_1key__prefix__snapshot_1_1inode__fields" ],
     [ "unodb::detail::key_prefix< ArtKey, CriticalSectionPolicy >", "unionunodb_1_1detail_1_1key__prefix.html", "unionunodb_1_1detail_1_1key__prefix" ],
@@ -27,6 +33,6 @@ var art__internal__impl_8hpp =
     [ "iter_result_opt", "art__internal__impl_8hpp.html#a52168a8b4ef78db5b5cdc3f60a97eb38", null ],
     [ "key_prefix_size", "art__internal__impl_8hpp.html#a2a48856979c828fe6f91a83b8b43e0be", null ],
     [ "_mm_cmple_epu8", "art__internal__impl_8hpp.html#a25eb4ea7710810f49fcc23353dad6c8f", null ],
-    [ "make_db_leaf_ptr", "art__internal__impl_8hpp.html#a4c36ae56cc3f27abfb2624d79ff4be78", null ],
+    [ "make_db_leaf_ptr", "art__internal__impl_8hpp.html#a99221afa5558df0e2ff0f3bb95616f2b", null ],
     [ "key_prefix_capacity", "art__internal__impl_8hpp.html#a6affb48b09460b87dbcb8ab404f26263", null ]
 ];

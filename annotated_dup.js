@@ -20,7 +20,11 @@ var annotated_dup =
     [ "anonymous_namespace{test_art_key_view.cpp}", "namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html", [
       [ "ARTKeyViewCorrectnessTest", "classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html", null ]
     ] ],
+    [ "anonymous_namespace{test_art_key_view_full_chain.cpp}", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html", [
+      [ "ARTKeyViewFullChainTest", "classanonymous__namespace_02test__art__key__view__full__chain_8cpp_03_1_1ARTKeyViewFullChainTest.html", "classanonymous__namespace_02test__art__key__view__full__chain_8cpp_03_1_1ARTKeyViewFullChainTest" ]
+    ] ],
     [ "anonymous_namespace{test_art_oom.cpp}", "namespaceanonymous__namespace_02test__art__oom_8cpp_03.html", [
+      [ "ARTKeyViewOOMTest", "classanonymous__namespace_02test__art__oom_8cpp_03_1_1ARTKeyViewOOMTest.html", null ],
       [ "ARTOOMTest", "classanonymous__namespace_02test__art__oom_8cpp_03_1_1ARTOOMTest.html", null ]
     ] ],
     [ "anonymous_namespace{test_art_scan.cpp}", "namespaceanonymous__namespace_02test__art__scan_8cpp_03.html", [
@@ -41,6 +45,7 @@ var annotated_dup =
         [ "batched_prng", "classunodb_1_1benchmark_1_1batched__prng.html", null ],
         [ "concurrent_benchmark", "classunodb_1_1benchmark_1_1concurrent__benchmark.html", null ],
         [ "growing_tree_node_stats", "classunodb_1_1benchmark_1_1growing__tree__node__stats.html", null ],
+        [ "key_view_set", "classunodb_1_1benchmark_1_1key__view__set.html", "classunodb_1_1benchmark_1_1key__view__set" ],
         [ "tree_stats", "structunodb_1_1benchmark_1_1tree__stats.html", null ]
       ] ],
       [ "detail", "namespaceunodb_1_1detail.html", [
@@ -56,6 +61,7 @@ var annotated_dup =
         [ "basic_inode_def", "structunodb_1_1detail_1_1basic__inode__def.html", "structunodb_1_1detail_1_1basic__inode__def" ],
         [ "basic_inode_impl", "classunodb_1_1detail_1_1basic__inode__impl.html", "classunodb_1_1detail_1_1basic__inode__impl" ],
         [ "basic_leaf", "classunodb_1_1detail_1_1basic__leaf.html", "classunodb_1_1detail_1_1basic__leaf" ],
+        [ "basic_leaf< no_key_tag, Header >", "classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4.html", "classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4" ],
         [ "basic_node_ptr", "classunodb_1_1detail_1_1basic__node__ptr.html", "classunodb_1_1detail_1_1basic__node__ptr" ],
         [ "db_inode_qsbr_deleter", "classunodb_1_1detail_1_1db__inode__qsbr__deleter.html", null ],
         [ "db_leaf_qsbr_deleter", "classunodb_1_1detail_1_1db__leaf__qsbr__deleter.html", null ],
@@ -73,19 +79,25 @@ var annotated_dup =
         [ "key_buffer", "classunodb_1_1detail_1_1key__buffer.html", "classunodb_1_1detail_1_1key__buffer" ],
         [ "key_prefix", "unionunodb_1_1detail_1_1key__prefix.html", "unionunodb_1_1detail_1_1key__prefix" ],
         [ "key_prefix_snapshot", "unionunodb_1_1detail_1_1key__prefix__snapshot.html", "unionunodb_1_1detail_1_1key__prefix__snapshot" ],
+        [ "no_key_tag", "structunodb_1_1detail_1_1no__key__tag.html", null ],
+        [ "no_leaf_tag", "structunodb_1_1detail_1_1no__leaf__tag.html", null ],
         [ "node_header", "structunodb_1_1detail_1_1node__header.html", null ],
         [ "olc_impl_helpers", "structunodb_1_1detail_1_1olc__impl__helpers.html", null ],
         [ "olc_inode", "classunodb_1_1detail_1_1olc__inode.html", null ],
-        [ "olc_inode_16", "classunodb_1_1detail_1_1olc__inode__16.html", null ],
-        [ "olc_inode_256", "classunodb_1_1detail_1_1olc__inode__256.html", null ],
-        [ "olc_inode_4", "classunodb_1_1detail_1_1olc__inode__4.html", null ],
-        [ "olc_inode_48", "classunodb_1_1detail_1_1olc__inode__48.html", null ],
+        [ "olc_inode_16", "classunodb_1_1detail_1_1olc__inode__16.html", "classunodb_1_1detail_1_1olc__inode__16" ],
+        [ "olc_inode_256", "classunodb_1_1detail_1_1olc__inode__256.html", "classunodb_1_1detail_1_1olc__inode__256" ],
+        [ "olc_inode_4", "classunodb_1_1detail_1_1olc__inode__4.html", "classunodb_1_1detail_1_1olc__inode__4" ],
+        [ "olc_inode_48", "classunodb_1_1detail_1_1olc__inode__48.html", "classunodb_1_1detail_1_1olc__inode__48" ],
         [ "olc_node_header", "structunodb_1_1detail_1_1olc__node__header.html", null ],
         [ "qsbr_ptr_base", "classunodb_1_1detail_1_1qsbr__ptr__base.html", "classunodb_1_1detail_1_1qsbr__ptr__base" ],
         [ "set_qsbr_per_thread_in_main_thread", "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html", "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread" ],
         [ "sync_point", "structunodb_1_1detail_1_1sync__point.html", null ],
         [ "thread_sync", "classunodb_1_1detail_1_1thread__sync.html", "classunodb_1_1detail_1_1thread__sync" ],
-        [ "tree_depth", "classunodb_1_1detail_1_1tree__depth.html", "classunodb_1_1detail_1_1tree__depth" ]
+        [ "tree_depth", "classunodb_1_1detail_1_1tree__depth.html", "classunodb_1_1detail_1_1tree__depth" ],
+        [ "value_bitmask_field", "structunodb_1_1detail_1_1value__bitmask__field.html", "structunodb_1_1detail_1_1value__bitmask__field" ],
+        [ "value_bitmask_field< Enabled, std::array< T, N > >", "structunodb_1_1detail_1_1value__bitmask__field_3_01Enabled_00_01std_1_1array_3_01T_00_01N_01_4_01_4.html", null ],
+        [ "value_bitmask_field< false, std::array< T, N > >", "structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01std_1_1array_3_01T_00_01N_01_4_01_4.html", null ],
+        [ "value_bitmask_field< false, Storage >", "structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01Storage_01_4.html", null ]
       ] ],
       [ "test", "namespaceunodb_1_1test.html", [
         [ "allocation_failure_injector", "classunodb_1_1test_1_1allocation__failure__injector.html", "classunodb_1_1test_1_1allocation__failure__injector" ],
@@ -111,6 +123,7 @@ var annotated_dup =
       [ "qsbr_state", "structunodb_1_1qsbr__state.html", "structunodb_1_1qsbr__state" ],
       [ "qsbr_thread", "classunodb_1_1qsbr__thread.html", "classunodb_1_1qsbr__thread" ],
       [ "quiescent_state_on_scope_exit", "structunodb_1_1quiescent__state__on__scope__exit.html", "structunodb_1_1quiescent__state__on__scope__exit" ],
+      [ "transient_key_view", "classunodb_1_1transient__key__view.html", null ],
       [ "visitor", "classunodb_1_1visitor.html", "classunodb_1_1visitor" ]
     ] ]
 ];

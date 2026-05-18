@@ -112,10 +112,10 @@ $(document).ready(function(){initNavTree('classunodb_1_1detail_1_1basic__db__lea
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a6f33ce4114f2fa50cf1e487f53f80e4a" id="r_a6f33ce4114f2fa50cf1e487f53f80e4a"><td class="memItemLeft" align="right" valign="top"><a id="a6f33ce4114f2fa50cf1e487f53f80e4a" name="a6f33ce4114f2fa50cf1e487f53f80e4a"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>leaf_type</b> = <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">basic_leaf</a>&lt; typename Db::key_type, typename Db::header_type &gt;</td></tr>
-<tr class="memdesc:a6f33ce4114f2fa50cf1e487f53f80e4a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Leaf type managed by this deleter. <br /></td></tr>
-<tr class="separator:a6f33ce4114f2fa50cf1e487f53f80e4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee539d24e4b60da7951dce00691cfebf" id="r_aee539d24e4b60da7951dce00691cfebf"><td class="memItemLeft" align="right" valign="top"><a id="aee539d24e4b60da7951dce00691cfebf" name="aee539d24e4b60da7951dce00691cfebf"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>leaf_type</b> = <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">basic_leaf</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#a8d3a7aec825f0d8cdde007954faa4647">leaf_key_type</a>&lt; typename Db::key_type, typename Db::value_type &gt;, typename Db::header_type &gt;</td></tr>
+<tr class="memdesc:aee539d24e4b60da7951dce00691cfebf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Leaf type managed by this deleter. <br /></td></tr>
+<tr class="separator:aee539d24e4b60da7951dce00691cfebf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -124,7 +124,7 @@ constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>basic_db_leaf_de
 <tr class="memdesc:a4db3947a19d34502d36034a36ea85936"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct leaf deleter for database <em>db_</em>. <br /></td></tr>
 <tr class="separator:a4db3947a19d34502d36034a36ea85936"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af360e98c1f9c8ca5f2417f044d8bcdb4" id="r_af360e98c1f9c8ca5f2417f044d8bcdb4"><td class="memItemLeft" align="right" valign="top"><a id="af360e98c1f9c8ca5f2417f044d8bcdb4" name="af360e98c1f9c8ca5f2417f044d8bcdb4"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>operator()</b> (<a class="el" href="classunodb_1_1detail_1_1basic__db__leaf__deleter.html#a6f33ce4114f2fa50cf1e487f53f80e4a">leaf_type</a> *to_delete) const noexcept</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>operator()</b> (<a class="el" href="classunodb_1_1detail_1_1basic__db__leaf__deleter.html#aee539d24e4b60da7951dce00691cfebf">leaf_type</a> *to_delete) const noexcept</td></tr>
 <tr class="memdesc:af360e98c1f9c8ca5f2417f044d8bcdb4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Delete a leaf node <em>to_delete</em> through the database. <br /></td></tr>
 <tr class="separator:af360e98c1f9c8ca5f2417f044d8bcdb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac6b2e540dfe31bc471a98cf229788edb" id="r_ac6b2e540dfe31bc471a98cf229788edb"><td class="memItemLeft" align="right" valign="top">Db &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__db__leaf__deleter.html#ac6b2e540dfe31bc471a98cf229788edb">get_db</a> () const noexcept</td></tr>

@@ -116,10 +116,10 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a4cc51b636b4dc263e058edbb61769148" id="r_a4cc51b636b4dc263e058edbb61769148"><td class="memTemplParams" colspan="2">template&lt;typename Key , typename Value , class INode &gt; </td></tr>
-<tr class="memitem:a4cc51b636b4dc263e058edbb61769148"><td class="memTemplItemLeft" align="right" valign="top">static <a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a> *&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1impl__helpers.html#a4cc51b636b4dc263e058edbb61769148">add_or_choose_subtree</a> (INode &amp;<a class="el" href="classunodb_1_1detail_1_1inode.html">inode</a>, std::byte key_byte, <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; k, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">value_view</a> v, <a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt; &amp;db_instance, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; &gt; depth, <a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a> *node_in_parent)</td></tr>
-<tr class="memdesc:a4cc51b636b4dc263e058edbb61769148"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add child to internal node or choose subtree for insertion.  <br /></td></tr>
-<tr class="separator:a4cc51b636b4dc263e058edbb61769148"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54830ac6e8adae1833a18b4908d9e5da" id="r_a54830ac6e8adae1833a18b4908d9e5da"><td class="memTemplParams" colspan="2">template&lt;typename Key , typename Value , class INode &gt; </td></tr>
+<tr class="memitem:a54830ac6e8adae1833a18b4908d9e5da"><td class="memTemplItemLeft" align="right" valign="top">static <a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a> *&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1impl__helpers.html#a54830ac6e8adae1833a18b4908d9e5da">add_or_choose_subtree</a> (INode &amp;<a class="el" href="classunodb_1_1detail_1_1inode.html">inode</a>, std::byte key_byte, <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; k, Value v, <a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt; &amp;db_instance, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; &gt; depth, <a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a> *node_in_parent)</td></tr>
+<tr class="memdesc:a54830ac6e8adae1833a18b4908d9e5da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add child to internal node or choose subtree for insertion.  <br /></td></tr>
+<tr class="separator:a54830ac6e8adae1833a18b4908d9e5da"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad032e3674d95560a77416547727c00cd" id="r_ad032e3674d95560a77416547727c00cd"><td class="memTemplParams" colspan="2">template&lt;typename Key , typename Value , class INode &gt; </td></tr>
 <tr class="memitem:ad032e3674d95560a77416547727c00cd"><td class="memTemplItemLeft" align="right" valign="top">static std::optional&lt; <a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a> * &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1impl__helpers.html#ad032e3674d95560a77416547727c00cd">remove_or_choose_subtree</a> (INode &amp;<a class="el" href="classunodb_1_1detail_1_1inode.html">inode</a>, std::byte key_byte, <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; k, <a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt; &amp;db_instance, <a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a> *node_in_parent)</td></tr>
 <tr class="memdesc:ad032e3674d95560a77416547727c00cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove child from internal node or choose subtree for removal.  <br /></td></tr>
@@ -129,8 +129,8 @@ Static Public Member Functions</h2></td></tr>
 <div class="textblock"><p>Helper functions for node insertion and removal operations. </p>
 <p>Provides static methods used by <a class="el" href="classunodb_1_1detail_1_1inode__4.html" title="Internal node with 4 children for non-thread-safe ART.">inode_4</a>, <a class="el" href="classunodb_1_1detail_1_1inode__16.html" title="Internal node with 16 children for non-thread-safe ART.">inode_16</a>, <a class="el" href="classunodb_1_1detail_1_1inode__48.html" title="Internal node with 48 children for non-thread-safe ART.">inode_48</a>, and <a class="el" href="classunodb_1_1detail_1_1inode__256.html" title="Internal node with 256 children for non-thread-safe ART.">inode_256</a> to handle child addition and removal, including node growth and shrinkage. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a4cc51b636b4dc263e058edbb61769148" name="a4cc51b636b4dc263e058edbb61769148"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4cc51b636b4dc263e058edbb61769148">&#9670;&#160;</a></span>add_or_choose_subtree()</h2>
+<a id="a54830ac6e8adae1833a18b4908d9e5da" name="a54830ac6e8adae1833a18b4908d9e5da"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a54830ac6e8adae1833a18b4908d9e5da">&#9670;&#160;</a></span>add_or_choose_subtree()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -161,7 +161,7 @@ template&lt;typename Key , typename Value , class INode &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">value_view</a>&#160;</td>
+          <td class="paramtype">Value&#160;</td>
           <td class="paramname"><em>v</em>, </td>
         </tr>
         <tr>

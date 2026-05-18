@@ -109,6 +109,7 @@ $(document).ready(function(){initNavTree('olc__art_8hpp.html',''); initResizable
 <p>Concurrent Adaptive Radix Tree based on Optimistic Lock Coupling.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="global_8hpp_source.html">global.hpp</a>&quot;</code><br />
+<code>#include &lt;algorithm&gt;</code><br />
 <code>#include &lt;array&gt;</code><br />
 <code>#include &lt;atomic&gt;</code><br />
 <code>#include &lt;cstddef&gt;</code><br />
@@ -118,6 +119,7 @@ $(document).ready(function(){initNavTree('olc__art_8hpp.html',''); initResizable
 <code>#include &lt;stack&gt;</code><br />
 <code>#include &lt;tuple&gt;</code><br />
 <code>#include &lt;type_traits&gt;</code><br />
+<code>#include &lt;vector&gt;</code><br />
 <code>#include &lt;boost/container/small_vector.hpp&gt;</code><br />
 <code>#include &quot;<a class="el" href="art__common_8hpp_source.html">art_common.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="art__internal_8hpp_source.html">art_internal.hpp</a>&quot;</code><br />
@@ -198,7 +200,7 @@ template&lt;typename Key , typename Value &gt; </td></tr>
 <tr class="separator:aa9a61a6808c8e6f7ad169a8f13488bc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a976629fcee449564c59c652e462d38a0" id="r_a976629fcee449564c59c652e462d38a0"><td class="memTemplParams" colspan="2"><a id="a976629fcee449564c59c652e462d38a0" name="a976629fcee449564c59c652e462d38a0"></a>
 template&lt;typename Key , typename Value &gt; </td></tr>
-<tr class="memitem:a976629fcee449564c59c652e462d38a0"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>unodb::detail::olc_leaf_type</b> = typename <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html">olc_art_policy</a>&lt; Key, Value &gt;<a class="el" href="namespaceunodb_1_1detail.html#aab561be018ef4d04aa8a144bb388b721">::leaf_type</a></td></tr>
+<tr class="memitem:a976629fcee449564c59c652e462d38a0"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>unodb::detail::olc_leaf_type</b> = typename <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html">olc_art_policy</a>&lt; Key, Value &gt;<a class="el" href="namespaceunodb_1_1detail.html#a4c1fb4a85ef87c7a61e214c4871eb76f">::leaf_type</a></td></tr>
 <tr class="separator:a976629fcee449564c59c652e462d38a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6accd1ac0f833ad2a37a7f63e1bb9ad3" id="r_a6accd1ac0f833ad2a37a7f63e1bb9ad3"><td class="memTemplParams" colspan="2"><a id="a6accd1ac0f833ad2a37a7f63e1bb9ad3" name="a6accd1ac0f833ad2a37a7f63e1bb9ad3"></a>
 template&lt;class AtomicArray &gt; </td></tr>
@@ -206,7 +208,7 @@ template&lt;class AtomicArray &gt; </td></tr>
 <tr class="separator:a6accd1ac0f833ad2a37a7f63e1bb9ad3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adc9e8892527b0164dc1b8b2b177cc28e" id="r_adc9e8892527b0164dc1b8b2b177cc28e"><td class="memTemplParams" colspan="2"><a id="adc9e8892527b0164dc1b8b2b177cc28e" name="adc9e8892527b0164dc1b8b2b177cc28e"></a>
 template&lt;typename Key , typename Value &gt; </td></tr>
-<tr class="memitem:adc9e8892527b0164dc1b8b2b177cc28e"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>unodb::detail::olc_leaf_unique_ptr</b> = <a class="el" href="namespaceunodb_1_1detail.html#a85b1873633c46b13271dcf06ac743666">basic_db_leaf_unique_ptr</a>&lt; Key, Value, <a class="el" href="structunodb_1_1detail_1_1olc__node__header.html">olc_node_header</a>, <a class="el" href="classunodb_1_1olc__db.html">olc_db</a> &gt;</td></tr>
+<tr class="memitem:adc9e8892527b0164dc1b8b2b177cc28e"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>unodb::detail::olc_leaf_unique_ptr</b> = <a class="el" href="namespaceunodb_1_1detail.html#adfd70e9061d3f45eeff07dd5887a01d9">basic_db_leaf_unique_ptr</a>&lt; Key, Value, <a class="el" href="structunodb_1_1detail_1_1olc__node__header.html">olc_node_header</a>, <a class="el" href="classunodb_1_1olc__db.html">olc_db</a> &gt;</td></tr>
 <tr class="separator:adc9e8892527b0164dc1b8b2b177cc28e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb0d76ffe3981ce7fdedaebd068296d1" id="r_abb0d76ffe3981ce7fdedaebd068296d1"><td class="memItemLeft" align="right" valign="top"><a id="abb0d76ffe3981ce7fdedaebd068296d1" name="abb0d76ffe3981ce7fdedaebd068296d1"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::qsbr_value_view</b> = <a class="el" href="classunodb_1_1qsbr__ptr__span.html">qsbr_ptr_span</a>&lt; const std::byte &gt;</td></tr>
@@ -268,10 +270,10 @@ template&lt;class T &gt; </td></tr>
 <tr class="memitem:a9c2f21cfd995a020eb66f0d5c6dac59f" id="r_a9c2f21cfd995a020eb66f0d5c6dac59f"><td class="memItemLeft" align="right" valign="top"><a id="a9c2f21cfd995a020eb66f0d5c6dac59f" name="a9c2f21cfd995a020eb66f0d5c6dac59f"></a>
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::detail::obsolete_child_by_index</b> (std::uint8_t child, <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">unodb::optimistic_lock::write_guard</a> &amp;guard) noexcept</td></tr>
 <tr class="separator:a9c2f21cfd995a020eb66f0d5c6dac59f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5e1748db6157f77efb62fa8097966b1a" id="r_a5e1748db6157f77efb62fa8097966b1a"><td class="memTemplParams" colspan="2"><a id="a5e1748db6157f77efb62fa8097966b1a" name="a5e1748db6157f77efb62fa8097966b1a"></a>
+<tr class="memitem:a1800c86bea3908be3bd5cdabbe212695" id="r_a1800c86bea3908be3bd5cdabbe212695"><td class="memTemplParams" colspan="2"><a id="a1800c86bea3908be3bd5cdabbe212695" name="a1800c86bea3908be3bd5cdabbe212695"></a>
 template&lt;typename Key , typename Value &gt; </td></tr>
-<tr class="memitem:a5e1748db6157f77efb62fa8097966b1a"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>unodb::detail::create_leaf_if_needed</b> (olc_db_leaf_unique_ptr&lt; Key, Value &gt; &amp;cached_leaf, <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; k, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a> v, <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value &gt; &amp;db_instance)</td></tr>
-<tr class="separator:a5e1748db6157f77efb62fa8097966b1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1800c86bea3908be3bd5cdabbe212695"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>unodb::detail::create_leaf_if_needed</b> (olc_db_leaf_unique_ptr&lt; Key, Value &gt; &amp;cached_leaf, <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; k, Value v, <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value &gt; &amp;db_instance)</td></tr>
+<tr class="separator:a1800c86bea3908be3bd5cdabbe212695"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7a60a32f6fea903e6de1e8d22de2eac9" id="r_a7a60a32f6fea903e6de1e8d22de2eac9"><td class="memItemLeft" align="right" valign="top"><a id="a7a60a32f6fea903e6de1e8d22de2eac9" name="a7a60a32f6fea903e6de1e8d22de2eac9"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::unlock_and_return</b> (const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">unodb::optimistic_lock::read_critical_section</a> &amp;cs, bool ret) noexcept</td></tr>
 <tr class="separator:a7a60a32f6fea903e6de1e8d22de2eac9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -286,6 +288,17 @@ Variables</h2></td></tr>
 <a class="el" href="structunodb_1_1detail_1_1sync__point.html">sync_point</a>&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::detail::sync_between_chain_locks</b></td></tr>
 <tr class="memdesc:af901b0308c5439f03f4c38539f2b946d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sync point: fires inside Step 2 loop between chain node locks. <br /></td></tr>
 <tr class="separator:af901b0308c5439f03f4c38539f2b946d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab39d0da261fb0203d1afaa9cf2a1749a" id="r_ab39d0da261fb0203d1afaa9cf2a1749a"><td class="memItemLeft" align="right" valign="top"><a id="ab39d0da261fb0203d1afaa9cf2a1749a" name="ab39d0da261fb0203d1afaa9cf2a1749a"></a>
+<a class="el" href="structunodb_1_1detail_1_1sync__point.html">sync_point</a>&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::detail::sync_before_remove_write_guard</b></td></tr>
+<tr class="memdesc:ab39d0da261fb0203d1afaa9cf2a1749a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sync point: fires in remove_or_choose_subtree after leaf match confirmed and min_size read, before write guard acquisition. <br /></td></tr>
+<tr class="separator:ab39d0da261fb0203d1afaa9cf2a1749a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91070248f026b90cbc1a13cae9c654f4" id="r_a91070248f026b90cbc1a13cae9c654f4"><td class="memItemLeft" align="right" valign="top"><a id="a91070248f026b90cbc1a13cae9c654f4" name="a91070248f026b90cbc1a13cae9c654f4"></a>
+<a class="el" href="structunodb_1_1detail_1_1sync__point.html">sync_point</a>&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::detail::sync_before_insert_grow_guard</b></td></tr>
+<tr class="memdesc:a91070248f026b90cbc1a13cae9c654f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sync point: fires in add_or_choose_subtree before write guard acquisition during node growth (I4→I16 etc.). <br /></td></tr>
+<tr class="separator:a91070248f026b90cbc1a13cae9c654f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd034b9a41007a605a0a9d61a79ce7d6" id="r_afd034b9a41007a605a0a9d61a79ce7d6"><td class="memItemLeft" align="right" valign="top"><a id="afd034b9a41007a605a0a9d61a79ce7d6" name="afd034b9a41007a605a0a9d61a79ce7d6"></a>
+<a class="el" href="structunodb_1_1detail_1_1sync__point.html">sync_point</a>&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::detail::sync_before_nonfull_chain_guard</b></td></tr>
+<tr class="separator:afd034b9a41007a605a0a9d61a79ce7d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Concurrent Adaptive Radix Tree based on Optimistic Lock Coupling. </p>

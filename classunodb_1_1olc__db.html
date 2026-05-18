@@ -137,9 +137,9 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>value_type</b> = Val
 <tr class="memitem:a10b94878a72a4d4cbc0d94d82a981ee3" id="r_a10b94878a72a4d4cbc0d94d82a981ee3"><td class="memItemLeft" align="right" valign="top"><a id="a10b94878a72a4d4cbc0d94d82a981ee3" name="a10b94878a72a4d4cbc0d94d82a981ee3"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>value_view</b> = <a class="el" href="classunodb_1_1qsbr__ptr__span.html">unodb::qsbr_value_view</a></td></tr>
 <tr class="separator:a10b94878a72a4d4cbc0d94d82a981ee3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8a33c6ad34b5622b4c58f086c00493f5" id="r_a8a33c6ad34b5622b4c58f086c00493f5"><td class="memItemLeft" align="right" valign="top"><a id="a8a33c6ad34b5622b4c58f086c00493f5" name="a8a33c6ad34b5622b4c58f086c00493f5"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>get_result</b> = std::optional&lt; <a class="el" href="classunodb_1_1qsbr__ptr__span.html">value_view</a> &gt;</td></tr>
-<tr class="separator:a8a33c6ad34b5622b4c58f086c00493f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a41405f0e30f79e8e500bc103797bbc24" id="r_a41405f0e30f79e8e500bc103797bbc24"><td class="memItemLeft" align="right" valign="top"><a id="a41405f0e30f79e8e500bc103797bbc24" name="a41405f0e30f79e8e500bc103797bbc24"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>get_result</b> = std::optional&lt; std::conditional_t&lt; std::is_same_v&lt; Value, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a> &gt;, <a class="el" href="classunodb_1_1qsbr__ptr__span.html">unodb::qsbr_value_view</a>, <a class="el" href="classunodb_1_1olc__db.html#a056d823a054f7999b3fafeac0f45cdd2">value_type</a> &gt; &gt;</td></tr>
+<tr class="separator:a41405f0e30f79e8e500bc103797bbc24"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0966cb021256c7d1a08f9b07844cdd87" id="r_a0966cb021256c7d1a08f9b07844cdd87"><td class="memItemLeft" align="right" valign="top"><a id="a0966cb021256c7d1a08f9b07844cdd87" name="a0966cb021256c7d1a08f9b07844cdd87"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>inode_base</b> = <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html">detail::olc_inode_base</a>&lt; Key, Value &gt;</td></tr>
 <tr class="separator:a0966cb021256c7d1a08f9b07844cdd87"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -302,6 +302,10 @@ try_get_result_type&#160;</td><td class="memItemRight" valign="bottom"><b>try_ge
 <tr class="memitem:a654ac331a170f35e23b3599ef65dac94" id="r_a654ac331a170f35e23b3599ef65dac94"><td class="memItemLeft" align="right" valign="top">try_update_result_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db.html#a654ac331a170f35e23b3599ef65dac94">try_insert</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k, <a class="el" href="classunodb_1_1olc__db.html#a056d823a054f7999b3fafeac0f45cdd2">value_type</a> v, olc_db_leaf_unique_ptr_type &amp;cached_leaf)</td></tr>
 <tr class="memdesc:a654ac331a170f35e23b3599ef65dac94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Single-attempt insert.  <br /></td></tr>
 <tr class="separator:a654ac331a170f35e23b3599ef65dac94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a25089f4bf2abc31055890854e93408ff" id="r_a25089f4bf2abc31055890854e93408ff"><td class="memItemLeft" align="right" valign="top"><a id="a25089f4bf2abc31055890854e93408ff" name="a25089f4bf2abc31055890854e93408ff"></a>
+<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::olc_node_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><b>build_chain</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k, <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::olc_node_ptr</a> child, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">detail::tree_depth</a>&lt; <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> &gt; start_depth)</td></tr>
+<tr class="memdesc:a25089f4bf2abc31055890854e93408ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an inode chain encoding key bytes from start_depth to end. <br /></td></tr>
+<tr class="separator:a25089f4bf2abc31055890854e93408ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a798c5cdb5ce94338de75ff227d18f1e2" id="r_a798c5cdb5ce94338de75ff227d18f1e2"><td class="memItemLeft" align="right" valign="top"><a id="a798c5cdb5ce94338de75ff227d18f1e2" name="a798c5cdb5ce94338de75ff227d18f1e2"></a>
 try_update_result_type&#160;</td><td class="memItemRight" valign="bottom"><b>try_remove</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k)</td></tr>
 <tr class="separator:a798c5cdb5ce94338de75ff227d18f1e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -400,9 +404,9 @@ template&lt;class , class &gt; </td></tr>
 <tr class="memitem:a307e760b9be5d1fff1aa5cfc5912edae" id="r_a307e760b9be5d1fff1aa5cfc5912edae"><td class="memItemLeft" align="right" valign="top"><a id="a307e760b9be5d1fff1aa5cfc5912edae" name="a307e760b9be5d1fff1aa5cfc5912edae"></a>
 struct&#160;</td><td class="memItemRight" valign="bottom"><b>detail::olc_impl_helpers</b></td></tr>
 <tr class="separator:a307e760b9be5d1fff1aa5cfc5912edae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1e08ba0b65e75b7851c3232e2fadf81f" id="r_a1e08ba0b65e75b7851c3232e2fadf81f"><td class="memItemLeft" align="right" valign="top"><a id="a1e08ba0b65e75b7851c3232e2fadf81f" name="a1e08ba0b65e75b7851c3232e2fadf81f"></a>
-auto&#160;</td><td class="memItemRight" valign="bottom"><b>detail::make_db_leaf_ptr</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a>, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a>, <a class="el" href="classunodb_1_1olc__db.html">olc_db</a> &amp;)</td></tr>
-<tr class="separator:a1e08ba0b65e75b7851c3232e2fadf81f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a579151b97f2c0c92a00c945fe952ac77" id="r_a579151b97f2c0c92a00c945fe952ac77"><td class="memItemLeft" align="right" valign="top"><a id="a579151b97f2c0c92a00c945fe952ac77" name="a579151b97f2c0c92a00c945fe952ac77"></a>
+auto&#160;</td><td class="memItemRight" valign="bottom"><b>detail::make_db_leaf_ptr</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a>, <a class="el" href="classunodb_1_1olc__db.html#a056d823a054f7999b3fafeac0f45cdd2">value_type</a>, <a class="el" href="classunodb_1_1olc__db.html">olc_db</a> &amp;)</td></tr>
+<tr class="separator:a579151b97f2c0c92a00c945fe952ac77"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename Key, typename Value&gt;<br />

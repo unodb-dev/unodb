@@ -6,6 +6,8 @@ var searchData=
   ['state_3',['state',['../classunodb_1_1qsbr.html#a01a260fb085274cacc7465cc0389f38e',1,'unodb::qsbr']]],
   ['sync_4',['sync',['../classunodb_1_1detail_1_1thread__sync.html#a0dc94898628d374e92b659126181290a',1,'unodb::detail::thread_sync']]],
   ['sync_5fafter_5fchain_5flocked_5',['sync_after_chain_locked',['../namespaceunodb_1_1detail.html#a4a4f19f630d67a625c508f7309e4baf1',1,'unodb::detail']]],
-  ['sync_5fbetween_5fchain_5flocks_6',['sync_between_chain_locks',['../namespaceunodb_1_1detail.html#af901b0308c5439f03f4c38539f2b946d',1,'unodb::detail']]],
-  ['sync_5fmutex_7',['sync_mutex',['../classunodb_1_1detail_1_1thread__sync.html#a04c33dad94dfb05725467da4a2013eba',1,'unodb::detail::thread_sync']]]
+  ['sync_5fbefore_5finsert_5fgrow_5fguard_6',['sync_before_insert_grow_guard',['../namespaceunodb_1_1detail.html#a91070248f026b90cbc1a13cae9c654f4',1,'unodb::detail']]],
+  ['sync_5fbefore_5fremove_5fwrite_5fguard_7',['sync_before_remove_write_guard',['../namespaceunodb_1_1detail.html#ab39d0da261fb0203d1afaa9cf2a1749a',1,'unodb::detail']]],
+  ['sync_5fbetween_5fchain_5flocks_8',['sync_between_chain_locks',['../namespaceunodb_1_1detail.html#af901b0308c5439f03f4c38539f2b946d',1,'unodb::detail']]],
+  ['sync_5fmutex_9',['sync_mutex',['../classunodb_1_1detail_1_1thread__sync.html#a04c33dad94dfb05725467da4a2013eba',1,'unodb::detail::thread_sync']]]
 ];

@@ -1,6 +1,7 @@
 var structunodb_1_1detail_1_1basic__art__policy =
 [
     [ "delete_db_node_ptr_at_scope_exit", "structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html", "structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit" ],
+    [ "subtree_guard", "structunodb_1_1detail_1_1basic__art__policy_1_1subtree__guard.html", null ],
     [ "art_key_type", "structunodb_1_1detail_1_1basic__art__policy.html#ade1ebf4d4483f22d2151a5dafbe0f542", null ],
     [ "critical_section_policy", "structunodb_1_1detail_1_1basic__art__policy.html#a15eb547c69364c430c3fb9944789e95a", null ],
     [ "db_inode16_unique_ptr", "structunodb_1_1detail_1_1basic__art__policy.html#a82bff2e1cc99b65ececc41c2fa5e9240", null ],
@@ -21,7 +22,7 @@ var structunodb_1_1detail_1_1basic__art__policy =
     [ "inode_defs", "structunodb_1_1detail_1_1basic__art__policy.html#ad32ad3dd765f19774f4fac12b3915370", null ],
     [ "key_type", "structunodb_1_1detail_1_1basic__art__policy.html#aaa520bf3d24747d4775919b3d0b2de23", null ],
     [ "leaf_reclaimable_ptr", "structunodb_1_1detail_1_1basic__art__policy.html#a0aa20e2df7a50325318103be2429a418", null ],
-    [ "leaf_type", "structunodb_1_1detail_1_1basic__art__policy.html#aea417ed6f98e209c3e0958bd064915d6", null ],
+    [ "leaf_type", "structunodb_1_1detail_1_1basic__art__policy.html#a8bb8fe1fcf810b3b344fc345063c496a", null ],
     [ "lock_policy", "structunodb_1_1detail_1_1basic__art__policy.html#aa249160507ae5df97ba1dc4e40fa5596", null ],
     [ "node_ptr", "structunodb_1_1detail_1_1basic__art__policy.html#a8cd97a2445cf3bf1b445c3dd82614dba", null ],
     [ "read_critical_section", "structunodb_1_1detail_1_1basic__art__policy.html#adf44dff192f6bcd0d16c17c496bb4146", null ],
@@ -33,8 +34,14 @@ var structunodb_1_1detail_1_1basic__art__policy =
     [ "make_db_inode_reclaimable_ptr", "structunodb_1_1detail_1_1basic__art__policy.html#a473614495cf488eb9aca0278798e9549", null ],
     [ "make_db_inode_unique_ptr", "structunodb_1_1detail_1_1basic__art__policy.html#a10c0482426031e4d956f5b7a541dea8f", null ],
     [ "make_db_inode_unique_ptr", "structunodb_1_1detail_1_1basic__art__policy.html#a39df2f80bea501c58e19678f71a6e927", null ],
-    [ "make_db_leaf_ptr", "structunodb_1_1detail_1_1basic__art__policy.html#abfce480be12491d012bedb41c984203d", null ],
-    [ "make_db_leaf_ptr", "structunodb_1_1detail_1_1basic__art__policy.html#a98d887cdb0d3e4295cccf0c6a26360c1", null ],
+    [ "make_db_leaf_ptr", "structunodb_1_1detail_1_1basic__art__policy.html#ae04ca338688fec8c43b28d1561a9cd93", null ],
+    [ "make_db_leaf_ptr", "structunodb_1_1detail_1_1basic__art__policy.html#ae7d8656665b1e3ff7ce653b6aa154021", null ],
+    [ "pack_value", "structunodb_1_1detail_1_1basic__art__policy.html#a889e7052543e2bf8013ba38dcdf02378", null ],
     [ "reclaim_if_leaf", "structunodb_1_1detail_1_1basic__art__policy.html#a0f6f60e207f2aeae2e6d989f9f8cb2d8", null ],
-    [ "reclaim_leaf_on_scope_exit", "structunodb_1_1detail_1_1basic__art__policy.html#a90499cec07fe0f333cd4498345e4f6d1", null ]
+    [ "reclaim_leaf_on_scope_exit", "structunodb_1_1detail_1_1basic__art__policy.html#a90499cec07fe0f333cd4498345e4f6d1", null ],
+    [ "unpack_value", "structunodb_1_1detail_1_1basic__art__policy.html#a6fc55c990a19eed5219f72cb054dcb97", null ],
+    [ "can_eliminate_key_in_leaf", "structunodb_1_1detail_1_1basic__art__policy.html#aeea7cefae40990d3d13618514394ec1b", null ],
+    [ "can_eliminate_leaf", "structunodb_1_1detail_1_1basic__art__policy.html#ac97b5279b03df6a710a346ca918e3ff1", null ],
+    [ "full_key_in_inode_path", "structunodb_1_1detail_1_1basic__art__policy.html#a657f97b210461c0d1cb6700de77f644c", null ],
+    [ "value_in_slot", "structunodb_1_1detail_1_1basic__art__policy.html#a9b0e333589d2b299da4371560302a7d8", null ]
 ];

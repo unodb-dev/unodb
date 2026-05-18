@@ -153,6 +153,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a88d3ef305a3e3e8eae77002f433fd73d" id="r_a88d3ef305a3e3e8eae77002f433fd73d"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a88d3ef305a3e3e8eae77002f433fd73d">get_value_view</a> () const noexcept</td></tr>
 <tr class="memdesc:a88d3ef305a3e3e8eae77002f433fd73d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return view onto value stored in leaf.  <br /></td></tr>
 <tr class="separator:a88d3ef305a3e3e8eae77002f433fd73d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5287d4e8372a60b5880245996ad2ae9f" id="r_a5287d4e8372a60b5880245996ad2ae9f"><td class="memTemplParams" colspan="2">template&lt;typename Value &gt; </td></tr>
+<tr class="memitem:a5287d4e8372a60b5880245996ad2ae9f"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a5287d4e8372a60b5880245996ad2ae9f">get_value</a> () const noexcept</td></tr>
+<tr class="memdesc:a5287d4e8372a60b5880245996ad2ae9f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return value stored in leaf, converted to the given type.  <br /></td></tr>
+<tr class="separator:a5287d4e8372a60b5880245996ad2ae9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a65bf9368b0a37a32ec3903aa3d463778" id="r_a65bf9368b0a37a32ec3903aa3d463778"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html#a65bf9368b0a37a32ec3903aa3d463778">get_size</a> () const noexcept</td></tr>
 <tr class="memdesc:a65bf9368b0a37a32ec3903aa3d463778"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return byte size of leaf data structure.  <br /></td></tr>
 <tr class="separator:a65bf9368b0a37a32ec3903aa3d463778"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -461,6 +465,38 @@ template&lt;class Key , class Header &gt; </div>
 
 <p>Return byte size of leaf data structure. </p>
 <dl class="section return"><dt>Returns</dt><dd>Size in bytes </dd></dl>
+
+</div>
+</div>
+<a id="a5287d4e8372a60b5880245996ad2ae9f" name="a5287d4e8372a60b5880245996ad2ae9f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5287d4e8372a60b5880245996ad2ae9f">&#9670;&#160;</a></span>get_value()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Key , class Header &gt; </div>
+<div class="memtemplate">
+template&lt;typename Value &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">unodb::detail::basic_leaf</a>&lt; Key, Header &gt;::get_value </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return value stored in leaf, converted to the given type. </p>
+<p>For value_view, returns a span over the stored bytes. For fixed-width types (e.g., uint64_t), deserializes from stored bytes. </p>
 
 </div>
 </div>

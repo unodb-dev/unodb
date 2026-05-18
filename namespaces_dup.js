@@ -2,6 +2,7 @@ var namespaces_dup =
 [
     [ "anonymous_namespace{micro_benchmark.cpp}", "namespaceanonymous__namespace_02micro__benchmark_8cpp_03.html", null ],
     [ "anonymous_namespace{micro_benchmark_key_prefix.cpp}", "namespaceanonymous__namespace_02micro__benchmark__key__prefix_8cpp_03.html", null ],
+    [ "anonymous_namespace{micro_benchmark_key_view.cpp}", "namespaceanonymous__namespace_02micro__benchmark__key__view_8cpp_03.html", null ],
     [ "anonymous_namespace{micro_benchmark_mutex.cpp}", "namespaceanonymous__namespace_02micro__benchmark__mutex_8cpp_03.html", "namespaceanonymous__namespace_02micro__benchmark__mutex_8cpp_03" ],
     [ "anonymous_namespace{micro_benchmark_n16.cpp}", "namespaceanonymous__namespace_02micro__benchmark__n16_8cpp_03.html", null ],
     [ "anonymous_namespace{micro_benchmark_n256.cpp}", "namespaceanonymous__namespace_02micro__benchmark__n256_8cpp_03.html", null ],
@@ -16,6 +17,7 @@ var namespaces_dup =
     [ "anonymous_namespace{test_art_fuzz_deepstate.cpp}", "namespaceanonymous__namespace_02test__art__fuzz__deepstate_8cpp_03.html", null ],
     [ "anonymous_namespace{test_art_iter.cpp}", "namespaceanonymous__namespace_02test__art__iter_8cpp_03.html", "namespaceanonymous__namespace_02test__art__iter_8cpp_03" ],
     [ "anonymous_namespace{test_art_key_view.cpp}", "namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html", "namespaceanonymous__namespace_02test__art__key__view_8cpp_03" ],
+    [ "anonymous_namespace{test_art_key_view_full_chain.cpp}", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03" ],
     [ "anonymous_namespace{test_art_oom.cpp}", "namespaceanonymous__namespace_02test__art__oom_8cpp_03.html", "namespaceanonymous__namespace_02test__art__oom_8cpp_03" ],
     [ "anonymous_namespace{test_art_scan.cpp}", "namespaceanonymous__namespace_02test__art__scan_8cpp_03.html", "namespaceanonymous__namespace_02test__art__scan_8cpp_03" ],
     [ "anonymous_namespace{test_key_encode_decode.cpp}", "namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03.html", "namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03" ],

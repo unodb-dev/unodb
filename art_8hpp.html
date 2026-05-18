@@ -108,12 +108,15 @@ $(document).ready(function(){initNavTree('art_8hpp.html',''); initResizable(); }
 <p>Non-thread-safe Adaptive Radix Tree (ART) implementation.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="global_8hpp_source.html">global.hpp</a>&quot;</code><br />
+<code>#include &lt;algorithm&gt;</code><br />
+<code>#include &lt;atomic&gt;</code><br />
 <code>#include &lt;cstddef&gt;</code><br />
 <code>#include &lt;cstdint&gt;</code><br />
 <code>#include &lt;iostream&gt;</code><br />
 <code>#include &lt;optional&gt;</code><br />
 <code>#include &lt;stack&gt;</code><br />
 <code>#include &lt;type_traits&gt;</code><br />
+<code>#include &lt;vector&gt;</code><br />
 <code>#include &lt;boost/container/small_vector.hpp&gt;</code><br />
 <code>#include &quot;<a class="el" href="art__common_8hpp_source.html">art_common.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="art__internal_8hpp_source.html">art_internal.hpp</a>&quot;</code><br />
@@ -185,10 +188,10 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::detail::node_
 <tr class="memitem:af486b3ba28a2f7e238e2db1946e3b8fb"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">unodb::detail::inode_base</a> = <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html">basic_inode_impl</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#aedf36d7f939b56845e7334c790d07195">art_policy</a>&lt; Key, Value &gt; &gt;</td></tr>
 <tr class="memdesc:af486b3ba28a2f7e238e2db1946e3b8fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base class for all internal nodes in non-thread-safe ART.  <br /></td></tr>
 <tr class="separator:af486b3ba28a2f7e238e2db1946e3b8fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aab561be018ef4d04aa8a144bb388b721" id="r_aab561be018ef4d04aa8a144bb388b721"><td class="memTemplParams" colspan="2">template&lt;typename Key &gt; </td></tr>
-<tr class="memitem:aab561be018ef4d04aa8a144bb388b721"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#aab561be018ef4d04aa8a144bb388b721">unodb::detail::leaf_type</a> = <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">basic_leaf</a>&lt; Key, <a class="el" href="structunodb_1_1detail_1_1node__header.html">node_header</a> &gt;</td></tr>
-<tr class="memdesc:aab561be018ef4d04aa8a144bb388b721"><td class="mdescLeft">&#160;</td><td class="mdescRight">Leaf node type for non-thread-safe ART.  <br /></td></tr>
-<tr class="separator:aab561be018ef4d04aa8a144bb388b721"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c1fb4a85ef87c7a61e214c4871eb76f" id="r_a4c1fb4a85ef87c7a61e214c4871eb76f"><td class="memTemplParams" colspan="2">template&lt;typename Key , typename Value &gt; </td></tr>
+<tr class="memitem:a4c1fb4a85ef87c7a61e214c4871eb76f"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a4c1fb4a85ef87c7a61e214c4871eb76f">unodb::detail::leaf_type</a> = <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">basic_leaf</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#a8d3a7aec825f0d8cdde007954faa4647">leaf_key_type</a>&lt; Key, Value &gt;, <a class="el" href="structunodb_1_1detail_1_1node__header.html">node_header</a> &gt;</td></tr>
+<tr class="memdesc:a4c1fb4a85ef87c7a61e214c4871eb76f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Leaf node type for non-thread-safe ART.  <br /></td></tr>
+<tr class="separator:a4c1fb4a85ef87c7a61e214c4871eb76f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a459acb52e40ddfb61e83d1fd213c49b1" id="r_a459acb52e40ddfb61e83d1fd213c49b1"><td class="memTemplParams" colspan="2"><a id="a459acb52e40ddfb61e83d1fd213c49b1" name="a459acb52e40ddfb61e83d1fd213c49b1"></a>
 template&lt;typename Key , typename Value &gt; </td></tr>
 <tr class="memitem:a459acb52e40ddfb61e83d1fd213c49b1"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>unodb::detail::inode_4_parent</b> = <a class="el" href="classunodb_1_1detail_1_1basic__inode__4.html">basic_inode_4</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#aedf36d7f939b56845e7334c790d07195">art_policy</a>&lt; Key, Value &gt; &gt;</td></tr>

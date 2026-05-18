@@ -10,5 +10,5 @@ var classunodb_1_1test_1_1tree__verifier =
     [ "to_ikey", "classunodb_1_1test_1_1tree__verifier.html#a7e9a412096c266f9e9ade5c5d5d403f1", null ],
     [ "key_views", "classunodb_1_1test_1_1tree__verifier.html#a07dc0a701d01365171de4ab6365eedde", null ],
     [ "test_db", "classunodb_1_1test_1_1tree__verifier.html#a255d8a782011be60d44662b806a6506a", null ],
-    [ "values", "classunodb_1_1test_1_1tree__verifier.html#a41cf262c6cfbd039afa08a42c5865a67", null ]
+    [ "values", "classunodb_1_1test_1_1tree__verifier.html#a1739ea9940991d3db15a94fa3f920471", null ]
 ];

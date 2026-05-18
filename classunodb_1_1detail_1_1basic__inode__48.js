@@ -1,6 +1,7 @@
 var classunodb_1_1detail_1_1basic__inode__48 =
 [
     [ "children_union", "unionunodb_1_1detail_1_1basic__inode__48_1_1children__union.html", "unionunodb_1_1detail_1_1basic__inode__48_1_1children__union" ],
+    [ "bitmask_base", "classunodb_1_1detail_1_1basic__inode__48.html#a534cd54a74fe535bfc3ad850410de255", null ],
     [ "critical_section_policy", "classunodb_1_1detail_1_1basic__inode__48.html#a5746647717698cb39c280e100b8cea2e", null ],
     [ "db_leaf_unique_ptr", "classunodb_1_1detail_1_1basic__inode__48.html#aa0833ddfc1e689707d1c487e2f34767c", null ],
     [ "db_type", "classunodb_1_1detail_1_1basic__inode__48.html#aada67e1b1be140b695c809ff1ebbeb44", null ],
@@ -9,9 +10,11 @@ var classunodb_1_1detail_1_1basic__inode__48 =
     [ "tree_depth_type", "classunodb_1_1detail_1_1basic__inode__48.html#aac1bb90f2042b839804342ab39b6866f", null ],
     [ "basic_inode_48", "classunodb_1_1detail_1_1basic__inode__48.html#a358942f70e3b8b6e3eee753a5e675331", null ],
     [ "basic_inode_48", "classunodb_1_1detail_1_1basic__inode__48.html#af935d492b6a6658e4b2015cfd2c0f87c", null ],
-    [ "basic_inode_48", "classunodb_1_1detail_1_1basic__inode__48.html#a1d090edfda4121a3156b98deff139df1", null ],
+    [ "basic_inode_48", "classunodb_1_1detail_1_1basic__inode__48.html#a10857a128e4b10c87870c011ae0ea01c", null ],
+    [ "basic_inode_48", "classunodb_1_1detail_1_1basic__inode__48.html#a5fe98c22f512020f0eae011899168e07", null ],
     [ "basic_inode_48", "classunodb_1_1detail_1_1basic__inode__48.html#a5b36c34b7439a373d3421f5f1c0e84d0", null ],
-    [ "add_to_nonfull", "classunodb_1_1detail_1_1basic__inode__48.html#a1c9751817f0fd699bee17411f9a338eb", null ],
+    [ "add_to_nonfull", "classunodb_1_1detail_1_1basic__inode__48.html#af182526fefac33a4167ca5a5a8dea26e", null ],
+    [ "add_to_nonfull", "classunodb_1_1detail_1_1basic__inode__48.html#ab5f8cca1532e9156168ee2246ebea7fe", null ],
     [ "begin", "classunodb_1_1detail_1_1basic__inode__48.html#a0bf35daa99cc7e9033553ea47cd4f5fe", null ],
     [ "delete_subtree", "classunodb_1_1detail_1_1basic__inode__48.html#aaf591464e9bf7b24147d840fa7bba30a", null ],
     [ "direct_remove_child_pointer", "classunodb_1_1detail_1_1basic__inode__48.html#a6a1a9c27cc2c55f5d23eda84990a7b2c", null ],
@@ -19,8 +22,12 @@ var classunodb_1_1detail_1_1basic__inode__48 =
     [ "find_child", "classunodb_1_1detail_1_1basic__inode__48.html#aedfbbb5f9e0469e3c539defe64a77d29", null ],
     [ "get_child", "classunodb_1_1detail_1_1basic__inode__48.html#a264d8446b0ab19eccbb051bcfa3eb139", null ],
     [ "gte_key_byte", "classunodb_1_1detail_1_1basic__inode__48.html#a67a9cb4e3acbb2ebd5ec08fc01ea25cf", null ],
-    [ "init", "classunodb_1_1detail_1_1basic__inode__48.html#a89901af15b1a8d66ddc4b37c7a451216", null ],
+    [ "init", "classunodb_1_1detail_1_1basic__inode__48.html#a42a3205e61b8c1003dd9ac06c41494e2", null ],
+    [ "init", "classunodb_1_1detail_1_1basic__inode__48.html#abbe0d30bf0c1231c297aabc919570802", null ],
     [ "init", "classunodb_1_1detail_1_1basic__inode__48.html#a38a0ca9abb016ff4fd117884567bb213", null ],
+    [ "init_grow", "classunodb_1_1detail_1_1basic__inode__48.html#af15cdb4d3b4e9ff98578686466dfd483", null ],
+    [ "is_value_in_slot", "classunodb_1_1detail_1_1basic__inode__48.html#ae887f011449d7be4a2ff606012ce6a7d", null ],
+    [ "is_value_in_slot_by_ci", "classunodb_1_1detail_1_1basic__inode__48.html#aa6a4a2e8c7ce11d43eed44b2375add18", null ],
     [ "last", "classunodb_1_1detail_1_1basic__inode__48.html#a9c12b0f48436a456df00b23f10e2308f", null ],
     [ "lte_key_byte", "classunodb_1_1detail_1_1basic__inode__48.html#a0e3944a167a1111034f7421db593c521", null ],
     [ "next", "classunodb_1_1detail_1_1basic__inode__48.html#a3ec4eec3bea2cabd3049291f8c0aac53", null ],
@@ -28,7 +35,6 @@ var classunodb_1_1detail_1_1basic__inode__48 =
     [ "remove", "classunodb_1_1detail_1_1basic__inode__48.html#a1f0a79b5607d248f6e64c2b879731e66", null ],
     [ "remove_child_entry", "classunodb_1_1detail_1_1basic__inode__48.html#ad387fbbfbfb72667303f23b451ce63f2", null ],
     [ "remove_child_pointer", "classunodb_1_1detail_1_1basic__inode__48.html#a5e45c00e025d4281c7be17649f64285f", null ],
-    [ "child_indexes", "classunodb_1_1detail_1_1basic__inode__48.html#a733c51620437f23e6b970454c975d192", null ],
     [ "children", "classunodb_1_1detail_1_1basic__inode__48.html#a3c631bd9909626a9a6c2f3fc6d91f422", null ],
     [ "empty_child", "classunodb_1_1detail_1_1basic__inode__48.html#aca64ed46cfa64faedc25f7f2c50e2231", null ]
 ];

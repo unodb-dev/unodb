@@ -4,6 +4,7 @@ var classunodb_1_1olc__db =
     [ "remove_entry", "structunodb_1_1olc__db_1_1remove__entry.html", null ],
     [ "key_type", "classunodb_1_1olc__db.html#aff5ef0207a6cf003ad978093ea41f765", null ],
     [ "value_type", "classunodb_1_1olc__db.html#a056d823a054f7999b3fafeac0f45cdd2", null ],
+    [ "build_chain", "classunodb_1_1olc__db.html#a25089f4bf2abc31055890854e93408ff", null ],
     [ "clear", "classunodb_1_1olc__db.html#a4cbf7a42e62a5d36d00820bc9579f2ff", null ],
     [ "empty", "classunodb_1_1olc__db.html#a6beb153875791c86b4387f547331d662", null ],
     [ "get", "classunodb_1_1olc__db.html#a59a2450d6a7997d7c4d43a8ca71a319d", null ],

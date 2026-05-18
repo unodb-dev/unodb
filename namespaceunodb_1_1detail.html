@@ -146,6 +146,9 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">basic_leaf</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Leaf node storing key-value pair.  <a href="classunodb_1_1detail_1_1basic__leaf.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4.html">basic_leaf&lt; no_key_tag, Header &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Keyless leaf specialization.  <a href="classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">basic_node_ptr</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tagged pointer with node type stored in low bits.  <a href="classunodb_1_1detail_1_1basic__node__ptr.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -195,6 +198,12 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">union &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionunodb_1_1detail_1_1key__prefix__snapshot.html">key_prefix_snapshot</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Key prefix snapshot for iterator use.  <a href="unionunodb_1_1detail_1_1key__prefix__snapshot.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1no__key__tag.html">no_key_tag</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag type used as the Key parameter for keyless leaves.  <a href="structunodb_1_1detail_1_1no__key__tag.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1no__leaf__tag.html">no_leaf_tag</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag type indicating that no leaf nodes exist in the tree.  <a href="structunodb_1_1detail_1_1no__leaf__tag.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1node__header.html">node_header</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Node header type for non-thread-safe ART implementation.  <a href="structunodb_1_1detail_1_1node__header.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -228,6 +237,18 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of key bytes consumed along some path in the tree.  <a href="classunodb_1_1detail_1_1tree__depth.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1value__bitmask__field.html">value_bitmask_field</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A bitmask that tracks which child slots hold packed values rather than pointers.  <a href="structunodb_1_1detail_1_1value__bitmask__field.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1value__bitmask__field_3_01Enabled_00_01std_1_1array_3_01T_00_01N_01_4_01_4.html">value_bitmask_field&lt; Enabled, std::array&lt; T, N &gt; &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specialization for array-based bitmasks (I48 uses 6 bytes, I256 uses 32).  <a href="structunodb_1_1detail_1_1value__bitmask__field_3_01Enabled_00_01std_1_1array_3_01T_00_01N_01_4_01_4.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01std_1_1array_3_01T_00_01N_01_4_01_4.html">value_bitmask_field&lt; false, std::array&lt; T, N &gt; &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disabled specialization for array-based bitmasks.  <a href="structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01std_1_1array_3_01T_00_01N_01_4_01_4.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01Storage_01_4.html">value_bitmask_field&lt; false, Storage &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disabled specialization — empty struct, all ops are no-ops.  <a href="structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01Storage_01_4.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -251,10 +272,10 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>node_ptr</b> = <a cl
 <tr class="memitem:af486b3ba28a2f7e238e2db1946e3b8fb"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">inode_base</a> = <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html">basic_inode_impl</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#aedf36d7f939b56845e7334c790d07195">art_policy</a>&lt; Key, Value &gt; &gt;</td></tr>
 <tr class="memdesc:af486b3ba28a2f7e238e2db1946e3b8fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base class for all internal nodes in non-thread-safe ART.  <br /></td></tr>
 <tr class="separator:af486b3ba28a2f7e238e2db1946e3b8fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aab561be018ef4d04aa8a144bb388b721" id="r_aab561be018ef4d04aa8a144bb388b721"><td class="memTemplParams" colspan="2">template&lt;typename Key &gt; </td></tr>
-<tr class="memitem:aab561be018ef4d04aa8a144bb388b721"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#aab561be018ef4d04aa8a144bb388b721">leaf_type</a> = <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">basic_leaf</a>&lt; Key, <a class="el" href="structunodb_1_1detail_1_1node__header.html">node_header</a> &gt;</td></tr>
-<tr class="memdesc:aab561be018ef4d04aa8a144bb388b721"><td class="mdescLeft">&#160;</td><td class="mdescRight">Leaf node type for non-thread-safe ART.  <br /></td></tr>
-<tr class="separator:aab561be018ef4d04aa8a144bb388b721"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c1fb4a85ef87c7a61e214c4871eb76f" id="r_a4c1fb4a85ef87c7a61e214c4871eb76f"><td class="memTemplParams" colspan="2">template&lt;typename Key , typename Value &gt; </td></tr>
+<tr class="memitem:a4c1fb4a85ef87c7a61e214c4871eb76f"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a4c1fb4a85ef87c7a61e214c4871eb76f">leaf_type</a> = <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">basic_leaf</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#a8d3a7aec825f0d8cdde007954faa4647">leaf_key_type</a>&lt; Key, Value &gt;, <a class="el" href="structunodb_1_1detail_1_1node__header.html">node_header</a> &gt;</td></tr>
+<tr class="memdesc:a4c1fb4a85ef87c7a61e214c4871eb76f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Leaf node type for non-thread-safe ART.  <br /></td></tr>
+<tr class="separator:a4c1fb4a85ef87c7a61e214c4871eb76f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a459acb52e40ddfb61e83d1fd213c49b1" id="r_a459acb52e40ddfb61e83d1fd213c49b1"><td class="memTemplParams" colspan="2"><a id="a459acb52e40ddfb61e83d1fd213c49b1" name="a459acb52e40ddfb61e83d1fd213c49b1"></a>
 template&lt;typename Key , typename Value &gt; </td></tr>
 <tr class="memitem:a459acb52e40ddfb61e83d1fd213c49b1"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>inode_4_parent</b> = <a class="el" href="classunodb_1_1detail_1_1basic__inode__4.html">basic_inode_4</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#aedf36d7f939b56845e7334c790d07195">art_policy</a>&lt; Key, Value &gt; &gt;</td></tr>
@@ -283,10 +304,14 @@ template&lt;typename Key , typename Value &gt; </td></tr>
 <tr class="memitem:af1290fecb62dd3c992776fb4ea5793e2"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>inode_256_parent</b> = <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html">basic_inode_256</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#aedf36d7f939b56845e7334c790d07195">art_policy</a>&lt; Key, Value &gt; &gt;</td></tr>
 <tr class="memdesc:af1290fecb62dd3c992776fb4ea5793e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base class for <a class="el" href="classunodb_1_1detail_1_1inode__256.html" title="Internal node with 256 children for non-thread-safe ART.">inode_256</a>. <br /></td></tr>
 <tr class="separator:af1290fecb62dd3c992776fb4ea5793e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a85b1873633c46b13271dcf06ac743666" id="r_a85b1873633c46b13271dcf06ac743666"><td class="memTemplParams" colspan="2">template&lt;typename Key , typename Value , class Header , template&lt; typename, typename &gt; class Db&gt; </td></tr>
-<tr class="memitem:a85b1873633c46b13271dcf06ac743666"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a85b1873633c46b13271dcf06ac743666">basic_db_leaf_unique_ptr</a> = std::unique_ptr&lt; <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">basic_leaf</a>&lt; Key, Header &gt;, <a class="el" href="classunodb_1_1detail_1_1basic__db__leaf__deleter.html">basic_db_leaf_deleter</a>&lt; Db&lt; Key, Value &gt; &gt; &gt;</td></tr>
-<tr class="memdesc:a85b1873633c46b13271dcf06ac743666"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unique pointer to leaf with database-aware deleter.  <br /></td></tr>
-<tr class="separator:a85b1873633c46b13271dcf06ac743666"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d3a7aec825f0d8cdde007954faa4647" id="r_a8d3a7aec825f0d8cdde007954faa4647"><td class="memTemplParams" colspan="2">template&lt;typename Key , typename Value &gt; </td></tr>
+<tr class="memitem:a8d3a7aec825f0d8cdde007954faa4647"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a8d3a7aec825f0d8cdde007954faa4647">leaf_key_type</a> = std::conditional_t&lt; <a class="el" href="namespaceunodb_1_1detail.html#ad6143a3f0577dce38a7470201e05e067">can_eliminate_key_in_leaf_v</a>&lt; Key, Value &gt;, <a class="el" href="structunodb_1_1detail_1_1no__key__tag.html">no_key_tag</a>, Key &gt;</td></tr>
+<tr class="memdesc:a8d3a7aec825f0d8cdde007954faa4647"><td class="mdescLeft">&#160;</td><td class="mdescRight">The Key type used for the leaf template.  <br /></td></tr>
+<tr class="separator:a8d3a7aec825f0d8cdde007954faa4647"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adfd70e9061d3f45eeff07dd5887a01d9" id="r_adfd70e9061d3f45eeff07dd5887a01d9"><td class="memTemplParams" colspan="2">template&lt;typename Key , typename Value , class Header , template&lt; typename, typename &gt; class Db&gt; </td></tr>
+<tr class="memitem:adfd70e9061d3f45eeff07dd5887a01d9"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#adfd70e9061d3f45eeff07dd5887a01d9">basic_db_leaf_unique_ptr</a> = std::unique_ptr&lt; <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">basic_leaf</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#a8d3a7aec825f0d8cdde007954faa4647">leaf_key_type</a>&lt; Key, Value &gt;, Header &gt;, <a class="el" href="classunodb_1_1detail_1_1basic__db__leaf__deleter.html">basic_db_leaf_deleter</a>&lt; Db&lt; Key, Value &gt; &gt; &gt;</td></tr>
+<tr class="memdesc:adfd70e9061d3f45eeff07dd5887a01d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unique pointer to leaf with database-aware deleter.  <br /></td></tr>
+<tr class="separator:adfd70e9061d3f45eeff07dd5887a01d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2a48856979c828fe6f91a83b8b43e0be" id="r_a2a48856979c828fe6f91a83b8b43e0be"><td class="memItemLeft" align="right" valign="top"><a id="a2a48856979c828fe6f91a83b8b43e0be" name="a2a48856979c828fe6f91a83b8b43e0be"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>key_prefix_size</b> = std::uint8_t</td></tr>
 <tr class="memdesc:a2a48856979c828fe6f91a83b8b43e0be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Size type for key prefix length. <br /></td></tr>
@@ -336,7 +361,7 @@ template&lt;typename Key , typename Value &gt; </td></tr>
 <tr class="separator:aa9a61a6808c8e6f7ad169a8f13488bc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a976629fcee449564c59c652e462d38a0" id="r_a976629fcee449564c59c652e462d38a0"><td class="memTemplParams" colspan="2"><a id="a976629fcee449564c59c652e462d38a0" name="a976629fcee449564c59c652e462d38a0"></a>
 template&lt;typename Key , typename Value &gt; </td></tr>
-<tr class="memitem:a976629fcee449564c59c652e462d38a0"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>olc_leaf_type</b> = typename <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html">olc_art_policy</a>&lt; Key, Value &gt;<a class="el" href="namespaceunodb_1_1detail.html#aab561be018ef4d04aa8a144bb388b721">::leaf_type</a></td></tr>
+<tr class="memitem:a976629fcee449564c59c652e462d38a0"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>olc_leaf_type</b> = typename <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html">olc_art_policy</a>&lt; Key, Value &gt;<a class="el" href="namespaceunodb_1_1detail.html#a4c1fb4a85ef87c7a61e214c4871eb76f">::leaf_type</a></td></tr>
 <tr class="separator:a976629fcee449564c59c652e462d38a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6accd1ac0f833ad2a37a7f63e1bb9ad3" id="r_a6accd1ac0f833ad2a37a7f63e1bb9ad3"><td class="memTemplParams" colspan="2"><a id="a6accd1ac0f833ad2a37a7f63e1bb9ad3" name="a6accd1ac0f833ad2a37a7f63e1bb9ad3"></a>
 template&lt;class AtomicArray &gt; </td></tr>
@@ -344,7 +369,7 @@ template&lt;class AtomicArray &gt; </td></tr>
 <tr class="separator:a6accd1ac0f833ad2a37a7f63e1bb9ad3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adc9e8892527b0164dc1b8b2b177cc28e" id="r_adc9e8892527b0164dc1b8b2b177cc28e"><td class="memTemplParams" colspan="2"><a id="adc9e8892527b0164dc1b8b2b177cc28e" name="adc9e8892527b0164dc1b8b2b177cc28e"></a>
 template&lt;typename Key , typename Value &gt; </td></tr>
-<tr class="memitem:adc9e8892527b0164dc1b8b2b177cc28e"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>olc_leaf_unique_ptr</b> = <a class="el" href="namespaceunodb_1_1detail.html#a85b1873633c46b13271dcf06ac743666">basic_db_leaf_unique_ptr</a>&lt; Key, Value, <a class="el" href="structunodb_1_1detail_1_1olc__node__header.html">olc_node_header</a>, <a class="el" href="classunodb_1_1olc__db.html">olc_db</a> &gt;</td></tr>
+<tr class="memitem:adc9e8892527b0164dc1b8b2b177cc28e"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>olc_leaf_unique_ptr</b> = <a class="el" href="namespaceunodb_1_1detail.html#adfd70e9061d3f45eeff07dd5887a01d9">basic_db_leaf_unique_ptr</a>&lt; Key, Value, <a class="el" href="structunodb_1_1detail_1_1olc__node__header.html">olc_node_header</a>, <a class="el" href="classunodb_1_1olc__db.html">olc_db</a> &gt;</td></tr>
 <tr class="separator:adc9e8892527b0164dc1b8b2b177cc28e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a32a5507008263301357281c328968601" id="r_a32a5507008263301357281c328968601"><td class="memTemplParams" colspan="2"><a id="a32a5507008263301357281c328968601" name="a32a5507008263301357281c328968601"></a>
 template&lt;typename Key , typename Value , class INode &gt; </td></tr>
@@ -419,10 +444,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>dump_key</b> (std::os
 <tr class="memitem:a25eb4ea7710810f49fcc23353dad6c8f" id="r_a25eb4ea7710810f49fcc23353dad6c8f"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a25eb4ea7710810f49fcc23353dad6c8f">_mm_cmple_epu8</a> (__m128i x, __m128i y) noexcept</td></tr>
 <tr class="memdesc:a25eb4ea7710810f49fcc23353dad6c8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare packed unsigned 8-bit integers for less-than-or-equal.  <br /></td></tr>
 <tr class="separator:a25eb4ea7710810f49fcc23353dad6c8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4c36ae56cc3f27abfb2624d79ff4be78" id="r_a4c36ae56cc3f27abfb2624d79ff4be78"><td class="memTemplParams" colspan="2">template&lt;typename Key , typename Value , template&lt; typename, typename &gt; class Db&gt; </td></tr>
-<tr class="memitem:a4c36ae56cc3f27abfb2624d79ff4be78"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a4c36ae56cc3f27abfb2624d79ff4be78">make_db_leaf_ptr</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; k, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">value_view</a> v, Db&lt; Key, Value &gt; &amp;<a class="el" href="classunodb_1_1db.html">db</a>)</td></tr>
-<tr class="memdesc:a4c36ae56cc3f27abfb2624d79ff4be78"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create unique pointer to new leaf with given key and value.  <br /></td></tr>
-<tr class="separator:a4c36ae56cc3f27abfb2624d79ff4be78"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99221afa5558df0e2ff0f3bb95616f2b" id="r_a99221afa5558df0e2ff0f3bb95616f2b"><td class="memTemplParams" colspan="2">template&lt;typename Key , typename Value , template&lt; typename, typename &gt; class Db&gt; </td></tr>
+<tr class="memitem:a99221afa5558df0e2ff0f3bb95616f2b"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a99221afa5558df0e2ff0f3bb95616f2b">make_db_leaf_ptr</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; k, Value v, Db&lt; Key, Value &gt; &amp;<a class="el" href="classunodb_1_1db.html">db</a>)</td></tr>
+<tr class="memdesc:a99221afa5558df0e2ff0f3bb95616f2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create unique pointer to new leaf with given key and value.  <br /></td></tr>
+<tr class="separator:a99221afa5558df0e2ff0f3bb95616f2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa70778153d340954b6f2718fd7f018a2" id="r_aa70778153d340954b6f2718fd7f018a2"><td class="memItemLeft" align="right" valign="top"><a id="aa70778153d340954b6f2718fd7f018a2" name="aa70778153d340954b6f2718fd7f018a2"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>msg_stacktrace_abort</b> (std::string_view msg) noexcept</td></tr>
 <tr class="memdesc:aa70778153d340954b6f2718fd7f018a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print a message and a stacktrace to std::cerr, then abort. <br /></td></tr>
@@ -487,10 +512,10 @@ template&lt;class T &gt; </td></tr>
 <tr class="memitem:a9c2f21cfd995a020eb66f0d5c6dac59f" id="r_a9c2f21cfd995a020eb66f0d5c6dac59f"><td class="memItemLeft" align="right" valign="top"><a id="a9c2f21cfd995a020eb66f0d5c6dac59f" name="a9c2f21cfd995a020eb66f0d5c6dac59f"></a>
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>obsolete_child_by_index</b> (std::uint8_t child, <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">unodb::optimistic_lock::write_guard</a> &amp;guard) noexcept</td></tr>
 <tr class="separator:a9c2f21cfd995a020eb66f0d5c6dac59f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5e1748db6157f77efb62fa8097966b1a" id="r_a5e1748db6157f77efb62fa8097966b1a"><td class="memTemplParams" colspan="2"><a id="a5e1748db6157f77efb62fa8097966b1a" name="a5e1748db6157f77efb62fa8097966b1a"></a>
+<tr class="memitem:a1800c86bea3908be3bd5cdabbe212695" id="r_a1800c86bea3908be3bd5cdabbe212695"><td class="memTemplParams" colspan="2"><a id="a1800c86bea3908be3bd5cdabbe212695" name="a1800c86bea3908be3bd5cdabbe212695"></a>
 template&lt;typename Key , typename Value &gt; </td></tr>
-<tr class="memitem:a5e1748db6157f77efb62fa8097966b1a"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>create_leaf_if_needed</b> (olc_db_leaf_unique_ptr&lt; Key, Value &gt; &amp;cached_leaf, <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; k, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a> v, <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value &gt; &amp;db_instance)</td></tr>
-<tr class="separator:a5e1748db6157f77efb62fa8097966b1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1800c86bea3908be3bd5cdabbe212695"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>create_leaf_if_needed</b> (olc_db_leaf_unique_ptr&lt; Key, Value &gt; &amp;cached_leaf, <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">basic_art_key</a>&lt; Key &gt; k, Value v, <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value &gt; &amp;db_instance)</td></tr>
+<tr class="separator:a1800c86bea3908be3bd5cdabbe212695"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac205dcfa11427da52c49ee216f264824" id="r_ac205dcfa11427da52c49ee216f264824"><td class="memTemplParams" colspan="2"><a id="ac205dcfa11427da52c49ee216f264824" name="ac205dcfa11427da52c49ee216f264824"></a>
 template&lt;typename T &gt; </td></tr>
 <tr class="memitem:ac205dcfa11427da52c49ee216f264824"><td class="memTemplItemLeft" align="right" valign="top">constexpr T&#160;</td><td class="memTemplItemRight" valign="bottom"><b>bswap</b> (T x) noexcept</td></tr>
@@ -507,6 +532,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>sync</b> (<a class="e
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
+<tr class="memitem:ad6143a3f0577dce38a7470201e05e067" id="r_ad6143a3f0577dce38a7470201e05e067"><td class="memTemplParams" colspan="2">template&lt;typename Key , typename Value &gt; </td></tr>
+<tr class="memitem:ad6143a3f0577dce38a7470201e05e067"><td class="memTemplItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#ad6143a3f0577dce38a7470201e05e067">can_eliminate_key_in_leaf_v</a></td></tr>
+<tr class="memdesc:ad6143a3f0577dce38a7470201e05e067"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the key can be omitted from the leaf.  <br /></td></tr>
+<tr class="separator:ad6143a3f0577dce38a7470201e05e067"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba258d6d1df5e71714ec57d8b041b129" id="r_aba258d6d1df5e71714ec57d8b041b129"><td class="memItemLeft" align="right" valign="top">static constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#aba258d6d1df5e71714ec57d8b041b129">INITIAL_BUFFER_CAPACITY</a> = 256</td></tr>
 <tr class="memdesc:aba258d6d1df5e71714ec57d8b041b129"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initial capacity for the <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a> and other similar internal buffers.  <br /></td></tr>
 <tr class="separator:aba258d6d1df5e71714ec57d8b041b129"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -530,6 +559,17 @@ constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>inod
 <a class="el" href="structunodb_1_1detail_1_1sync__point.html">sync_point</a>&#160;</td><td class="memItemRight" valign="bottom"><b>sync_between_chain_locks</b></td></tr>
 <tr class="memdesc:af901b0308c5439f03f4c38539f2b946d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sync point: fires inside Step 2 loop between chain node locks. <br /></td></tr>
 <tr class="separator:af901b0308c5439f03f4c38539f2b946d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab39d0da261fb0203d1afaa9cf2a1749a" id="r_ab39d0da261fb0203d1afaa9cf2a1749a"><td class="memItemLeft" align="right" valign="top"><a id="ab39d0da261fb0203d1afaa9cf2a1749a" name="ab39d0da261fb0203d1afaa9cf2a1749a"></a>
+<a class="el" href="structunodb_1_1detail_1_1sync__point.html">sync_point</a>&#160;</td><td class="memItemRight" valign="bottom"><b>sync_before_remove_write_guard</b></td></tr>
+<tr class="memdesc:ab39d0da261fb0203d1afaa9cf2a1749a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sync point: fires in remove_or_choose_subtree after leaf match confirmed and min_size read, before write guard acquisition. <br /></td></tr>
+<tr class="separator:ab39d0da261fb0203d1afaa9cf2a1749a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91070248f026b90cbc1a13cae9c654f4" id="r_a91070248f026b90cbc1a13cae9c654f4"><td class="memItemLeft" align="right" valign="top"><a id="a91070248f026b90cbc1a13cae9c654f4" name="a91070248f026b90cbc1a13cae9c654f4"></a>
+<a class="el" href="structunodb_1_1detail_1_1sync__point.html">sync_point</a>&#160;</td><td class="memItemRight" valign="bottom"><b>sync_before_insert_grow_guard</b></td></tr>
+<tr class="memdesc:a91070248f026b90cbc1a13cae9c654f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sync point: fires in add_or_choose_subtree before write guard acquisition during node growth (I4→I16 etc.). <br /></td></tr>
+<tr class="separator:a91070248f026b90cbc1a13cae9c654f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd034b9a41007a605a0a9d61a79ce7d6" id="r_afd034b9a41007a605a0a9d61a79ce7d6"><td class="memItemLeft" align="right" valign="top"><a id="afd034b9a41007a605a0a9d61a79ce7d6" name="afd034b9a41007a605a0a9d61a79ce7d6"></a>
+<a class="el" href="structunodb_1_1detail_1_1sync__point.html">sync_point</a>&#160;</td><td class="memItemRight" valign="bottom"><b>sync_before_nonfull_chain_guard</b></td></tr>
+<tr class="separator:afd034b9a41007a605a0a9d61a79ce7d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ab520671507d4d7d913c5d2655fad89" id="r_a3ab520671507d4d7d913c5d2655fad89"><td class="memItemLeft" align="right" valign="top">constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a3ab520671507d4d7d913c5d2655fad89">hardware_constructive_interference_size</a></td></tr>
 <tr class="memdesc:a3ab520671507d4d7d913c5d2655fad89"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum size in bytes where multiple variables will be guaranteed to be shared for the purposes of true sharing.  <br /></td></tr>
 <tr class="separator:a3ab520671507d4d7d913c5d2655fad89"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -563,8 +603,8 @@ template&lt;typename Key , typename Value &gt; </div>
 
 </div>
 </div>
-<a id="a85b1873633c46b13271dcf06ac743666" name="a85b1873633c46b13271dcf06ac743666"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a85b1873633c46b13271dcf06ac743666">&#9670;&#160;</a></span>basic_db_leaf_unique_ptr</h2>
+<a id="adfd70e9061d3f45eeff07dd5887a01d9" name="adfd70e9061d3f45eeff07dd5887a01d9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adfd70e9061d3f45eeff07dd5887a01d9">&#9670;&#160;</a></span>basic_db_leaf_unique_ptr</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -572,7 +612,7 @@ template&lt;typename Key , typename Value &gt; </div>
 template&lt;typename Key , typename Value , class Header , template&lt; typename, typename &gt; class Db&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="namespaceunodb_1_1detail.html#a85b1873633c46b13271dcf06ac743666">unodb::detail::basic_db_leaf_unique_ptr</a> = typedef std::unique_ptr&lt;<a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">basic_leaf</a>&lt;Key, Header&gt;, <a class="el" href="classunodb_1_1detail_1_1basic__db__leaf__deleter.html">basic_db_leaf_deleter</a>&lt;Db&lt;Key, Value&gt; &gt;&gt;</td>
+          <td class="memname">using <a class="el" href="namespaceunodb_1_1detail.html#adfd70e9061d3f45eeff07dd5887a01d9">unodb::detail::basic_db_leaf_unique_ptr</a> = typedef std::unique_ptr&lt;<a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">basic_leaf</a>&lt;<a class="el" href="namespaceunodb_1_1detail.html#a8d3a7aec825f0d8cdde007954faa4647">leaf_key_type</a>&lt;Key, Value&gt;, Header&gt;, <a class="el" href="classunodb_1_1detail_1_1basic__db__leaf__deleter.html">basic_db_leaf_deleter</a>&lt;Db&lt;Key, Value&gt; &gt;&gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -672,22 +712,41 @@ template&lt;class NodeHeader &gt; </div>
 
 </div>
 </div>
-<a id="aab561be018ef4d04aa8a144bb388b721" name="aab561be018ef4d04aa8a144bb388b721"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aab561be018ef4d04aa8a144bb388b721">&#9670;&#160;</a></span>leaf_type</h2>
+<a id="a8d3a7aec825f0d8cdde007954faa4647" name="a8d3a7aec825f0d8cdde007954faa4647"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8d3a7aec825f0d8cdde007954faa4647">&#9670;&#160;</a></span>leaf_key_type</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename Key &gt; </div>
+template&lt;typename Key , typename Value &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="namespaceunodb_1_1detail.html#aab561be018ef4d04aa8a144bb388b721">unodb::detail::leaf_type</a> = typedef <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">basic_leaf</a>&lt;Key, <a class="el" href="structunodb_1_1detail_1_1node__header.html">node_header</a>&gt;</td>
+          <td class="memname">using <a class="el" href="namespaceunodb_1_1detail.html#a8d3a7aec825f0d8cdde007954faa4647">unodb::detail::leaf_key_type</a> = typedef std::conditional_t&lt;<a class="el" href="namespaceunodb_1_1detail.html#ad6143a3f0577dce38a7470201e05e067">can_eliminate_key_in_leaf_v</a>&lt;Key, Value&gt;, <a class="el" href="structunodb_1_1detail_1_1no__key__tag.html">no_key_tag</a>, Key&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The Key type used for the leaf template. </p>
+<p>Maps to <a class="el" href="structunodb_1_1detail_1_1no__key__tag.html" title="Tag type used as the Key parameter for keyless leaves.">no_key_tag</a> when the key can be eliminated, otherwise passes Key through unchanged. </p>
+
+</div>
+</div>
+<a id="a4c1fb4a85ef87c7a61e214c4871eb76f" name="a4c1fb4a85ef87c7a61e214c4871eb76f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4c1fb4a85ef87c7a61e214c4871eb76f">&#9670;&#160;</a></span>leaf_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespaceunodb_1_1detail.html#a4c1fb4a85ef87c7a61e214c4871eb76f">unodb::detail::leaf_type</a> = typedef <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">basic_leaf</a>&lt;<a class="el" href="namespaceunodb_1_1detail.html#a8d3a7aec825f0d8cdde007954faa4647">leaf_key_type</a>&lt;Key, Value&gt;, <a class="el" href="structunodb_1_1detail_1_1node__header.html">node_header</a>&gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Leaf node type for non-thread-safe ART. </p>
-<p>Stores a key-value pair at the leaf level of the tree. </p>
+<p>Stores a key-value pair (or value only for keyless leaves). </p>
 
 </div>
 </div>
@@ -1347,8 +1406,8 @@ template&lt;<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a6
 
 </div>
 </div>
-<a id="a4c36ae56cc3f27abfb2624d79ff4be78" name="a4c36ae56cc3f27abfb2624d79ff4be78"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4c36ae56cc3f27abfb2624d79ff4be78">&#9670;&#160;</a></span>make_db_leaf_ptr()</h2>
+<a id="a99221afa5558df0e2ff0f3bb95616f2b" name="a99221afa5558df0e2ff0f3bb95616f2b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a99221afa5558df0e2ff0f3bb95616f2b">&#9670;&#160;</a></span>make_db_leaf_ptr()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1364,7 +1423,7 @@ template&lt;typename Key , typename Value , template&lt; typename, typename &gt;
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">value_view</a>&#160;</td>
+          <td class="paramtype">Value&#160;</td>
           <td class="paramname"><em>v</em>, </td>
         </tr>
         <tr>
@@ -1475,6 +1534,35 @@ template&lt;typename Key , typename Value , template&lt; typename, typename &gt;
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
+<a id="ad6143a3f0577dce38a7470201e05e067" name="ad6143a3f0577dce38a7470201e05e067"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad6143a3f0577dce38a7470201e05e067">&#9670;&#160;</a></span>can_eliminate_key_in_leaf_v</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr bool unodb::detail::can_eliminate_key_in_leaf_v</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">=</div>
+<div class="line">    std::is_same_v&lt;Key, key_view&gt;</div>
+</div><!-- fragment -->
+<p>Whether the key can be omitted from the leaf. </p>
+<p>True when Key is key_view (full key is encoded in the inode prefix+dispatch chain). </p>
+
+</div>
+</div>
 <a id="a3ab520671507d4d7d913c5d2655fad89" name="a3ab520671507d4d7d913c5d2655fad89"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3ab520671507d4d7d913c5d2655fad89">&#9670;&#160;</a></span>hardware_constructive_interference_size</h2>
 

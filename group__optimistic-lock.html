@@ -119,10 +119,10 @@ Files</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Optimistic lock primitive and associated internals. </p>
-<h1><a class="anchor" id="autotoc_md14"></a>
+<h1><a class="anchor" id="autotoc_md16"></a>
 Overview</h1>
 <p>A version-based optimistic lock that supports single-writer/multiple-readers concurrency without shared memory writes during read operations. Writers bump the version counter and readers detect concurrent writes by comparing the version counter before and after the reads.</p>
-<h2><a class="anchor" id="autotoc_md15"></a>
+<h2><a class="anchor" id="autotoc_md17"></a>
 Examples</h2>
 <p>Protected data declaration and access API: </p><div class="fragment"><div class="line"><span class="comment">// Multiple data fields protected by the same optimistic lock:</span></div>
 <div class="line"><a class="code hl_class" href="classunodb_1_1in__critical__section.html">unodb::in_critical_section&lt;std::uint64_t&gt;</a> val;</div>
@@ -198,30 +198,30 @@ Examples</h2>
 <div class="line">foo_wg.unlock_and_obsolete();</div>
 <div class="line"><span class="comment">// Mark data to be reclaimed when it is safe to do so</span></div>
 <div class="line"><span class="comment">// ...</span></div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md16"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md18"></a>
 API conventions</h2>
 <p>All <code>bool</code>-returning <code>try_</code> methods return true on success and false when a concurrent write lock requires the operation to be restarted.</p>
-<h2><a class="anchor" id="autotoc_md17"></a>
+<h2><a class="anchor" id="autotoc_md19"></a>
 Protected data declaration</h2>
 <p>All data fields or variables to be protected by an optimistic lock must be wrapped in <a class="el" href="classunodb_1_1in__critical__section.html" title="Gloss for the atomic semantics used to guard loads and stores.">unodb::in_critical_section</a> template. Effectively it converts the data accesses to relaxed atomic accesses, which is required by the optimistic lock memory model.</p>
-<h2><a class="anchor" id="autotoc_md18"></a>
+<h2><a class="anchor" id="autotoc_md20"></a>
 Read protocol</h2>
 <p><a class="anchor" id="olc-read-protocol"></a> A read critical section (RCS) is created by <a class="el" href="classunodb_1_1optimistic__lock.html#a557b207dfd8a0d42a63e27dd34a05db0" title="Acquire and return an optimistic_lock::read_critical_section for this lock.">unodb::optimistic_lock::try_read_lock()</a>, which will either spin until the lock is not write-locked, or will return immediately if the lock goes to the obsolete state.</p>
 <p>The obsolete state must be checked for by calling <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ab3a83aa11980b8c28b3fdaafe7877160" title="Check whether this RCS was not constructed on an obsolete lock, must be called first thing after crea...">unodb::optimistic_lock::read_critical_section::must_restart()</a> immediately after creating the RCS.</p>
 <p>No pointers may be dereferenced in an RCS before a successful read unlock (<a class="el" href="classunodb_1_1optimistic__lock.html#a427d68606712d24c073e8f2c13264f55" title="Try to read unlock this lock by comparing the current version with locked_version.">unodb::optimistic_lock::try_read_unlock()</a>) or an interim check (<a class="el" href="classunodb_1_1optimistic__lock.html#a87019ebcc11a4033acddd2b810adb490" title="Check if the current lock version has not changed since locked_version.">unodb::optimistic_lock::check()</a>) call. Similarly, no non-pointer data may be accessed in any fault-causing way if it's illegal.</p>
 <p>To follow the above rules, first copy the data of interest, then verify consistency via unlock or version check call. Only use the copied data if these operations succeeded. Otherwise an algorithm restart is necessary.</p>
 <p>In the current implementation, it is possible for a reader to be starved indefinitely.</p>
-<h2><a class="anchor" id="autotoc_md19"></a>
+<h2><a class="anchor" id="autotoc_md21"></a>
 Write protocol</h2>
 <p>After a successful write lock acquisition by <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html" title="Write guard (WG) for exclusive access protection.">unodb::optimistic_lock::write_guard()</a>, the protected data may be accessed freely, as if under a regular write lock, with the exception of data deletion, discussed below. The write lock object is a C++ scope guard which will unlock on leaving the scope.</p>
 <p>Since read locking does not write to the shared memory, readers can have active pointers to the data without the writer knowing about them. Therefore, lock-protected heap data cannot be deallocated immediately. Instead of immediate deallocation, the data is marked as obsolete (unodb::optimistic_lock::write_guard::write_unlock_and_obsolete) and reclaimed later when it is safe to do so. This is implemented by <a class="el" href="group__qsbr.html">Quiescent State-Based Reclamation</a>.</p>
-<h2><a class="anchor" id="autotoc_md20"></a>
+<h2><a class="anchor" id="autotoc_md22"></a>
 Internals</h2>
 <p>A lock is a single machine word, that encodes locked-unlocked state, obsolete state, and version number.</p>
 <p>Locking for write (<a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html" title="Write guard (WG) for exclusive access protection.">unodb::optimistic_lock::write_guard()</a>) atomically sets the locked state and bumps the version number.</p>
 <p>Locking for read (<a class="el" href="classunodb_1_1optimistic__lock.html#a557b207dfd8a0d42a63e27dd34a05db0" title="Acquire and return an optimistic_lock::read_critical_section for this lock.">unodb::optimistic_lock::try_read_lock()</a>) saves the version number at the time, and unlocking for read (<a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a440405f82d354281cf33f37de0433b95" title="Check one last time whether this RCS is still valid and unlock it.">unodb::optimistic_lock::read_critical_section::try_read_unlock()</a>) checks whether the lock version did not advance since the read lock. It is also possible to check this in a middle of an RCS (<a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#ad027fbe6045c80c4869e6e6d05af408e" title="Check whether this RCS is still valid.">unodb::optimistic_lock::read_critical_section::check()</a>), which has exactly the same semantics under a different name for descriptive code.</p>
 <p>A lock in obsolete state marks data which is on the deallocation backlog to be freed once all the thread epochs have advanced. All algorithms must immediately stop retrying read locking such data and restart.</p>
-<h2><a class="anchor" id="autotoc_md21"></a>
+<h2><a class="anchor" id="autotoc_md23"></a>
 Memory model</h2>
 <p>The data races are prevented by implementing the Figure 6 method from Boehm's paper (see Literature section below for the reference): </p><div class="fragment"><div class="line"><span class="keyword">const</span> <span class="keyword">auto</span> ver0 = lock_version.load(std::memory_order_acquire);</div>
 <div class="line"><span class="keyword">const</span> <span class="keyword">auto</span> data0 = data0.load(std::memory_order_relaxed);</div>
@@ -233,7 +233,7 @@ Memory model</h2>
 <div class="line">} <span class="keywordflow">else</span> {</div>
 <div class="line">  <span class="comment">// Restart</span></div>
 <div class="line">}</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md22"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md24"></a>
 Literature</h2>
 <p>Based on the design from:</p><ul>
 <li>V. Leis et al., "The ART of Practical Synchronization," DaMoN 2016, for the algorithms.</li>

@@ -100,9 +100,9 @@ $(document).ready(function(){initNavTree('classunodb_1_1detail_1_1basic__inode__
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="#pri-types">Private Types</a> &#124;
 <a href="#pri-methods">Private Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="#pri-static-attribs">Static Private Attributes</a> &#124;
 <a href="#friends">Friends</a> &#124;
 <a href="classunodb_1_1detail_1_1basic__inode__48-members.html">List of all members</a>  </div>
@@ -120,10 +120,11 @@ Inheritance diagram for unodb::detail::basic_inode_48&lt; ArtPolicy &gt;:</div>
  <div class="center">
   <img src="classunodb_1_1detail_1_1basic__inode__48.png" usemap="#unodb::detail::basic_5Finode_5F48_3C_20ArtPolicy_20_3E_map" alt=""/>
   <map id="unodb::detail::basic_5Finode_5F48_3C_20ArtPolicy_20_3E_map" name="unodb::detail::basic_5Finode_5F48_3C_20ArtPolicy_20_3E_map">
-<area href="classunodb_1_1detail_1_1basic__inode.html" title="CRTP base class for concrete internal node types." alt="unodb::detail::basic_inode&lt; ArtPolicy, MinSize, Capacity, NodeType, SmallerDerived, LargerDerived, Derived &gt;" shape="rect" coords="136,112,398,136"/>
-<area href="classunodb_1_1detail_1_1basic__inode__impl.html" title="Base class for all internal node types." alt="unodb::detail::basic_inode_impl&lt; ArtPolicy &gt;" shape="rect" coords="136,56,398,80"/>
-<area href="classunodb_1_1detail_1_1inode__48.html" title="Internal node with 48 children for non-thread-safe ART." alt="unodb::detail::inode_48&lt; Key, Value &gt;" shape="rect" coords="0,224,262,248"/>
-<area href="classunodb_1_1detail_1_1olc__inode__48.html" alt="unodb::detail::olc_inode_48&lt; Key, Value &gt;" shape="rect" coords="272,224,534,248"/>
+<area href="classunodb_1_1detail_1_1basic__inode.html" title="CRTP base class for concrete internal node types." alt="unodb::detail::basic_inode&lt; ArtPolicy, MinSize, Capacity, NodeType, SmallerDerived, LargerDerived, Derived &gt;" shape="rect" coords="0,112,547,136"/>
+<area href="structunodb_1_1detail_1_1value__bitmask__field.html" alt="unodb::detail::value_bitmask_field&lt; ArtPolicy::can_eliminate_leaf, std::array&lt; std::uint8_t, 6 &gt; &gt;" shape="rect" coords="557,112,1104,136"/>
+<area href="classunodb_1_1detail_1_1basic__inode__impl.html" title="Base class for all internal node types." alt="unodb::detail::basic_inode_impl&lt; ArtPolicy &gt;" shape="rect" coords="0,56,547,80"/>
+<area href="classunodb_1_1detail_1_1inode__48.html" title="Internal node with 48 children for non-thread-safe ART." alt="unodb::detail::inode_48&lt; Key, Value &gt;" shape="rect" coords="0,224,547,248"/>
+<area href="classunodb_1_1detail_1_1olc__inode__48.html" alt="unodb::detail::olc_inode_48&lt; Key, Value &gt;" shape="rect" coords="557,224,1104,248"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -236,21 +237,37 @@ constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>basic_inode_48</
 constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>basic_inode_48</b> (<a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aada67e1b1be140b695c809ff1ebbeb44">db_type</a> &amp;, const <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#aca72cb01bfbb57cac9c0c91ad5d561de">inode256_type</a> &amp;source_node) noexcept</td></tr>
 <tr class="memdesc:af935d492b6a6658e4b2015cfd2c0f87c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct by shrinking from <em>source_node</em> of <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html" title="Internal node with 49-256 children (N256).">basic_inode_256</a> type. <br /></td></tr>
 <tr class="separator:af935d492b6a6658e4b2015cfd2c0f87c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1d090edfda4121a3156b98deff139df1" id="r_a1d090edfda4121a3156b98deff139df1"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#a1d090edfda4121a3156b98deff139df1">basic_inode_48</a> (<a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aada67e1b1be140b695c809ff1ebbeb44">db_type</a> &amp;db_instance, <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a391911aa4ada3b8333a30b407b6a7bae">inode16_type</a> &amp;__restrict source_node, <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aa0833ddfc1e689707d1c487e2f34767c">db_leaf_unique_ptr</a> &amp;&amp;child, <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aac1bb90f2042b839804342ab39b6866f">tree_depth_type</a> depth) noexcept</td></tr>
-<tr class="memdesc:a1d090edfda4121a3156b98deff139df1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct by growing from <a class="el" href="classunodb_1_1detail_1_1basic__inode__16.html" title="Internal node with 5-16 children (N16).">basic_inode_16</a> and adding a child.  <br /></td></tr>
-<tr class="separator:a1d090edfda4121a3156b98deff139df1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10857a128e4b10c87870c011ae0ea01c" id="r_a10857a128e4b10c87870c011ae0ea01c"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#a10857a128e4b10c87870c011ae0ea01c">basic_inode_48</a> (<a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aada67e1b1be140b695c809ff1ebbeb44">db_type</a> &amp;db_instance, <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a391911aa4ada3b8333a30b407b6a7bae">inode16_type</a> &amp;__restrict source_node, <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aa0833ddfc1e689707d1c487e2f34767c">db_leaf_unique_ptr</a> &amp;&amp;child, <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aac1bb90f2042b839804342ab39b6866f">tree_depth_type</a> depth, std::byte key_byte) noexcept</td></tr>
+<tr class="memdesc:a10857a128e4b10c87870c011ae0ea01c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct by growing from <a class="el" href="classunodb_1_1detail_1_1basic__inode__16.html" title="Internal node with 5-16 children (N16).">basic_inode_16</a> and adding a child.  <br /></td></tr>
+<tr class="separator:a10857a128e4b10c87870c011ae0ea01c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5fe98c22f512020f0eae011899168e07" id="r_a5fe98c22f512020f0eae011899168e07"><td class="memItemLeft" align="right" valign="top"><a id="a5fe98c22f512020f0eae011899168e07" name="a5fe98c22f512020f0eae011899168e07"></a>
+constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>basic_inode_48</b> (<a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aada67e1b1be140b695c809ff1ebbeb44">db_type</a> &amp;db_instance, <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a391911aa4ada3b8333a30b407b6a7bae">inode16_type</a> &amp;__restrict source_node, <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#af470045f63b1888c85166604c3d8a6be">node_ptr</a> packed_value, <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aac1bb90f2042b839804342ab39b6866f">tree_depth_type</a> depth, std::byte key_byte) noexcept</td></tr>
+<tr class="memdesc:a5fe98c22f512020f0eae011899168e07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct by growing from <a class="el" href="classunodb_1_1detail_1_1basic__inode__16.html" title="Internal node with 5-16 children (N16).">basic_inode_16</a> (value-in-slot variant). <br /></td></tr>
+<tr class="separator:a5fe98c22f512020f0eae011899168e07"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5b36c34b7439a373d3421f5f1c0e84d0" id="r_a5b36c34b7439a373d3421f5f1c0e84d0"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#a5b36c34b7439a373d3421f5f1c0e84d0">basic_inode_48</a> (<a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aada67e1b1be140b695c809ff1ebbeb44">db_type</a> &amp;db_instance, <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#aca72cb01bfbb57cac9c0c91ad5d561de">inode256_type</a> &amp;__restrict source_node, std::uint8_t child_to_delete) noexcept</td></tr>
 <tr class="memdesc:a5b36c34b7439a373d3421f5f1c0e84d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct by shrinking from <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html" title="Internal node with 49-256 children (N256).">basic_inode_256</a> and removing a child.  <br /></td></tr>
 <tr class="separator:a5b36c34b7439a373d3421f5f1c0e84d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a89901af15b1a8d66ddc4b37c7a451216" id="r_a89901af15b1a8d66ddc4b37c7a451216"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#a89901af15b1a8d66ddc4b37c7a451216">init</a> (<a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aada67e1b1be140b695c809ff1ebbeb44">db_type</a> &amp;db_instance, <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a391911aa4ada3b8333a30b407b6a7bae">inode16_type</a> &amp;__restrict source_node, <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aa0833ddfc1e689707d1c487e2f34767c">db_leaf_unique_ptr</a> child, <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aac1bb90f2042b839804342ab39b6866f">tree_depth_type</a> depth) noexcept</td></tr>
-<tr class="memdesc:a89901af15b1a8d66ddc4b37c7a451216"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize by growing from <a class="el" href="classunodb_1_1detail_1_1basic__inode__16.html" title="Internal node with 5-16 children (N16).">basic_inode_16</a> and adding a child.  <br /></td></tr>
-<tr class="separator:a89901af15b1a8d66ddc4b37c7a451216"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42a3205e61b8c1003dd9ac06c41494e2" id="r_a42a3205e61b8c1003dd9ac06c41494e2"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#a42a3205e61b8c1003dd9ac06c41494e2">init</a> (<a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aada67e1b1be140b695c809ff1ebbeb44">db_type</a> &amp;db_instance, <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a391911aa4ada3b8333a30b407b6a7bae">inode16_type</a> &amp;__restrict source_node, <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aa0833ddfc1e689707d1c487e2f34767c">db_leaf_unique_ptr</a> child, <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aac1bb90f2042b839804342ab39b6866f">tree_depth_type</a> depth, std::byte key_byte) noexcept</td></tr>
+<tr class="memdesc:a42a3205e61b8c1003dd9ac06c41494e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize by growing from <a class="el" href="classunodb_1_1detail_1_1basic__inode__16.html" title="Internal node with 5-16 children (N16).">basic_inode_16</a> and adding a child.  <br /></td></tr>
+<tr class="separator:a42a3205e61b8c1003dd9ac06c41494e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abbe0d30bf0c1231c297aabc919570802" id="r_abbe0d30bf0c1231c297aabc919570802"><td class="memItemLeft" align="right" valign="top"><a id="abbe0d30bf0c1231c297aabc919570802" name="abbe0d30bf0c1231c297aabc919570802"></a>
+constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>init</b> (<a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aada67e1b1be140b695c809ff1ebbeb44">db_type</a> &amp;db_instance, <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a391911aa4ada3b8333a30b407b6a7bae">inode16_type</a> &amp;__restrict source_node, <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#af470045f63b1888c85166604c3d8a6be">node_ptr</a> packed_value, <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aac1bb90f2042b839804342ab39b6866f">tree_depth_type</a> depth, std::byte key_byte) noexcept</td></tr>
+<tr class="memdesc:abbe0d30bf0c1231c297aabc919570802"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize by growing from <a class="el" href="classunodb_1_1detail_1_1basic__inode__16.html" title="Internal node with 5-16 children (N16).">basic_inode_16</a> (value-in-slot variant). <br /></td></tr>
+<tr class="separator:abbe0d30bf0c1231c297aabc919570802"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af15cdb4d3b4e9ff98578686466dfd483" id="r_af15cdb4d3b4e9ff98578686466dfd483"><td class="memItemLeft" align="right" valign="top"><a id="af15cdb4d3b4e9ff98578686466dfd483" name="af15cdb4d3b4e9ff98578686466dfd483"></a>
+constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>init_grow</b> (<a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aada67e1b1be140b695c809ff1ebbeb44">db_type</a> &amp;db_instance, <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a391911aa4ada3b8333a30b407b6a7bae">inode16_type</a> &amp;__restrict source_node, <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#af470045f63b1888c85166604c3d8a6be">node_ptr</a> child_val, std::byte key_byte) noexcept</td></tr>
+<tr class="memdesc:af15cdb4d3b4e9ff98578686466dfd483"><td class="mdescLeft">&#160;</td><td class="mdescRight">Common grow logic from I16. <br /></td></tr>
+<tr class="separator:af15cdb4d3b4e9ff98578686466dfd483"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a38a0ca9abb016ff4fd117884567bb213" id="r_a38a0ca9abb016ff4fd117884567bb213"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#a38a0ca9abb016ff4fd117884567bb213">init</a> (<a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aada67e1b1be140b695c809ff1ebbeb44">db_type</a> &amp;db_instance, <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#aca72cb01bfbb57cac9c0c91ad5d561de">inode256_type</a> &amp;__restrict source_node, std::uint8_t child_to_delete) noexcept</td></tr>
 <tr class="memdesc:a38a0ca9abb016ff4fd117884567bb213"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize by shrinking from <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html" title="Internal node with 49-256 children (N256).">basic_inode_256</a> and removing a child.  <br /></td></tr>
 <tr class="separator:a38a0ca9abb016ff4fd117884567bb213"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1c9751817f0fd699bee17411f9a338eb" id="r_a1c9751817f0fd699bee17411f9a338eb"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#a1c9751817f0fd699bee17411f9a338eb">add_to_nonfull</a> (<a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aa0833ddfc1e689707d1c487e2f34767c">db_leaf_unique_ptr</a> &amp;&amp;child, <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aac1bb90f2042b839804342ab39b6866f">tree_depth_type</a> depth, std::uint8_t children_count_) noexcept</td></tr>
-<tr class="memdesc:a1c9751817f0fd699bee17411f9a338eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add child to non-full node.  <br /></td></tr>
-<tr class="separator:a1c9751817f0fd699bee17411f9a338eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af182526fefac33a4167ca5a5a8dea26e" id="r_af182526fefac33a4167ca5a5a8dea26e"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#af182526fefac33a4167ca5a5a8dea26e">add_to_nonfull</a> (<a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aa0833ddfc1e689707d1c487e2f34767c">db_leaf_unique_ptr</a> &amp;&amp;child, <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aac1bb90f2042b839804342ab39b6866f">tree_depth_type</a> depth, std::byte key_byte, std::uint8_t children_count_) noexcept</td></tr>
+<tr class="memdesc:af182526fefac33a4167ca5a5a8dea26e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add child to non-full node.  <br /></td></tr>
+<tr class="separator:af182526fefac33a4167ca5a5a8dea26e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5f8cca1532e9156168ee2246ebea7fe" id="r_ab5f8cca1532e9156168ee2246ebea7fe"><td class="memItemLeft" align="right" valign="top"><a id="ab5f8cca1532e9156168ee2246ebea7fe" name="ab5f8cca1532e9156168ee2246ebea7fe"></a>
+constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>add_to_nonfull</b> (<a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#af470045f63b1888c85166604c3d8a6be">node_ptr</a> packed_value, <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aac1bb90f2042b839804342ab39b6866f">tree_depth_type</a> depth, std::byte key_byte, std::uint8_t children_count_) noexcept</td></tr>
+<tr class="memdesc:ab5f8cca1532e9156168ee2246ebea7fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a packed value to a non-full node (value-in-slot variant). <br /></td></tr>
+<tr class="separator:ab5f8cca1532e9156168ee2246ebea7fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1f0a79b5607d248f6e64c2b879731e66" id="r_a1f0a79b5607d248f6e64c2b879731e66"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#a1f0a79b5607d248f6e64c2b879731e66">remove</a> (std::uint8_t child_index, <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aada67e1b1be140b695c809ff1ebbeb44">db_type</a> &amp;db_instance) noexcept</td></tr>
 <tr class="memdesc:a1f0a79b5607d248f6e64c2b879731e66"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove child at given key byte index.  <br /></td></tr>
 <tr class="separator:a1f0a79b5607d248f6e64c2b879731e66"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -287,6 +304,22 @@ constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>basic_inode_48</
 <tr class="memitem:a6077573eac740bb164b55ca3b48c3139" id="r_a6077573eac740bb164b55ca3b48c3139"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#a6077573eac740bb164b55ca3b48c3139">dump</a> (std::ostream &amp;os, bool recursive) const</td></tr>
 <tr class="memdesc:a6077573eac740bb164b55ca3b48c3139"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dump node contents to stream for debugging.  <br /></td></tr>
 <tr class="separator:a6077573eac740bb164b55ca3b48c3139"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae887f011449d7be4a2ff606012ce6a7d" id="r_ae887f011449d7be4a2ff606012ce6a7d"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#ae887f011449d7be4a2ff606012ce6a7d">is_value_in_slot</a> (std::uint8_t key_byte_i) const noexcept</td></tr>
+<tr class="memdesc:ae887f011449d7be4a2ff606012ce6a7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">For I48, the child_index from find_child is the key byte.  <br /></td></tr>
+<tr class="separator:ae887f011449d7be4a2ff606012ce6a7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad858bdb8d6394c635264c44eda336fdc" id="r_ad858bdb8d6394c635264c44eda336fdc"><td class="memItemLeft" align="right" valign="top"><a id="ad858bdb8d6394c635264c44eda336fdc" name="ad858bdb8d6394c635264c44eda336fdc"></a>
+constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>set_value_bit</b> (std::uint8_t key_byte_i) noexcept</td></tr>
+<tr class="separator:ad858bdb8d6394c635264c44eda336fdc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac23f404bdfd801fe866e54176f3d4e46" id="r_ac23f404bdfd801fe866e54176f3d4e46"><td class="memItemLeft" align="right" valign="top"><a id="ac23f404bdfd801fe866e54176f3d4e46" name="ac23f404bdfd801fe866e54176f3d4e46"></a>
+constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>clear_value_bit</b> (std::uint8_t key_byte_i) noexcept</td></tr>
+<tr class="separator:ac23f404bdfd801fe866e54176f3d4e46"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa6a4a2e8c7ce11d43eed44b2375add18" id="r_aa6a4a2e8c7ce11d43eed44b2375add18"><td class="memItemLeft" align="right" valign="top"><a id="aa6a4a2e8c7ce11d43eed44b2375add18" name="aa6a4a2e8c7ce11d43eed44b2375add18"></a>
+constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_value_in_slot_by_ci</b> (std::uint8_t ci) const noexcept</td></tr>
+<tr class="memdesc:aa6a4a2e8c7ce11d43eed44b2375add18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check by children array index (for internal iteration). <br /></td></tr>
+<tr class="separator:aa6a4a2e8c7ce11d43eed44b2375add18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6720b4f2204346f2cd49ebc333a5e71e" id="r_a6720b4f2204346f2cd49ebc333a5e71e"><td class="memItemLeft" align="right" valign="top"><a id="a6720b4f2204346f2cd49ebc333a5e71e" name="a6720b4f2204346f2cd49ebc333a5e71e"></a>
+constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>set_value_bit_by_ci</b> (std::uint8_t ci) noexcept</td></tr>
+<tr class="separator:a6720b4f2204346f2cd49ebc333a5e71e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classunodb_1_1detail_1_1basic__inode"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classunodb_1_1detail_1_1basic__inode')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classunodb_1_1detail_1_1basic__inode.html">unodb::detail::basic_inode&lt; ArtPolicy, MinSize, Capacity, NodeType, SmallerDerived, LargerDerived, Derived &gt;</a></td></tr>
 <tr class="memitem:a8d1cc0321605ea86c48978fdb898fdfb inherit pub_methods_classunodb_1_1detail_1_1basic__inode" id="r_a8d1cc0321605ea86c48978fdb898fdfb"><td class="memItemLeft" align="right" valign="top">
 constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_full_for_add</b> () const noexcept</td></tr>
@@ -319,6 +352,14 @@ constexpr auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_k
 <tr class="memitem:a9199d94a15fedd493387941042e577f3 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl" id="r_a9199d94a15fedd493387941042e577f3"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#abd5f9efd3d001e70509078bbfe214d48">find_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a9199d94a15fedd493387941042e577f3">find_child</a> (<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> type, std::byte key_byte) noexcept</td></tr>
 <tr class="memdesc:a9199d94a15fedd493387941042e577f3 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find child matching key byte.  <br /></td></tr>
 <tr class="separator:a9199d94a15fedd493387941042e577f3 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a06464f8d513d03bb2fd4a96a241e1775 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl" id="r_a06464f8d513d03bb2fd4a96a241e1775"><td class="memItemLeft" align="right" valign="top">
+constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_value_in_slot</b> (<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> type, std::uint8_t child_i) const noexcept</td></tr>
+<tr class="memdesc:a06464f8d513d03bb2fd4a96a241e1775 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if child at index holds a packed value, dispatching by type. <br /></td></tr>
+<tr class="separator:a06464f8d513d03bb2fd4a96a241e1775 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7b4500165b9a2df78f3bf87edccb7f30 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl" id="r_a7b4500165b9a2df78f3bf87edccb7f30"><td class="memItemLeft" align="right" valign="top">
+constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>clear_value_bit</b> (<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> type, std::uint8_t child_i) noexcept</td></tr>
+<tr class="memdesc:a7b4500165b9a2df78f3bf87edccb7f30 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear value bitmask bit, dispatching by type. <br /></td></tr>
+<tr class="separator:a7b4500165b9a2df78f3bf87edccb7f30 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa93b523e9c151828a7d71d4511d649b5 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl" id="r_aa93b523e9c151828a7d71d4511d649b5"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#aa93b523e9c151828a7d71d4511d649b5">remove_child_entry</a> (<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> type, std::uint8_t child_index) noexcept</td></tr>
 <tr class="memdesc:aa93b523e9c151828a7d71d4511d649b5 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove child entry without reclaiming the child, dispatching by type.  <br /></td></tr>
 <tr class="separator:aa93b523e9c151828a7d71d4511d649b5 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -346,6 +387,10 @@ constexpr auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_k
 <tr class="memitem:a81d348a2a5cef45004e79436714724b3 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl" id="r_a81d348a2a5cef45004e79436714724b3"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a81d348a2a5cef45004e79436714724b3">basic_inode_impl</a> (unsigned children_count_, <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> k1, <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a789345e4cacd1d9e179e0dcfe7aa064a">art_key_type</a> shifted_k2, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a789345e4cacd1d9e179e0dcfe7aa064a">art_key_type</a> &gt; depth) noexcept</td></tr>
 <tr class="memdesc:a81d348a2a5cef45004e79436714724b3 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct with shared prefix from two keys.  <br /></td></tr>
 <tr class="separator:a81d348a2a5cef45004e79436714724b3 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f1cc30eb6ee11c63ced42d92cdb08dd inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl" id="r_a5f1cc30eb6ee11c63ced42d92cdb08dd"><td class="memItemLeft" align="right" valign="top">
+constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>basic_inode_impl</b> (unsigned children_count_, <a class="el" href="namespaceunodb_1_1detail.html#a2a48856979c828fe6f91a83b8b43e0be">detail::key_prefix_size</a> prefix_len, <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> k1, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a789345e4cacd1d9e179e0dcfe7aa064a">art_key_type</a> &gt; depth) noexcept</td></tr>
+<tr class="memdesc:a5f1cc30eb6ee11c63ced42d92cdb08dd inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct with explicit prefix length from key at depth. <br /></td></tr>
+<tr class="separator:a5f1cc30eb6ee11c63ced42d92cdb08dd inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a697a7cbb45d3f7c687712e19e8dcefd7 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl" id="r_a697a7cbb45d3f7c687712e19e8dcefd7"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a697a7cbb45d3f7c687712e19e8dcefd7">basic_inode_impl</a> (unsigned children_count_, unsigned key_prefix_len, const <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#afa58d345d4460a742d0ee9279f2e21ab">inode_type</a> &amp;key_prefix_source_node) noexcept</td></tr>
 <tr class="memdesc:a697a7cbb45d3f7c687712e19e8dcefd7 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct with truncated prefix from source node.  <br /></td></tr>
 <tr class="separator:a697a7cbb45d3f7c687712e19e8dcefd7 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -353,12 +398,26 @@ constexpr auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_k
 <tr class="memdesc:abc8e33e3016ff43b1e7c2a1169a78071 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy constructor with specified children count.  <br /></td></tr>
 <tr class="separator:abc8e33e3016ff43b1e7c2a1169a78071 inherit pub_methods_classunodb_1_1detail_1_1basic__inode__impl"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:a733c51620437f23e6b970454c975d192" id="r_a733c51620437f23e6b970454c975d192"><td class="memItemLeft" align="right" valign="top"><a id="a733c51620437f23e6b970454c975d192" name="a733c51620437f23e6b970454c975d192"></a>
+std::array&lt; <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#a5746647717698cb39c280e100b8cea2e">critical_section_policy</a>&lt; std::uint8_t &gt;, 256 &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>child_indexes</b></td></tr>
+<tr class="separator:a733c51620437f23e6b970454c975d192"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c631bd9909626a9a6c2f3fc6d91f422" id="r_a3c631bd9909626a9a6c2f3fc6d91f422"><td class="memItemLeft" align="right" valign="top"><a id="a3c631bd9909626a9a6c2f3fc6d91f422" name="a3c631bd9909626a9a6c2f3fc6d91f422"></a>
+<a class="el" href="unionunodb_1_1detail_1_1basic__inode__48_1_1children__union.html">children_union</a>&#160;</td><td class="memItemRight" valign="bottom"><b>children</b></td></tr>
+<tr class="memdesc:a3c631bd9909626a9a6c2f3fc6d91f422"><td class="mdescLeft">&#160;</td><td class="mdescRight">Child pointers array. <br /></td></tr>
+<tr class="separator:a3c631bd9909626a9a6c2f3fc6d91f422"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-types" name="pri-types"></a>
 Private Types</h2></td></tr>
 <tr class="memitem:a73a699cde3007a2680f5c5a96b2f5d19" id="r_a73a699cde3007a2680f5c5a96b2f5d19"><td class="memItemLeft" align="right" valign="top"><a id="a73a699cde3007a2680f5c5a96b2f5d19" name="a73a699cde3007a2680f5c5a96b2f5d19"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>parent_class</b> = <a class="el" href="namespaceunodb_1_1detail.html#a4bf738b8ea5a62ab94eb490521f021d4">basic_inode_48_parent</a>&lt; ArtPolicy &gt;</td></tr>
 <tr class="memdesc:a73a699cde3007a2680f5c5a96b2f5d19"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base class type alias. <br /></td></tr>
 <tr class="separator:a73a699cde3007a2680f5c5a96b2f5d19"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a534cd54a74fe535bfc3ad850410de255" id="r_a534cd54a74fe535bfc3ad850410de255"><td class="memItemLeft" align="right" valign="top"><a id="a534cd54a74fe535bfc3ad850410de255" name="a534cd54a74fe535bfc3ad850410de255"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>bitmask_base</b> = <a class="el" href="structunodb_1_1detail_1_1value__bitmask__field.html">value_bitmask_field</a>&lt; ArtPolicy::can_eliminate_leaf, std::array&lt; std::uint8_t, 6 &gt; &gt;</td></tr>
+<tr class="memdesc:a534cd54a74fe535bfc3ad850410de255"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bitmask base (empty via EBO when can_eliminate_leaf is false). <br /></td></tr>
+<tr class="separator:a534cd54a74fe535bfc3ad850410de255"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5746647717698cb39c280e100b8cea2e" id="r_a5746647717698cb39c280e100b8cea2e"><td class="memTemplParams" colspan="2"><a id="a5746647717698cb39c280e100b8cea2e" name="a5746647717698cb39c280e100b8cea2e"></a>
 template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a5746647717698cb39c280e100b8cea2e"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>critical_section_policy</b> = typename ArtPolicy::template <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#a5746647717698cb39c280e100b8cea2e">critical_section_policy</a>&lt; T &gt;</td></tr>
@@ -377,17 +436,23 @@ Private Member Functions</h2></td></tr>
 <tr class="memitem:a6a1a9c27cc2c55f5d23eda84990a7b2c" id="r_a6a1a9c27cc2c55f5d23eda84990a7b2c"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#a6a1a9c27cc2c55f5d23eda84990a7b2c">direct_remove_child_pointer</a> (std::uint8_t children_i, <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aada67e1b1be140b695c809ff1ebbeb44">db_type</a> &amp;db_instance) noexcept</td></tr>
 <tr class="memdesc:a6a1a9c27cc2c55f5d23eda84990a7b2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove child pointer by direct children array index.  <br /></td></tr>
 <tr class="separator:a6a1a9c27cc2c55f5d23eda84990a7b2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:a733c51620437f23e6b970454c975d192" id="r_a733c51620437f23e6b970454c975d192"><td class="memItemLeft" align="right" valign="top"><a id="a733c51620437f23e6b970454c975d192" name="a733c51620437f23e6b970454c975d192"></a>
-std::array&lt; <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#a5746647717698cb39c280e100b8cea2e">critical_section_policy</a>&lt; std::uint8_t &gt;, 256 &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>child_indexes</b></td></tr>
-<tr class="memdesc:a733c51620437f23e6b970454c975d192"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maps key byte to index in children array (256 entries). <br /></td></tr>
-<tr class="separator:a733c51620437f23e6b970454c975d192"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3c631bd9909626a9a6c2f3fc6d91f422" id="r_a3c631bd9909626a9a6c2f3fc6d91f422"><td class="memItemLeft" align="right" valign="top"><a id="a3c631bd9909626a9a6c2f3fc6d91f422" name="a3c631bd9909626a9a6c2f3fc6d91f422"></a>
-<a class="el" href="unionunodb_1_1detail_1_1basic__inode__48_1_1children__union.html">children_union</a>&#160;</td><td class="memItemRight" valign="bottom"><b>children</b></td></tr>
-<tr class="memdesc:a3c631bd9909626a9a6c2f3fc6d91f422"><td class="mdescLeft">&#160;</td><td class="mdescRight">Child pointers array. <br /></td></tr>
-<tr class="separator:a3c631bd9909626a9a6c2f3fc6d91f422"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_structunodb_1_1detail_1_1value__bitmask__field"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_structunodb_1_1detail_1_1value__bitmask__field')"><img src="closed.png" alt="-"/>&#160;Private Member Functions inherited from <a class="el" href="structunodb_1_1detail_1_1value__bitmask__field.html">unodb::detail::value_bitmask_field&lt; ArtPolicy::can_eliminate_leaf, std::array&lt; std::uint8_t, 6 &gt; &gt;</a></td></tr>
+<tr class="memitem:a2eff15ff8628b565e20da92f00818ebc inherit pub_methods_structunodb_1_1detail_1_1value__bitmask__field" id="r_a2eff15ff8628b565e20da92f00818ebc"><td class="memItemLeft" align="right" valign="top">
+constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><b>test</b> (std::uint8_t i) const noexcept</td></tr>
+<tr class="separator:a2eff15ff8628b565e20da92f00818ebc inherit pub_methods_structunodb_1_1detail_1_1value__bitmask__field"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a594562e811109617eb772e5af102cb37 inherit pub_methods_structunodb_1_1detail_1_1value__bitmask__field" id="r_a594562e811109617eb772e5af102cb37"><td class="memItemLeft" align="right" valign="top">
+constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>set</b> (std::uint8_t i) noexcept</td></tr>
+<tr class="separator:a594562e811109617eb772e5af102cb37 inherit pub_methods_structunodb_1_1detail_1_1value__bitmask__field"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80828101061f82da627f260660081a91 inherit pub_methods_structunodb_1_1detail_1_1value__bitmask__field" id="r_a80828101061f82da627f260660081a91"><td class="memItemLeft" align="right" valign="top">
+constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>clear</b> (std::uint8_t i) noexcept</td></tr>
+<tr class="separator:a80828101061f82da627f260660081a91 inherit pub_methods_structunodb_1_1detail_1_1value__bitmask__field"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f293b4d5d577091d3c201252419ef02 inherit pub_methods_structunodb_1_1detail_1_1value__bitmask__field" id="r_a5f293b4d5d577091d3c201252419ef02"><td class="memItemLeft" align="right" valign="top">
+constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>remove_at</b> (std::uint8_t i) noexcept</td></tr>
+<tr class="memdesc:a5f293b4d5d577091d3c201252419ef02 inherit pub_methods_structunodb_1_1detail_1_1value__bitmask__field"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove bit at position <code>i</code>, shifting higher bits down. <br /></td></tr>
+<tr class="separator:a5f293b4d5d577091d3c201252419ef02 inherit pub_methods_structunodb_1_1detail_1_1value__bitmask__field"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a339c1dc06837998346946f16e0235b18 inherit pub_methods_structunodb_1_1detail_1_1value__bitmask__field" id="r_a339c1dc06837998346946f16e0235b18"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1value__bitmask__field.html#a339c1dc06837998346946f16e0235b18">insert_at</a> (std::uint8_t i) noexcept</td></tr>
+<tr class="memdesc:a339c1dc06837998346946f16e0235b18 inherit pub_methods_structunodb_1_1detail_1_1value__bitmask__field"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert space at position <code>i</code>, shifting higher bits up.  <br /></td></tr>
+<tr class="separator:a339c1dc06837998346946f16e0235b18 inherit pub_methods_structunodb_1_1detail_1_1value__bitmask__field"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-attribs" name="pri-static-attribs"></a>
 Static Private Attributes</h2></td></tr>
@@ -402,6 +467,9 @@ Friends</h2></td></tr>
 template&lt;class &gt; </td></tr>
 <tr class="memitem:ad44c60aa0abb38feefdc667ce521e4ba"><td class="memTemplItemLeft" align="right" valign="top">class&#160;</td><td class="memTemplItemRight" valign="bottom"><b>basic_inode_16</b></td></tr>
 <tr class="separator:ad44c60aa0abb38feefdc667ce521e4ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abed3a88a5dc092e2c61120e2993aedbd" id="r_abed3a88a5dc092e2c61120e2993aedbd"><td class="memItemLeft" align="right" valign="top"><a id="abed3a88a5dc092e2c61120e2993aedbd" name="abed3a88a5dc092e2c61120e2993aedbd"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>basic_inode_impl&lt; ArtPolicy &gt;</b></td></tr>
+<tr class="separator:abed3a88a5dc092e2c61120e2993aedbd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab9fceb5f7e0766ab440ade144f07dfff" id="r_ab9fceb5f7e0766ab440ade144f07dfff"><td class="memTemplParams" colspan="2"><a id="ab9fceb5f7e0766ab440ade144f07dfff" name="ab9fceb5f7e0766ab440ade144f07dfff"></a>
 template&lt;class &gt; </td></tr>
 <tr class="memitem:ab9fceb5f7e0766ab440ade144f07dfff"><td class="memTemplItemLeft" align="right" valign="top">class&#160;</td><td class="memTemplItemRight" valign="bottom"><b>basic_inode_256</b></td></tr>
@@ -437,10 +505,6 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>tree_depth_type</b> 
 <tr class="memdesc:aac1bb90f2042b839804342ab39b6866f inherit pro_types_classunodb_1_1detail_1_1basic__inode"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tree depth type. <br /></td></tr>
 <tr class="separator:aac1bb90f2042b839804342ab39b6866f inherit pro_types_classunodb_1_1detail_1_1basic__inode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_types_classunodb_1_1detail_1_1basic__inode__impl"><td colspan="2" onclick="javascript:toggleInherit('pro_types_classunodb_1_1detail_1_1basic__inode__impl')"><img src="closed.png" alt="-"/>&#160;Protected Types inherited from <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html">unodb::detail::basic_inode_impl&lt; ArtPolicy &gt;</a></td></tr>
-<tr class="memitem:a4d31e4b60b23deaebc789fdf496e9e9c inherit pro_types_classunodb_1_1detail_1_1basic__inode__impl" id="r_a4d31e4b60b23deaebc789fdf496e9e9c"><td class="memItemLeft" align="right" valign="top">
-using&#160;</td><td class="memItemRight" valign="bottom"><b>leaf_type</b> = <a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">basic_leaf</a>&lt; <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a53170332943017a7bdd064bdb78bb22f">key_type</a>, <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a08a436d0caea461cd14f02e541d854f2">header_type</a> &gt;</td></tr>
-<tr class="memdesc:a4d31e4b60b23deaebc789fdf496e9e9c inherit pro_types_classunodb_1_1detail_1_1basic__inode__impl"><td class="mdescLeft">&#160;</td><td class="mdescRight">Leaf node type. <br /></td></tr>
-<tr class="separator:a4d31e4b60b23deaebc789fdf496e9e9c inherit pro_types_classunodb_1_1detail_1_1basic__inode__impl"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afa58d345d4460a742d0ee9279f2e21ab inherit pro_types_classunodb_1_1detail_1_1basic__inode__impl" id="r_afa58d345d4460a742d0ee9279f2e21ab"><td class="memItemLeft" align="right" valign="top">
 using&#160;</td><td class="memItemRight" valign="bottom"><b>inode_type</b> = typename ArtPolicy::inode</td></tr>
 <tr class="memdesc:afa58d345d4460a742d0ee9279f2e21ab inherit pro_types_classunodb_1_1detail_1_1basic__inode__impl"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base internal node type. <br /></td></tr>
@@ -479,6 +543,9 @@ constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>basic_inode</b> 
 <tr class="memitem:a7e407f1f60307c3cc92b9d54c9030830 inherit pro_methods_classunodb_1_1detail_1_1basic__inode" id="r_a7e407f1f60307c3cc92b9d54c9030830"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a7e407f1f60307c3cc92b9d54c9030830">basic_inode</a> (<a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a> k1, <a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a789345e4cacd1d9e179e0dcfe7aa064a">art_key_type</a> shifted_k2, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; <a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a789345e4cacd1d9e179e0dcfe7aa064a">art_key_type</a> &gt; depth, <a class="el" href="structunodb_1_1detail_1_1basic__inode_1_1single__child__tag.html">single_child_tag</a>) noexcept</td></tr>
 <tr class="memdesc:a7e407f1f60307c3cc92b9d54c9030830 inherit pro_methods_classunodb_1_1detail_1_1basic__inode"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct single-child node with prefix from two identical keys.  <br /></td></tr>
 <tr class="separator:a7e407f1f60307c3cc92b9d54c9030830 inherit pro_methods_classunodb_1_1detail_1_1basic__inode"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6645d1b943113c416b4fa17b74ce7f9f inherit pro_methods_classunodb_1_1detail_1_1basic__inode" id="r_a6645d1b943113c416b4fa17b74ce7f9f"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a6645d1b943113c416b4fa17b74ce7f9f">basic_inode</a> (<a class="el" href="namespaceunodb_1_1detail.html#a2a48856979c828fe6f91a83b8b43e0be">detail::key_prefix_size</a> prefix_len, <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a> k1, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; <a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a789345e4cacd1d9e179e0dcfe7aa064a">art_key_type</a> &gt; depth, <a class="el" href="structunodb_1_1detail_1_1basic__inode_1_1single__child__tag.html">single_child_tag</a>) noexcept</td></tr>
+<tr class="memdesc:a6645d1b943113c416b4fa17b74ce7f9f inherit pro_methods_classunodb_1_1detail_1_1basic__inode"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct single-child node with explicit prefix length.  <br /></td></tr>
+<tr class="separator:a6645d1b943113c416b4fa17b74ce7f9f inherit pro_methods_classunodb_1_1detail_1_1basic__inode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_classunodb_1_1detail_1_1basic__inode__impl"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classunodb_1_1detail_1_1basic__inode__impl')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html">unodb::detail::basic_inode_impl&lt; ArtPolicy &gt;</a></td></tr>
 <tr class="memitem:a17f1e7ea4e127322897b3678c98067ca inherit pro_methods_classunodb_1_1detail_1_1basic__inode__impl" id="r_a17f1e7ea4e127322897b3678c98067ca"><td class="memItemLeft" align="right" valign="top">
 void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os, bool) const</td></tr>
@@ -493,6 +560,10 @@ static constexpr <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.
 static constexpr <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a2030306d16106e373eb2a38d17d3815c">iter_result_opt</a>&#160;</td><td class="memItemRight" valign="bottom"><b>end_result</b> {}</td></tr>
 <tr class="memdesc:a309951d14c3d09aff0f0fc8be224a6e9 inherit pro_static_attribs_classunodb_1_1detail_1_1basic__inode__impl"><td class="mdescLeft">&#160;</td><td class="mdescRight">Iterator result value at the end of iteration. <br /></td></tr>
 <tr class="separator:a309951d14c3d09aff0f0fc8be224a6e9 inherit pro_static_attribs_classunodb_1_1detail_1_1basic__inode__impl"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_attribs_structunodb_1_1detail_1_1value__bitmask__field"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_structunodb_1_1detail_1_1value__bitmask__field')"><img src="closed.png" alt="-"/>&#160;Private Attributes inherited from <a class="el" href="structunodb_1_1detail_1_1value__bitmask__field.html">unodb::detail::value_bitmask_field&lt; ArtPolicy::can_eliminate_leaf, std::array&lt; std::uint8_t, 6 &gt; &gt;</a></td></tr>
+<tr class="memitem:ad67e49d3065fb71e9c88c93d552157d1 inherit pub_attribs_structunodb_1_1detail_1_1value__bitmask__field" id="r_ad67e49d3065fb71e9c88c93d552157d1"><td class="memItemLeft" align="right" valign="top">
+std::array&lt; std::uint8_t, 6 &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>bits</b></td></tr>
+<tr class="separator:ad67e49d3065fb71e9c88c93d552157d1 inherit pub_attribs_structunodb_1_1detail_1_1value__bitmask__field"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;class ArtPolicy&gt;<br />
@@ -505,8 +576,8 @@ class unodb::detail::basic_inode_48&lt; ArtPolicy &gt;</div><p>Internal node wit
   </dd>
 </dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a1d090edfda4121a3156b98deff139df1" name="a1d090edfda4121a3156b98deff139df1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1d090edfda4121a3156b98deff139df1">&#9670;&#160;</a></span>basic_inode_48() <span class="overload">[1/2]</span></h2>
+<a id="a10857a128e4b10c87870c011ae0ea01c" name="a10857a128e4b10c87870c011ae0ea01c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a10857a128e4b10c87870c011ae0ea01c">&#9670;&#160;</a></span>basic_inode_48() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -538,7 +609,13 @@ template&lt;class ArtPolicy &gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aac1bb90f2042b839804342ab39b6866f">tree_depth_type</a>&#160;</td>
-          <td class="paramname"><em>depth</em>&#160;</td>
+          <td class="paramname"><em>depth</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::byte&#160;</td>
+          <td class="paramname"><em>key_byte</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -621,8 +698,8 @@ template&lt;class ArtPolicy &gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a1c9751817f0fd699bee17411f9a338eb" name="a1c9751817f0fd699bee17411f9a338eb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1c9751817f0fd699bee17411f9a338eb">&#9670;&#160;</a></span>add_to_nonfull()</h2>
+<a id="af182526fefac33a4167ca5a5a8dea26e" name="af182526fefac33a4167ca5a5a8dea26e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af182526fefac33a4167ca5a5a8dea26e">&#9670;&#160;</a></span>add_to_nonfull()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -643,6 +720,12 @@ template&lt;class ArtPolicy &gt; </div>
           <td></td>
           <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aac1bb90f2042b839804342ab39b6866f">tree_depth_type</a>&#160;</td>
           <td class="paramname"><em>depth</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::byte&#160;</td>
+          <td class="paramname"><em>key_byte</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -949,8 +1032,8 @@ template&lt;class ArtPolicy &gt; </div>
 
 </div>
 </div>
-<a id="a89901af15b1a8d66ddc4b37c7a451216" name="a89901af15b1a8d66ddc4b37c7a451216"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a89901af15b1a8d66ddc4b37c7a451216">&#9670;&#160;</a></span>init() <span class="overload">[1/2]</span></h2>
+<a id="a42a3205e61b8c1003dd9ac06c41494e2" name="a42a3205e61b8c1003dd9ac06c41494e2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a42a3205e61b8c1003dd9ac06c41494e2">&#9670;&#160;</a></span>init() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -982,7 +1065,13 @@ template&lt;class ArtPolicy &gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aac1bb90f2042b839804342ab39b6866f">tree_depth_type</a>&#160;</td>
-          <td class="paramname"><em>depth</em>&#160;</td>
+          <td class="paramname"><em>depth</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::byte&#160;</td>
+          <td class="paramname"><em>key_byte</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1061,6 +1150,37 @@ template&lt;class ArtPolicy &gt; </div>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="ae887f011449d7be4a2ff606012ce6a7d" name="ae887f011449d7be4a2ff606012ce6a7d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae887f011449d7be4a2ff606012ce6a7d">&#9670;&#160;</a></span>is_value_in_slot()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ArtPolicy &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr bool <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html">unodb::detail::basic_inode_48</a>&lt; ArtPolicy &gt;::is_value_in_slot </td>
+          <td>(</td>
+          <td class="paramtype">std::uint8_t&#160;</td>
+          <td class="paramname"><em>key_byte_i</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>For I48, the child_index from find_child is the key byte. </p>
+<p>Resolve to children array index before accessing the bitmask. </p>
 
 </div>
 </div>

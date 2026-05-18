@@ -126,16 +126,16 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>value_type</b> = Val
 <tr class="memitem:ae61b42a6da71d56e14ae75bace36dd02" id="r_ae61b42a6da71d56e14ae75bace36dd02"><td class="memItemLeft" align="right" valign="top"><a id="ae61b42a6da71d56e14ae75bace36dd02" name="ae61b42a6da71d56e14ae75bace36dd02"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>value_view</b> = <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a></td></tr>
 <tr class="separator:ae61b42a6da71d56e14ae75bace36dd02"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4f521ddf190a1659d9cdddf2d59ab55a" id="r_a4f521ddf190a1659d9cdddf2d59ab55a"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#a4f521ddf190a1659d9cdddf2d59ab55a">get_result</a> = std::pair&lt; typename <a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, value_view &gt;::get_result, std::unique_lock&lt; std::mutex &gt; &gt;</td></tr>
-<tr class="memdesc:a4f521ddf190a1659d9cdddf2d59ab55a"><td class="mdescLeft">&#160;</td><td class="mdescRight">If the search key was found, that is, the first pair member has a value, then the second member is a locked tree mutex which must be released ASAP after reading the first pair member.  <br /></td></tr>
-<tr class="separator:a4f521ddf190a1659d9cdddf2d59ab55a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ddc9814e5b512a63053f17c37c3aa15" id="r_a5ddc9814e5b512a63053f17c37c3aa15"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#a5ddc9814e5b512a63053f17c37c3aa15">get_result</a> = std::pair&lt; typename <a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt;::get_result, std::unique_lock&lt; std::mutex &gt; &gt;</td></tr>
+<tr class="memdesc:a5ddc9814e5b512a63053f17c37c3aa15"><td class="mdescLeft">&#160;</td><td class="mdescRight">If the search key was found, that is, the first pair member has a value, then the second member is a locked tree mutex which must be released ASAP after reading the first pair member.  <br /></td></tr>
+<tr class="separator:a5ddc9814e5b512a63053f17c37c3aa15"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2af886f57550a3abf6daf005739b5c0e" id="r_a2af886f57550a3abf6daf005739b5c0e"><td class="memItemLeft" align="right" valign="top"><a id="a2af886f57550a3abf6daf005739b5c0e" name="a2af886f57550a3abf6daf005739b5c0e"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>iterator</b> = typename <a class="el" href="classunodb_1_1db.html">unodb::db</a>&lt; Key, Value &gt;::iterator</td></tr>
 <tr class="separator:a2af886f57550a3abf6daf005739b5c0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aeade57112531c5a734cb6e8390026bc3" id="r_aeade57112531c5a734cb6e8390026bc3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1mutex__db.html#a4f521ddf190a1659d9cdddf2d59ab55a">get_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#aeade57112531c5a734cb6e8390026bc3">get</a> (Key search_key) const noexcept</td></tr>
+<tr class="memitem:aeade57112531c5a734cb6e8390026bc3" id="r_aeade57112531c5a734cb6e8390026bc3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1mutex__db.html#a5ddc9814e5b512a63053f17c37c3aa15">get_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#aeade57112531c5a734cb6e8390026bc3">get</a> (Key search_key) const noexcept</td></tr>
 <tr class="memdesc:aeade57112531c5a734cb6e8390026bc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Query for a value associated with a key.  <br /></td></tr>
 <tr class="separator:aeade57112531c5a734cb6e8390026bc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a572dd0031859b2f66a48c024b74ee1cf" id="r_a572dd0031859b2f66a48c024b74ee1cf"><td class="memItemLeft" align="right" valign="top"><a id="a572dd0031859b2f66a48c024b74ee1cf" name="a572dd0031859b2f66a48c024b74ee1cf"></a>
@@ -200,7 +200,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostrea
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:aab34a73dca6866f1b4edc5815ddbd15a" id="r_aab34a73dca6866f1b4edc5815ddbd15a"><td class="memItemLeft" align="right" valign="top"><a id="aab34a73dca6866f1b4edc5815ddbd15a" name="aab34a73dca6866f1b4edc5815ddbd15a"></a>
-static bool&#160;</td><td class="memItemRight" valign="bottom"><b>key_found</b> (const <a class="el" href="classunodb_1_1mutex__db.html#a4f521ddf190a1659d9cdddf2d59ab55a">get_result</a> &amp;result) noexcept</td></tr>
+static bool&#160;</td><td class="memItemRight" valign="bottom"><b>key_found</b> (const <a class="el" href="classunodb_1_1mutex__db.html#a5ddc9814e5b512a63053f17c37c3aa15">get_result</a> &amp;result) noexcept</td></tr>
 <tr class="separator:aab34a73dca6866f1b4edc5815ddbd15a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-types" name="pri-types"></a>
@@ -212,7 +212,7 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>art_key_type</b> = <
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
 <tr class="memitem:a5e6952f21d537dda7d6d182c88808b64" id="r_a5e6952f21d537dda7d6d182c88808b64"><td class="memItemLeft" align="right" valign="top"><a id="a5e6952f21d537dda7d6d182c88808b64" name="a5e6952f21d537dda7d6d182c88808b64"></a>
-<a class="el" href="classunodb_1_1mutex__db.html#a4f521ddf190a1659d9cdddf2d59ab55a">get_result</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_internal</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k) const noexcept</td></tr>
+<a class="el" href="classunodb_1_1mutex__db.html#a5ddc9814e5b512a63053f17c37c3aa15">get_result</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_internal</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k) const noexcept</td></tr>
 <tr class="memdesc:a5e6952f21d537dda7d6d182c88808b64"><td class="mdescLeft">&#160;</td><td class="mdescRight">Querying with an encoded key. <br /></td></tr>
 <tr class="separator:a5e6952f21d537dda7d6d182c88808b64"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a793cf23de6dc1854ccace69ae0926131" id="r_a793cf23de6dc1854ccace69ae0926131"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#a793cf23de6dc1854ccace69ae0926131">insert_internal</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k, <a class="el" href="classunodb_1_1mutex__db.html#a95da9eb65d7d477a1c43666848f8e362">value_type</a> v)</td></tr>
@@ -238,8 +238,8 @@ class unodb::mutex_db&lt; Key, Value &gt;</div><p>A thread-safe implementation o
 <p>All get, insert, remove and scan operations take the global lock and hold it for the duration of the operation.</p>
 <dl class="section see"><dt>See also</dt><dd>unodb::olc_art for a highly concurrent thread-safe ART implementation. </dd></dl>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
-<a id="a4f521ddf190a1659d9cdddf2d59ab55a" name="a4f521ddf190a1659d9cdddf2d59ab55a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4f521ddf190a1659d9cdddf2d59ab55a">&#9670;&#160;</a></span>get_result</h2>
+<a id="a5ddc9814e5b512a63053f17c37c3aa15" name="a5ddc9814e5b512a63053f17c37c3aa15"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5ddc9814e5b512a63053f17c37c3aa15">&#9670;&#160;</a></span>get_result</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -247,7 +247,7 @@ class unodb::mutex_db&lt; Key, Value &gt;</div><p>A thread-safe implementation o
 template&lt;typename Key , typename Value &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key, Value &gt;::get_result =  std::pair&lt;typename <a class="el" href="classunodb_1_1db.html">db</a>&lt;Key, value_view&gt;::get_result, std::unique_lock&lt;std::mutex&gt; &gt;</td>
+          <td class="memname">using <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key, Value &gt;::get_result =  std::pair&lt;typename <a class="el" href="classunodb_1_1db.html">db</a>&lt;Key, Value&gt;::get_result, std::unique_lock&lt;std::mutex&gt; &gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -270,7 +270,7 @@ template&lt;typename Key , typename Value &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classunodb_1_1mutex__db.html#a4f521ddf190a1659d9cdddf2d59ab55a">get_result</a> <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key, Value &gt;::get </td>
+          <td class="memname"><a class="el" href="classunodb_1_1mutex__db.html#a5ddc9814e5b512a63053f17c37c3aa15">get_result</a> <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key, Value &gt;::get </td>
           <td>(</td>
           <td class="paramtype">Key&#160;</td>
           <td class="paramname"><em>search_key</em></td><td>)</td>

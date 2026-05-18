@@ -10,6 +10,7 @@ var classunodb_1_1detail_1_1basic__leaf =
     [ "get_key", "classunodb_1_1detail_1_1basic__leaf.html#a25f0e5829d662bfe0d8d505d7497493c", null ],
     [ "get_key_view", "classunodb_1_1detail_1_1basic__leaf.html#a3faee12b17a4a4b9134c2c4fd81a688b", null ],
     [ "get_size", "classunodb_1_1detail_1_1basic__leaf.html#a65bf9368b0a37a32ec3903aa3d463778", null ],
+    [ "get_value", "classunodb_1_1detail_1_1basic__leaf.html#a5287d4e8372a60b5880245996ad2ae9f", null ],
     [ "get_value_view", "classunodb_1_1detail_1_1basic__leaf.html#a88d3ef305a3e3e8eae77002f433fd73d", null ],
     [ "matches", "classunodb_1_1detail_1_1basic__leaf.html#a3fb5bc240211394284d1880d0e512cbe", null ],
     [ "data", "classunodb_1_1detail_1_1basic__leaf.html#a9b9efcf5222a040cac645af90218351b", null ],

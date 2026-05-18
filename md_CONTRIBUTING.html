@@ -99,9 +99,9 @@ $(document).ready(function(){initNavTree('md_CONTRIBUTING.html',''); initResizab
   <div class="headertitle"><div class="title">CONTRIBUTING</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><h1><a class="anchor" id="autotoc_md0"></a>
+<div class="textblock"><h1><a class="anchor" id="autotoc_md2"></a>
 Contributing to UnoDB</h1>
-<h2><a class="anchor" id="autotoc_md1"></a>
+<h2><a class="anchor" id="autotoc_md3"></a>
 Optional development dependencies</h2>
 <ul>
 <li>clang-format</li>
@@ -113,10 +113,10 @@ Optional development dependencies</h2>
 <li>include-what-you-use</li>
 <li>libfuzzer</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md2"></a>
+<h2><a class="anchor" id="autotoc_md4"></a>
 General workflow</h2>
 <p>Clone the repository, create your feature or fix branches, work on them, commit, open a pull request to this repository.</p>
-<h2><a class="anchor" id="autotoc_md3"></a>
+<h2><a class="anchor" id="autotoc_md5"></a>
 Development CMake options</h2>
 <p>The regular CMake option <code>-DCMAKE_BUILD_TYPE</code> is recognized. Setting it to <code>Debug</code> will enable a lot of assertions, which are useful during development.</p>
 <p>There also other development-specific options. All of them are <code>OFF</code> by default.</p>
@@ -131,12 +131,12 @@ Development CMake options</h2>
 <li><code>-DCPPCHECK_AGGRESSIVE=ON</code> to enable inconclusive cppcheck diagnostics. They will not fail a build.</li>
 <li><code>-DCOVERAGE=ON</code> to generate coverage reports on tests, excluding fuzzers, using lcov.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md4"></a>
+<h2><a class="anchor" id="autotoc_md6"></a>
 Code organization</h2>
 <p>Header files can be public and internal. The internal ones have "internal" somewhere in their name.</p>
 <p>Public API must be introduced in <code>unodb</code> namespace, and any such declarations should appear in a public header. It is OK for the implementation of a public declaration to be in a private header, but see below. All the private declarations for implementation details should live in <code><a class="el" href="namespaceunodb_1_1detail.html" title="Namespace for the UnoDB internal implementation details.">unodb::detail</a></code> namespace. Thus, private headers may contain both <code>unodb</code> and <code><a class="el" href="namespaceunodb_1_1detail.html" title="Namespace for the UnoDB internal implementation details.">unodb::detail</a></code> code, but rethink the header split if the former becomes a majority in a header.</p>
 <p>Macros should not be a part of public API, and may be used internally only when unavoidable. If a macro has to be introduced, its name must be prefixed with <code>UNODB_DETAIL_</code>.</p>
-<h2><a class="anchor" id="autotoc_md5"></a>
+<h2><a class="anchor" id="autotoc_md7"></a>
 Code style guide</h2>
 <ul>
 <li>The code should follow existing conventions, formatted with <a href="https://google.github.io/styleguide/cppguide.html" title="Google C++ Style Guide">Google C++ style</a>. This is enforced by GitHub Actions SuperLinter running clang-format, currently version 21.</li>
@@ -154,7 +154,7 @@ Code style guide</h2>
 <li>Automatic code formatting can be configured through Git clean/fuzz filters. To enable this feature, do <code>git config --local include.path ../.gitconfig</code>. If you need to temporarily disable it, run <code>git config --local --unset include.path</code>.</li>
 <li>The code that cannot be possibly tested by short deterministic tests, for example, because it handles rarely-occurring non-deterministic concurrency conditions, should be excluded from coverage testing with <code>// LCOV_EXCL_LINE</code> comment for a single line or with <code>// LCOV_EXCL_START</code>, <code>// LCOV_EXCL_STOP</code> start and end markers for a block.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md6"></a>
+<h2><a class="anchor" id="autotoc_md8"></a>
 Documentation style guide</h2>
 <ul>
 <li>The code should be commented, but without comments repeating already obvious code.</li>
@@ -167,22 +167,22 @@ Documentation style guide</h2>
 <li>Markdown markup is preferred, i.e. <code>`foo`</code> instead of <code>\c foo</code>.</li>
 <li>Private class members should be documented too.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md7"></a>
+<h2><a class="anchor" id="autotoc_md9"></a>
 Linting and static analysis</h2>
 <p>clang-tidy, cppcheck, and cpplint will be invoked automatically during the build if found. The current diagnostic level for them, as well as for compiler warnings, is set very high and can be relaxed if needed.</p>
 <p>For GCC or MSVC static analysis, add <code>-DSTATIC_ANALYSIS=ON</code> CMake option as listed in the "CMake options" section above. For LLVM, no special CMake option is needed; instead prepend <code>scan-build</code> to <code>make</code>.</p>
-<h2><a class="anchor" id="autotoc_md8"></a>
+<h2><a class="anchor" id="autotoc_md10"></a>
 Testing</h2>
 <p>Google Test and DeepState fuzzer are used for testing. For DeepState, both LLVM libfuzzer and built-in fuzzer are supported.</p>
 <p>To run the tests, do <code>ctest</code>. It is also useful to run tests in parallel with e.g. <code>ctest -j10</code>. For verbose test output add <code>-V</code>.</p>
 <p>Benchmarks can also serve as tests, especially under debug build and under sanitizers or Valgrind. For that, there is a CMake target <code>quick_benchmarks</code>, i.e. <code>make -j10 -k quick_benchmarks</code>. CI runs this target too.</p>
 <p>To run everything (tests and quick benchmarks) under Valgrind, use <code>valgrind</code> CMake target.</p>
-<h2><a class="anchor" id="autotoc_md9"></a>
+<h2><a class="anchor" id="autotoc_md11"></a>
 Fuzzing</h2>
 <p>Fuzzer tests for ART and QSBR components are located in the <code>fuzz_deepstate</code> subdirectory. The tests use DeepState with either a brute force or libfuzzer-based backend. However, the only supported platforms are Linux (GCC &amp; clang) and macOS (clang only, no AddressSanitizer and ThreadSanitizer) under x86_64 only.</p>
 <p>Several Make targets are available for fuzzing. For time-based brute-force fuzzing of all components, use one of the following: <code>deepstate_2s</code>, <code>deepstate_1m</code>, <code>deepstate_20m</code>, or <code>deepstate_8h</code>. To use individual fuzzers, insert <code>art</code> or <code>qsbr</code>, for example: <code>deepstate_qsbr_20m</code> or <code>deepstate_art_8h</code>. Running fuzzer under Valgrind is available through <code>valgrind_deepstate</code> for everything or <code>valgrind_{art|qsbr}_deepstate</code> for individual fuzzers.</p>
 <p>Fuzzers that use libfuzzer mirror the above by adding <code>_lf</code> before the time suffix, such as <code>deepstate_lf_8h</code>, <code>deepstate_qsbr_lf_20m</code>, <code>valgrind_deepstate_lf</code>, and so on.</p>
-<h2><a class="anchor" id="autotoc_md10"></a>
+<h2><a class="anchor" id="autotoc_md12"></a>
 Commit messages</h2>
 <ul>
 <li>Keep the first line under 72 characters and don't finish it with a full stop.</li>
@@ -190,7 +190,7 @@ Commit messages</h2>
 <li>Use imperative mood ("Fix bug" not "fixes bug", nor "fixed bug").</li>
 <li>Reference fixed issues, i.e. "fixes: #123"</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md11"></a>
+<h2><a class="anchor" id="autotoc_md13"></a>
 Pull Requests</h2>
 <ul>
 <li>Create one PR per feature or fix. If it is possible to split PR into independent smaller parts, do so.</li>
@@ -201,7 +201,7 @@ Pull Requests</h2>
 <li>All commits should be squashed into logical units. If the PR has only one feature or fix, as it should, there should be only one commit in it.</li>
 <li>Very obvious changes may be pushed directly.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md12"></a>
+<h2><a class="anchor" id="autotoc_md14"></a>
 Benchmarking</h2>
 <p>Benchmarking is hard: it is easy to do it incorrectly with no obvious warning signs. Here are some suggestions how to set it up. They will not guarantee valid results but should exclude some classes of invalid ones:</p>
 <ul>
@@ -229,7 +229,7 @@ Benchmarking</h2>
 <div class="line">   ./micro_benchmark_olc --benchmark_repetitions=9 --benchmark_filter=&#39;olc_db&#39;</div>
 </div><!-- fragment --></li>
 </ul>
-<h2><a class="anchor" id="autotoc_md13"></a>
+<h2><a class="anchor" id="autotoc_md15"></a>
 License</h2>
 <p>By contributing, you agree that your contributions will be licensed under the [LICENSE](LICENSE) terms. </p>
 </div></div><!-- contents -->

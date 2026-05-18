@@ -100,28 +100,28 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_README"></a></p>
-<h1><a class="anchor" id="autotoc_md23"></a>
+<h1><a class="anchor" id="autotoc_md25"></a>
 unodb</h1>
 <p><a href="https://github.com/laurynas-biveinis/unodb/actions?query=workflow%3Abuild"><img src="https://github.com/laurynas-biveinis/unodb/workflows/build/badge.svg" alt="Github Actions Build Status" style="pointer-events: none;" class="inline"/></a> <a href="https://codecov.io/gh/laurynas-biveinis/unodb"><img src="https://codecov.io/gh/laurynas-biveinis/unodb/branch/master/graph/badge.svg" alt="codecov" style="pointer-events: none;" class="inline"/></a> <a href="https://github.com/marketplace/actions/super-linter"><img src="https://github.com/laurynas-biveinis/unodb/workflows/Super-Linter/badge.svg" alt="GitHub Super-Linter" style="pointer-events: none;" class="inline"/></a> <a href="https://sonarcloud.io/dashboard?id=laurynas-biveinis_unodb"><img src="https://sonarcloud.io/api/project_badges/measure?project=laurynas-biveinis_unodb&amp;metric=alert_status" alt="Quality Gate Status" class="inline"/></a></p>
-<h2><a class="anchor" id="autotoc_md24"></a>
+<h2><a class="anchor" id="autotoc_md26"></a>
 Introduction</h2>
 <p>UnoDB is a library that implements of Adaptive Radix Tree (ART) data structure, designed for efficient indexing in main-memory databases. The ART is a trie-based data structure that dynamically adapts to the distribution of keys, ensuring good search performance and memory usage. UnoDB offers two variants of ART: a regular one and a concurrent one based on Optimistic Lock Coupling (OLC) with Quiescent State Based Reclamation (QSBR).</p>
 <p>This library serves as a playground for experimenting with various C++ tools and ideas. I am describing some of the things I learned at my <a href="https://of-code.blogspot.com/search/label/art">blog</a>.</p>
-<h2><a class="anchor" id="autotoc_md25"></a>
+<h2><a class="anchor" id="autotoc_md27"></a>
 Requirements</h2>
 <p>UnoDB source code is written in C++20, and relies on the following platform-specific features:</p>
 <ul>
 <li>On Intel platforms, it requires SSE4.1 intrinsics (Nehalem and higher), AVX for MSVC builds, and optional AVX2 support, when available. This differs from the original ART paper, which only required SSE2.</li>
 <li>On ARM, it uses NEON intrinsics.</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md26"></a>
+<h3><a class="anchor" id="autotoc_md28"></a>
 Build dependencies</h3>
 <ul>
 <li>Earliest versions of supported compilers: GCC 10, LLVM 11, Xcode 16.1, MSVC 2022. Open an issue if you require support for an older version.</li>
 <li>CMake, at least 3.16.</li>
 <li>Boost library. It is a mandatory dependency for Boost.Container (small_vector). If building with statistics counters, Boost.Accumulator is also required. Boost.Stacktrace is an optional dependency.</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md27"></a>
+<h3><a class="anchor" id="autotoc_md29"></a>
 Optional vendored dependencies, bundled as Git submodules</h3>
 <ul>
 <li>Google Test for tests.</li>
@@ -129,7 +129,7 @@ Optional vendored dependencies, bundled as Git submodules</h3>
 <li><a href="https://github.com/trailofbits/deepstate" title="DeepState on GitHub">DeepState</a> for fuzzing tests.</li>
 </ul>
 <p>These dependencies need not be present if the build is configured to skip the corresponding part. For example, if the CMake option <code>-DTESTS=OFF</code> is given, then Google Test and DeepState submodules don't have to be populated.</p>
-<h2><a class="anchor" id="autotoc_md28"></a>
+<h2><a class="anchor" id="autotoc_md30"></a>
 Building</h2>
 <p>Unless you configure your build otherwise, first you need to populate the Git submodules for test and benchmark dependencies:</p>
 <div class="fragment"><div class="line"># --recursive is not strictly required at the moment, but a good habit to have</div>
@@ -147,20 +147,20 @@ Building</h2>
 <li><code>-DBENCHMARKS=ON</code> to build the benchmarks.</li>
 </ul>
 <p>There are other CMake options that are mainly intended for UnoDB development itself and are discussed in <a class="el" href="md_CONTRIBUTING.html">CONTRIBUTING.md</a>.</p>
-<h2><a class="anchor" id="autotoc_md29"></a>
+<h2><a class="anchor" id="autotoc_md31"></a>
 Platform-Specific Notes</h2>
-<h3><a class="anchor" id="autotoc_md30"></a>
+<h3><a class="anchor" id="autotoc_md32"></a>
 Ubuntu 22.04</h3>
 <div class="fragment"><div class="line"># libc6-dev-i386 is for DeepState</div>
 <div class="line">sudo apt-get install -y libboost-dev libc6-dev-i386</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md31"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md33"></a>
 Amazon Linux 2023</h3>
 <div class="fragment"><div class="line">sudo dnf install git gcc g++ cmake boost-devel</div>
 <div class="line"># Optional, if you want to use Boost.Stacktrace:</div>
 <div class="line">git clone https://github.com/ianlancetaylor/libbacktrace</div>
 <div class="line">(cd libbacktrace &amp;&amp; ./configure &amp;&amp; make &amp;&amp; sudo make install)</div>
 <div class="line"># Build as usual</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md32"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md34"></a>
 Amazon Linux 2</h3>
 <div class="fragment"><div class="line">sudo yum install git gcc10 gcc10-c++ cmake3 boost-devel</div>
 <div class="line"># Pass -DCMAKE_C_COMPILER=gcc10-gcc -DCMAKE_CXX_COMPILER=gcc10-c++ to cmake3</div>
@@ -168,7 +168,7 @@ Amazon Linux 2</h3>
 <div class="line"># Benchmarking. For jemalloc, consider building a newer version from source.</div>
 <div class="line">sudo amazon-linux-extras install -y epel</div>
 <div class="line">sudo yum install jemalloc perf</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md33"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md35"></a>
 Usage</h2>
 <p>See <code>examples/</code> directory for simple usage examples. This directory is a top-level CMake project.</p>
 <p>All the declarations live in the <code>unodb</code> namespace, which is omitted in the descriptions below.</p>
@@ -194,9 +194,9 @@ Usage</h2>
 </ul>
 <p>The full source code reference, including public API, is available at <a href="https://docs.unodb.dev">https://docs.unodb.dev</a> (work in progress).</p>
 <p>Do not use macros starting with <code>UNODB_DETAIL_</code> or declarations in <code><a class="el" href="namespaceunodb_1_1detail.html" title="Namespace for the UnoDB internal implementation details.">unodb::detail</a></code> and <code>unob::test</code> namespaces as they are internal and may change at any time.</p>
-<h2><a class="anchor" id="autotoc_md34"></a>
+<h2><a class="anchor" id="autotoc_md36"></a>
 Technical Details</h2>
-<h3><a class="anchor" id="autotoc_md35"></a>
+<h3><a class="anchor" id="autotoc_md37"></a>
 Adaptive Radix Tree</h3>
 <p>The implementation follows the paper description closely, with the following differences and design choices:</p>
 <ul>
@@ -204,21 +204,21 @@ Adaptive Radix Tree</h3>
 <li>Different ways to implement leaf nodes are discussed in the paper (single-value leaves, multi-value leaves, and combined pointer/value slots). Here single-value leaves are implemented.</li>
 <li>The paper discusses different choices in implementing search key path compression. Here the pessimistic path compression is implemented, with up to 7 bytes of key data per internal node.</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md36"></a>
+<h3><a class="anchor" id="autotoc_md38"></a>
 Sequential Lock</h3>
 <p>The optimistic lock concept seems to be nearly identical to that of <a href="https://en.wikipedia.org/wiki/Seqlock">sequential locks</a> as used in the Linux kernel, with the addition of "obsolete" state. The lock implementation uses the seqlock memory model implementation as described by Boehm in "Can seqlocks get along with programming language memory
 models?" 2012 paper.</p>
-<h3><a class="anchor" id="autotoc_md37"></a>
+<h3><a class="anchor" id="autotoc_md39"></a>
 Quiescent State-Based Reclamation (QSBR)</h3>
 <p>The OLC ART implementation necessitates a memory reclamation scheme as required by lock-free data structures (even though <code>olc_db</code> is not lock-free in the general sense, the readers do not take locks), and for that a Quiescent State Based Reclamation (QSBR) was chosen. In QSBR, each thread periodically announces that it is not using any pointers to a shared data structures. After all the threads have done so, a new epoch starts, and the memory reclamation requests from two epochs ago are executed. To participate in QSBR, a thread must an instance of <code><a class="el" href="classunodb_1_1qsbr__thread.html" title="An std::thread-like thread that participates in QSBR.">unodb::qsbr_thread</a></code>, which derives from <code>std::thread</code>. A thread may temporarily or permanently stop its participation in QSBR by calling <code><a class="el" href="namespaceunodb.html#af67bb57e59d46aae6ffb5103dcb497a1" title="Get the thread-local QSBR instance.">unodb::this_thread()</a>.qsbr_pause()</code> and resume by calling <code><a class="el" href="namespaceunodb.html#af67bb57e59d46aae6ffb5103dcb497a1" title="Get the thread-local QSBR instance.">unodb::this_thread()</a>.qsbr_resume()</code>.</p>
 <p>The registered threads must periodically signal their quiescent states. They can do this by using the <code><a class="el" href="structunodb_1_1quiescent__state__on__scope__exit.html" title="RAII guard that signals quiescent state for this thread on destruction.">unodb::quiescent_state_on_scope_exit</a></code> scope guard, which automatically reports the quiescent state when the scope is exited.</p>
-<h2><a class="anchor" id="autotoc_md38"></a>
+<h2><a class="anchor" id="autotoc_md40"></a>
 Related Projects</h2>
 <p><a href="https://github.com/justinasvd/art_map">art_map</a> is a C++14 template library providing <code>std::</code>-like interface over the ART data structure. It shares some code with UnoDB.</p>
-<h2><a class="anchor" id="autotoc_md39"></a>
+<h2><a class="anchor" id="autotoc_md41"></a>
 Contributing</h2>
 <p>Please see <a class="el" href="md_CONTRIBUTING.html">CONTRIBUTING.md</a>.</p>
-<h2><a class="anchor" id="autotoc_md40"></a>
+<h2><a class="anchor" id="autotoc_md42"></a>
 Literature</h2>
 <p><em>ART Trie</em>: V. Leis, A. Kemper and T. Neumann, "The adaptive radix tree: ARTful
 indexing for main-memory databases," 2013 29th IEEE International Conference on Data Engineering (ICDE 2013)(ICDE), Brisbane, QLD, 2013, pp. 38-49. doi:10.1109/ICDE.2013.6544812</p>

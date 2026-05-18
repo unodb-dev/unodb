@@ -126,6 +126,15 @@ $(document).ready(function(){initNavTree('art__common_8hpp.html',''); initResiza
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1no__key__tag.html">unodb::detail::no_key_tag</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag type used as the Key parameter for keyless leaves.  <a href="structunodb_1_1detail_1_1no__key__tag.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1no__leaf__tag.html">unodb::detail::no_leaf_tag</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag type indicating that no leaf nodes exist in the tree.  <a href="structunodb_1_1detail_1_1no__leaf__tag.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1transient__key__view.html">unodb::transient_key_view</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Non-owning view of key bytes with scoped lifetime.  <a href="classunodb_1_1transient__key__view.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1visitor.html">unodb::visitor&lt; Iterator &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper providing access to key and value during index scan.  <a href="classunodb_1_1visitor.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -155,6 +164,10 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::key_size_type
 using&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::key_view</b> = std::span&lt; const std::byte &gt;</td></tr>
 <tr class="memdesc:a37e43379ef5bf4922acff8db9a432a90"><td class="mdescLeft">&#160;</td><td class="mdescRight">Non-owning view of key bytes, copied into index upon insertion. <br /></td></tr>
 <tr class="separator:a37e43379ef5bf4922acff8db9a432a90"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d3a7aec825f0d8cdde007954faa4647" id="r_a8d3a7aec825f0d8cdde007954faa4647"><td class="memTemplParams" colspan="2">template&lt;typename Key , typename Value &gt; </td></tr>
+<tr class="memitem:a8d3a7aec825f0d8cdde007954faa4647"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a8d3a7aec825f0d8cdde007954faa4647">unodb::detail::leaf_key_type</a> = std::conditional_t&lt; <a class="el" href="namespaceunodb_1_1detail.html#ad6143a3f0577dce38a7470201e05e067">can_eliminate_key_in_leaf_v</a>&lt; Key, Value &gt;, <a class="el" href="structunodb_1_1detail_1_1no__key__tag.html">no_key_tag</a>, Key &gt;</td></tr>
+<tr class="memdesc:a8d3a7aec825f0d8cdde007954faa4647"><td class="mdescLeft">&#160;</td><td class="mdescRight">The Key type used for the leaf template.  <br /></td></tr>
+<tr class="separator:a8d3a7aec825f0d8cdde007954faa4647"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b16b24543826b94728828213976f2cb" id="r_a6b16b24543826b94728828213976f2cb"><td class="memItemLeft" align="right" valign="top"><a id="a6b16b24543826b94728828213976f2cb" name="a6b16b24543826b94728828213976f2cb"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::value_size_type</b> = std::uint32_t</td></tr>
 <tr class="memdesc:a6b16b24543826b94728828213976f2cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type alias determining the maximum size of a value that may be stored in the index. <br /></td></tr>
@@ -188,6 +201,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::detail::dump_k
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
+<tr class="memitem:ad6143a3f0577dce38a7470201e05e067" id="r_ad6143a3f0577dce38a7470201e05e067"><td class="memTemplParams" colspan="2">template&lt;typename Key , typename Value &gt; </td></tr>
+<tr class="memitem:ad6143a3f0577dce38a7470201e05e067"><td class="memTemplItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#ad6143a3f0577dce38a7470201e05e067">unodb::detail::can_eliminate_key_in_leaf_v</a></td></tr>
+<tr class="memdesc:ad6143a3f0577dce38a7470201e05e067"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the key can be omitted from the leaf.  <br /></td></tr>
+<tr class="separator:ad6143a3f0577dce38a7470201e05e067"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba258d6d1df5e71714ec57d8b041b129" id="r_aba258d6d1df5e71714ec57d8b041b129"><td class="memItemLeft" align="right" valign="top">static constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#aba258d6d1df5e71714ec57d8b041b129">unodb::detail::INITIAL_BUFFER_CAPACITY</a> = 256</td></tr>
 <tr class="memdesc:aba258d6d1df5e71714ec57d8b041b129"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initial capacity for the <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a> and other similar internal buffers.  <br /></td></tr>
 <tr class="separator:aba258d6d1df5e71714ec57d8b041b129"><td class="memSeparator" colspan="2">&#160;</td></tr>

@@ -12,7 +12,8 @@ var searchData=
   ['basic_5finode_5fdef_9',['basic_inode_def',['../structunodb_1_1detail_1_1basic__inode__def.html',1,'unodb::detail']]],
   ['basic_5finode_5fimpl_10',['basic_inode_impl',['../classunodb_1_1detail_1_1basic__inode__impl.html',1,'unodb::detail']]],
   ['basic_5fleaf_11',['basic_leaf',['../classunodb_1_1detail_1_1basic__leaf.html',1,'unodb::detail']]],
-  ['basic_5fnode_5fptr_12',['basic_node_ptr',['../classunodb_1_1detail_1_1basic__node__ptr.html',1,'unodb::detail']]],
-  ['basic_5fnode_5fptr_3c_20nodeheader_20_3e_13',['basic_node_ptr&lt; NodeHeader &gt;',['../classunodb_1_1detail_1_1basic__node__ptr.html',1,'unodb::detail']]],
-  ['batched_5fprng_14',['batched_prng',['../classunodb_1_1benchmark_1_1batched__prng.html',1,'unodb::benchmark']]]
+  ['basic_5fleaf_3c_20no_5fkey_5ftag_2c_20header_20_3e_12',['basic_leaf&lt; no_key_tag, Header &gt;',['../classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4.html',1,'unodb::detail']]],
+  ['basic_5fnode_5fptr_13',['basic_node_ptr',['../classunodb_1_1detail_1_1basic__node__ptr.html',1,'unodb::detail']]],
+  ['basic_5fnode_5fptr_3c_20nodeheader_20_3e_14',['basic_node_ptr&lt; NodeHeader &gt;',['../classunodb_1_1detail_1_1basic__node__ptr.html',1,'unodb::detail']]],
+  ['batched_5fprng_15',['batched_prng',['../classunodb_1_1benchmark_1_1batched__prng.html',1,'unodb::benchmark']]]
 ];
