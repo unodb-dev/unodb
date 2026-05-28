@@ -105,6 +105,7 @@ var annotated_dup =
         [ "QSBRTestBase", "classunodb_1_1test_1_1QSBRTestBase.html", null ],
         [ "tree_verifier", "classunodb_1_1test_1_1tree__verifier.html", "classunodb_1_1test_1_1tree__verifier" ]
       ] ],
+      [ "allocator_type", "structunodb_1_1allocator__type.html", "structunodb_1_1allocator__type" ],
       [ "db", "classunodb_1_1db.html", "classunodb_1_1db" ],
       [ "fake_lock", "classunodb_1_1fake__lock.html", "classunodb_1_1fake__lock" ],
       [ "fake_read_critical_section", "classunodb_1_1fake__read__critical__section.html", "classunodb_1_1fake__read__critical__section" ],

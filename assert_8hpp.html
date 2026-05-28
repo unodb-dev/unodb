@@ -98,6 +98,7 @@ $(document).ready(function(){initNavTree('assert_8hpp.html',''); initResizable()
 <div class="header">
   <div class="summary">
 <a href="#namespaces">Namespaces</a> &#124;
+<a href="#define-members">Macros</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">assert.hpp File Reference<div class="ingroups"><a class="el" href="group__internal.html">Internals</a></div></div></div>
 </div><!--header-->
@@ -125,6 +126,9 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
+<tr class="memitem:a37fadfdd843960cc83e0ad19a81ec395" id="r_a37fadfdd843960cc83e0ad19a81ec395"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="assert_8hpp.html#a37fadfdd843960cc83e0ad19a81ec395">UNODB_DETAIL_QSBR_ASSERT</a>(condition)&#160;&#160;&#160;((void)0)</td></tr>
+<tr class="memdesc:a37fadfdd843960cc83e0ad19a81ec395"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assert that is only active when QSBR debug checking is enabled.  <br /></td></tr>
+<tr class="separator:a37fadfdd843960cc83e0ad19a81ec395"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Assertion &amp; assumption macros</div></td></tr>
 <tr class="memitem:ga7207e99fa408f7072995cfa2a1d5a7a7" id="r_ga7207e99fa408f7072995cfa2a1d5a7a7"><td class="memItemLeft" align="right" valign="top">
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_DEBUG_CRASH</b>()</td></tr>
@@ -163,7 +167,29 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::detail::msg_st
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Internal macros for assertions, assumptions &amp; intentional crashing. </p>
 <p>If compiling as a part of another project, they will expand to C++ standard symbols (<code>assert</code> &amp; <code>std::abort</code>). Otherwise, custom implementations are used that will show stacktraces if Boost.Stacktrace is available. </p>
-</div></div><!-- contents -->
+</div><h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a37fadfdd843960cc83e0ad19a81ec395" name="a37fadfdd843960cc83e0ad19a81ec395"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a37fadfdd843960cc83e0ad19a81ec395">&#9670;&#160;</a></span>UNODB_DETAIL_QSBR_ASSERT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_DETAIL_QSBR_ASSERT</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">condition</td><td>)</td>
+          <td>&#160;&#160;&#160;((void)0)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Assert that is only active when QSBR debug checking is enabled. </p>
+<p>Use for assertions that reference QSBR state (qsbr::instance(), etc.) which may not be available in builds without QSBR linked. </p>
+
+</div>
+</div>
+</div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->

@@ -11,9 +11,10 @@ var searchData=
   ['child_5fnot_5ffound_5fi_8',['child_not_found_i',['../classunodb_1_1detail_1_1basic__inode__impl.html#adc6e07b0120630ba8a01da34cde094a0',1,'unodb::detail::basic_inode_impl']]],
   ['children_9',['children',['../classunodb_1_1detail_1_1basic__inode__4.html#afd07781a3fd2c8a9277c6405013f4e37',1,'unodb::detail::basic_inode_4::children'],['../classunodb_1_1detail_1_1basic__inode__16.html#a70fab93d4782f035e6fe77b33bd73ada',1,'unodb::detail::basic_inode_16::children'],['../classunodb_1_1detail_1_1basic__inode__48.html#a3c631bd9909626a9a6c2f3fc6d91f422',1,'unodb::detail::basic_inode_48::children'],['../classunodb_1_1detail_1_1basic__inode__256.html#a0ddf0e079c8cb24c7566798792c10de1',1,'unodb::detail::basic_inode_256::children']]],
   ['children_5fcount_10',['children_count',['../classunodb_1_1detail_1_1basic__inode__impl.html#add5af43ee6411c23ba06198ec3f1895f',1,'unodb::detail::basic_inode_impl']]],
-  ['current_5finterval_5fdealloc_5frequests_11',['current_interval_dealloc_requests',['../classunodb_1_1qsbr__per__thread.html#a7557ea586b33893b1bd9f4aa5581d391',1,'unodb::qsbr_per_thread']]],
-  ['current_5finterval_5forphan_5flist_5fnode_12',['current_interval_orphan_list_node',['../classunodb_1_1qsbr__per__thread.html#a0956872b02e7c8af4f6d0078eaa909f7',1,'unodb::qsbr_per_thread']]],
-  ['current_5finterval_5ftotal_5fdealloc_5fsize_13',['current_interval_total_dealloc_size',['../classunodb_1_1qsbr__per__thread.html#ae651fad1c94f8ddec93282ea769d0d3f',1,'unodb::qsbr_per_thread']]],
-  ['current_5fmemory_5fuse_14',['current_memory_use',['../classunodb_1_1db.html#a8d5d69b544ebdb7201f95ce4182f8756',1,'unodb::db']]],
-  ['current_5fthread_5finstance_15',['current_thread_instance',['../classunodb_1_1qsbr__per__thread.html#a6e459784b1c15eedee7aace0729d4d4c',1,'unodb::qsbr_per_thread']]]
+  ['ctx_11',['ctx',['../structunodb_1_1allocator__type.html#ae1a82b732e4aaaaaa5b518e6391a25b6',1,'unodb::allocator_type::ctx'],['../classunodb_1_1detail_1_1deallocation__request.html#a71734257af785dab71d89aa415a8f59f',1,'unodb::detail::deallocation_request::ctx']]],
+  ['current_5finterval_5fdealloc_5frequests_12',['current_interval_dealloc_requests',['../classunodb_1_1qsbr__per__thread.html#a7557ea586b33893b1bd9f4aa5581d391',1,'unodb::qsbr_per_thread']]],
+  ['current_5finterval_5forphan_5flist_5fnode_13',['current_interval_orphan_list_node',['../classunodb_1_1qsbr__per__thread.html#a0956872b02e7c8af4f6d0078eaa909f7',1,'unodb::qsbr_per_thread']]],
+  ['current_5finterval_5ftotal_5fdealloc_5fsize_14',['current_interval_total_dealloc_size',['../classunodb_1_1qsbr__per__thread.html#ae651fad1c94f8ddec93282ea769d0d3f',1,'unodb::qsbr_per_thread']]],
+  ['current_5fmemory_5fuse_15',['current_memory_use',['../classunodb_1_1db.html#a8d5d69b544ebdb7201f95ce4182f8756',1,'unodb::db']]],
+  ['current_5fthread_5finstance_16',['current_thread_instance',['../classunodb_1_1qsbr__per__thread.html#a6e459784b1c15eedee7aace0729d4d4c',1,'unodb::qsbr_per_thread']]]
 ];

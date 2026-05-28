@@ -10,7 +10,7 @@ var classunodb_1_1qsbr__per__thread =
     [ "get_current_interval_total_dealloc_size", "classunodb_1_1qsbr__per__thread.html#ab01458452f2f594358c13598ab051170", null ],
     [ "get_instance", "classunodb_1_1qsbr__per__thread.html#a5b3daf071eeaa156244c57f3b848b0d2", null ],
     [ "is_qsbr_paused", "classunodb_1_1qsbr__per__thread.html#ac2e663e72fcf713584184f8a0a2e4d11", null ],
-    [ "on_next_epoch_deallocate", "classunodb_1_1qsbr__per__thread.html#a88e9830fbe4868759b676fc091cabf0f", null ],
+    [ "on_next_epoch_deallocate", "classunodb_1_1qsbr__per__thread.html#a72e42eadf328a6d112c3f18fdbcd25e9", null ],
     [ "operator=", "classunodb_1_1qsbr__per__thread.html#a6f9922cb9ca9d68383a81de4c9309fcd", null ],
     [ "operator=", "classunodb_1_1qsbr__per__thread.html#a0d9c7ff812f0d133f937a0f53a1b4def", null ],
     [ "orphan_pending_requests", "classunodb_1_1qsbr__per__thread.html#add6170269ed644653e4206906d5166b0", null ],

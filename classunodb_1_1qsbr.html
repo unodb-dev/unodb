@@ -237,9 +237,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>publish_quiescent_sta
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-methods" name="pri-static-methods"></a>
 Static Private Member Functions</h2></td></tr>
-<tr class="memitem:ab805604c80aa7bbf91777c7bbf5f391a" id="r_ab805604c80aa7bbf91777c7bbf5f391a"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr.html#ab805604c80aa7bbf91777c7bbf5f391a">deallocate</a> (void *pointer, const <a class="el" href="classunodb_1_1detail_1_1deallocation__request.html#a005b7873662cb6c0e8e2519c0a7efa16">detail::deallocation_request::debug_callback</a> &amp;debug_callback) noexcept</td></tr>
-<tr class="memdesc:ab805604c80aa7bbf91777c7bbf5f391a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free memory at <em>pointer</em> using <a class="el" href="namespaceunodb_1_1detail.html#a857e30bf5bbe06e321300ee868010df9" title="Free heap memory allocated with allocate_aligned().">detail::free_aligned</a>.  <br /></td></tr>
-<tr class="separator:ab805604c80aa7bbf91777c7bbf5f391a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84792dbd2519dc5d072e5e2e36e964b5" id="r_a84792dbd2519dc5d072e5e2e36e964b5"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr.html#a84792dbd2519dc5d072e5e2e36e964b5">deallocate</a> (void *pointer, std::size_t size, <a class="el" href="namespaceunodb_1_1detail.html#a22bcecdbe2a6176ad1956f2fbaddce06">detail::destroy_callback_type</a> destroy_callback, void *ctx, const <a class="el" href="classunodb_1_1detail_1_1deallocation__request.html#a005b7873662cb6c0e8e2519c0a7efa16">detail::deallocation_request::debug_callback</a> &amp;debug_callback) noexcept</td></tr>
+<tr class="memdesc:a84792dbd2519dc5d072e5e2e36e964b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free memory at <em>pointer</em> using <a class="el" href="namespaceunodb_1_1detail.html#a857e30bf5bbe06e321300ee868010df9" title="Free heap memory allocated with allocate_aligned().">detail::free_aligned</a>.  <br /></td></tr>
+<tr class="separator:a84792dbd2519dc5d072e5e2e36e964b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a12cd3058880cc8a4ced8466f959aed83" id="r_a12cd3058880cc8a4ced8466f959aed83"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr.html#a12cd3058880cc8a4ced8466f959aed83">thread_epoch_change_barrier</a> () noexcept</td></tr>
 <tr class="memdesc:a12cd3058880cc8a4ced8466f959aed83"><td class="mdescLeft">&#160;</td><td class="mdescRight">Synchronization barrier for thread epoch changes.  <br /></td></tr>
 <tr class="separator:a12cd3058880cc8a4ced8466f959aed83"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -366,8 +366,8 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr_per_thread</b><
 
 </div>
 </div>
-<a id="ab805604c80aa7bbf91777c7bbf5f391a" name="ab805604c80aa7bbf91777c7bbf5f391a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab805604c80aa7bbf91777c7bbf5f391a">&#9670;&#160;</a></span>deallocate()</h2>
+<a id="a84792dbd2519dc5d072e5e2e36e964b5" name="a84792dbd2519dc5d072e5e2e36e964b5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a84792dbd2519dc5d072e5e2e36e964b5">&#9670;&#160;</a></span>deallocate()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -380,6 +380,24 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr_per_thread</b><
           <td>(</td>
           <td class="paramtype">void *&#160;</td>
           <td class="paramname"><em>pointer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#a22bcecdbe2a6176ad1956f2fbaddce06">detail::destroy_callback_type</a>&#160;</td>
+          <td class="paramname"><em>destroy_callback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>ctx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>

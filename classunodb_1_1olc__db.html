@@ -134,12 +134,9 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>key_type</b> = Key</
 using&#160;</td><td class="memItemRight" valign="bottom"><b>value_type</b> = Value</td></tr>
 <tr class="memdesc:a056d823a054f7999b3fafeac0f45cdd2"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of the value associated with the key in the index. <br /></td></tr>
 <tr class="separator:a056d823a054f7999b3fafeac0f45cdd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a10b94878a72a4d4cbc0d94d82a981ee3" id="r_a10b94878a72a4d4cbc0d94d82a981ee3"><td class="memItemLeft" align="right" valign="top"><a id="a10b94878a72a4d4cbc0d94d82a981ee3" name="a10b94878a72a4d4cbc0d94d82a981ee3"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>value_view</b> = <a class="el" href="classunodb_1_1qsbr__ptr__span.html">unodb::qsbr_value_view</a></td></tr>
-<tr class="separator:a10b94878a72a4d4cbc0d94d82a981ee3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a41405f0e30f79e8e500bc103797bbc24" id="r_a41405f0e30f79e8e500bc103797bbc24"><td class="memItemLeft" align="right" valign="top"><a id="a41405f0e30f79e8e500bc103797bbc24" name="a41405f0e30f79e8e500bc103797bbc24"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>get_result</b> = std::optional&lt; std::conditional_t&lt; std::is_same_v&lt; Value, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a> &gt;, <a class="el" href="classunodb_1_1qsbr__ptr__span.html">unodb::qsbr_value_view</a>, <a class="el" href="classunodb_1_1olc__db.html#a056d823a054f7999b3fafeac0f45cdd2">value_type</a> &gt; &gt;</td></tr>
-<tr class="separator:a41405f0e30f79e8e500bc103797bbc24"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4111fc4fca7823b3aa96b4056798461f" id="r_a4111fc4fca7823b3aa96b4056798461f"><td class="memItemLeft" align="right" valign="top"><a id="a4111fc4fca7823b3aa96b4056798461f" name="a4111fc4fca7823b3aa96b4056798461f"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>get_result</b> = std::optional&lt; <a class="el" href="classunodb_1_1olc__db.html#a056d823a054f7999b3fafeac0f45cdd2">value_type</a> &gt;</td></tr>
+<tr class="separator:a4111fc4fca7823b3aa96b4056798461f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0966cb021256c7d1a08f9b07844cdd87" id="r_a0966cb021256c7d1a08f9b07844cdd87"><td class="memItemLeft" align="right" valign="top"><a id="a0966cb021256c7d1a08f9b07844cdd87" name="a0966cb021256c7d1a08f9b07844cdd87"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>inode_base</b> = <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html">detail::olc_inode_base</a>&lt; Key, Value &gt;</td></tr>
 <tr class="separator:a0966cb021256c7d1a08f9b07844cdd87"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -152,6 +149,14 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>db_type</b> = <a cla
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:af4b00fbad9ebc000ae278731ef54eade" id="r_af4b00fbad9ebc000ae278731ef54eade"><td class="memItemLeft" align="right" valign="top"><a id="af4b00fbad9ebc000ae278731ef54eade" name="af4b00fbad9ebc000ae278731ef54eade"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>olc_db</b> () noexcept=default</td></tr>
+<tr class="memdesc:af4b00fbad9ebc000ae278731ef54eade"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct empty OLC ART index with default allocator. <br /></td></tr>
+<tr class="separator:af4b00fbad9ebc000ae278731ef54eade"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5c263ba8f49da7288d5c0c8b24a95a1" id="r_ae5c263ba8f49da7288d5c0c8b24a95a1"><td class="memItemLeft" align="right" valign="top"><a id="ae5c263ba8f49da7288d5c0c8b24a95a1" name="ae5c263ba8f49da7288d5c0c8b24a95a1"></a>
+constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>olc_db</b> (const <a class="el" href="structunodb_1_1allocator__type.html">allocator_type</a> &amp;alloc) noexcept</td></tr>
+<tr class="memdesc:ae5c263ba8f49da7288d5c0c8b24a95a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct empty OLC ART index with a custom allocator. <br /></td></tr>
+<tr class="separator:ae5c263ba8f49da7288d5c0c8b24a95a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a59a2450d6a7997d7c4d43a8ca71a319d" id="r_a59a2450d6a7997d7c4d43a8ca71a319d"><td class="memItemLeft" align="right" valign="top">get_result&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db.html#a59a2450d6a7997d7c4d43a8ca71a319d">get</a> (Key search_key) const noexcept</td></tr>
 <tr class="memdesc:a59a2450d6a7997d7c4d43a8ca71a319d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Query for a value associated with a key.  <br /></td></tr>
 <tr class="separator:a59a2450d6a7997d7c4d43a8ca71a319d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -159,6 +164,10 @@ Public Member Functions</h2></td></tr>
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>empty</b> () const noexcept</td></tr>
 <tr class="memdesc:a6beb153875791c86b4387f547331d662"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true iff the tree is empty (no root leaf). <br /></td></tr>
 <tr class="separator:a6beb153875791c86b4387f547331d662"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c43d38e5ee343c0108e0a48325bda5b" id="r_a9c43d38e5ee343c0108e0a48325bda5b"><td class="memItemLeft" align="right" valign="top"><a id="a9c43d38e5ee343c0108e0a48325bda5b" name="a9c43d38e5ee343c0108e0a48325bda5b"></a>
+constexpr const <a class="el" href="structunodb_1_1allocator__type.html">allocator_type</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_allocator</b> () const noexcept</td></tr>
+<tr class="memdesc:a9c43d38e5ee343c0108e0a48325bda5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the allocator used by this tree. <br /></td></tr>
+<tr class="separator:a9c43d38e5ee343c0108e0a48325bda5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aad25013026e02d563e4e4ea0efe2d31c" id="r_aad25013026e02d563e4e4ea0efe2d31c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db.html#aad25013026e02d563e4e4ea0efe2d31c">insert</a> (Key insert_key, <a class="el" href="classunodb_1_1olc__db.html#a056d823a054f7999b3fafeac0f45cdd2">value_type</a> v)</td></tr>
 <tr class="memdesc:aad25013026e02d563e4e4ea0efe2d31c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert a value under a binary comparable key iff there is no entry for that key.  <br /></td></tr>
 <tr class="separator:aad25013026e02d563e4e4ea0efe2d31c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -363,6 +372,10 @@ Private Attributes</h2></td></tr>
 <tr class="memitem:a1fdf2d871a200a44ef9dab35670c8f14" id="r_a1fdf2d871a200a44ef9dab35670c8f14"><td class="memItemLeft" align="right" valign="top"><a id="a1fdf2d871a200a44ef9dab35670c8f14" name="a1fdf2d871a200a44ef9dab35670c8f14"></a>
 <a class="el" href="classunodb_1_1in__critical__section.html">in_critical_section</a>&lt; <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::olc_node_ptr</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>root</b> {<a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">detail::olc_node_ptr</a>{nullptr}}</td></tr>
 <tr class="separator:a1fdf2d871a200a44ef9dab35670c8f14"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b8583b3aa3f627a0384caf47ddbe15f" id="r_a1b8583b3aa3f627a0384caf47ddbe15f"><td class="memItemLeft" align="right" valign="top"><a id="a1b8583b3aa3f627a0384caf47ddbe15f" name="a1b8583b3aa3f627a0384caf47ddbe15f"></a>
+<a class="el" href="structunodb_1_1allocator__type.html">allocator_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>allocator_</b> {<a class="el" href="namespaceunodb_1_1detail.html#a2fe93a1f46346cb671f4756b8a2f58e9">detail::olc_default_allocator</a>}</td></tr>
+<tr class="memdesc:a1b8583b3aa3f627a0384caf47ddbe15f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocator for tree nodes (cold — read only at deallocation time). <br /></td></tr>
+<tr class="separator:a1b8583b3aa3f627a0384caf47ddbe15f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa182c93c3a13098cdc6e7792186bf96b" id="r_aa182c93c3a13098cdc6e7792186bf96b"><td class="memItemLeft" align="right" valign="top"><a id="aa182c93c3a13098cdc6e7792186bf96b" name="aa182c93c3a13098cdc6e7792186bf96b"></a>
 std::atomic&lt; std::size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>current_memory_use</b> {0}</td></tr>
 <tr class="separator:aa182c93c3a13098cdc6e7792186bf96b"><td class="memSeparator" colspan="2">&#160;</td></tr>

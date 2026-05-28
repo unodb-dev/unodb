@@ -245,28 +245,34 @@ $(document).ready(function(){initNavTree('assert_8hpp_source.html',''); initResi
 <div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span> </div>
 <div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span><span class="preprocessor">#endif  </span><span class="comment">// !defined(NDEBUG)</span></div>
 <div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span> </div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span><a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span> </div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>}  <span class="comment">// namespace unodb::detail</span></div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span> </div>
-<div class="foldopen" id="foldopen00182" data-start="" data-end="">
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno"><a class="line" href="group__internal.html#ga2aefe23ff16049b72ae95c9d3fcbf0db">  182</a></span><span class="preprocessor">#define UNODB_DETAIL_ASSUME(assumption)      \</span></div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span><span class="preprocessor">  do {                                       \</span></div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span><span class="preprocessor">    UNODB_DETAIL_ASSERT(assumption);         \</span></div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span><span class="preprocessor">    UNODB_DETAIL_BUILTIN_ASSUME(assumption); \</span></div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span><span class="preprocessor">  } while (0)</span></div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span><span class="preprocessor">#ifdef UNODB_DETAIL_QSBR_DEBUG</span></div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span><span class="preprocessor">#define UNODB_DETAIL_QSBR_ASSERT(condition) UNODB_DETAIL_ASSERT(condition)</span></div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno"><a class="line" href="assert_8hpp.html#a37fadfdd843960cc83e0ad19a81ec395">  177</a></span><span class="preprocessor">#define UNODB_DETAIL_QSBR_ASSERT(condition) ((void)0)</span></div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span> </div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span><a class="code hl_define" href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a>()</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span> </div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>}  <span class="comment">// namespace unodb::detail</span></div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span> </div>
+<div class="foldopen" id="foldopen00191" data-start="" data-end="">
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno"><a class="line" href="group__internal.html#ga2aefe23ff16049b72ae95c9d3fcbf0db">  191</a></span><span class="preprocessor">#define UNODB_DETAIL_ASSUME(assumption)      \</span></div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span><span class="preprocessor">  do {                                       \</span></div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span><span class="preprocessor">    UNODB_DETAIL_ASSERT(assumption);         \</span></div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span><span class="preprocessor">    UNODB_DETAIL_BUILTIN_ASSUME(assumption); \</span></div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span><span class="preprocessor">  } while (0)</span></div>
 </div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span> </div>
-<div class="foldopen" id="foldopen00193" data-start="" data-end="">
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno"><a class="line" href="group__internal.html#gaa40fe4fe8238513be2c947f8779c04e4">  193</a></span><span class="preprocessor">#define UNODB_DETAIL_CANNOT_HAPPEN() \</span></div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span><span class="preprocessor">  unodb::detail::cannot_happen(__FILE__, __LINE__, __func__)</span></div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span> </div>
+<div class="foldopen" id="foldopen00202" data-start="" data-end="">
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno"><a class="line" href="group__internal.html#gaa40fe4fe8238513be2c947f8779c04e4">  202</a></span><span class="preprocessor">#define UNODB_DETAIL_CANNOT_HAPPEN() \</span></div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span><span class="preprocessor">  unodb::detail::cannot_happen(__FILE__, __LINE__, __func__)</span></div>
 </div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span> </div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span><span class="comment">// LCOV_EXCL_STOP</span></div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span> </div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span> </div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span> </div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span> </div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span><span class="comment">// LCOV_EXCL_STOP</span></div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span> </div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span> </div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span> </div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="aclassunodb_1_1test_1_1allocation__failure__injector_html_afcfa9d32d1318ca0969f2a593607341c"><div class="ttname"><a href="classunodb_1_1test_1_1allocation__failure__injector.html#afcfa9d32d1318ca0969f2a593607341c">unodb::test::allocation_failure_injector::fail_on_nth_allocation</a></div><div class="ttdeci">static void fail_on_nth_allocation(std::uint64_t n UNODB_DETAIL_USED_IN_DEBUG) noexcept</div><div class="ttdoc">Configure allocation failure to occur on allocation number n.</div><div class="ttdef"><b>Definition</b> test_heap.hpp:52</div></div>
 <div class="ttc" id="agroup__internal_html_ga4db1e26ef37ef40446df97c4dc605129"><div class="ttname"><a href="group__internal.html#ga4db1e26ef37ef40446df97c4dc605129">UNODB_DETAIL_C_STRING_ARG</a></div><div class="ttdeci">#define UNODB_DETAIL_C_STRING_ARG(x)</div><div class="ttdoc">Mark a parameter as a null-terminated C string.</div><div class="ttdef"><b>Definition</b> global.hpp:243</div></div>
 <div class="ttc" id="agroup__internal_html_ga597f18c76f2d7b0e86e9a164bc8f0a80"><div class="ttname"><a href="group__internal.html#ga597f18c76f2d7b0e86e9a164bc8f0a80">UNODB_DETAIL_UNREACHABLE</a></div><div class="ttdeci">#define UNODB_DETAIL_UNREACHABLE()</div><div class="ttdoc">Low-level macro to indicate an unreachable code.</div><div class="ttdef"><b>Definition</b> global.hpp:273</div></div>
@@ -274,7 +280,7 @@ $(document).ready(function(){initNavTree('assert_8hpp_source.html',''); initResi
 <div class="ttc" id="agroup__internal_html_gaafb52805dfbf125a141afc869e64715d"><div class="ttname"><a href="group__internal.html#gaafb52805dfbf125a141afc869e64715d">UNODB_DETAIL_HEADER_NOINLINE</a></div><div class="ttdeci">#define UNODB_DETAIL_HEADER_NOINLINE</div><div class="ttdoc">Declaration specifier for a function in a header file that should not be inlined.</div><div class="ttdef"><b>Definition</b> global.hpp:302</div></div>
 <div class="ttc" id="agroup__internal_html_gacd9e44918f8725b066b33afc500ce938"><div class="ttname"><a href="group__internal.html#gacd9e44918f8725b066b33afc500ce938">UNODB_DETAIL_RESTORE_MSVC_WARNINGS</a></div><div class="ttdeci">#define UNODB_DETAIL_RESTORE_MSVC_WARNINGS()</div><div class="ttdoc">Re-enable the warning that was previously disabled with UNODB_DETAIL_DISABLE_MSVC_WARNING().</div><div class="ttdef"><b>Definition</b> global.hpp:339</div></div>
 <div class="ttc" id="agroup__test-internals_html_gaaf2eecf2b7a7d75d287403058d3caa77"><div class="ttname"><a href="group__test-internals.html#gaaf2eecf2b7a7d75d287403058d3caa77">UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION</a></div><div class="ttdeci">#define UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION(n)</div><div class="ttdoc">Configure heap allocation to fail on given allocation number.</div><div class="ttdef"><b>Definition</b> test_heap.hpp:153</div></div>
-<div class="ttc" id="anamespaceunodb_1_1detail_html"><div class="ttname"><a href="namespaceunodb_1_1detail.html">unodb::detail</a></div><div class="ttdoc">Namespace for the UnoDB internal implementation details.</div><div class="ttdef"><b>Definition</b> art.hpp:37</div></div>
+<div class="ttc" id="anamespaceunodb_1_1detail_html"><div class="ttname"><a href="namespaceunodb_1_1detail.html">unodb::detail</a></div><div class="ttdoc">Namespace for the UnoDB internal implementation details.</div><div class="ttdef"><b>Definition</b> art.hpp:38</div></div>
 <div class="ttc" id="anamespaceunodb_1_1detail_html_a73ccae20a7fde29e0381b903bbf0c58a"><div class="ttname"><a href="namespaceunodb_1_1detail.html#a73ccae20a7fde29e0381b903bbf0c58a">unodb::detail::assert_failure</a></div><div class="ttdeci">void assert_failure(const char *file, int line, const char *func, const char *condition) noexcept</div><div class="ttdoc">Assert failure implementation for standalone debug build.</div><div class="ttdef"><b>Definition</b> assert.hpp:150</div></div>
 <div class="ttc" id="anamespaceunodb_1_1detail_html_a84376061f77319109e51399dd10a3135"><div class="ttname"><a href="namespaceunodb_1_1detail.html#a84376061f77319109e51399dd10a3135">unodb::detail::cannot_happen</a></div><div class="ttdeci">void cannot_happen(const char *file, int line, const char *func) noexcept</div><div class="ttdoc">Implementation for marking a source code location as unreachable.</div><div class="ttdef"><b>Definition</b> assert.hpp:90</div></div>
 <div class="ttc" id="anamespaceunodb_1_1detail_html_aa70778153d340954b6f2718fd7f018a2"><div class="ttname"><a href="namespaceunodb_1_1detail.html#aa70778153d340954b6f2718fd7f018a2">unodb::detail::msg_stacktrace_abort</a></div><div class="ttdeci">void msg_stacktrace_abort(std::string_view msg) noexcept</div><div class="ttdoc">Print a message and a stacktrace to std::cerr, then abort.</div><div class="ttdef"><b>Definition</b> assert.hpp:66</div></div>

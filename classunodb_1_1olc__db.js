@@ -4,10 +4,13 @@ var classunodb_1_1olc__db =
     [ "remove_entry", "structunodb_1_1olc__db_1_1remove__entry.html", null ],
     [ "key_type", "classunodb_1_1olc__db.html#aff5ef0207a6cf003ad978093ea41f765", null ],
     [ "value_type", "classunodb_1_1olc__db.html#a056d823a054f7999b3fafeac0f45cdd2", null ],
+    [ "olc_db", "classunodb_1_1olc__db.html#af4b00fbad9ebc000ae278731ef54eade", null ],
+    [ "olc_db", "classunodb_1_1olc__db.html#ae5c263ba8f49da7288d5c0c8b24a95a1", null ],
     [ "build_chain", "classunodb_1_1olc__db.html#a25089f4bf2abc31055890854e93408ff", null ],
     [ "clear", "classunodb_1_1olc__db.html#a4cbf7a42e62a5d36d00820bc9579f2ff", null ],
     [ "empty", "classunodb_1_1olc__db.html#a6beb153875791c86b4387f547331d662", null ],
     [ "get", "classunodb_1_1olc__db.html#a59a2450d6a7997d7c4d43a8ca71a319d", null ],
+    [ "get_allocator", "classunodb_1_1olc__db.html#a9c43d38e5ee343c0108e0a48325bda5b", null ],
     [ "get_internal", "classunodb_1_1olc__db.html#a564f07b087eb0cc64d8a9afc384646e7", null ],
     [ "increase_memory_use", "classunodb_1_1olc__db.html#a77817106a441d5aab184a26239f133e3", null ],
     [ "insert", "classunodb_1_1olc__db.html#aad25013026e02d563e4e4ea0efe2d31c", null ],
@@ -21,5 +24,6 @@ var classunodb_1_1olc__db =
     [ "try_collapse_i4", "classunodb_1_1olc__db.html#a109c37847970bb6c5851881d6870e3c3", null ],
     [ "try_insert", "classunodb_1_1olc__db.html#a654ac331a170f35e23b3599ef65dac94", null ],
     [ "try_remove_fixed_width_key", "classunodb_1_1olc__db.html#ac07ab4b1afbbb2b903a5161780836654", null ],
-    [ "try_remove_key_view", "classunodb_1_1olc__db.html#aa24244d16dcb651d8e7d842856af49fb", null ]
+    [ "try_remove_key_view", "classunodb_1_1olc__db.html#aa24244d16dcb651d8e7d842856af49fb", null ],
+    [ "allocator_", "classunodb_1_1olc__db.html#a1b8583b3aa3f627a0384caf47ddbe15f", null ]
 ];

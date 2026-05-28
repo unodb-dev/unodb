@@ -109,12 +109,14 @@ $(document).ready(function(){initNavTree('qsbr_8cpp.html',''); initResizable(); 
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="global_8hpp_source.html">global.hpp</a>&quot;</code><br />
 <code>#include &lt;atomic&gt;</code><br />
+<code>#include &lt;cstddef&gt;</code><br />
 <code>#include &lt;cstdint&gt;</code><br />
 <code>#include &lt;exception&gt;</code><br />
 <code>#include &lt;iostream&gt;</code><br />
 <code>#include &lt;memory&gt;</code><br />
 <code>#include &lt;new&gt;</code><br />
 <code>#include &lt;utility&gt;</code><br />
+<code>#include &quot;<a class="el" href="art__allocator_8hpp_source.html">art_allocator.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="qsbr_8hpp_source.html">qsbr.hpp</a>&quot;</code><br />
 <code>#include &lt;mutex&gt;</code><br />
 <code>#include &lt;sanitizer/tsan_interface.h&gt;</code><br />
@@ -147,6 +149,9 @@ Functions</h2></td></tr>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::anonymous_namespace{qsbr.cpp}::free_orphan_list</b> (<a class="el" href="structunodb_1_1detail_1_1dealloc__vector__list__node.html">detail::dealloc_vector_list_node</a> *list) noexcept</td></tr>
 <tr class="memdesc:ae7d1d0020a8d2f5a2adee0519e9b8fec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free pending requests and orphan <em>list</em> itself. <br /></td></tr>
 <tr class="separator:ae7d1d0020a8d2f5a2adee0519e9b8fec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae24d9734fca7ca8d679af88b62a859ba" id="r_ae24d9734fca7ca8d679af88b62a859ba"><td class="memItemLeft" align="right" valign="top"><a id="ae24d9734fca7ca8d679af88b62a859ba" name="ae24d9734fca7ca8d679af88b62a859ba"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::detail::anonymous_namespace{qsbr.cpp}::qsbr_defer_dealloc</b> (void *ptr, std::size_t size, <a class="el" href="namespaceunodb_1_1detail.html#a22bcecdbe2a6176ad1956f2fbaddce06">destroy_callback_type</a> destroy_callback, void *ctx) noexcept(false)</td></tr>
+<tr class="separator:ae24d9734fca7ca8d679af88b62a859ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>

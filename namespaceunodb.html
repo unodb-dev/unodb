@@ -121,6 +121,9 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1allocator__type.html">allocator_type</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pluggable allocator for ART trees.  <a href="structunodb_1_1allocator__type.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db.html">db</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A non-thread-safe implementation of the Adaptive Radix Tree (ART).  <a href="classunodb_1_1db.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -184,6 +187,10 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
+<tr class="memitem:a55d88f88f90b55aa4831120f7faf353b" id="r_a55d88f88f90b55aa4831120f7faf353b"><td class="memItemLeft" align="right" valign="top"><a id="a55d88f88f90b55aa4831120f7faf353b" name="a55d88f88f90b55aa4831120f7faf353b"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>destroy_callback_type</b> = void(*)(void *ptr, std::size_t size, void *ctx)</td></tr>
+<tr class="memdesc:a55d88f88f90b55aa4831120f7faf353b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when a deferred deallocation is safe to execute. <br /></td></tr>
+<tr class="separator:a55d88f88f90b55aa4831120f7faf353b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa6744476ee7ac432b5377c804ddfca1c" id="r_aa6744476ee7ac432b5377c804ddfca1c"><td class="memItemLeft" align="right" valign="top"><a id="aa6744476ee7ac432b5377c804ddfca1c" name="aa6744476ee7ac432b5377c804ddfca1c"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>key_size_type</b> = std::uint32_t</td></tr>
 <tr class="memdesc:aa6744476ee7ac432b5377c804ddfca1c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type alias determining the maximum size in bytes of a key that may be stored in the index. <br /></td></tr>
@@ -206,9 +213,6 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>value_view</b> = std
 <tr class="memitem:a60a52550ffa9f2d0d9e1cd9ebc7cab28" id="r_a60a52550ffa9f2d0d9e1cd9ebc7cab28"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#a60a52550ffa9f2d0d9e1cd9ebc7cab28">inode_type_counter_array</a> = std::array&lt; std::uint64_t, <a class="el" href="namespaceunodb_1_1detail.html#aa11fc0dc02ee0b061504cd50856ea7dd">detail::inode_type_count</a> &gt;</td></tr>
 <tr class="memdesc:a60a52550ffa9f2d0d9e1cd9ebc7cab28"><td class="mdescLeft">&#160;</td><td class="mdescRight"><code>std::array</code> of <code>std::uint64_t</code> values for each internal node type.  <br /></td></tr>
 <tr class="separator:a60a52550ffa9f2d0d9e1cd9ebc7cab28"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abb0d76ffe3981ce7fdedaebd068296d1" id="r_abb0d76ffe3981ce7fdedaebd068296d1"><td class="memItemLeft" align="right" valign="top"><a id="abb0d76ffe3981ce7fdedaebd068296d1" name="abb0d76ffe3981ce7fdedaebd068296d1"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr_value_view</b> = <a class="el" href="classunodb_1_1qsbr__ptr__span.html">qsbr_ptr_span</a>&lt; const std::byte &gt;</td></tr>
-<tr class="separator:abb0d76ffe3981ce7fdedaebd068296d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a70595f75a79bde2520bdcfb07689da7b" id="r_a70595f75a79bde2520bdcfb07689da7b"><td class="memItemLeft" align="right" valign="top"><a id="a70595f75a79bde2520bdcfb07689da7b" name="a70595f75a79bde2520bdcfb07689da7b"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>version_tag_type</b> = std::uint64_t</td></tr>
 <tr class="memdesc:a70595f75a79bde2520bdcfb07689da7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Underlying integer type used to store optimistic lock word, including its version and lock state information. <br /></td></tr>

@@ -403,6 +403,9 @@ template&lt;typename Key , typename Value &gt; </td></tr>
 <tr class="memitem:a2ef6e7104112ec675df54cac9eeece1c" id="r_a2ef6e7104112ec675df54cac9eeece1c"><td class="memItemLeft" align="right" valign="top"><a id="a2ef6e7104112ec675df54cac9eeece1c" name="a2ef6e7104112ec675df54cac9eeece1c"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>olc_inode_256_test_type</b> = <a class="el" href="classunodb_1_1detail_1_1olc__inode__256.html">olc_inode_256</a>&lt; std::uint64_t, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a> &gt;</td></tr>
 <tr class="separator:a2ef6e7104112ec675df54cac9eeece1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a22bcecdbe2a6176ad1956f2fbaddce06" id="r_a22bcecdbe2a6176ad1956f2fbaddce06"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a22bcecdbe2a6176ad1956f2fbaddce06">destroy_callback_type</a> = void(*)(void *ptr, std::size_t size, void *ctx)</td></tr>
+<tr class="memdesc:a22bcecdbe2a6176ad1956f2fbaddce06"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function type for destroy callbacks invoked when deferred deallocation is safe.  <br /></td></tr>
+<tr class="separator:a22bcecdbe2a6176ad1956f2fbaddce06"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3c98952bb0651c3bd50ab5de879cfeff" id="r_a3c98952bb0651c3bd50ab5de879cfeff"><td class="memItemLeft" align="right" valign="top"><a id="a3c98952bb0651c3bd50ab5de879cfeff" name="a3c98952bb0651c3bd50ab5de879cfeff"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>dealloc_request_vector</b> = std::vector&lt; <a class="el" href="classunodb_1_1detail_1_1deallocation__request.html">deallocation_request</a> &gt;</td></tr>
 <tr class="memdesc:a3c98952bb0651c3bd50ab5de879cfeff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vector of deallocation requests. <br /></td></tr>
@@ -413,6 +416,20 @@ Functions</h2></td></tr>
 <tr class="memitem:a315446f662ab93a69546e61c3c72a492" id="r_a315446f662ab93a69546e61c3c72a492"><td class="memItemLeft" align="right" valign="top">auto *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a315446f662ab93a69546e61c3c72a492">unwrap_fake_critical_section</a> (<a class="el" href="classunodb_1_1in__fake__critical__section.html">unodb::in_fake_critical_section</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">unodb::detail::node_ptr</a> &gt; *ptr) noexcept</td></tr>
 <tr class="memdesc:a315446f662ab93a69546e61c3c72a492"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unwrap fake critical section wrapper to access underlying node pointer.  <br /></td></tr>
 <tr class="separator:a315446f662ab93a69546e61c3c72a492"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab8fed6046804221200399128e04fa0cc" id="r_ab8fed6046804221200399128e04fa0cc"><td class="memItemLeft" align="right" valign="top"><a id="ab8fed6046804221200399128e04fa0cc" name="ab8fed6046804221200399128e04fa0cc"></a>
+void *&#160;</td><td class="memItemRight" valign="bottom"><b>default_alloc</b> (std::size_t size, std::size_t alignment, void *)</td></tr>
+<tr class="memdesc:ab8fed6046804221200399128e04fa0cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default alloc: delegates to allocate_aligned (<a class="el" href="heap_8hpp.html" title="Aligned heap memory allocation.">heap.hpp</a>). <br /></td></tr>
+<tr class="separator:ab8fed6046804221200399128e04fa0cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac9014018c219c856912fbca96c6365f7" id="r_ac9014018c219c856912fbca96c6365f7"><td class="memItemLeft" align="right" valign="top"><a id="ac9014018c219c856912fbca96c6365f7" name="ac9014018c219c856912fbca96c6365f7"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>default_dealloc</b> (void *ptr, std::size_t, void *) noexcept</td></tr>
+<tr class="memdesc:ac9014018c219c856912fbca96c6365f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default dealloc: delegates to free_aligned (<a class="el" href="heap_8hpp.html" title="Aligned heap memory allocation.">heap.hpp</a>). <br /></td></tr>
+<tr class="separator:ac9014018c219c856912fbca96c6365f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad0a46e22ed0f76739ffcfa42c8da349d" id="r_ad0a46e22ed0f76739ffcfa42c8da349d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#ad0a46e22ed0f76739ffcfa42c8da349d">default_defer_dealloc</a> (void *ptr, std::size_t size, <a class="el" href="namespaceunodb_1_1detail.html#a22bcecdbe2a6176ad1956f2fbaddce06">destroy_callback_type</a> destroy_callback, void *ctx) noexcept</td></tr>
+<tr class="memdesc:ad0a46e22ed0f76739ffcfa42c8da349d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default defer_dealloc: immediate free via destroy_callback.  <br /></td></tr>
+<tr class="separator:ad0a46e22ed0f76739ffcfa42c8da349d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa2440335830743ed9fb666230b01c621" id="r_aa2440335830743ed9fb666230b01c621"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#aa2440335830743ed9fb666230b01c621">default_destroy</a> (void *ptr, std::size_t size, void *ctx) noexcept</td></tr>
+<tr class="memdesc:aa2440335830743ed9fb666230b01c621"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default destroy callback: frees via default_dealloc.  <br /></td></tr>
+<tr class="separator:aa2440335830743ed9fb666230b01c621"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0ea0a7a9ae7c67e2636bae1ca01e11fe" id="r_a0ea0a7a9ae7c67e2636bae1ca01e11fe"><td class="memItemLeft" align="right" valign="top"><a id="a0ea0a7a9ae7c67e2636bae1ca01e11fe" name="a0ea0a7a9ae7c67e2636bae1ca01e11fe"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>dump_byte</b> (std::ostream &amp;os, std::byte byte)</td></tr>
 <tr class="memdesc:a0ea0a7a9ae7c67e2636bae1ca01e11fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dump <em>byte</em> to <em>os</em> stream as a hexadecimal number. <br /></td></tr>
@@ -532,6 +549,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>sync</b> (<a class="e
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
+<tr class="memitem:a01f210386e7451c963e3039b9a397f3c" id="r_a01f210386e7451c963e3039b9a397f3c"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structunodb_1_1allocator__type.html">allocator_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a01f210386e7451c963e3039b9a397f3c">default_allocator</a></td></tr>
+<tr class="memdesc:a01f210386e7451c963e3039b9a397f3c"><td class="mdescLeft">&#160;</td><td class="mdescRight">The default allocator instance (no QSBR, immediate free).  <br /></td></tr>
+<tr class="separator:a01f210386e7451c963e3039b9a397f3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad6143a3f0577dce38a7470201e05e067" id="r_ad6143a3f0577dce38a7470201e05e067"><td class="memTemplParams" colspan="2">template&lt;typename Key , typename Value &gt; </td></tr>
 <tr class="memitem:ad6143a3f0577dce38a7470201e05e067"><td class="memTemplItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#ad6143a3f0577dce38a7470201e05e067">can_eliminate_key_in_leaf_v</a></td></tr>
 <tr class="memdesc:ad6143a3f0577dce38a7470201e05e067"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the key can be omitted from the leaf.  <br /></td></tr>
@@ -551,6 +571,9 @@ constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>node
 constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>inode_type_count</b> {4}</td></tr>
 <tr class="memdesc:aa11fc0dc02ee0b061504cd50856ea7dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of different internal node types. <br /></td></tr>
 <tr class="separator:aa11fc0dc02ee0b061504cd50856ea7dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2fe93a1f46346cb671f4756b8a2f58e9" id="r_a2fe93a1f46346cb671f4756b8a2f58e9"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structunodb_1_1allocator__type.html">allocator_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a2fe93a1f46346cb671f4756b8a2f58e9">olc_default_allocator</a></td></tr>
+<tr class="memdesc:a2fe93a1f46346cb671f4756b8a2f58e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">OLC allocator with QSBR-based deferred reclamation (defined in <a class="el" href="qsbr_8cpp.html" title="QSBR implementation details.">qsbr.cpp</a>).  <br /></td></tr>
+<tr class="separator:a2fe93a1f46346cb671f4756b8a2f58e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4a4f19f630d67a625c508f7309e4baf1" id="r_a4a4f19f630d67a625c508f7309e4baf1"><td class="memItemLeft" align="right" valign="top"><a id="a4a4f19f630d67a625c508f7309e4baf1" name="a4a4f19f630d67a625c508f7309e4baf1"></a>
 <a class="el" href="structunodb_1_1detail_1_1sync__point.html">sync_point</a>&#160;</td><td class="memItemRight" valign="bottom"><b>sync_after_chain_locked</b></td></tr>
 <tr class="memdesc:a4a4f19f630d67a625c508f7309e4baf1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sync point: fires after chain locked, before acquiring cut_point_parent. <br /></td></tr>
@@ -647,6 +670,31 @@ template&lt;typename Key , typename Value , class INode &gt; </div>
 
 <p>Custom deleter for internal nodes in non-thread-safe ART. </p>
 <p>Manages cleanup of internal nodes when they are removed from the tree. </p>
+
+</div>
+</div>
+<a id="a22bcecdbe2a6176ad1956f2fbaddce06" name="a22bcecdbe2a6176ad1956f2fbaddce06"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a22bcecdbe2a6176ad1956f2fbaddce06">&#9670;&#160;</a></span>destroy_callback_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespaceunodb_1_1detail.html#a22bcecdbe2a6176ad1956f2fbaddce06">unodb::detail::destroy_callback_type</a> = typedef void (*)(void* ptr, std::size_t size, void* ctx)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Function type for destroy callbacks invoked when deferred deallocation is safe. </p>
+<p>Matches the signature in <a class="el" href="art__allocator_8hpp.html" title="Pluggable allocator for ART trees (header-only, no QSBR dependency).">art_allocator.hpp</a>. </p>
 
 </div>
 </div>
@@ -1190,6 +1238,102 @@ template&lt;typename F , typename U &gt; </div>
 
 </div>
 </div>
+<a id="ad0a46e22ed0f76739ffcfa42c8da349d" name="ad0a46e22ed0f76739ffcfa42c8da349d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad0a46e22ed0f76739ffcfa42c8da349d">&#9670;&#160;</a></span>default_defer_dealloc()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void unodb::detail::default_defer_dealloc </td>
+          <td>(</td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>ptr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#a22bcecdbe2a6176ad1956f2fbaddce06">destroy_callback_type</a>&#160;</td>
+          <td class="paramname"><em>destroy_callback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>ctx</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Default defer_dealloc: immediate free via destroy_callback. </p>
+<p>Safe for db and <a class="el" href="classunodb_1_1mutex__db.html" title="A thread-safe implementation of the Adaptive Radix Tree (ART) using an explicit global lock.">mutex_db</a> where no concurrent readers exist. </p>
+
+</div>
+</div>
+<a id="aa2440335830743ed9fb666230b01c621" name="aa2440335830743ed9fb666230b01c621"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa2440335830743ed9fb666230b01c621">&#9670;&#160;</a></span>default_destroy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void unodb::detail::default_destroy </td>
+          <td>(</td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>ptr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>ctx</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Default destroy callback: frees via default_dealloc. </p>
+<p>Passed as the destroy_callback argument to defer_dealloc. </p>
+
+</div>
+</div>
 <a id="a3f442e3027e04156cef43a9b865a0c16" name="a3f442e3027e04156cef43a9b865a0c16"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3f442e3027e04156cef43a9b865a0c16">&#9670;&#160;</a></span>dump_key()</h2>
 
@@ -1563,6 +1707,34 @@ template&lt;typename Key , typename Value &gt; </div>
 
 </div>
 </div>
+<a id="a01f210386e7451c963e3039b9a397f3c" name="a01f210386e7451c963e3039b9a397f3c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a01f210386e7451c963e3039b9a397f3c">&#9670;&#160;</a></span>default_allocator</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="structunodb_1_1allocator__type.html">allocator_type</a> unodb::detail::default_allocator</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">{</div>
+<div class="line">    &amp;<a class="code hl_function" href="namespaceunodb_1_1detail.html#ab8fed6046804221200399128e04fa0cc">default_alloc</a>, &amp;<a class="code hl_function" href="namespaceunodb_1_1detail.html#ac9014018c219c856912fbca96c6365f7">default_dealloc</a>, <span class="keyword">nullptr</span>, <span class="keyword">nullptr</span>}</div>
+<div class="ttc" id="anamespaceunodb_1_1detail_html_ab8fed6046804221200399128e04fa0cc"><div class="ttname"><a href="namespaceunodb_1_1detail.html#ab8fed6046804221200399128e04fa0cc">unodb::detail::default_alloc</a></div><div class="ttdeci">void * default_alloc(std::size_t size, std::size_t alignment, void *)</div><div class="ttdoc">Default alloc: delegates to allocate_aligned (heap.hpp).</div><div class="ttdef"><b>Definition</b> art_allocator.hpp:54</div></div>
+<div class="ttc" id="anamespaceunodb_1_1detail_html_ac9014018c219c856912fbca96c6365f7"><div class="ttname"><a href="namespaceunodb_1_1detail.html#ac9014018c219c856912fbca96c6365f7">unodb::detail::default_dealloc</a></div><div class="ttdeci">void default_dealloc(void *ptr, std::size_t, void *) noexcept</div><div class="ttdoc">Default dealloc: delegates to free_aligned (heap.hpp).</div><div class="ttdef"><b>Definition</b> art_allocator.hpp:60</div></div>
+</div><!-- fragment -->
+<p>The default allocator instance (no QSBR, immediate free). </p>
+
+</div>
+</div>
 <a id="a3ab520671507d4d7d913c5d2655fad89" name="a3ab520671507d4d7d913c5d2655fad89"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3ab520671507d4d7d913c5d2655fad89">&#9670;&#160;</a></span>hardware_constructive_interference_size</h2>
 
@@ -1636,6 +1808,35 @@ template&lt;typename Key , typename Value &gt; </div>
 <p>Initial capacity for the <a class="el" href="classunodb_1_1key__encoder.html" title="A utility class to generate binary comparable keys from a sequence of key components.">unodb::key_encoder</a> and other similar internal buffers. </p>
 <p>It should be high enough that such objects DO NOT allocate for commonly used key lengths. These objects use an internal buffer of this capacity and then switch over to an explicitly allocated buffer if the capacity would be exceeded.</p>
 <dl class="section note"><dt>Note</dt><dd>: If you are only using fixed width keys, then this can be sizeof(T). In typical scenarios these objects are on the stack and there is little if any penalty to having a larger initial capacity for these buffers. </dd></dl>
+
+</div>
+</div>
+<a id="a2fe93a1f46346cb671f4756b8a2f58e9" name="a2fe93a1f46346cb671f4756b8a2f58e9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2fe93a1f46346cb671f4756b8a2f58e9">&#9670;&#160;</a></span>olc_default_allocator</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structunodb_1_1allocator__type.html">allocator_type</a> unodb::detail::olc_default_allocator</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">{</div>
+<div class="line">    .alloc = &amp;<a class="code hl_function" href="namespaceunodb_1_1detail.html#ab8fed6046804221200399128e04fa0cc">default_alloc</a>,</div>
+<div class="line">    .dealloc = &amp;<a class="code hl_function" href="namespaceunodb_1_1detail.html#ac9014018c219c856912fbca96c6365f7">default_dealloc</a>,</div>
+<div class="line">    .defer_dealloc = &amp;qsbr_defer_dealloc,</div>
+<div class="line">    .ctx = <span class="keyword">nullptr</span>}</div>
+</div><!-- fragment -->
+<p>OLC allocator with QSBR-based deferred reclamation (defined in <a class="el" href="qsbr_8cpp.html" title="QSBR implementation details.">qsbr.cpp</a>). </p>
 
 </div>
 </div>

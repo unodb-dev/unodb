@@ -8,7 +8,7 @@ var classunodb_1_1qsbr =
     [ "bump_epoch_change_count", "classunodb_1_1qsbr.html#a7fc645a40b11e4140adb6453ca352498", null ],
     [ "change_epoch", "classunodb_1_1qsbr.html#aa9c595adf1664990c903a7a98a985829", null ],
     [ "current_interval_orphaned_requests_empty", "classunodb_1_1qsbr.html#ae28dd0090e790b02702896d1cde72792", null ],
-    [ "deallocate", "classunodb_1_1qsbr.html#ab805604c80aa7bbf91777c7bbf5f391a", null ],
+    [ "deallocate", "classunodb_1_1qsbr.html#a84792dbd2519dc5d072e5e2e36e964b5", null ],
     [ "dump", "classunodb_1_1qsbr.html#a3917296ed04b12883da63a447552acff", null ],
     [ "epoch_change_barrier_and_handle_orphans", "classunodb_1_1qsbr.html#a4ad3a076372de383d7e9f85863b892d3", null ],
     [ "get_epoch_callback_count_max", "classunodb_1_1qsbr.html#a9cef099598527975e1efe188f1945294", null ],

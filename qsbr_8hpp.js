@@ -10,6 +10,7 @@ var qsbr_8hpp =
     [ "unodb::quiescent_state_on_scope_exit", "structunodb_1_1quiescent__state__on__scope__exit.html", "structunodb_1_1quiescent__state__on__scope__exit" ],
     [ "unodb::qsbr_thread", "classunodb_1_1qsbr__thread.html", "classunodb_1_1qsbr__thread" ],
     [ "dealloc_request_vector", "qsbr_8hpp.html#a3c98952bb0651c3bd50ab5de879cfeff", null ],
+    [ "destroy_callback_type", "qsbr_8hpp.html#a22bcecdbe2a6176ad1956f2fbaddce06", null ],
     [ "qsbr_thread_count_type", "qsbr_8hpp.html#ada0b4ac1dc20e0b46e360f0743ee24d4", null ],
     [ "operator<<", "qsbr_8hpp.html#aa59775452fa97ba44e41a676ec016b9d", null ],
     [ "this_thread", "qsbr_8hpp.html#af67bb57e59d46aae6ffb5103dcb497a1", null ],

@@ -4,6 +4,7 @@ var files_dup =
     [ "fuzz_deepstate", "dir_87b3d7bb9796b53f7b078e58fbf24128.html", "dir_87b3d7bb9796b53f7b078e58fbf24128" ],
     [ "test", "dir_13e138d54eb8818da29c3992edef070a.html", "dir_13e138d54eb8818da29c3992edef070a" ],
     [ "art.hpp", "art_8hpp.html", "art_8hpp" ],
+    [ "art_allocator.hpp", "art__allocator_8hpp.html", "art__allocator_8hpp" ],
     [ "art_common.hpp", "art__common_8hpp.html", "art__common_8hpp" ],
     [ "art_internal.hpp", "art__internal_8hpp.html", "art__internal_8hpp" ],
     [ "art_internal_impl.hpp", "art__internal__impl_8hpp.html", "art__internal__impl_8hpp" ],

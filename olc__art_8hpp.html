@@ -121,6 +121,7 @@ $(document).ready(function(){initNavTree('olc__art_8hpp.html',''); initResizable
 <code>#include &lt;type_traits&gt;</code><br />
 <code>#include &lt;vector&gt;</code><br />
 <code>#include &lt;boost/container/small_vector.hpp&gt;</code><br />
+<code>#include &quot;<a class="el" href="art__allocator_8hpp_source.html">art_allocator.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="art__common_8hpp_source.html">art_common.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="art__internal_8hpp_source.html">art_internal.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a>&quot;</code><br />
@@ -129,7 +130,6 @@ $(document).ready(function(){initNavTree('olc__art_8hpp.html',''); initResizable
 <code>#include &quot;<a class="el" href="optimistic__lock_8hpp_source.html">optimistic_lock.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="portability__arch_8hpp_source.html">portability_arch.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="qsbr_8hpp_source.html">qsbr.hpp</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="qsbr__ptr_8hpp_source.html">qsbr_ptr.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="sync_8hpp_source.html">sync.hpp</a>&quot;</code><br />
 </div>
 <p><a href="olc__art_8hpp_source.html">Go to the source code of this file.</a></p>
@@ -210,9 +210,6 @@ template&lt;class AtomicArray &gt; </td></tr>
 template&lt;typename Key , typename Value &gt; </td></tr>
 <tr class="memitem:adc9e8892527b0164dc1b8b2b177cc28e"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>unodb::detail::olc_leaf_unique_ptr</b> = <a class="el" href="namespaceunodb_1_1detail.html#adfd70e9061d3f45eeff07dd5887a01d9">basic_db_leaf_unique_ptr</a>&lt; Key, Value, <a class="el" href="structunodb_1_1detail_1_1olc__node__header.html">olc_node_header</a>, <a class="el" href="classunodb_1_1olc__db.html">olc_db</a> &gt;</td></tr>
 <tr class="separator:adc9e8892527b0164dc1b8b2b177cc28e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abb0d76ffe3981ce7fdedaebd068296d1" id="r_abb0d76ffe3981ce7fdedaebd068296d1"><td class="memItemLeft" align="right" valign="top"><a id="abb0d76ffe3981ce7fdedaebd068296d1" name="abb0d76ffe3981ce7fdedaebd068296d1"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::qsbr_value_view</b> = <a class="el" href="classunodb_1_1qsbr__ptr__span.html">qsbr_ptr_span</a>&lt; const std::byte &gt;</td></tr>
-<tr class="separator:abb0d76ffe3981ce7fdedaebd068296d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a32a5507008263301357281c328968601" id="r_a32a5507008263301357281c328968601"><td class="memTemplParams" colspan="2"><a id="a32a5507008263301357281c328968601" name="a32a5507008263301357281c328968601"></a>
 template&lt;typename Key , typename Value , class INode &gt; </td></tr>
 <tr class="memitem:a32a5507008263301357281c328968601"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>unodb::detail::db_inode_qsbr_deleter_parent</b> = <a class="el" href="classunodb_1_1detail_1_1basic__db__inode__deleter.html">unodb::detail::basic_db_inode_deleter</a>&lt; INode, <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value &gt; &gt;</td></tr>
@@ -280,6 +277,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::unlock_and_ret
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
+<tr class="memitem:a2fe93a1f46346cb671f4756b8a2f58e9" id="r_a2fe93a1f46346cb671f4756b8a2f58e9"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structunodb_1_1allocator__type.html">allocator_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a2fe93a1f46346cb671f4756b8a2f58e9">unodb::detail::olc_default_allocator</a></td></tr>
+<tr class="memdesc:a2fe93a1f46346cb671f4756b8a2f58e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">OLC allocator with QSBR-based deferred reclamation (defined in <a class="el" href="qsbr_8cpp.html" title="QSBR implementation details.">qsbr.cpp</a>).  <br /></td></tr>
+<tr class="separator:a2fe93a1f46346cb671f4756b8a2f58e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4a4f19f630d67a625c508f7309e4baf1" id="r_a4a4f19f630d67a625c508f7309e4baf1"><td class="memItemLeft" align="right" valign="top"><a id="a4a4f19f630d67a625c508f7309e4baf1" name="a4a4f19f630d67a625c508f7309e4baf1"></a>
 <a class="el" href="structunodb_1_1detail_1_1sync__point.html">sync_point</a>&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::detail::sync_after_chain_locked</b></td></tr>
 <tr class="memdesc:a4a4f19f630d67a625c508f7309e4baf1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sync point: fires after chain locked, before acquiring cut_point_parent. <br /></td></tr>

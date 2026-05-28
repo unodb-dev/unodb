@@ -123,9 +123,6 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>key_type</b> = Key</
 using&#160;</td><td class="memItemRight" valign="bottom"><b>value_type</b> = Value</td></tr>
 <tr class="memdesc:a95da9eb65d7d477a1c43666848f8e362"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of the value associated with the keys in the index. <br /></td></tr>
 <tr class="separator:a95da9eb65d7d477a1c43666848f8e362"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae61b42a6da71d56e14ae75bace36dd02" id="r_ae61b42a6da71d56e14ae75bace36dd02"><td class="memItemLeft" align="right" valign="top"><a id="ae61b42a6da71d56e14ae75bace36dd02" name="ae61b42a6da71d56e14ae75bace36dd02"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>value_view</b> = <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a></td></tr>
-<tr class="separator:ae61b42a6da71d56e14ae75bace36dd02"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5ddc9814e5b512a63053f17c37c3aa15" id="r_a5ddc9814e5b512a63053f17c37c3aa15"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#a5ddc9814e5b512a63053f17c37c3aa15">get_result</a> = std::pair&lt; typename <a class="el" href="classunodb_1_1db.html">db</a>&lt; Key, Value &gt;::get_result, std::unique_lock&lt; std::mutex &gt; &gt;</td></tr>
 <tr class="memdesc:a5ddc9814e5b512a63053f17c37c3aa15"><td class="mdescLeft">&#160;</td><td class="mdescRight">If the search key was found, that is, the first pair member has a value, then the second member is a locked tree mutex which must be released ASAP after reading the first pair member.  <br /></td></tr>
 <tr class="separator:a5ddc9814e5b512a63053f17c37c3aa15"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -135,6 +132,18 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>iterator</b> = typen
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a6ae7b322c7cdb1dac205e40590b38677" id="r_a6ae7b322c7cdb1dac205e40590b38677"><td class="memItemLeft" align="right" valign="top"><a id="a6ae7b322c7cdb1dac205e40590b38677" name="a6ae7b322c7cdb1dac205e40590b38677"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>mutex_db</b> () noexcept=default</td></tr>
+<tr class="memdesc:a6ae7b322c7cdb1dac205e40590b38677"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct empty mutex-protected ART index with default allocator. <br /></td></tr>
+<tr class="separator:a6ae7b322c7cdb1dac205e40590b38677"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f1c7434b9dfa04a1185f12ab3960c28" id="r_a9f1c7434b9dfa04a1185f12ab3960c28"><td class="memItemLeft" align="right" valign="top"><a id="a9f1c7434b9dfa04a1185f12ab3960c28" name="a9f1c7434b9dfa04a1185f12ab3960c28"></a>
+constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>mutex_db</b> (const <a class="el" href="structunodb_1_1allocator__type.html">allocator_type</a> &amp;alloc) noexcept</td></tr>
+<tr class="memdesc:a9f1c7434b9dfa04a1185f12ab3960c28"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct empty mutex-protected ART index with a custom allocator. <br /></td></tr>
+<tr class="separator:a9f1c7434b9dfa04a1185f12ab3960c28"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad68550989439f654f98ecc827b814f41" id="r_ad68550989439f654f98ecc827b814f41"><td class="memItemLeft" align="right" valign="top"><a id="ad68550989439f654f98ecc827b814f41" name="ad68550989439f654f98ecc827b814f41"></a>
+constexpr const <a class="el" href="structunodb_1_1allocator__type.html">allocator_type</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_allocator</b> () const noexcept</td></tr>
+<tr class="memdesc:ad68550989439f654f98ecc827b814f41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the allocator used by this tree. <br /></td></tr>
+<tr class="separator:ad68550989439f654f98ecc827b814f41"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeade57112531c5a734cb6e8390026bc3" id="r_aeade57112531c5a734cb6e8390026bc3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1mutex__db.html#a5ddc9814e5b512a63053f17c37c3aa15">get_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#aeade57112531c5a734cb6e8390026bc3">get</a> (Key search_key) const noexcept</td></tr>
 <tr class="memdesc:aeade57112531c5a734cb6e8390026bc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Query for a value associated with a key.  <br /></td></tr>
 <tr class="separator:aeade57112531c5a734cb6e8390026bc3"><td class="memSeparator" colspan="2">&#160;</td></tr>

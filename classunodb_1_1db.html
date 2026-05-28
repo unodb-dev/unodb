@@ -131,10 +131,6 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>key_type</b> = Key</
 using&#160;</td><td class="memItemRight" valign="bottom"><b>value_type</b> = Value</td></tr>
 <tr class="memdesc:aadaa147eb4dc87207e42fb481ce46678"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of the value associated with the keys in the index. <br /></td></tr>
 <tr class="separator:aadaa147eb4dc87207e42fb481ce46678"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9217d27d320c8d140a52bfd05031248e" id="r_a9217d27d320c8d140a52bfd05031248e"><td class="memItemLeft" align="right" valign="top"><a id="a9217d27d320c8d140a52bfd05031248e" name="a9217d27d320c8d140a52bfd05031248e"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>value_view</b> = <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a></td></tr>
-<tr class="memdesc:a9217d27d320c8d140a52bfd05031248e"><td class="mdescLeft">&#160;</td><td class="mdescRight">View type for values stored in the index. <br /></td></tr>
-<tr class="separator:a9217d27d320c8d140a52bfd05031248e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae2060479487c8bfef24eac44e4fd2a18" id="r_ae2060479487c8bfef24eac44e4fd2a18"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db.html#ae2060479487c8bfef24eac44e4fd2a18">get_result</a> = std::optional&lt; <a class="el" href="classunodb_1_1db.html#aadaa147eb4dc87207e42fb481ce46678">value_type</a> &gt;</td></tr>
 <tr class="memdesc:ae2060479487c8bfef24eac44e4fd2a18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Result type for get operations.  <br /></td></tr>
 <tr class="separator:ae2060479487c8bfef24eac44e4fd2a18"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -147,8 +143,12 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>inode_base</b> = <a 
 Public Member Functions</h2></td></tr>
 <tr class="memitem:add4e72d90b2c76b96e6950f3811280f4" id="r_add4e72d90b2c76b96e6950f3811280f4"><td class="memItemLeft" align="right" valign="top"><a id="add4e72d90b2c76b96e6950f3811280f4" name="add4e72d90b2c76b96e6950f3811280f4"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>db</b> () noexcept=default</td></tr>
-<tr class="memdesc:add4e72d90b2c76b96e6950f3811280f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct empty ART index. <br /></td></tr>
+<tr class="memdesc:add4e72d90b2c76b96e6950f3811280f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct empty ART index with default allocator. <br /></td></tr>
 <tr class="separator:add4e72d90b2c76b96e6950f3811280f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75ed48f7bd85ad87acf1cbcc5fd6b613" id="r_a75ed48f7bd85ad87acf1cbcc5fd6b613"><td class="memItemLeft" align="right" valign="top"><a id="a75ed48f7bd85ad87acf1cbcc5fd6b613" name="a75ed48f7bd85ad87acf1cbcc5fd6b613"></a>
+constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>db</b> (const <a class="el" href="structunodb_1_1allocator__type.html">allocator_type</a> &amp;alloc) noexcept</td></tr>
+<tr class="memdesc:a75ed48f7bd85ad87acf1cbcc5fd6b613"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct empty ART index with a custom allocator. <br /></td></tr>
+<tr class="separator:a75ed48f7bd85ad87acf1cbcc5fd6b613"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a985328c3b15963c73eda8e27731eaeef" id="r_a985328c3b15963c73eda8e27731eaeef"><td class="memItemLeft" align="right" valign="top"><a id="a985328c3b15963c73eda8e27731eaeef" name="a985328c3b15963c73eda8e27731eaeef"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>~db</b> () noexcept</td></tr>
 <tr class="memdesc:a985328c3b15963c73eda8e27731eaeef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroy ART index, freeing all tree nodes. <br /></td></tr>
@@ -176,6 +176,10 @@ Public Member Functions</h2></td></tr>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>empty</b> () const noexcept</td></tr>
 <tr class="memdesc:a889caf36fba0297367a3061d7b580901"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true iff the index is empty. <br /></td></tr>
 <tr class="separator:a889caf36fba0297367a3061d7b580901"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abcd52108d6d656d7f198040064df7d18" id="r_abcd52108d6d656d7f198040064df7d18"><td class="memItemLeft" align="right" valign="top"><a id="abcd52108d6d656d7f198040064df7d18" name="abcd52108d6d656d7f198040064df7d18"></a>
+constexpr const <a class="el" href="structunodb_1_1allocator__type.html">allocator_type</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_allocator</b> () const noexcept</td></tr>
+<tr class="memdesc:abcd52108d6d656d7f198040064df7d18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the allocator used by this tree. <br /></td></tr>
+<tr class="separator:abcd52108d6d656d7f198040064df7d18"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7358904a10483d1e9857b81e0aa38152" id="r_a7358904a10483d1e9857b81e0aa38152"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1db.html#a7358904a10483d1e9857b81e0aa38152">insert</a> (Key insert_key, <a class="el" href="classunodb_1_1db.html#aadaa147eb4dc87207e42fb481ce46678">value_type</a> v)</td></tr>
 <tr class="memdesc:a7358904a10483d1e9857b81e0aa38152"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert a value under a key iff there is no entry for that key.  <br /></td></tr>
 <tr class="separator:a7358904a10483d1e9857b81e0aa38152"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -360,6 +364,10 @@ Private Attributes</h2></td></tr>
 <a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">detail::node_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><b>root</b> {nullptr}</td></tr>
 <tr class="memdesc:a6bdfeeabb38a69ad6442ff7cd7ee6f15"><td class="mdescLeft">&#160;</td><td class="mdescRight">Root of the tree (nullptr if empty). <br /></td></tr>
 <tr class="separator:a6bdfeeabb38a69ad6442ff7cd7ee6f15"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6aad5cf5a34419d5cb4094908fb696fe" id="r_a6aad5cf5a34419d5cb4094908fb696fe"><td class="memItemLeft" align="right" valign="top"><a id="a6aad5cf5a34419d5cb4094908fb696fe" name="a6aad5cf5a34419d5cb4094908fb696fe"></a>
+<a class="el" href="structunodb_1_1allocator__type.html">allocator_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>allocator_</b> {<a class="el" href="namespaceunodb_1_1detail.html#a01f210386e7451c963e3039b9a397f3c">detail::default_allocator</a>}</td></tr>
+<tr class="memdesc:a6aad5cf5a34419d5cb4094908fb696fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocator for tree nodes. <br /></td></tr>
+<tr class="separator:a6aad5cf5a34419d5cb4094908fb696fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8d5d69b544ebdb7201f95ce4182f8756" id="r_a8d5d69b544ebdb7201f95ce4182f8756"><td class="memItemLeft" align="right" valign="top"><a id="a8d5d69b544ebdb7201f95ce4182f8756" name="a8d5d69b544ebdb7201f95ce4182f8756"></a>
 std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>current_memory_use</b> {0}</td></tr>
 <tr class="memdesc:a8d5d69b544ebdb7201f95ce4182f8756"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current memory use by all tree nodes in bytes. <br /></td></tr>
@@ -431,7 +439,7 @@ template&lt;typename Key , typename Value &gt; </div>
 </div><div class="memdoc">
 
 <p>Result type for get operations. </p>
-<p>Contains value_view if key was found, otherwise empty. </p>
+<p>Contains the value if key was found, otherwise empty. </p>
 
 </div>
 </div>

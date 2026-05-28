@@ -123,9 +123,9 @@ Public Member Functions</h2></td></tr>
 &#160;</td><td class="memItemRight" valign="bottom"><b>~qsbr_per_thread</b> () noexcept</td></tr>
 <tr class="memdesc:a310ad917b38a86a0967b1d7998f2c274"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unregister the current thread from global QSBR on thread exist. <br /></td></tr>
 <tr class="separator:a310ad917b38a86a0967b1d7998f2c274"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a88e9830fbe4868759b676fc091cabf0f" id="r_a88e9830fbe4868759b676fc091cabf0f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#a88e9830fbe4868759b676fc091cabf0f">on_next_epoch_deallocate</a> (void *pointer, std::size_t size, <a class="el" href="classunodb_1_1detail_1_1deallocation__request.html#a005b7873662cb6c0e8e2519c0a7efa16">detail::deallocation_request::debug_callback</a> dealloc_callback)</td></tr>
-<tr class="memdesc:a88e9830fbe4868759b676fc091cabf0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Request deallocation of <em>pointer</em> when it is safe to do so.  <br /></td></tr>
-<tr class="separator:a88e9830fbe4868759b676fc091cabf0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a72e42eadf328a6d112c3f18fdbcd25e9" id="r_a72e42eadf328a6d112c3f18fdbcd25e9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#a72e42eadf328a6d112c3f18fdbcd25e9">on_next_epoch_deallocate</a> (void *pointer, std::size_t size, <a class="el" href="namespaceunodb_1_1detail.html#a22bcecdbe2a6176ad1956f2fbaddce06">detail::destroy_callback_type</a> destroy_callback, void *ctx, <a class="el" href="classunodb_1_1detail_1_1deallocation__request.html#a005b7873662cb6c0e8e2519c0a7efa16">detail::deallocation_request::debug_callback</a> dealloc_callback)</td></tr>
+<tr class="memdesc:a72e42eadf328a6d112c3f18fdbcd25e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Request deallocation of <em>pointer</em> when it is safe to do so.  <br /></td></tr>
+<tr class="separator:a72e42eadf328a6d112c3f18fdbcd25e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac26eeb41f72fcf9f6753ec95d8f1cb99" id="r_ac26eeb41f72fcf9f6753ec95d8f1cb99"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#ac26eeb41f72fcf9f6753ec95d8f1cb99">quiescent</a> ()</td></tr>
 <tr class="memdesc:ac26eeb41f72fcf9f6753ec95d8f1cb99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal that this thread is quiescent.  <br /></td></tr>
 <tr class="separator:ac26eeb41f72fcf9f6753ec95d8f1cb99"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -376,8 +376,8 @@ struct&#160;</td><td class="memItemRight" valign="bottom"><b>detail::set_qsbr_pe
 
 </div>
 </div>
-<a id="a88e9830fbe4868759b676fc091cabf0f" name="a88e9830fbe4868759b676fc091cabf0f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a88e9830fbe4868759b676fc091cabf0f">&#9670;&#160;</a></span>on_next_epoch_deallocate()</h2>
+<a id="a72e42eadf328a6d112c3f18fdbcd25e9" name="a72e42eadf328a6d112c3f18fdbcd25e9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a72e42eadf328a6d112c3f18fdbcd25e9">&#9670;&#160;</a></span>on_next_epoch_deallocate()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -396,6 +396,18 @@ struct&#160;</td><td class="memItemRight" valign="bottom"><b>detail::set_qsbr_pe
           <td></td>
           <td class="paramtype">std::size_t&#160;</td>
           <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#a22bcecdbe2a6176ad1956f2fbaddce06">detail::destroy_callback_type</a>&#160;</td>
+          <td class="paramname"><em>destroy_callback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>ctx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -420,7 +432,9 @@ struct&#160;</td><td class="memItemRight" valign="bottom"><b>detail::set_qsbr_pe
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">pointer</td><td>Memory to deallocate </td></tr>
-    <tr><td class="paramname">size</td><td>Size of the memory, for statistics </td></tr>
+    <tr><td class="paramname">size</td><td>Size of the allocation </td></tr>
+    <tr><td class="paramname">destroy_callback</td><td>Callback to invoke when deallocation is safe </td></tr>
+    <tr><td class="paramname">ctx</td><td>Allocator context for the callback </td></tr>
     <tr><td class="paramname">dealloc_callback</td><td>Debug callback to execute during deallocation </td></tr>
   </table>
   </dd>

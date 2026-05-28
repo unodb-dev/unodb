@@ -1,6 +1,7 @@
 var hierarchy =
 [
     [ "unodb::test::allocation_failure_injector", "classunodb_1_1test_1_1allocation__failure__injector.html", null ],
+    [ "unodb::allocator_type", "structunodb_1_1allocator__type.html", null ],
     [ "unodb::optimistic_lock::atomic_version_type", "classunodb_1_1optimistic__lock_1_1atomic__version__type.html", null ],
     [ "unodb::detail::basic_art_key< KeyType >", "structunodb_1_1detail_1_1basic__art__key.html", null ],
     [ "unodb::detail::basic_art_policy< Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator >", "structunodb_1_1detail_1_1basic__art__policy.html", null ],
