@@ -15,7 +15,6 @@
 #include <cstdint>
 #include <iostream>
 #include <optional>
-#include <stack>
 #include <tuple>
 #include <type_traits>
 #include <vector>
@@ -319,8 +318,8 @@ class olc_db final {
   /// had read until it verifies that the version tag remained unchanged across
   /// the read operation.
   ///
-  /// \note The iterator is backed by a std::stack. This means that the iterator
-  /// methods accessing the stack can not be declared as \c noexcept.
+  /// \note The iterator is backed by a small_vector stack. This means that the
+  /// iterator methods accessing the stack can not be declared as \c noexcept.
   class iterator {
     static_assert(
         !detail::olc_art_policy<Key, Value>::can_eliminate_leaf ||
@@ -426,13 +425,9 @@ class olc_db final {
       os << "keybuf=";
       detail::dump_key(os, keybuf_.get_key_view());
       os << "\n";
-      // Create a new stack and copy everything there.  Using the new
-      // stack, print out the stack in top-bottom order.  This avoids
-      // modifications to the existing stack for the iterator.
-      auto tmp = stack_;
-      auto level = tmp.size() - 1;
-      while (!tmp.empty()) {
-        const auto& e = tmp.top();
+      // Print the stack in top-to-bottom order (reverse iteration).
+      for (auto level = stack_.size(); level-- > 0;) {
+        const auto& e = stack_[level];
         const auto& np = e.node;
         os << "iter::stack:: level = " << level << ", key_byte=0x" << std::hex
            << std::setfill('0') << std::setw(2)
@@ -446,8 +441,6 @@ class olc_db final {
         os << ", ";
         art_policy::dump_node(os, np, false /*recursive*/);  // node or leaf.
         if (np.type() != node_type::LEAF) os << '\n';
-        tmp.pop();
-        level--;
       }
     }
     // LCOV_EXCL_STOP
@@ -463,14 +456,7 @@ class olc_db final {
     /// Return stack entries bottom-to-top (test only).
 #ifdef UNODB_DETAIL_WITH_STATS
     [[nodiscard]] std::vector<stack_entry> test_only_stack() const {
-      auto tmp = stack_;
-      std::vector<stack_entry> result;
-      while (!tmp.empty()) {
-        result.push_back(tmp.top());
-        tmp.pop();
-      }
-      std::reverse(result.begin(), result.end());
-      return result;
+      return {stack_.begin(), stack_.end()};
     }
 #endif  // UNODB_DETAIL_WITH_STATS
 
@@ -499,7 +485,7 @@ class olc_db final {
       // stack so we can pop off the right number of bytes even for
       // OLC where the node might be concurrently modified.
       UNODB_DETAIL_ASSERT(node.type() != node_type::LEAF);
-      stack_.push({{node, key_byte, child_index, prefix}, rcs.get()});
+      stack_.push_back({{node, key_byte, child_index, prefix}, rcs.get()});
       keybuf_.push(prefix.get_key_view());
       keybuf_.push(key_byte);
       return true;
@@ -509,12 +495,12 @@ class olc_db final {
     bool try_push_leaf(detail::olc_node_ptr aleaf,
                        const optimistic_lock::read_critical_section& rcs) {
       // The [key], [child_index] and [prefix] are ignored for a leaf.
-      stack_.push({{aleaf,
-                    static_cast<std::byte>(0xFFU),     // ignored for leaf
-                    static_cast<std::uint8_t>(0xFFU),  // ignored for leaf
-                    detail::key_prefix_snapshot(0),    // ignored for leaf
-                    true},                             // packed_leaf
-                   rcs.get()});
+      stack_.push_back({{aleaf,
+                         static_cast<std::byte>(0xFFU),     // ignored for leaf
+                         static_cast<std::uint8_t>(0xFFU),  // ignored for leaf
+                         detail::key_prefix_snapshot(0),    // ignored for leaf
+                         true},                             // packed_leaf
+                        rcs.get()});
       return true;
     }
 
@@ -545,19 +531,20 @@ class olc_db final {
               ? e.prefix.length() + 1
               : 0);
       keybuf_.pop(n);
-      stack_.pop();
+      stack_.pop_back();
     }
 
     /// Return the entry on the top of the stack.
     [[nodiscard]] const stack_entry& top() const noexcept {
       UNODB_DETAIL_ASSERT(!stack_.empty());
-      return stack_.top();
+      return stack_.back();
     }
 
     /// Return the node on the top of the stack and nullptr if the
     /// stack is empty (similar to top(), but handles an empty stack).
     [[nodiscard]] detail::olc_node_ptr current_node() const noexcept {
-      return stack_.empty() ? detail::olc_node_ptr(nullptr) : stack_.top().node;
+      return stack_.empty() ? detail::olc_node_ptr(nullptr)
+                            : stack_.back().node;
     }
 
    private:
@@ -565,8 +552,8 @@ class olc_db final {
     ///
     /// post-condition: The iterator is !valid().
     iterator& invalidate() noexcept {
-      while (!stack_.empty()) stack_.pop();  // clear the stack
-      keybuf_.reset();                       // clear the key buffer
+      stack_.clear();   // clear the stack
+      keybuf_.reset();  // clear the key buffer
       return *this;
     }
 
@@ -599,11 +586,17 @@ class olc_db final {
     /// The outer db instance.
     olc_db& db_;
 
+    /// Inline capacity for the iterator stack.  ART depth is bounded by
+    /// key_length / (prefix_capacity + 1).  For 256-byte keys with 7-byte
+    /// prefixes this is 32 levels.  16 handles all practical trees without
+    /// heap allocation.
+    static constexpr std::size_t stack_inline_capacity = 16;
+
     /// A stack reflecting the parent path from the root of the tree
     /// to the current leaf.  An empty stack corresponds to a
     /// logically empty iterator and can be detected using !valid().
     /// The iterator for an empty tree is an empty stack.
-    std::stack<stack_entry> stack_{};
+    boost::container::small_vector<stack_entry, stack_inline_capacity> stack_{};
 
     /// A buffer into which visited encoded (binary comparable) keys
     /// are materialized by during the iterator traversal.  Bytes are
@@ -3045,7 +3038,7 @@ typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::next() {
         return art_key_type{keybuf_.get_key_view()};
       } else {
         UNODB_DETAIL_ASSERT(
-            !(art_policy::can_eliminate_leaf && stack_.top().packed_leaf));
+            !(art_policy::can_eliminate_leaf && stack_.back().packed_leaf));
         UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
         return node.template ptr<leaf_type*>()->get_key();
       }
@@ -3138,7 +3131,7 @@ typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::prior() {
         return art_key_type{keybuf_.get_key_view()};
       } else {
         UNODB_DETAIL_ASSERT(
-            !(art_policy::can_eliminate_leaf && stack_.top().packed_leaf));
+            !(art_policy::can_eliminate_leaf && stack_.back().packed_leaf));
         UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
         return node.template ptr<leaf_type*>()->get_key();
       }
@@ -3720,7 +3713,7 @@ olc_db<Key, Value>::iterator::get_key() noexcept {
   if constexpr (art_policy::full_key_in_inode_path) {
     return transient_key_view{keybuf_.get_key_view()};
   } else {
-    const auto& e = stack_.top();
+    const auto& e = stack_.back();
     const auto& node = e.node;
     UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
     const auto* const leaf{node.template ptr<leaf_type*>()};
@@ -3737,7 +3730,7 @@ auto olc_db<Key, Value>::iterator::get_val() const noexcept
   // that leaf regardless of whether the leaf has been deleted.
   // This is part of the design semantics for the OLC ART scan.
   UNODB_DETAIL_ASSERT(valid());  // by contract
-  const auto& e = stack_.top();
+  const auto& e = stack_.back();
   const auto& node = e.node;
   if constexpr (art_policy::can_eliminate_leaf) {
     if (e.packed_leaf) {
@@ -3760,7 +3753,7 @@ int olc_db<Key, Value>::iterator::cmp(const art_key_type& akey) const noexcept {
   if constexpr (art_policy::full_key_in_inode_path) {
     return unodb::detail::compare(keybuf_.get_key_view(), akey.get_key_view());
   } else {
-    auto& node = stack_.top().node;
+    auto& node = stack_.back().node;
     UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
     const auto* const leaf{node.template ptr<leaf_type*>()};
     return unodb::detail::compare(leaf->get_key_view(), akey.get_key_view());
