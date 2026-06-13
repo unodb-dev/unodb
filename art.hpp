@@ -287,6 +287,17 @@ class db final {
     return remove_internal(k);
   }
 
+  /// Insert or update a key.
+  ///
+  /// If the key is absent, inserts \a v and returns \c true without calling
+  /// \a fn.  If the key is present, invokes \a fn with a mutable reference to
+  /// the existing value; the returned \c upsert_action determines whether the
+  /// value is kept, updated, or erased.  Returns \c false in this case.
+  ///
+  /// \tparam FN Callable as `upsert_action(value_type&)`.
+  template <typename FN>
+  [[nodiscard]] bool upsert(Key k, value_type v, FN fn);
+
   /// Removes all entries in the index.
   ///
   /// After this operation, empty() returns true and all memory used by tree
@@ -2636,6 +2647,103 @@ void db<Key, Value>::dump() const {
   dump(std::cerr);
 }
 // LCOV_EXCL_STOP
+
+template <typename Key, typename Value>
+template <typename FN>
+bool db<Key, Value>::upsert(Key k, value_type v, FN fn) {
+  static_assert(std::is_invocable_r_v<upsert_action, FN, value_type&>,
+                "upsert lambda must be callable as upsert_action(value_type&)");
+
+  const art_key_type art_k{k};
+
+  // Attempt insert.  If key is absent this succeeds and we are done.
+  if (insert_internal(art_k, v)) return true;
+
+  // Key exists.  Traverse to find the value location.
+  auto node{root};
+  auto remaining_key{art_k};
+
+  while (true) {
+    const auto node_type = node.type();
+
+    if constexpr (!art_policy::can_eliminate_leaf) {
+      if (node_type == node_type::LEAF) {
+        UNODB_DETAIL_DISABLE_MSVC_WARNING(26462)
+        auto* const leaf{node.template ptr<leaf_type*>()};
+        UNODB_DETAIL_RESTORE_MSVC_WARNINGS()  // Read value into local copy,
+                                              // call lambda.
+        auto local = leaf->template get_value<value_type>();
+        const auto action = fn(local);
+        UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
+        switch (action) {
+          case upsert_action::keep:
+            return false;
+          case upsert_action::update:  // LCOV_EXCL_LINE
+            if constexpr (std::is_same_v<value_type, value_view>) {
+              // LCOV_EXCL_START
+              UNODB_DETAIL_CANNOT_HAPPEN();
+              // LCOV_EXCL_STOP
+            } else {
+              leaf->template set_value<value_type>(local);
+              return false;
+            }
+          case upsert_action::erase: {
+            [[maybe_unused]] const auto removed = remove_internal(art_k);
+            UNODB_DETAIL_ASSERT(removed);
+            return false;
+          }
+        }
+        UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+        UNODB_DETAIL_CANNOT_HAPPEN();  // LCOV_EXCL_LINE
+      }
+    }
+
+    UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
+
+    auto* const inode{node.template ptr<inode_type*>()};
+    const auto& key_prefix{inode->get_key_prefix()};
+    const auto key_prefix_length{key_prefix.length()};
+    UNODB_DETAIL_ASSERT(key_prefix.get_shared_length(remaining_key) ==
+                        key_prefix_length);
+    remaining_key.shift_right(key_prefix_length);
+
+    const auto [child_i,
+                child_ptr]{inode->find_child(node_type, remaining_key[0])};
+    UNODB_DETAIL_ASSERT(child_ptr != nullptr);
+
+    if constexpr (art_policy::can_eliminate_leaf) {
+      if (inode->is_value_in_slot(node_type, child_i)) {
+        // VIS: unpack, call lambda, pack back.
+        auto local = art_policy::unpack_value(child_ptr->load());
+        const auto action = fn(local);
+        UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
+        switch (action) {
+          case upsert_action::keep:
+            return false;
+          case upsert_action::update:
+            if constexpr (std::is_same_v<value_type, value_view>) {
+              // LCOV_EXCL_START
+              UNODB_DETAIL_CANNOT_HAPPEN();
+              // LCOV_EXCL_STOP
+            } else {
+              *child_ptr = art_policy::pack_value(local);
+            }
+            return false;
+          case upsert_action::erase: {
+            [[maybe_unused]] const auto removed = remove_internal(art_k);
+            UNODB_DETAIL_ASSERT(removed);
+            return false;
+          }
+        }
+        UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+        UNODB_DETAIL_CANNOT_HAPPEN();  // LCOV_EXCL_LINE
+      }
+    }
+
+    node = child_ptr->load();
+    remaining_key.shift_right(1);
+  }
+}
 
 }  // namespace unodb
 

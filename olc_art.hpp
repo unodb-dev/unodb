@@ -58,6 +58,11 @@ inline sync_point sync_before_remove_write_guard;
 inline sync_point sync_before_insert_grow_guard;
 inline sync_point sync_before_nonfull_chain_guard;
 
+/// Sync point: fires in try_upsert after duplicate detected and value read,
+/// before version checks. Allows tests to interleave writers at the CAS
+/// observation point regardless of the lambda's return action.
+inline sync_point sync_after_upsert_dup_found;
+
 /// OLC ART node header contains an unodb::optimistic_lock object for this node.
 ///
 /// The node type is constant throughout the node lifetime, is stored outside of
@@ -253,11 +258,6 @@ class olc_db final {
   /// \sa key_encoder, which provides for encoding text and multi-field records
   /// when Key is unodb::key_view.
   [[nodiscard]] bool insert(Key insert_key, value_type v) {
-    // TODO(thompsonbry) There should be a lambda variant of this to
-    // handle conflicts and support upsert or delete-upsert
-    // semantics. This would call the caller's lambda once the method
-    // was positioned on the leaf.  The caller could then update the
-    // value or perhaps delete the entry under the key.
     const auto k = art_key_type{insert_key};
     return insert_internal(k, v);
   }
@@ -275,6 +275,17 @@ class olc_db final {
     const auto k = art_key_type{search_key};
     return remove_internal(k);
   }
+
+  /// Insert or update a key.
+  ///
+  /// If the key is absent, inserts \a v and returns \c true without calling
+  /// \a fn.  If the key is present, invokes \a fn with a mutable reference to
+  /// the existing value; the returned \c upsert_action determines whether the
+  /// value is kept, updated, or erased.  Returns \c false in this case.
+  ///
+  /// \tparam FN Callable as `upsert_action(value_type&)`.
+  template <typename FN>
+  [[nodiscard]] bool upsert(Key k, value_type v, FN fn);
 
   /// Removes all entries in the index.
   ///
@@ -860,6 +871,16 @@ class olc_db final {
   [[nodiscard]] try_update_result_type try_insert(
       art_key_type k, value_type v, olc_db_leaf_unique_ptr_type& cached_leaf);
 
+  /// Single-attempt upsert (insert-or-apply-lambda).
+  template <typename FN>
+  [[nodiscard]] try_update_result_type try_upsert(
+      art_key_type k, value_type v, FN fn,
+      olc_db_leaf_unique_ptr_type& cached_leaf);
+
+  /// Erase pass for upsert when the lambda returns upsert_action::erase.
+  [[nodiscard]] try_update_result_type try_upsert_erase(
+      art_key_type k, version_tag_type captured_ver);
+
   /// Build an inode chain encoding key bytes from start_depth to end.
   [[nodiscard]] detail::olc_node_ptr build_chain(
       art_key_type k, detail::olc_node_ptr child,
@@ -886,7 +907,8 @@ class olc_db final {
   /// Pass 2 (upward / chain cut): if the leaf is under a chain, delegates
   /// to try_chain_cut for atomic disconnection.  Otherwise, uses the
   /// standard remove_or_choose_subtree path.
-  [[nodiscard]] try_update_result_type try_remove_key_view(art_key_type k);
+  [[nodiscard]] try_update_result_type try_remove_key_view(
+      art_key_type k, version_tag_type captured_ver = version_tag_type{});
 
   /// Atomic chain cut: remove a leaf under a chain of single-child I4 nodes.
   ///
@@ -1903,6 +1925,13 @@ template <typename Key, typename Value, class INode>
     }
   }
 
+  // H10: A concurrent writer may clear the bitmask between check() above and
+  // the is_value_in_slot read.  Re-validate version before dereferencing child
+  // as a pointer — a stale bitmask could route a packed value here.
+  if constexpr (olc_art_policy<Key, Value>::can_eliminate_leaf) {
+    if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return {};
+  }
+
   auto& child_lock{node_ptr_lock(*child)};
   *child_critical_section = child_lock.try_read_lock();
   if (UNODB_DETAIL_UNLIKELY(child_critical_section->must_restart())) return {};
@@ -2590,6 +2619,9 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
     if constexpr (art_policy::can_eliminate_leaf) {
       const auto [ci_chk, _] = inode->find_child(node_type, remaining_key[0]);
       if (inode->is_value_in_slot(node_type, ci_chk)) {
+        // Validate version — inode may have been restructured since
+        // add_or_choose_subtree returned.
+        if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return {};
         // Packed value in slot — key already exists (duplicate).  The ART
         // prefix restriction guarantees no key is a prefix of another.
         UNODB_DETAIL_ASSERT(remaining_key.size() == 1);
@@ -2618,6 +2650,706 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
 }
 
 template <typename Key, typename Value>
+template <typename FN>
+bool olc_db<Key, Value>::upsert(Key k, value_type v, FN fn) {
+  static_assert(std::is_invocable_r_v<upsert_action, FN, value_type&>,
+                "upsert lambda must be callable as upsert_action(value_type&)");
+
+  const art_key_type art_k{k};
+
+  if constexpr (std::is_same_v<Key, key_view>) {
+    if (UNODB_DETAIL_UNLIKELY(art_k.size() == 0)) {
+      throw std::length_error("Key must not be empty");
+    }
+    if (UNODB_DETAIL_UNLIKELY(
+            art_k.size() > std::numeric_limits<unodb::key_size_type>::max())) {
+      throw std::length_error("Key length must fit in std::uint32_t");
+    }
+  }
+
+  olc_db_leaf_unique_ptr_type cached_leaf{
+      nullptr, detail::basic_db_leaf_deleter<olc_db<Key, Value>>{*this}};
+
+  // DIVERGENCE D-a8ffe991: Unbounded spin (standard OLC practice, Leis et al.
+  // 2016). Liveness via OS scheduler + O(1) critical sections.
+  while (true) {
+    auto result = try_upsert(art_k, v, fn, cached_leaf);
+    if (result.has_value()) return *result;
+    spin_wait_loop_body();
+  }
+}
+
+template <typename Key, typename Value>
+template <typename FN>
+typename olc_db<Key, Value>::try_update_result_type
+olc_db<Key, Value>::try_upsert(art_key_type k, value_type v, FN fn,
+                               olc_db_leaf_unique_ptr_type& cached_leaf) {
+  auto parent_critical_section = root_pointer_lock.try_read_lock();
+  if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) {
+    // LCOV_EXCL_START
+    spin_wait_loop_body();
+    return {};
+    // LCOV_EXCL_STOP
+  }
+
+  auto node{root.load()};
+
+  if (UNODB_DETAIL_UNLIKELY(node == nullptr)) {
+    // Key absent — take insert path (empty tree).
+    create_leaf_if_needed(cached_leaf, k, v, *this);
+
+    const optimistic_lock::write_guard write_unlock_on_exit{
+        std::move(parent_critical_section)};
+    if (UNODB_DETAIL_UNLIKELY(write_unlock_on_exit.must_restart())) {
+      return {};  // LCOV_EXCL_LINE
+    }
+
+    if constexpr (art_policy::can_eliminate_leaf) {
+      root = build_chain(k, art_policy::pack_value(v), tree_depth_type{0});
+      if (cached_leaf) cached_leaf.reset();
+    } else if constexpr (art_policy::can_eliminate_key_in_leaf) {
+      UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
+      const auto leaf_ptr =
+          detail::olc_node_ptr{cached_leaf.release(), node_type::LEAF};
+      UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+      root = build_chain(k, leaf_ptr, tree_depth_type{0});
+    } else {
+      root = detail::olc_node_ptr{cached_leaf.release(), node_type::LEAF};
+    }
+    return true;
+  }
+
+  auto* node_in_parent{&root};
+  tree_depth_type depth{};
+  auto remaining_key{k};
+
+  if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) {
+    // LCOV_EXCL_START
+    spin_wait_loop_body();
+    return {};
+    // LCOV_EXCL_STOP
+  }
+
+  while (true) {
+    auto node_critical_section = node_ptr_lock(node).try_read_lock();
+    if (UNODB_DETAIL_UNLIKELY(node_critical_section.must_restart())) return {};
+
+    const auto node_type = node.type();
+
+    if (node_type == node_type::LEAF) {
+      if constexpr (art_policy::can_eliminate_leaf) {
+        UNODB_DETAIL_CANNOT_HAPPEN();  // LCOV_EXCL_LINE
+      } else if constexpr (art_policy::can_eliminate_key_in_leaf) {
+        // Keyless leaf: duplicate found.
+        UNODB_DETAIL_ASSERT(remaining_key.size() == 0);
+        UNODB_DETAIL_DISABLE_MSVC_WARNING(26462)
+        auto* const leaf{node.template ptr<leaf_type*>()};
+        UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+        auto local = leaf->template get_value<value_type>();
+        detail::sync(detail::sync_after_upsert_dup_found);
+        if (!parent_critical_section.check()) return {};
+        if (!node_critical_section.check()) return {};
+        const auto action = fn(local);
+        UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
+        switch (action) {
+          case upsert_action::keep:
+            if (UNODB_DETAIL_UNLIKELY(
+                    !parent_critical_section.try_read_unlock()))
+              return {};  // LCOV_EXCL_LINE
+            if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+              return {};  // LCOV_EXCL_LINE
+            if (UNODB_DETAIL_UNLIKELY(cached_leaf != nullptr))
+              cached_leaf.reset();
+            return false;
+          case upsert_action::update: {  // LCOV_EXCL_LINE
+            if constexpr (std::is_same_v<value_type, value_view>) {
+              // LCOV_EXCL_START
+              UNODB_DETAIL_CANNOT_HAPPEN();
+              // LCOV_EXCL_STOP
+            } else {
+              optimistic_lock::write_guard node_guard{
+                  std::move(node_critical_section)};
+              if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) {
+                spin_wait_loop_body();
+                return {};
+              }
+              std::ignore = parent_critical_section.try_read_unlock();
+              leaf->template set_value<value_type>(local);
+              if (UNODB_DETAIL_UNLIKELY(cached_leaf != nullptr))
+                cached_leaf.reset();
+              return false;
+            }
+          }
+          case upsert_action::erase: {
+            const auto captured_ver = node_critical_section.get();
+            if (UNODB_DETAIL_UNLIKELY(
+                    !parent_critical_section.try_read_unlock()))
+              return {};  // LCOV_EXCL_LINE
+            if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+              return {};  // LCOV_EXCL_LINE
+            if (UNODB_DETAIL_UNLIKELY(cached_leaf != nullptr))
+              cached_leaf.reset();
+            return try_upsert_erase(k, captured_ver);
+          }
+        }
+        UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+        UNODB_DETAIL_CANNOT_HAPPEN();  // LCOV_EXCL_LINE
+      } else {
+        const auto* const leaf{node.template ptr<leaf_type*>()};
+        const auto existing_key{leaf->get_key_view()};
+        if (k.cmp(existing_key) == 0) {
+          // Duplicate found — keyed leaf.
+          auto local = leaf->template get_value<value_type>();
+          detail::sync(detail::sync_after_upsert_dup_found);
+          if (!parent_critical_section.check()) return {};
+          if (!node_critical_section.check()) return {};
+          const auto action = fn(local);
+          UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
+          switch (action) {
+            case upsert_action::keep:
+              if (UNODB_DETAIL_UNLIKELY(
+                      !parent_critical_section.try_read_unlock()))
+                return {};  // LCOV_EXCL_LINE
+              if (UNODB_DETAIL_UNLIKELY(
+                      !node_critical_section.try_read_unlock()))
+                return {};  // LCOV_EXCL_LINE
+              if (UNODB_DETAIL_UNLIKELY(cached_leaf != nullptr))
+                cached_leaf.reset();
+              return false;
+            case upsert_action::update: {  // LCOV_EXCL_LINE
+              if constexpr (std::is_same_v<value_type, value_view>) {
+                // LCOV_EXCL_START
+                UNODB_DETAIL_CANNOT_HAPPEN();
+                // LCOV_EXCL_STOP
+              } else {
+                optimistic_lock::write_guard node_guard{
+                    std::move(node_critical_section)};
+                if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) {
+                  spin_wait_loop_body();
+                  return {};
+                }
+                std::ignore = parent_critical_section.try_read_unlock();
+                // const_cast safe: we hold the write lock.
+                const_cast<leaf_type*>(leaf)->template set_value<value_type>(
+                    local);
+                if (UNODB_DETAIL_UNLIKELY(cached_leaf != nullptr))
+                  cached_leaf.reset();
+                return false;
+              }
+            }
+            case upsert_action::erase: {
+              const auto captured_ver = node_critical_section.get();
+              if (UNODB_DETAIL_UNLIKELY(
+                      !parent_critical_section.try_read_unlock()))
+                return {};  // LCOV_EXCL_LINE
+              if (UNODB_DETAIL_UNLIKELY(
+                      !node_critical_section.try_read_unlock()))
+                return {};  // LCOV_EXCL_LINE
+              if (UNODB_DETAIL_UNLIKELY(cached_leaf != nullptr))
+                cached_leaf.reset();
+              return try_upsert_erase(k, captured_ver);
+            }
+          }
+          UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+          UNODB_DETAIL_CANNOT_HAPPEN();  // LCOV_EXCL_LINE
+        }
+
+        // Key mismatch — take insert path (leaf-vs-leaf split).
+        constexpr auto cap = detail::key_prefix_capacity;
+        const auto remaining_existing = existing_key.subspan(depth);
+        const auto shared = detail::key_prefix_snapshot::shared_len(
+            detail::get_u64(remaining_existing), remaining_key.get_u64(), cap);
+        if (shared >= cap && remaining_existing.size() > cap &&
+            remaining_key.size() > cap &&
+            remaining_existing[cap] == remaining_key[cap]) {
+          // LCOV_EXCL_START — keyed-leaf chain-build requires keys > 8 bytes.
+          // The only keyed-leaf OLC type (u64_olc_db) has exactly 8-byte keys,
+          // so remaining[cap] is the last byte and two different keys always
+          // have different dispatch bytes, making this condition unreachable.
+          const auto dispatch = remaining_existing[cap];
+          auto chain{inode_4::create(*this, existing_key, remaining_key, depth,
+                                     dispatch, node)};
+          {
+            const optimistic_lock::write_guard parent_guard{
+                std::move(parent_critical_section)};
+            if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
+
+            const optimistic_lock::write_guard node_guard{
+                std::move(node_critical_section)};
+            if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
+
+            *node_in_parent =
+                detail::olc_node_ptr{chain.release(), node_type::I4};
+          }
+#ifdef UNODB_DETAIL_WITH_STATS
+          account_growing_inode<node_type::I4>();
+#endif
+          return {};  // restart to descend through the new chain node
+          // LCOV_EXCL_STOP
+        }
+
+        create_leaf_if_needed(cached_leaf, k, v, *this);
+        auto new_node{
+            inode_4::create(*this, existing_key, remaining_key, depth)};
+
+        {
+          const optimistic_lock::write_guard parent_guard{
+              std::move(parent_critical_section)};
+          if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
+
+          const optimistic_lock::write_guard node_guard{
+              std::move(node_critical_section)};
+          if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
+
+          new_node->init(existing_key, remaining_key, depth, leaf,
+                         std::move(cached_leaf));
+          *node_in_parent =
+              detail::olc_node_ptr{new_node.release(), node_type::I4};
+
+          static_assert(!art_policy::full_key_in_inode_path);
+        }
+#ifdef UNODB_DETAIL_WITH_STATS
+        account_growing_inode<node_type::I4>();
+#endif
+        return true;
+      }  // else (keyed leaf)
+    }
+
+    UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
+
+    auto* const inode{node.template ptr<inode_type*>()};
+    const auto& key_prefix{inode->get_key_prefix()};
+    const auto key_prefix_length{key_prefix.length()};
+    const auto shared_prefix_length{
+        key_prefix.get_shared_length(remaining_key)};
+
+    if (shared_prefix_length < key_prefix_length) {
+      // Key absent — prefix mismatch means we need to split.
+      if constexpr (art_policy::full_key_in_inode_path) {
+        const auto chain_start =
+            static_cast<tree_depth_type>(depth + shared_prefix_length + 1);
+        if (chain_start < k.size()) {
+          detail::olc_node_ptr chain_top{};
+          if constexpr (art_policy::can_eliminate_leaf) {
+            chain_top = build_chain(k, art_policy::pack_value(v), chain_start);
+          } else {
+            create_leaf_if_needed(cached_leaf, k, v, *this);
+            UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
+            const auto leaf_ptr =
+                detail::olc_node_ptr{cached_leaf.release(), node_type::LEAF};
+            UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+            chain_top = build_chain(k, leaf_ptr, chain_start);
+          }
+          typename art_policy::subtree_guard chain_guard{chain_top, *this};
+          auto new_node{inode_4::create(*this, node, shared_prefix_length)};
+          chain_guard.release();
+
+          {
+            const optimistic_lock::write_guard parent_guard{
+                std::move(parent_critical_section)};
+            if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) {
+              art_policy::delete_subtree(chain_top, *this);
+              return {};  // LCOV_EXCL_LINE
+            }
+
+            const optimistic_lock::write_guard node_guard{
+                std::move(node_critical_section)};
+            if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) {
+              art_policy::delete_subtree(chain_top, *this);
+              return {};  // LCOV_EXCL_LINE
+            }
+
+            new_node->init(node, shared_prefix_length, depth, chain_top,
+                           remaining_key[shared_prefix_length]);
+            *node_in_parent =
+                detail::olc_node_ptr{new_node.release(), node_type::I4};
+
+            if constexpr (art_policy::can_eliminate_leaf) {
+              auto* const new_i4 =
+                  node_in_parent->load().template ptr<inode_type*>();
+              auto [ci_new, slot_new] = new_i4->find_child(
+                  node_type::I4, remaining_key[shared_prefix_length]);
+              new_i4->clear_value_bit(node_type::I4, ci_new);
+            }
+          }
+
+#ifdef UNODB_DETAIL_WITH_STATS
+          account_growing_inode<node_type::I4>();
+          key_prefix_splits.fetch_add(1, std::memory_order_relaxed);
+#endif
+          return true;
+        }
+      }
+      // No chain needed.
+      create_leaf_if_needed(cached_leaf, k, v, *this);
+      auto new_node{inode_4::create(*this, node, shared_prefix_length)};
+
+      {
+        const optimistic_lock::write_guard parent_guard{
+            std::move(parent_critical_section)};
+        if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
+
+        const optimistic_lock::write_guard node_guard{
+            std::move(node_critical_section)};
+        if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
+
+        if constexpr (art_policy::can_eliminate_leaf) {
+          new_node->init(node, shared_prefix_length, depth,
+                         art_policy::pack_value(v),
+                         remaining_key[shared_prefix_length]);
+        } else {
+          new_node->init(node, shared_prefix_length, depth,
+                         std::move(cached_leaf),
+                         remaining_key[shared_prefix_length]);
+        }
+        *node_in_parent =
+            detail::olc_node_ptr{new_node.release(), node_type::I4};
+      }
+
+#ifdef UNODB_DETAIL_WITH_STATS
+      account_growing_inode<node_type::I4>();
+      key_prefix_splits.fetch_add(1, std::memory_order_relaxed);
+#endif
+      return true;
+    }
+
+    UNODB_DETAIL_ASSERT(shared_prefix_length == key_prefix_length);
+
+    depth += key_prefix_length;
+    remaining_key.shift_right(key_prefix_length);
+
+    const auto add_result{inode->template add_or_choose_subtree<
+        std::optional<in_critical_section<detail::olc_node_ptr>*>>(
+        node_type, remaining_key[0], k, v, *this, depth, node_critical_section,
+        node_in_parent, parent_critical_section, cached_leaf)};
+
+    if (UNODB_DETAIL_UNLIKELY(!add_result)) return {};
+
+    auto* const child_in_parent = *add_result;
+    if (child_in_parent == nullptr) return true;
+
+    if constexpr (art_policy::can_eliminate_leaf) {
+      const auto [ci_chk, _] = inode->find_child(node_type, remaining_key[0]);
+      if (inode->is_value_in_slot(node_type, ci_chk)) {
+        // Validate version — inode may have been restructured since
+        // add_or_choose_subtree returned.
+        if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return {};
+        // VIS duplicate — unpack, call lambda, handle action.
+        UNODB_DETAIL_ASSERT(remaining_key.size() == 1);
+        auto local = art_policy::unpack_value(child_in_parent->load());
+        detail::sync(detail::sync_after_upsert_dup_found);
+        if (!node_critical_section.check()) return {};
+        const auto action = fn(local);
+        UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
+        switch (action) {
+          case upsert_action::keep:
+            if (UNODB_DETAIL_UNLIKELY(
+                    !parent_critical_section.try_read_unlock()))
+              return {};  // LCOV_EXCL_LINE
+            if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+              return {};  // LCOV_EXCL_LINE
+            if (UNODB_DETAIL_UNLIKELY(cached_leaf != nullptr))
+              cached_leaf.reset();  // LCOV_EXCL_LINE
+            return false;
+          case upsert_action::update: {
+            if constexpr (std::is_same_v<value_type, value_view>) {
+              // LCOV_EXCL_START
+              UNODB_DETAIL_CANNOT_HAPPEN();
+              // LCOV_EXCL_STOP
+            } else {
+              // Upgrade the inode RCS (which protects the slot).
+              optimistic_lock::write_guard node_guard{
+                  std::move(node_critical_section)};
+              if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) {
+                spin_wait_loop_body();
+                return {};
+              }
+              std::ignore = parent_critical_section.try_read_unlock();
+              *child_in_parent = art_policy::pack_value(local);
+              if (UNODB_DETAIL_UNLIKELY(cached_leaf != nullptr))
+                cached_leaf.reset();  // LCOV_EXCL_LINE
+              return false;
+            }
+          }
+          case upsert_action::erase: {
+            // Capture the inode version (protects the slot).
+            const auto captured_ver = node_critical_section.get();
+            if (UNODB_DETAIL_UNLIKELY(
+                    !parent_critical_section.try_read_unlock()))
+              return {};  // LCOV_EXCL_LINE
+            if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+              return {};  // LCOV_EXCL_LINE
+            if (UNODB_DETAIL_UNLIKELY(cached_leaf != nullptr))
+              cached_leaf.reset();  // LCOV_EXCL_LINE
+            return try_upsert_erase(k, captured_ver);
+          }
+        }
+        UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+        UNODB_DETAIL_CANNOT_HAPPEN();  // LCOV_EXCL_LINE
+      }
+    }
+
+    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+      return {};  // LCOV_EXCL_LINE
+
+    const auto child = child_in_parent->load();
+
+    parent_critical_section = std::move(node_critical_section);
+    node = child;
+    node_in_parent = child_in_parent;
+    ++depth;
+    remaining_key.shift_right(1);
+
+    if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) return {};
+  }
+}
+
+template <typename Key, typename Value>
+typename olc_db<Key, Value>::try_update_result_type
+olc_db<Key, Value>::try_upsert_erase(art_key_type k,
+                                     version_tag_type captured_ver) {
+  // DIVERGENCE D-1a1f7c56: TLA+ model is SC; implementation uses acq/rel.
+  // Safe: version counter total order via atomic RMW provides the needed
+  // happens-before (acquire on read_lock, release on write_guard dtor).
+  //
+  // DIVERGENCE D-2c39a389: Fixed-width path may lock parent before leaf
+  // version check (remove_or_choose_subtree). Safe: parent write lock
+  // prevents concurrent structural changes; stale RCS upgrade would fail.
+  // Version-validated erase.  Traverses top-down to find the target node,
+  // validates that its version matches captured_ver (ensuring the value
+  // the lambda observed hasn't been modified), then performs the removal.
+  //
+  // For fixed-width keys, the removal is done inline (same as
+  // try_remove_fixed_width_key).  For key_view, we delegate to try_remove
+  // after version validation (chain-cut logic is too complex to duplicate).
+  auto parent_critical_section = root_pointer_lock.try_read_lock();
+  if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) {
+    // LCOV_EXCL_START
+    spin_wait_loop_body();
+    return {};
+    // LCOV_EXCL_STOP
+  }
+
+  auto node{root.load()};
+
+  if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) {
+    // LCOV_EXCL_START
+    spin_wait_loop_body();
+    return {};
+    // LCOV_EXCL_STOP
+  }
+
+  // Key absent at root level → restart (outer loop will take insert path).
+  if (UNODB_DETAIL_UNLIKELY(node == nullptr)) return {};
+
+  auto node_critical_section = node_ptr_lock(node).try_read_lock();
+  if (UNODB_DETAIL_UNLIKELY(node_critical_section.must_restart())) {
+    // LCOV_EXCL_START
+    spin_wait_loop_body();
+    return {};
+    // LCOV_EXCL_STOP
+  }
+
+  auto node_type = node.type();
+
+  if constexpr (!art_policy::can_eliminate_leaf) {
+    if (node_type == node_type::LEAF) {
+      UNODB_DETAIL_DISABLE_MSVC_WARNING(26462)
+      auto* const leaf{node.template ptr<leaf_type*>()};
+      UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+      if (leaf->matches(k)) {
+        // Version check: the leaf's lock version must match captured_ver.
+        if (node_critical_section.get() != captured_ver) return {};
+
+        if constexpr (std::is_same_v<Key, key_view>) {
+          // For key_view, delegate to try_remove after version validation.
+          if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+            return {};  // LCOV_EXCL_LINE
+          if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+            return {};  // LCOV_EXCL_LINE
+          // LCOV_EXCL_START — key_view with full_key_in_inode_path never
+          // has a root leaf (root is always an inode chain).
+          const auto result = try_remove_key_view(k, captured_ver);
+          if (!result.has_value()) return {};
+          return false;
+          // LCOV_EXCL_STOP
+        } else {
+          const optimistic_lock::write_guard parent_guard{
+              std::move(parent_critical_section)};
+          if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
+
+          optimistic_lock::write_guard node_guard{
+              std::move(node_critical_section)};
+          if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
+
+          node_guard.unlock_and_obsolete();
+
+          const auto r{art_policy::reclaim_leaf_on_scope_exit(leaf, *this)};
+          root = detail::olc_node_ptr{nullptr};
+          return false;
+        }
+      }
+
+      // Key absent → restart.
+      return {};  // LCOV_EXCL_LINE
+    }
+  }
+
+  if constexpr (std::is_same_v<Key, key_view>) {
+    // For key_view types: traverse to find the target, validate version,
+    // then delegate to try_remove for the actual removal (which handles
+    // chain cuts correctly).
+    auto remaining_key{k};
+
+    while (true) {
+      UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
+
+      auto* const inode{node.template ptr<inode_type*>()};
+      const auto& key_prefix{inode->get_key_prefix()};
+      const auto key_prefix_length{key_prefix.length()};
+      const auto shared_prefix_length{
+          key_prefix.get_shared_length(remaining_key)};
+
+      if (shared_prefix_length < key_prefix_length) {
+        // Key absent → restart.
+        return {};  // LCOV_EXCL_LINE
+      }
+
+      UNODB_DETAIL_ASSERT(shared_prefix_length == key_prefix_length);
+      remaining_key.shift_right(key_prefix_length);
+
+      if constexpr (art_policy::can_eliminate_leaf) {
+        const auto [ci_chk, child_ptr] =
+            inode->find_child(node_type, remaining_key[0]);
+        if (child_ptr == nullptr) return {};  // Key absent → restart.
+        if (inode->is_value_in_slot(node_type, ci_chk)) {
+          // VIS target — version check on the containing inode.
+          if (node_critical_section.get() != captured_ver) return {};
+          // Version matches — release locks and delegate to try_remove.
+          if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+            return {};  // LCOV_EXCL_LINE
+          if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+            return {};  // LCOV_EXCL_LINE
+          const auto result = try_remove_key_view(k, captured_ver);
+          if (!result.has_value()) return {};
+          return false;
+        }
+      } else {
+        const auto [ci_chk, child_ptr] =
+            inode->find_child(node_type, remaining_key[0]);
+        if (child_ptr == nullptr) return {};  // Key absent → restart.
+      }
+
+      if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+        return {};  // LCOV_EXCL_LINE
+
+      const auto [ci, child_in_parent] =
+          inode->find_child(node_type, remaining_key[0]);
+      if (child_in_parent == nullptr) return {};
+
+      const auto child = child_in_parent->load();
+
+      parent_critical_section = std::move(node_critical_section);
+      node = child;
+      // Validate the parent version BEFORE dereferencing child.  A concurrent
+      // writer may have modified the parent (removing/replacing the child)
+      // between our find_child/load and now.  If the parent changed, child
+      // may be null, freed, or point to a different node.
+      if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) return {};
+      if (UNODB_DETAIL_UNLIKELY(node == nullptr)) return {};
+      node_critical_section = node_ptr_lock(node).try_read_lock();
+      if (UNODB_DETAIL_UNLIKELY(node_critical_section.must_restart()))
+        return {};
+      node_type = node.type();
+
+      remaining_key.shift_right(1);
+
+      if (node_type == node_type::LEAF) {
+        // Found the target leaf — validate version.
+        if (node_critical_section.get() != captured_ver) return {};
+        // Version matches — release locks and delegate to try_remove.
+        if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+          return {};  // LCOV_EXCL_LINE
+        if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
+          return {};  // LCOV_EXCL_LINE
+        const auto result = try_remove_key_view(k, captured_ver);
+        if (!result.has_value()) return {};
+        return false;
+      }
+    }
+  } else {
+    // Fixed-width key path: inline removal (no chain cuts needed).
+    auto* node_in_parent{&root};
+    tree_depth_type depth{};
+    auto remaining_key{k};
+
+    while (true) {
+      UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
+
+      auto* const inode{node.template ptr<inode_type*>()};
+      const auto& key_prefix{inode->get_key_prefix()};
+      const auto key_prefix_length{key_prefix.length()};
+      const auto shared_prefix_length{
+          key_prefix.get_shared_length(remaining_key)};
+
+      if (shared_prefix_length < key_prefix_length) {
+        // Key absent → restart.
+        return {};  // LCOV_EXCL_LINE
+      }
+
+      UNODB_DETAIL_ASSERT(shared_prefix_length == key_prefix_length);
+      depth += key_prefix_length;
+      remaining_key.shift_right(key_prefix_length);
+
+      if constexpr (art_policy::can_eliminate_leaf) {
+        const auto [ci_chk, child_ptr] =
+            inode->find_child(node_type, remaining_key[0]);
+        if (child_ptr != nullptr &&
+            inode->is_value_in_slot(node_type, ci_chk)) {
+          // VIS target — version check on the containing inode.
+          if (node_critical_section.get() != captured_ver) return {};
+          // Version matches — proceed with normal remove.
+        }
+      }
+
+      in_critical_section<detail::olc_node_ptr>* child_in_parent{nullptr};
+      enum node_type child_type {};
+      detail::olc_node_ptr child{nullptr};
+      optimistic_lock::read_critical_section child_critical_section;
+
+      const auto opt_remove_result{
+          inode->template remove_or_choose_subtree<std::optional<bool>>(
+              node_type, remaining_key[0], k, *this, parent_critical_section,
+              node_critical_section, node_in_parent, &child_in_parent,
+              &child_critical_section, &child_type, &child)};
+
+      if (UNODB_DETAIL_UNLIKELY(!opt_remove_result)) return {};
+
+      if (const auto remove_result{*opt_remove_result}; !remove_result) {
+        // Key absent → restart.
+        return {};
+      }
+
+      if (child_in_parent == nullptr) return false;
+
+      parent_critical_section = std::move(node_critical_section);
+      node = child;
+      node_in_parent = child_in_parent;
+      node_critical_section = std::move(child_critical_section);
+      node_type = child_type;
+
+      ++depth;
+      remaining_key.shift_right(1);
+
+      // At the target leaf level, validate version.
+      if (node_type == node_type::LEAF) {
+        if (node_critical_section.get() != captured_ver) return {};
+      }
+    }
+  }
+}
+
+template <typename Key, typename Value>
 bool olc_db<Key, Value>::remove_internal(art_key_type remove_key) {
   if constexpr (std::is_same_v<Key, key_view>) {
     if (UNODB_DETAIL_UNLIKELY(remove_key.size() == 0)) return false;
@@ -2633,17 +3365,20 @@ bool olc_db<Key, Value>::remove_internal(art_key_type remove_key) {
 
 template <typename Key, typename Value>
 typename olc_db<Key, Value>::try_update_result_type
-olc_db<Key, Value>::try_remove(art_key_type k) {
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26440) olc_db<Key, Value>::try_remove(
+    art_key_type k) {
   if constexpr (std::is_same_v<Key, key_view>) {
     return try_remove_key_view(k);
   } else {
     return try_remove_fixed_width_key(k);
   }
 }
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <typename Key, typename Value>
 typename olc_db<Key, Value>::try_update_result_type
-olc_db<Key, Value>::try_remove_key_view(art_key_type k) {
+olc_db<Key, Value>::try_remove_key_view(art_key_type k,
+                                        version_tag_type captured_ver) {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
   if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) {
     // LCOV_EXCL_START
@@ -2676,13 +3411,21 @@ olc_db<Key, Value>::try_remove_key_view(art_key_type k) {
   if constexpr (!art_policy::can_eliminate_leaf) {
     // LCOV_EXCL_START — dead for can_eliminate_leaf (VIS)
     if (node_type == node_type::LEAF) {
+      UNODB_DETAIL_DISABLE_MSVC_WARNING(26462)
       auto* const leaf{node.template ptr<leaf_type*>()};
+      UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
       if (leaf->matches(k)) {
         const optimistic_lock::write_guard parent_guard{
             std::move(parent_critical_section)};
         // Do not call spin_wait_loop_body from this point on - assume
         // the above took enough time.
         if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
+
+        // CAS version gate: if called from try_upsert_erase, verify the
+        // leaf version matches what the lambda observed.
+        if (captured_ver != version_tag_type{} &&
+            node_critical_section.get() != captured_ver)
+          return {};
 
         optimistic_lock::write_guard node_guard{
             std::move(node_critical_section)};
@@ -2762,6 +3505,9 @@ olc_db<Key, Value>::try_remove_key_view(art_key_type k) {
           // Write-lock parent and chain node, then remove.
           optimistic_lock::write_guard pg{std::move(parent_critical_section)};
           if (UNODB_DETAIL_UNLIKELY(pg.must_restart())) return {};
+          if (captured_ver != version_tag_type{} &&
+              node_critical_section.get() != captured_ver)
+            return {};  // LCOV_EXCL_LINE
           optimistic_lock::write_guard ng{std::move(node_critical_section)};
           if (UNODB_DETAIL_UNLIKELY(ng.must_restart())) return {};
           return try_chain_cut(node, cv, std::move(pg), std::move(ng),
@@ -2796,6 +3542,10 @@ olc_db<Key, Value>::try_remove_key_view(art_key_type k) {
         if (UNODB_DETAIL_UNLIKELY(ng.must_restart())) return {};
         auto lcs = node_ptr_lock(cv).try_read_lock();
         if (UNODB_DETAIL_UNLIKELY(lcs.must_restart())) return {};
+        // CAS version gate: for leaf-case captures, verify the leaf
+        // version matches what the lambda observed.
+        if (captured_ver != version_tag_type{} && lcs.get() != captured_ver)
+          return {};  // LCOV_EXCL_LINE
         optimistic_lock::write_guard lg{std::move(lcs)};
         if (UNODB_DETAIL_UNLIKELY(lg.must_restart())) return {};
 
@@ -2902,7 +3652,9 @@ olc_db<Key, Value>::try_remove_fixed_width_key(art_key_type k) {
 
   if constexpr (!art_policy::can_eliminate_leaf) {
     if (node_type == node_type::LEAF) {
+      UNODB_DETAIL_DISABLE_MSVC_WARNING(26462)
       auto* const leaf{node.template ptr<leaf_type*>()};
+      UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
       if (leaf->matches(k)) {
         const optimistic_lock::write_guard parent_guard{
             std::move(parent_critical_section)};

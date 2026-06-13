@@ -64,6 +64,8 @@ add_db_test_target(test_art_key_view_full_chain)
 add_db_test_target(test_art_iter)
 add_db_test_target(test_art_scan)
 add_db_test_target(test_art_concurrency)
+add_db_test_target(test_art_upsert)
+target_compile_options(test_art_upsert PRIVATE "$<${is_msvc}:/bigobj>")
 add_db_test_target(test_art_allocator)
 # - Google Test with MSVC standard library tries to allocate memory in the
 # exception-thrown-as-expected-path.
@@ -77,6 +79,7 @@ if (NOT MSVC AND NOT SANITIZE_ADDRESS AND NOT SANITIZE_THREAD
   target_link_libraries(test_qsbr_oom PRIVATE qsbr_test_utils)
 endif()
 target_link_libraries(test_art_concurrency PRIVATE qsbr_test_utils)
+target_link_libraries(test_art_upsert PRIVATE qsbr_test_utils)
 
 # Regression test: olc_db with custom allocator must link without libunodb_qsbr.
 # Intentionally links only unodb_util (header-only) and Threads, NOT unodb or
@@ -95,7 +98,7 @@ add_test(NAME test_olc_no_qsbr COMMAND test_olc_no_qsbr)
 
 if(COVERAGE)
   add_custom_target(tests_for_coverage ctest
-    DEPENDS test_key_encode_decode test_art test_art_key_view test_art_key_view_full_chain test_art_iter test_art_scan test_art_concurrency test_art_allocator test_olc_no_qsbr test_qsbr_ptr test_qsbr test_art_oom
+    DEPENDS test_key_encode_decode test_art test_art_key_view test_art_key_view_full_chain test_art_iter test_art_scan test_art_concurrency test_art_allocator test_art_upsert test_olc_no_qsbr test_qsbr_ptr test_qsbr test_art_oom
             test_qsbr_oom)
   add_coverage_target(TARGET coverage DEPENDENCY tests_for_coverage)
 endif()
@@ -111,5 +114,6 @@ add_custom_target(valgrind_tests
   COMMAND ${VALGRIND_COMMAND} ./test_art_key_view_full_chain;
   COMMAND ${VALGRIND_COMMAND} ./test_art_iter;
   COMMAND ${VALGRIND_COMMAND} ./test_art_scan;
-  COMMAND ${VALGRIND_COMMAND} ./test_art_concurrency
-  DEPENDS test_qsbr_ptr test_qsbr test_key_encode_decode test_art test_art_key_view test_art_key_view_full_chain test_art_iter test_art_scan test_art_concurrency)
+  COMMAND ${VALGRIND_COMMAND} ./test_art_concurrency;
+  COMMAND ${VALGRIND_COMMAND} ./test_art_upsert
+  DEPENDS test_qsbr_ptr test_qsbr test_key_encode_decode test_art test_art_key_view test_art_key_view_full_chain test_art_iter test_art_scan test_art_concurrency test_art_upsert)
