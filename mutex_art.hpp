@@ -127,6 +127,20 @@ class mutex_db final {
     return remove_internal(k);
   }
 
+  /// Insert or update a key.
+  ///
+  /// If the key is absent, inserts \a v and returns \c true without calling
+  /// \a fn.  If the key is present, invokes \a fn with a mutable reference to
+  /// the existing value; the returned \c upsert_action determines whether the
+  /// value is kept, updated, or erased.  Returns \c false in this case.
+  ///
+  /// \tparam FN Callable as `upsert_action(value_type&)`.
+  template <typename FN>
+  [[nodiscard]] bool upsert(Key k, value_type v, FN fn) {
+    const std::lock_guard guard{mutex};
+    return db_.upsert(k, v, fn);
+  }
+
   /// Removes all entries in the index.
   void clear() {
     const std::lock_guard guard{mutex};

@@ -104,6 +104,10 @@ using value_size_type = std::uint32_t;
 /// Non-owning view of value bytes, copied into index upon insertion.
 using value_view = std::span<const std::byte>;
 
+/// Action returned by the upsert lambda to indicate what should happen to an
+/// existing key.
+enum class upsert_action { keep, update, erase };
+
 /// Wrapper providing access to key and value during index scan.
 ///
 /// Passed to the caller's lambda by the scan API for each index entry. Provides

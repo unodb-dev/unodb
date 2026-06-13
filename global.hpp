@@ -1,4 +1,4 @@
-// Copyright 2019-2025 Laurynas Biveinis
+// Copyright 2019-2026 UnoDB contributors
 #ifndef UNODB_DETAIL_GLOBAL_HPP
 #define UNODB_DETAIL_GLOBAL_HPP
 
@@ -318,6 +318,14 @@
 #ifdef __SANITIZE_THREAD__
 #define UNODB_DETAIL_THREAD_SANITIZER
 #endif
+#endif
+
+/// Suppress TSan for functions with benign races (e.g., OLC optimistic reads).
+#ifdef UNODB_DETAIL_THREAD_SANITIZER
+#define UNODB_DETAIL_DISABLE_TSAN \
+  __attribute__((no_sanitize("thread"), noinline))
+#else
+#define UNODB_DETAIL_DISABLE_TSAN
 #endif
 
 /// \}

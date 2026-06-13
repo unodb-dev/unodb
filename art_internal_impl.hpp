@@ -66,13 +66,19 @@ template <bool Enabled, class Storage>
 struct value_bitmask_field {
   Storage bits{};
 
-  [[nodiscard]] constexpr bool test(std::uint8_t i) const noexcept {
+  // OLC reads these fields optimistically (without a write lock) and validates
+  // afterward via version check.  TSan cannot model this protocol, so suppress.
+  // Note: constexpr removed — GCC 10 ignores no_sanitize on constexpr
+  // functions.
+  [[nodiscard]] UNODB_DETAIL_DISABLE_TSAN bool test(
+      std::uint8_t i) const noexcept {
+    if (UNODB_DETAIL_UNLIKELY(i >= sizeof(Storage) * 8)) return false;
     return (bits >> i) & 1U;
   }
-  constexpr void set(std::uint8_t i) noexcept {
+  UNODB_DETAIL_DISABLE_TSAN void set(std::uint8_t i) noexcept {
     bits |= static_cast<Storage>(Storage{1} << i);
   }
-  constexpr void clear(std::uint8_t i) noexcept {
+  UNODB_DETAIL_DISABLE_TSAN void clear(std::uint8_t i) noexcept {
     bits &= static_cast<Storage>(~(Storage{1} << i));
   }
   /// Remove bit at position \p i, shifting higher bits down.
@@ -97,16 +103,19 @@ template <bool Enabled, class T, std::size_t N>
 struct value_bitmask_field<Enabled, std::array<T, N>> {
   std::array<T, N> bits{};
 
-  [[nodiscard]] constexpr bool test(std::uint8_t i) const noexcept {
+  // OLC reads these fields optimistically (without a write lock) and validates
+  // afterward via version check.  TSan cannot model this protocol, so suppress.
+  [[nodiscard]] UNODB_DETAIL_DISABLE_TSAN bool test(
+      std::uint8_t i) const noexcept {
     return (static_cast<unsigned>(bits[static_cast<std::size_t>(i) / 8]) >>
             (static_cast<unsigned>(i) % 8U)) &
            1U;
   }
-  constexpr void set(std::uint8_t i) noexcept {
+  UNODB_DETAIL_DISABLE_TSAN void set(std::uint8_t i) noexcept {
     bits[static_cast<std::size_t>(i) / 8] |=
         static_cast<T>(T{1} << (static_cast<unsigned>(i) % 8U));
   }
-  constexpr void clear(std::uint8_t i) noexcept {
+  UNODB_DETAIL_DISABLE_TSAN void clear(std::uint8_t i) noexcept {
     bits[static_cast<std::size_t>(i) / 8] &=
         static_cast<T>(~(T{1} << (static_cast<unsigned>(i) % 8U)));
   }
@@ -316,6 +325,21 @@ class [[nodiscard]] basic_leaf final : public Header {
     }
   }
 
+  /// Overwrite the value stored in this leaf.
+  ///
+  /// \pre Value must be trivially copyable and not value_view (leaf size is
+  /// fixed at allocation time).
+  template <typename Value>
+  constexpr void set_value(const Value& v) noexcept {
+    static_assert(!std::is_same_v<Value, value_view>,
+                  "set_value cannot be used with value_view — leaf size is "
+                  "fixed");
+    static_assert(std::is_trivially_copyable_v<Value>);
+    UNODB_DETAIL_ASSERT(sizeof(Value) == value_size);
+    // cppcheck-suppress memsetClass
+    std::memcpy(data + key_size, &v, sizeof(Value));
+  }
+
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
@@ -421,6 +445,16 @@ class [[nodiscard]] basic_leaf<no_key_tag, Header> final : public Header {
       return v;
       // LCOV_EXCL_STOP
     }
+  }
+
+  /// Overwrite the value stored in this leaf.
+  template <typename Value>
+  constexpr void set_value(const Value& v) noexcept {
+    static_assert(!std::is_same_v<Value, value_view>,
+                  "set_value cannot be used with value_view — leaf size is "
+                  "fixed");
+    static_assert(std::is_trivially_copyable_v<Value>);
+    std::memcpy(data, &v, sizeof(v));
   }
 
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()

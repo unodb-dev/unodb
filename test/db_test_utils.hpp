@@ -479,6 +479,7 @@ class [[nodiscard]] tree_verifier final {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26455)
   explicit tree_verifier(bool parallel_test_ = false)
       : parallel_test{parallel_test_} {
+    key_views.reserve(64);
     assert_empty();
 #ifdef UNODB_DETAIL_WITH_STATS
     assert_growing_inodes({0, 0, 0, 0});

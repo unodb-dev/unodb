@@ -2396,7 +2396,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, GetValOnVISChild) {
 
   // Scan and read values — exercises unpack_value in get_val().
   int count = 0;
-  db.scan([&count, val](const auto& visitor) {
+  db.scan([&](const auto& visitor) {
     UNODB_EXPECT_EQ(visitor.get_value(), val);
     ++count;
     return false;
