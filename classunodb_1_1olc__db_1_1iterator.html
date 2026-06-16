@@ -103,6 +103,7 @@ $(document).ready(function(){initNavTree('classunodb_1_1olc__db_1_1iterator.html
 <a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="#pri-methods">Private Member Functions</a> &#124;
 <a href="#pri-attribs">Private Attributes</a> &#124;
+<a href="#pri-static-attribs">Static Private Attributes</a> &#124;
 <a href="#friends">Friends</a> &#124;
 <a href="classunodb_1_1olc__db_1_1iterator-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">unodb::olc_db&lt; Key, Value &gt;::iterator Class Reference</div></div>
@@ -259,12 +260,18 @@ Private Attributes</h2></td></tr>
 <a class="el" href="classunodb_1_1olc__db.html">olc_db</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>db_</b></td></tr>
 <tr class="memdesc:af020f84dcc6007e101309abcef54cd39"><td class="mdescLeft">&#160;</td><td class="mdescRight">The outer db instance. <br /></td></tr>
 <tr class="separator:af020f84dcc6007e101309abcef54cd39"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a58c016ff5086ef9cee40ee4a8aaa72d5" id="r_a58c016ff5086ef9cee40ee4a8aaa72d5"><td class="memItemLeft" align="right" valign="top">std::stack&lt; <a class="el" href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html">stack_entry</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a58c016ff5086ef9cee40ee4a8aaa72d5">stack_</a> {}</td></tr>
-<tr class="memdesc:a58c016ff5086ef9cee40ee4a8aaa72d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">A stack reflecting the parent path from the root of the tree to the current leaf.  <br /></td></tr>
-<tr class="separator:a58c016ff5086ef9cee40ee4a8aaa72d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a786d85ab1ebe90a1359de4c2bb7ed380" id="r_a786d85ab1ebe90a1359de4c2bb7ed380"><td class="memItemLeft" align="right" valign="top">boost::container::small_vector&lt; <a class="el" href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html">stack_entry</a>, <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a8af0a7ba0cbb5adf3119d76c55fd21d8">stack_inline_capacity</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a786d85ab1ebe90a1359de4c2bb7ed380">stack_</a> {}</td></tr>
+<tr class="memdesc:a786d85ab1ebe90a1359de4c2bb7ed380"><td class="mdescLeft">&#160;</td><td class="mdescRight">A stack reflecting the parent path from the root of the tree to the current leaf.  <br /></td></tr>
+<tr class="separator:a786d85ab1ebe90a1359de4c2bb7ed380"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a66fc3fbe506575866d55b8099edfbebe" id="r_a66fc3fbe506575866d55b8099edfbebe"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1detail_1_1key__buffer.html">detail::key_buffer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a66fc3fbe506575866d55b8099edfbebe">keybuf_</a> {}</td></tr>
 <tr class="memdesc:a66fc3fbe506575866d55b8099edfbebe"><td class="mdescLeft">&#160;</td><td class="mdescRight">A buffer into which visited encoded (binary comparable) keys are materialized by during the iterator traversal.  <br /></td></tr>
 <tr class="separator:a66fc3fbe506575866d55b8099edfbebe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-attribs" name="pri-static-attribs"></a>
+Static Private Attributes</h2></td></tr>
+<tr class="memitem:a8af0a7ba0cbb5adf3119d76c55fd21d8" id="r_a8af0a7ba0cbb5adf3119d76c55fd21d8"><td class="memItemLeft" align="right" valign="top">static constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a8af0a7ba0cbb5adf3119d76c55fd21d8">stack_inline_capacity</a> = 16</td></tr>
+<tr class="memdesc:a8af0a7ba0cbb5adf3119d76c55fd21d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inline capacity for the iterator stack.  <br /></td></tr>
+<tr class="separator:a8af0a7ba0cbb5adf3119d76c55fd21d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>
@@ -283,7 +290,7 @@ class unodb::olc_db&lt; Key, Value &gt;::iterator</div><p>The OLC <a class="el" 
 <p>During <a class="el" href="classunodb_1_1olc__db.html#ac395b39faa9c4a6e8a70a0cfcb9efc8e" title="public scan API">scan()</a>, the iterator <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#ae8010e6805f3a30d036747669a6c7142" title="Position the iterator on, before, or after the caller&#39;s key.">seek()</a>s to some key and then invokes the caller's lambda passing a reference to a visitor object. That visitor allows the caller to access the key and/or value associated with the leaf. If the leaf is concurrently deleted from the structure, the visitor relies on epoch protection to return the data from the now invalidated leaf. This is still the state that the caller would have observed without the concurrent structural modification. When <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a2d564c77523ca1caabbd2ea75ac8035f" title="Advance the iterator to next entry in the index.">next()</a> is called, it will discover that the leaf on the bottom of the stack is not valid (it is marked as obsolete) and it will have to restart by <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#ae8010e6805f3a30d036747669a6c7142" title="Position the iterator on, before, or after the caller&#39;s key.">seek()</a> to the key for that leaf and then invoking <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a2d564c77523ca1caabbd2ea75ac8035f" title="Advance the iterator to next entry in the index.">next()</a> if the key still exists and otherwise we should already be on the successor of that leaf.</p>
 <dl class="section note"><dt>Note</dt><dd>The OLC thread safety mechanisms permit concurrent non-atomic (multi-work) mutations to be applied to nodes. This means that a thread can read junk in the middle of some reorganization of a node (e.g., the keys or children are being reordered to maintain an invariant for <code>I16</code>). To protect against reading such junk, the thread reads the version tag before and after it accesses data in the node and restarts if the version information has changed. The thread must not act on information that it had read until it verifies that the version tag remained unchanged across the read operation.</dd>
 <dd>
-The iterator is backed by a std::stack. This means that the iterator methods accessing the stack can not be declared as <code>noexcept</code>. </dd></dl>
+The iterator is backed by a small_vector stack. This means that the iterator methods accessing the stack can not be declared as <code>noexcept</code>. </dd></dl>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="ac843013a7e0e7459901a7b9defd1abbb" name="ac843013a7e0e7459901a7b9defd1abbb"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac843013a7e0e7459901a7b9defd1abbb">&#9670;&#160;</a></span>cmp()</h2>
@@ -504,8 +511,8 @@ template&lt;typename Key , typename Value &gt; </div>
 
 </div>
 </div>
-<a id="a58c016ff5086ef9cee40ee4a8aaa72d5" name="a58c016ff5086ef9cee40ee4a8aaa72d5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a58c016ff5086ef9cee40ee4a8aaa72d5">&#9670;&#160;</a></span>stack_</h2>
+<a id="a786d85ab1ebe90a1359de4c2bb7ed380" name="a786d85ab1ebe90a1359de4c2bb7ed380"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a786d85ab1ebe90a1359de4c2bb7ed380">&#9670;&#160;</a></span>stack_</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -516,7 +523,7 @@ template&lt;typename Key , typename Value &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::stack&lt;<a class="el" href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html">stack_entry</a>&gt; <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value &gt;::iterator::stack_ {}</td>
+          <td class="memname">boost::container::small_vector&lt;<a class="el" href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html">stack_entry</a>, <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a8af0a7ba0cbb5adf3119d76c55fd21d8">stack_inline_capacity</a>&gt; <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value &gt;::iterator::stack_ {}</td>
         </tr>
       </table>
   </td>
@@ -528,6 +535,33 @@ template&lt;typename Key , typename Value &gt; </div>
 
 <p>A stack reflecting the parent path from the root of the tree to the current leaf. </p>
 <p>An empty stack corresponds to a logically empty iterator and can be detected using !valid(). The iterator for an empty tree is an empty stack. </p>
+
+</div>
+</div>
+<a id="a8af0a7ba0cbb5adf3119d76c55fd21d8" name="a8af0a7ba0cbb5adf3119d76c55fd21d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8af0a7ba0cbb5adf3119d76c55fd21d8">&#9670;&#160;</a></span>stack_inline_capacity</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr std::size_t <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value &gt;::iterator::stack_inline_capacity = 16</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">constexpr</span><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Inline capacity for the iterator stack. </p>
+<p>ART depth is bounded by key_length / (prefix_capacity + 1). For 256-byte keys with 7-byte prefixes this is 32 levels. 16 handles all practical trees without heap allocation. </p>
 
 </div>
 </div>

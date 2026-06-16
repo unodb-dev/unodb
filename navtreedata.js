@@ -107,12 +107,12 @@ var NAVTREEINDEX =
 "classunodb_1_1detail_1_1basic__inode__impl.html#a81d348a2a5cef45004e79436714724b3",
 "classunodb_1_1detail_1_1key__buffer.html#aa7bc91cff15b6e31c6f9fb5638cbaaa9",
 "classunodb_1_1key__encoder.html#a8134d1ded622cb34aaa74f3f37107a7b",
-"classunodb_1_1optimistic__lock_1_1read__critical__section.html#a7b2ae4c254f7479f492b16dec3a75c07",
-"classunodb_1_1qsbr__ptr.html",
-"group__internal.html#ga7207e99fa408f7072995cfa2a1d5a7a7",
-"namespaceunodb_1_1detail.html#a13ca7f940a88b617002ae98db439ff94",
-"structunodb_1_1detail_1_1basic__art__policy.html#ade1ebf4d4483f22d2151a5dafbe0f542",
-"test__utils_8hpp.html"
+"classunodb_1_1optimistic__lock_1_1read__critical__section.html#a6824edf72423338a0da364766d9b952e",
+"classunodb_1_1qsbr__per__thread.html#af465973b9d681794c30bb1147f693d15",
+"group__internal.html#ga65f7ea91faeb0e4cc6ff020017d0101d",
+"namespaceunodb_1_1detail.html#a0ea0a7a9ae7c67e2636bae1ca01e11fe",
+"structunodb_1_1detail_1_1basic__art__policy.html#ad32ad3dd765f19774f4fac12b3915370",
+"test__heap_8hpp_source.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
