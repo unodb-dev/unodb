@@ -53,3 +53,8 @@ examples/compile_commands.json
 **/*#*
 
 /docs/
+# TLC model checker artifacts
+spec/tla/*_TTrace_*.bin
+spec/tla/*_TTrace_*.tla
+spec/tla/states/
+
