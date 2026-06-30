@@ -11,8 +11,7 @@
 At the start of every session, read:
 
 1. This file
-2. `.unodb-work/blackboards/session-context.md` — active branch state, known bugs, task status
-3. `.unodb-work/blackboards/roadmap.md` — feature roadmap
+2. `CONTRIBUTING.md` — code quality standards and conventions
 
 ## CI Process
 
