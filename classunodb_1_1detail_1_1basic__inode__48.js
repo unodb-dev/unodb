@@ -1,7 +1,7 @@
 var classunodb_1_1detail_1_1basic__inode__48 =
 [
     [ "children_union", "unionunodb_1_1detail_1_1basic__inode__48_1_1children__union.html", "unionunodb_1_1detail_1_1basic__inode__48_1_1children__union" ],
-    [ "bitmask_base", "classunodb_1_1detail_1_1basic__inode__48.html#a534cd54a74fe535bfc3ad850410de255", null ],
+    [ "bitmask_base", "classunodb_1_1detail_1_1basic__inode__48.html#aae715f6eaa42274b7760a5563243bcfa", null ],
     [ "critical_section_policy", "classunodb_1_1detail_1_1basic__inode__48.html#a5746647717698cb39c280e100b8cea2e", null ],
     [ "db_leaf_unique_ptr", "classunodb_1_1detail_1_1basic__inode__48.html#aa0833ddfc1e689707d1c487e2f34767c", null ],
     [ "db_type", "classunodb_1_1detail_1_1basic__inode__48.html#aada67e1b1be140b695c809ff1ebbeb44", null ],

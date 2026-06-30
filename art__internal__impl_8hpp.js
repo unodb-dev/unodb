@@ -1,9 +1,9 @@
 var art__internal__impl_8hpp =
 [
-    [ "unodb::detail::value_bitmask_field< Enabled, Storage >", "structunodb_1_1detail_1_1value__bitmask__field.html", "structunodb_1_1detail_1_1value__bitmask__field" ],
-    [ "unodb::detail::value_bitmask_field< Enabled, std::array< T, N > >", "structunodb_1_1detail_1_1value__bitmask__field_3_01Enabled_00_01std_1_1array_3_01T_00_01N_01_4_01_4.html", null ],
-    [ "unodb::detail::value_bitmask_field< false, Storage >", "structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01Storage_01_4.html", null ],
-    [ "unodb::detail::value_bitmask_field< false, std::array< T, N > >", "structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01std_1_1array_3_01T_00_01N_01_4_01_4.html", null ],
+    [ "unodb::detail::value_bitmask_field< Enabled, Storage, CritSec >", "structunodb_1_1detail_1_1value__bitmask__field.html", "structunodb_1_1detail_1_1value__bitmask__field" ],
+    [ "unodb::detail::value_bitmask_field< Enabled, std::array< T, N >, CritSec >", "structunodb_1_1detail_1_1value__bitmask__field_3_01Enabled_00_01std_1_1array_3_01T_00_01N_01_4_00_01CritSec_01_4.html", null ],
+    [ "unodb::detail::value_bitmask_field< false, Storage, CritSec >", "structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01Storage_00_01CritSec_01_4.html", null ],
+    [ "unodb::detail::value_bitmask_field< false, std::array< T, N >, CritSec >", "structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01std_1_1array_3_01T_00_01N_01_4_00_01CritSec_01_4.html", null ],
     [ "unodb::detail::basic_leaf< Key, Header >", "classunodb_1_1detail_1_1basic__leaf.html", "classunodb_1_1detail_1_1basic__leaf" ],
     [ "unodb::detail::basic_leaf< no_key_tag, Header >", "classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4.html", "classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4" ],
     [ "unodb::detail::basic_inode_def< INode, Node4, Node16, Node48, Node256 >", "structunodb_1_1detail_1_1basic__inode__def.html", "structunodb_1_1detail_1_1basic__inode__def" ],

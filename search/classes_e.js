@@ -5,5 +5,5 @@ var searchData=
   ['stack_5fentry_2',['stack_entry',['../structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html',1,'unodb::olc_db::iterator']]],
   ['subtree_5fguard_3',['subtree_guard',['../structunodb_1_1detail_1_1basic__art__policy_1_1subtree__guard.html',1,'unodb::detail::basic_art_policy']]],
   ['sync_5fpoint_4',['sync_point',['../structunodb_1_1detail_1_1sync__point.html',1,'unodb::detail']]],
-  ['sync_5fpoint_5fguard_5',['sync_point_guard',['../structanonymous__namespace_02test__art__concurrency_8cpp_03_1_1sync__point__guard.html',1,'anonymous_namespace{test_art_concurrency.cpp}']]]
+  ['sync_5fpoint_5fguard_5',['sync_point_guard',['../structunodb_1_1test_1_1sync__point__guard.html',1,'unodb::test']]]
 ];

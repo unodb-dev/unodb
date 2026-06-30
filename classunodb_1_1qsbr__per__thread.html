@@ -123,7 +123,7 @@ Public Member Functions</h2></td></tr>
 &#160;</td><td class="memItemRight" valign="bottom"><b>~qsbr_per_thread</b> () noexcept</td></tr>
 <tr class="memdesc:a310ad917b38a86a0967b1d7998f2c274"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unregister the current thread from global QSBR on thread exist. <br /></td></tr>
 <tr class="separator:a310ad917b38a86a0967b1d7998f2c274"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a72e42eadf328a6d112c3f18fdbcd25e9" id="r_a72e42eadf328a6d112c3f18fdbcd25e9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#a72e42eadf328a6d112c3f18fdbcd25e9">on_next_epoch_deallocate</a> (void *pointer, std::size_t size, <a class="el" href="namespaceunodb_1_1detail.html#a22bcecdbe2a6176ad1956f2fbaddce06">detail::destroy_callback_type</a> destroy_callback, void *ctx, <a class="el" href="classunodb_1_1detail_1_1deallocation__request.html#a005b7873662cb6c0e8e2519c0a7efa16">detail::deallocation_request::debug_callback</a> dealloc_callback)</td></tr>
+<tr class="memitem:a72e42eadf328a6d112c3f18fdbcd25e9" id="r_a72e42eadf328a6d112c3f18fdbcd25e9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#a72e42eadf328a6d112c3f18fdbcd25e9">on_next_epoch_deallocate</a> (void *pointer, std::size_t size, detail::destroy_callback_type destroy_callback, void *ctx, <a class="el" href="classunodb_1_1detail_1_1deallocation__request.html#a005b7873662cb6c0e8e2519c0a7efa16">detail::deallocation_request::debug_callback</a> dealloc_callback)</td></tr>
 <tr class="memdesc:a72e42eadf328a6d112c3f18fdbcd25e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Request deallocation of <em>pointer</em> when it is safe to do so.  <br /></td></tr>
 <tr class="separator:a72e42eadf328a6d112c3f18fdbcd25e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac26eeb41f72fcf9f6753ec95d8f1cb99" id="r_ac26eeb41f72fcf9f6753ec95d8f1cb99"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#ac26eeb41f72fcf9f6753ec95d8f1cb99">quiescent</a> ()</td></tr>
@@ -176,10 +176,10 @@ Private Member Functions</h2></td></tr>
 <tr class="memitem:a5983279bf3dbf1c42a4d86cab81869f2" id="r_a5983279bf3dbf1c42a4d86cab81869f2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#a5983279bf3dbf1c42a4d86cab81869f2">unregister_active_ptr</a> (const void *ptr)</td></tr>
 <tr class="memdesc:a5983279bf3dbf1c42a4d86cab81869f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unregister an active pointer <em>ptr</em> to QSBR-managed data in this thread.  <br /></td></tr>
 <tr class="separator:a5983279bf3dbf1c42a4d86cab81869f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac0923fd6b5e9737863a31e992d27efdd" id="r_ac0923fd6b5e9737863a31e992d27efdd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#ac0923fd6b5e9737863a31e992d27efdd">advance_last_seen_epoch</a> (bool single_thread_mode, <a class="el" href="classunodb_1_1qsbr__epoch.html">qsbr_epoch</a> new_seen_epoch, <a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">detail::dealloc_request_vector</a> new_current_requests={})</td></tr>
+<tr class="memitem:ac0923fd6b5e9737863a31e992d27efdd" id="r_ac0923fd6b5e9737863a31e992d27efdd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#ac0923fd6b5e9737863a31e992d27efdd">advance_last_seen_epoch</a> (bool single_thread_mode, <a class="el" href="classunodb_1_1qsbr__epoch.html">qsbr_epoch</a> new_seen_epoch, detail::dealloc_request_vector new_current_requests={})</td></tr>
 <tr class="memdesc:ac0923fd6b5e9737863a31e992d27efdd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update this thread's view of the current epoch and execute the previous interval deallocation requests if a newer epoch is seen.  <br /></td></tr>
 <tr class="separator:ac0923fd6b5e9737863a31e992d27efdd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af465973b9d681794c30bb1147f693d15" id="r_af465973b9d681794c30bb1147f693d15"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#af465973b9d681794c30bb1147f693d15">execute_previous_requests</a> (bool single_thread_mode, <a class="el" href="classunodb_1_1qsbr__epoch.html">qsbr_epoch</a> dealloc_epoch, <a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">detail::dealloc_request_vector</a> new_current_requests={})</td></tr>
+<tr class="memitem:af465973b9d681794c30bb1147f693d15" id="r_af465973b9d681794c30bb1147f693d15"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr__per__thread.html#af465973b9d681794c30bb1147f693d15">execute_previous_requests</a> (bool single_thread_mode, <a class="el" href="classunodb_1_1qsbr__epoch.html">qsbr_epoch</a> dealloc_epoch, detail::dealloc_request_vector new_current_requests={})</td></tr>
 <tr class="memdesc:af465973b9d681794c30bb1147f693d15"><td class="mdescLeft">&#160;</td><td class="mdescRight">Execute the previous interval deallocation requests and move the current interval ones to the previous interval.  <br /></td></tr>
 <tr class="separator:af465973b9d681794c30bb1147f693d15"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:add6170269ed644653e4206906d5166b0" id="r_add6170269ed644653e4206906d5166b0"><td class="memItemLeft" align="right" valign="top"><a id="add6170269ed644653e4206906d5166b0" name="add6170269ed644653e4206906d5166b0"></a>
@@ -201,11 +201,11 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>set_instance</
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
 <tr class="memitem:a888e20fad9dfd7017ee351f965fc8ec1" id="r_a888e20fad9dfd7017ee351f965fc8ec1"><td class="memItemLeft" align="right" valign="top"><a id="a888e20fad9dfd7017ee351f965fc8ec1" name="a888e20fad9dfd7017ee351f965fc8ec1"></a>
-std::unique_ptr&lt; <a class="el" href="structunodb_1_1detail_1_1dealloc__vector__list__node.html">detail::dealloc_vector_list_node</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>previous_interval_orphan_list_node</b></td></tr>
+std::unique_ptr&lt; detail::dealloc_vector_list_node &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>previous_interval_orphan_list_node</b></td></tr>
 <tr class="memdesc:a888e20fad9dfd7017ee351f965fc8ec1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Preallocated list node for orphaning pending previous epoch requests on thread exit. <br /></td></tr>
 <tr class="separator:a888e20fad9dfd7017ee351f965fc8ec1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0956872b02e7c8af4f6d0078eaa909f7" id="r_a0956872b02e7c8af4f6d0078eaa909f7"><td class="memItemLeft" align="right" valign="top"><a id="a0956872b02e7c8af4f6d0078eaa909f7" name="a0956872b02e7c8af4f6d0078eaa909f7"></a>
-std::unique_ptr&lt; <a class="el" href="structunodb_1_1detail_1_1dealloc__vector__list__node.html">detail::dealloc_vector_list_node</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>current_interval_orphan_list_node</b></td></tr>
+std::unique_ptr&lt; detail::dealloc_vector_list_node &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>current_interval_orphan_list_node</b></td></tr>
 <tr class="memdesc:a0956872b02e7c8af4f6d0078eaa909f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Preallocated list node for orphaning pending current epoch requests on thread exit. <br /></td></tr>
 <tr class="separator:a0956872b02e7c8af4f6d0078eaa909f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa27231a20f8d382edb8f6257b208c15c" id="r_aa27231a20f8d382edb8f6257b208c15c"><td class="memItemLeft" align="right" valign="top"><a id="aa27231a20f8d382edb8f6257b208c15c" name="aa27231a20f8d382edb8f6257b208c15c"></a>
@@ -221,11 +221,11 @@ std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>quiescent_st
 <tr class="memdesc:a61d5ff32388c657046c71bb03308c286"><td class="mdescLeft">&#160;</td><td class="mdescRight">Last seen global epoch by any operation for this thread. <br /></td></tr>
 <tr class="separator:a61d5ff32388c657046c71bb03308c286"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a067c56d3356e016deec77387eb03da95" id="r_a067c56d3356e016deec77387eb03da95"><td class="memItemLeft" align="right" valign="top"><a id="a067c56d3356e016deec77387eb03da95" name="a067c56d3356e016deec77387eb03da95"></a>
-<a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">detail::dealloc_request_vector</a>&#160;</td><td class="memItemRight" valign="bottom"><b>previous_interval_dealloc_requests</b></td></tr>
+detail::dealloc_request_vector&#160;</td><td class="memItemRight" valign="bottom"><b>previous_interval_dealloc_requests</b></td></tr>
 <tr class="memdesc:a067c56d3356e016deec77387eb03da95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pending deallocation requests for the previous epoch. <br /></td></tr>
 <tr class="separator:a067c56d3356e016deec77387eb03da95"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7557ea586b33893b1bd9f4aa5581d391" id="r_a7557ea586b33893b1bd9f4aa5581d391"><td class="memItemLeft" align="right" valign="top"><a id="a7557ea586b33893b1bd9f4aa5581d391" name="a7557ea586b33893b1bd9f4aa5581d391"></a>
-<a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">detail::dealloc_request_vector</a>&#160;</td><td class="memItemRight" valign="bottom"><b>current_interval_dealloc_requests</b></td></tr>
+detail::dealloc_request_vector&#160;</td><td class="memItemRight" valign="bottom"><b>current_interval_dealloc_requests</b></td></tr>
 <tr class="memdesc:a7557ea586b33893b1bd9f4aa5581d391"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pending deallocation requests for the current epoch. <br /></td></tr>
 <tr class="separator:a7557ea586b33893b1bd9f4aa5581d391"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6fc38b62224e729fdab0988048626df7" id="r_a6fc38b62224e729fdab0988048626df7"><td class="memItemLeft" align="right" valign="top"><a id="a6fc38b62224e729fdab0988048626df7" name="a6fc38b62224e729fdab0988048626df7"></a>
@@ -296,7 +296,7 @@ struct&#160;</td><td class="memItemRight" valign="bottom"><b>detail::set_qsbr_pe
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">detail::dealloc_request_vector</a>&#160;</td>
+          <td class="paramtype">detail::dealloc_request_vector&#160;</td>
           <td class="paramname"><em>new_current_requests</em> = <code>{}</code>&#160;</td>
         </tr>
         <tr>
@@ -348,7 +348,7 @@ struct&#160;</td><td class="memItemRight" valign="bottom"><b>detail::set_qsbr_pe
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff">detail::dealloc_request_vector</a>&#160;</td>
+          <td class="paramtype">detail::dealloc_request_vector&#160;</td>
           <td class="paramname"><em>new_current_requests</em> = <code>{}</code>&#160;</td>
         </tr>
         <tr>
@@ -400,7 +400,7 @@ struct&#160;</td><td class="memItemRight" valign="bottom"><b>detail::set_qsbr_pe
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#a22bcecdbe2a6176ad1956f2fbaddce06">detail::destroy_callback_type</a>&#160;</td>
+          <td class="paramtype">detail::destroy_callback_type&#160;</td>
           <td class="paramname"><em>destroy_callback</em>, </td>
         </tr>
         <tr>

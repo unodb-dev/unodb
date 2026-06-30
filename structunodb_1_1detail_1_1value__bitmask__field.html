@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>UnoDB: unodb::detail::value_bitmask_field&lt; Enabled, Storage &gt; Struct Template Reference</title>
+<title>UnoDB: unodb::detail::value_bitmask_field&lt; Enabled, Storage, CritSec &gt; Struct Template Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -100,7 +100,7 @@ $(document).ready(function(){initNavTree('structunodb_1_1detail_1_1value__bitmas
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="structunodb_1_1detail_1_1value__bitmask__field-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">unodb::detail::value_bitmask_field&lt; Enabled, Storage &gt; Struct Template Reference</div></div>
+  <div class="headertitle"><div class="title">unodb::detail::value_bitmask_field&lt; Enabled, Storage, CritSec &gt; Struct Template Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
@@ -111,47 +111,55 @@ $(document).ready(function(){initNavTree('structunodb_1_1detail_1_1value__bitmas
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a2eff15ff8628b565e20da92f00818ebc" id="r_a2eff15ff8628b565e20da92f00818ebc"><td class="memItemLeft" align="right" valign="top"><a id="a2eff15ff8628b565e20da92f00818ebc" name="a2eff15ff8628b565e20da92f00818ebc"></a>
-constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><b>test</b> (std::uint8_t i) const noexcept</td></tr>
-<tr class="separator:a2eff15ff8628b565e20da92f00818ebc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a594562e811109617eb772e5af102cb37" id="r_a594562e811109617eb772e5af102cb37"><td class="memItemLeft" align="right" valign="top"><a id="a594562e811109617eb772e5af102cb37" name="a594562e811109617eb772e5af102cb37"></a>
-constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>set</b> (std::uint8_t i) noexcept</td></tr>
-<tr class="separator:a594562e811109617eb772e5af102cb37"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a80828101061f82da627f260660081a91" id="r_a80828101061f82da627f260660081a91"><td class="memItemLeft" align="right" valign="top"><a id="a80828101061f82da627f260660081a91" name="a80828101061f82da627f260660081a91"></a>
-constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>clear</b> (std::uint8_t i) noexcept</td></tr>
-<tr class="separator:a80828101061f82da627f260660081a91"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5f293b4d5d577091d3c201252419ef02" id="r_a5f293b4d5d577091d3c201252419ef02"><td class="memItemLeft" align="right" valign="top"><a id="a5f293b4d5d577091d3c201252419ef02" name="a5f293b4d5d577091d3c201252419ef02"></a>
-constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>remove_at</b> (std::uint8_t i) noexcept</td></tr>
-<tr class="memdesc:a5f293b4d5d577091d3c201252419ef02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove bit at position <code>i</code>, shifting higher bits down. <br /></td></tr>
-<tr class="separator:a5f293b4d5d577091d3c201252419ef02"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a339c1dc06837998346946f16e0235b18" id="r_a339c1dc06837998346946f16e0235b18"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1value__bitmask__field.html#a339c1dc06837998346946f16e0235b18">insert_at</a> (std::uint8_t i) noexcept</td></tr>
-<tr class="memdesc:a339c1dc06837998346946f16e0235b18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert space at position <code>i</code>, shifting higher bits up.  <br /></td></tr>
-<tr class="separator:a339c1dc06837998346946f16e0235b18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26e7e4e8b06cfa30a2aefba3dbee3f0b" id="r_a26e7e4e8b06cfa30a2aefba3dbee3f0b"><td class="memItemLeft" align="right" valign="top"><a id="a26e7e4e8b06cfa30a2aefba3dbee3f0b" name="a26e7e4e8b06cfa30a2aefba3dbee3f0b"></a>
+<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>test</b> (std::uint8_t <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">i</a>) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">const</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
+<tr class="separator:a26e7e4e8b06cfa30a2aefba3dbee3f0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a184b1ace730fd22d258c78871aa3f7e4" id="r_a184b1ace730fd22d258c78871aa3f7e4"><td class="memItemLeft" align="right" valign="top"><a id="a184b1ace730fd22d258c78871aa3f7e4" name="a184b1ace730fd22d258c78871aa3f7e4"></a>
+<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>set</b> (std::uint8_t <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">i</a>) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
+<tr class="separator:a184b1ace730fd22d258c78871aa3f7e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3f5120475ca70cf116e9837444b3f02" id="r_af3f5120475ca70cf116e9837444b3f02"><td class="memItemLeft" align="right" valign="top"><a id="af3f5120475ca70cf116e9837444b3f02" name="af3f5120475ca70cf116e9837444b3f02"></a>
+<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>clear</b> (std::uint8_t <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">i</a>) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
+<tr class="separator:af3f5120475ca70cf116e9837444b3f02"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7dd40fc158762683a820f3c8459137a" id="r_ae7dd40fc158762683a820f3c8459137a"><td class="memItemLeft" align="right" valign="top"><a id="ae7dd40fc158762683a820f3c8459137a" name="ae7dd40fc158762683a820f3c8459137a"></a>
+<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>remove_at</b> (std::uint8_t <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">i</a>) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
+<tr class="memdesc:ae7dd40fc158762683a820f3c8459137a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove bit at position <code>i</code>, shifting higher bits down. <br /></td></tr>
+<tr class="separator:ae7dd40fc158762683a820f3c8459137a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab42061b27fb984cfc9b7d022d712f18a" id="r_ab42061b27fb984cfc9b7d022d712f18a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1value__bitmask__field.html#ab42061b27fb984cfc9b7d022d712f18a">insert_at</a> (std::uint8_t <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">i</a>) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
+<tr class="memdesc:ab42061b27fb984cfc9b7d022d712f18a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert space at position <code>i</code>, shifting higher bits up.  <br /></td></tr>
+<tr class="separator:ab42061b27fb984cfc9b7d022d712f18a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:ad67e49d3065fb71e9c88c93d552157d1" id="r_ad67e49d3065fb71e9c88c93d552157d1"><td class="memItemLeft" align="right" valign="top"><a id="ad67e49d3065fb71e9c88c93d552157d1" name="ad67e49d3065fb71e9c88c93d552157d1"></a>
-Storage&#160;</td><td class="memItemRight" valign="bottom"><b>bits</b> {}</td></tr>
-<tr class="separator:ad67e49d3065fb71e9c88c93d552157d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac1f6bae76234515a7ab0acd676bc9c79" id="r_ac1f6bae76234515a7ab0acd676bc9c79"><td class="memItemLeft" align="right" valign="top"><a id="ac1f6bae76234515a7ab0acd676bc9c79" name="ac1f6bae76234515a7ab0acd676bc9c79"></a>
+<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">CritSec</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">Storage</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>bits</b> {}</td></tr>
+<tr class="separator:ac1f6bae76234515a7ab0acd676bc9c79"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><div class="compoundTemplParams">template&lt;bool Enabled, class Storage&gt;<br />
-struct unodb::detail::value_bitmask_field&lt; Enabled, Storage &gt;</div><p>A bitmask that tracks which child slots hold packed values rather than pointers. </p>
-<p>When <code>Enabled</code> is false the struct is empty and all operations compile away, so inodes pay zero overhead for db types that do not use value-in-slot. </p>
+<div class="textblock"><div class="compoundTemplParams">template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">bool</a> Enabled, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">class</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">Storage</a>, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">template</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">class</a> &gt; <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">class</a> CritSec&gt;<br />
+struct unodb::detail::value_bitmask_field&lt; Enabled, Storage, CritSec &gt;</div><p>A bitmask that tracks which child slots hold packed values rather than pointers. </p>
+<p>When <code>Enabled</code> is false the struct is empty and all operations compile away, so inodes pay zero overhead for db types that do not use value-in-slot.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">Enabled</td><td>Whether value-in-slot is active </td></tr>
+    <tr><td class="paramname">Storage</td><td>Underlying storage type (e.g. std::uint8_t, std::uint16_t) </td></tr>
+    <tr><td class="paramname">CritSec</td><td>Critical section wrapper (<a class="el" href="classunodb_1_1in__critical__section.html" title="Gloss for the atomic semantics used to guard loads and stores.">in_critical_section</a> for OLC, <a class="el" href="classunodb_1_1in__fake__critical__section.html" title="Provide access to T with unodb::in_critical_section&lt;T&gt;-like interface, except that loads and stores a...">in_fake_critical_section</a> for single-threaded). Wraps the storage so that TSan observes relaxed atomic accesses under OLC. </td></tr>
+  </table>
+  </dd>
+</dl>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a339c1dc06837998346946f16e0235b18" name="a339c1dc06837998346946f16e0235b18"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a339c1dc06837998346946f16e0235b18">&#9670;&#160;</a></span>insert_at()</h2>
+<a id="ab42061b27fb984cfc9b7d022d712f18a" name="ab42061b27fb984cfc9b7d022d712f18a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab42061b27fb984cfc9b7d022d712f18a">&#9670;&#160;</a></span>insert_at()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;bool Enabled, class Storage &gt; </div>
+template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">bool</a> Enabled, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">class</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">Storage</a> , <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">template</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">class</a> &gt; <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">class</a> CritSec&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr void <a class="el" href="structunodb_1_1detail_1_1value__bitmask__field.html">unodb::detail::value_bitmask_field</a>&lt; Enabled, Storage &gt;::insert_at </td>
+          <td class="memname"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a> <a class="el" href="structunodb_1_1detail_1_1value__bitmask__field.html">unodb::detail::value_bitmask_field</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">Enabled</a>, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">Storage</a>, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">CritSec</a> &gt;::insert_at </td>
           <td>(</td>
           <td class="paramtype">std::uint8_t&#160;</td>
           <td class="paramname"><em>i</em></td><td>)</td>
@@ -160,7 +168,7 @@ template&lt;bool Enabled, class Storage &gt; </div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">

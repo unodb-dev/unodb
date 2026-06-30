@@ -44,6 +44,11 @@ var namespaceunodb =
       [ "I48", "namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a62e917add11d7e69f1356f76800cd084", null ],
       [ "I256", "namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a4db1a4fc0ba7faa34813bde8556fccda", null ]
     ] ],
+    [ "upsert_action", "namespaceunodb.html#a64d4c56bb0eec45bd7782645b9dbc0d1", [
+      [ "keep", "namespaceunodb.html#a64d4c56bb0eec45bd7782645b9dbc0d1a18ccf61d533b600bbf5a963359223fe4", null ],
+      [ "update", "namespaceunodb.html#a64d4c56bb0eec45bd7782645b9dbc0d1a3ac340832f29c11538fbe2d6f75e8bcc", null ],
+      [ "erase", "namespaceunodb.html#a64d4c56bb0eec45bd7782645b9dbc0d1a26eb25b14d930f9d5f59b2c50798a9a4", null ]
+    ] ],
     [ "operator<<", "namespaceunodb.html#aa59775452fa97ba44e41a676ec016b9d", null ],
     [ "qsbr_ptr_span", "namespaceunodb.html#a5710c60b3e8525518398d85e89a7a40d", null ],
     [ "spin_wait_loop_body", "namespaceunodb.html#adf5c8f3a365ce28271526c3ef0ca4237", null ],

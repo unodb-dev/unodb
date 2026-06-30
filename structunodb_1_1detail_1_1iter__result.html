@@ -108,20 +108,11 @@ $(document).ready(function(){initNavTree('structunodb_1_1detail_1_1iter__result.
  <a href="structunodb_1_1detail_1_1iter__result.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="art__internal__impl_8hpp_source.html">art_internal_impl.hpp</a>&gt;</code></p>
-<div class="dynheader">
-Inheritance diagram for unodb::detail::iter_result&lt; NodeHeader &gt;:</div>
-<div class="dyncontent">
- <div class="center">
-  <img src="structunodb_1_1detail_1_1iter__result.png" usemap="#unodb::detail::iter_5Fresult_3C_20NodeHeader_20_3E_map" alt=""/>
-  <map id="unodb::detail::iter_5Fresult_3C_20NodeHeader_20_3E_map" name="unodb::detail::iter_5Fresult_3C_20NodeHeader_20_3E_map">
-<area href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html" title="Alias for the elements on the stack." alt="unodb::olc_db&lt; Key, Value &gt;::iterator::stack_entry" shape="rect" coords="0,56,296,80"/>
-  </map>
-</div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:ab22270fae893b795cee9f4d663950f41" id="r_ab22270fae893b795cee9f4d663950f41"><td class="memItemLeft" align="right" valign="top"><a id="ab22270fae893b795cee9f4d663950f41" name="ab22270fae893b795cee9f4d663950f41"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>node_ptr</b> = <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">basic_node_ptr</a>&lt; NodeHeader &gt;</td></tr>
+<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">using</a>&#160;</td><td class="memItemRight" valign="bottom"><b>node_ptr</b> = <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">basic_node_ptr</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">NodeHeader</a> &gt;</td></tr>
 <tr class="memdesc:ab22270fae893b795cee9f4d663950f41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Node pointer type. <br /></td></tr>
 <tr class="separator:ab22270fae893b795cee9f4d663950f41"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -141,12 +132,12 @@ Public Attributes</h2></td></tr>
 <a class="el" href="unionunodb_1_1detail_1_1key__prefix__snapshot.html">key_prefix_snapshot</a>&#160;</td><td class="memItemRight" valign="bottom"><b>prefix</b></td></tr>
 <tr class="memdesc:a567edf1377659f0138ac433674cf6091"><td class="mdescLeft">&#160;</td><td class="mdescRight">Snapshot of key prefix for node. <br /></td></tr>
 <tr class="separator:a567edf1377659f0138ac433674cf6091"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adea10db562217d81523ea9c0c6464e9e" id="r_adea10db562217d81523ea9c0c6464e9e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1iter__result.html#adea10db562217d81523ea9c0c6464e9e">packed_leaf</a> {false}</td></tr>
+<tr class="memitem:adea10db562217d81523ea9c0c6464e9e" id="r_adea10db562217d81523ea9c0c6464e9e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1iter__result.html#adea10db562217d81523ea9c0c6464e9e">packed_leaf</a> {<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">false</a>}</td></tr>
 <tr class="memdesc:adea10db562217d81523ea9c0c6464e9e"><td class="mdescLeft">&#160;</td><td class="mdescRight">True when this entry represents a packed value (value-in-slot) rather than an inode or leaf pointer.  <br /></td></tr>
 <tr class="separator:adea10db562217d81523ea9c0c6464e9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><div class="compoundTemplParams">template&lt;class NodeHeader&gt;<br />
+<div class="textblock"><div class="compoundTemplParams">template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">class</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">NodeHeader</a>&gt;<br />
 struct unodb::detail::iter_result&lt; NodeHeader &gt;</div><p>Iterator traversal result representing tree path element. </p>
 <p>Returned by iterator visitation pattern to represent a position in the tree.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
@@ -162,10 +153,10 @@ struct unodb::detail::iter_result&lt; NodeHeader &gt;</div><p>Iterator traversal
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class NodeHeader &gt; </div>
+template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">class</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">NodeHeader</a> &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">std::uint8_t <a class="el" href="structunodb_1_1detail_1_1iter__result.html">unodb::detail::iter_result</a>&lt; NodeHeader &gt;::child_index {}</td>
+          <td class="memname">std::uint8_t <a class="el" href="structunodb_1_1detail_1_1iter__result.html">unodb::detail::iter_result</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">NodeHeader</a> &gt;::child_index {}</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -181,10 +172,10 @@ template&lt;class NodeHeader &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class NodeHeader &gt; </div>
+template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">class</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">NodeHeader</a> &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">std::byte <a class="el" href="structunodb_1_1detail_1_1iter__result.html">unodb::detail::iter_result</a>&lt; NodeHeader &gt;::key_byte</td>
+          <td class="memname">std::byte <a class="el" href="structunodb_1_1detail_1_1iter__result.html">unodb::detail::iter_result</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">NodeHeader</a> &gt;::key_byte</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -200,10 +191,10 @@ template&lt;class NodeHeader &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class NodeHeader &gt; </div>
+template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">class</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">NodeHeader</a> &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="structunodb_1_1detail_1_1iter__result.html">unodb::detail::iter_result</a>&lt; NodeHeader &gt;::packed_leaf {false}</td>
+          <td class="memname"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">bool</a> <a class="el" href="structunodb_1_1detail_1_1iter__result.html">unodb::detail::iter_result</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">NodeHeader</a> &gt;::packed_leaf {<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">false</a>}</td>
         </tr>
       </table>
 </div><div class="memdoc">

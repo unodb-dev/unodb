@@ -11,6 +11,11 @@ var art__common_8hpp =
     [ "leaf_key_type", "art__common_8hpp.html#a8d3a7aec825f0d8cdde007954faa4647", null ],
     [ "value_size_type", "art__common_8hpp.html#a6b16b24543826b94728828213976f2cb", null ],
     [ "value_view", "art__common_8hpp.html#ae25127f715f2aac269da8a3616284c0b", null ],
+    [ "upsert_action", "art__common_8hpp.html#a64d4c56bb0eec45bd7782645b9dbc0d1", [
+      [ "keep", "art__common_8hpp.html#a64d4c56bb0eec45bd7782645b9dbc0d1a18ccf61d533b600bbf5a963359223fe4", null ],
+      [ "update", "art__common_8hpp.html#a64d4c56bb0eec45bd7782645b9dbc0d1a3ac340832f29c11538fbe2d6f75e8bcc", null ],
+      [ "erase", "art__common_8hpp.html#a64d4c56bb0eec45bd7782645b9dbc0d1a26eb25b14d930f9d5f59b2c50798a9a4", null ]
+    ] ],
     [ "dump_byte", "art__common_8hpp.html#a0ea0a7a9ae7c67e2636bae1ca01e11fe", null ],
     [ "dump_key", "art__common_8hpp.html#a0ef7220cb1655f8cd8f759659bf99ab7", null ],
     [ "dump_key", "art__common_8hpp.html#a3f442e3027e04156cef43a9b865a0c16", null ],

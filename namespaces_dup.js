@@ -21,6 +21,7 @@ var namespaces_dup =
     [ "anonymous_namespace{test_art_key_view_full_chain.cpp}", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03" ],
     [ "anonymous_namespace{test_art_oom.cpp}", "namespaceanonymous__namespace_02test__art__oom_8cpp_03.html", "namespaceanonymous__namespace_02test__art__oom_8cpp_03" ],
     [ "anonymous_namespace{test_art_scan.cpp}", "namespaceanonymous__namespace_02test__art__scan_8cpp_03.html", "namespaceanonymous__namespace_02test__art__scan_8cpp_03" ],
+    [ "anonymous_namespace{test_art_upsert.cpp}", "namespaceanonymous__namespace_02test__art__upsert_8cpp_03.html", "namespaceanonymous__namespace_02test__art__upsert_8cpp_03" ],
     [ "anonymous_namespace{test_key_encode_decode.cpp}", "namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03.html", "namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03" ],
     [ "anonymous_namespace{test_olc_no_qsbr.cpp}", "namespaceanonymous__namespace_02test__olc__no__qsbr_8cpp_03.html", null ],
     [ "anonymous_namespace{test_qsbr.cpp}", "namespaceanonymous__namespace_02test__qsbr_8cpp_03.html", null ],

@@ -20,9 +20,11 @@ var searchData=
   ['try_5fread_5flock_17',['try_read_lock',['../classunodb_1_1optimistic__lock.html#a557b207dfd8a0d42a63e27dd34a05db0',1,'unodb::optimistic_lock::try_read_lock()'],['../classunodb_1_1fake__lock.html#abd29b6354ee9e691f7a5f6182c1c711a',1,'unodb::fake_lock::try_read_lock()']]],
   ['try_5fread_5funlock_18',['try_read_unlock',['../classunodb_1_1fake__read__critical__section.html#a40d38ea7e822ba2331772c482621d69d',1,'unodb::fake_read_critical_section::try_read_unlock()'],['../classunodb_1_1optimistic__lock_1_1read__critical__section.html#a440405f82d354281cf33f37de0433b95',1,'unodb::optimistic_lock::read_critical_section::try_read_unlock()'],['../classunodb_1_1optimistic__lock.html#a427d68606712d24c073e8f2c13264f55',1,'unodb::optimistic_lock::try_read_unlock()']]],
   ['try_5fremove_5ffixed_5fwidth_5fkey_19',['try_remove_fixed_width_key',['../classunodb_1_1olc__db.html#ac07ab4b1afbbb2b903a5161780836654',1,'unodb::olc_db']]],
-  ['try_5fremove_5fkey_5fview_20',['try_remove_key_view',['../classunodb_1_1olc__db.html#aa24244d16dcb651d8e7d842856af49fb',1,'unodb::olc_db']]],
+  ['try_5fremove_5fkey_5fview_20',['try_remove_key_view',['../classunodb_1_1olc__db.html#a6fc5ce4aa05b2235b07d698f878ce743',1,'unodb::olc_db']]],
   ['try_5fright_5fmost_5ftraversal_21',['try_right_most_traversal',['../classunodb_1_1olc__db_1_1iterator.html#a09bcbb5f112c73acd5eaf7529cad4a32',1,'unodb::olc_db::iterator']]],
   ['try_5fseek_22',['try_seek',['../classunodb_1_1olc__db_1_1iterator.html#ae7dac20521f2b23e44c4510e62a328fc',1,'unodb::olc_db::iterator']]],
   ['try_5fupgrade_5fto_5fwrite_5flock_23',['try_upgrade_to_write_lock',['../classunodb_1_1optimistic__lock.html#a462a9f65f786f790dbbc1b8af92a9e37',1,'unodb::optimistic_lock']]],
-  ['type_24',['type',['../classunodb_1_1detail_1_1basic__node__ptr.html#a08a07d5e5b31f87c500fc63be6144860',1,'unodb::detail::basic_node_ptr']]]
+  ['try_5fupsert_24',['try_upsert',['../classunodb_1_1olc__db.html#a7d44db8815f707618059d759154bb380',1,'unodb::olc_db']]],
+  ['try_5fupsert_5ferase_25',['try_upsert_erase',['../classunodb_1_1olc__db.html#a2ae64b908c8f9ab75bac440e3e0240ae',1,'unodb::olc_db']]],
+  ['type_26',['type',['../classunodb_1_1detail_1_1basic__node__ptr.html#a08a07d5e5b31f87c500fc63be6144860',1,'unodb::detail::basic_node_ptr']]]
 ];

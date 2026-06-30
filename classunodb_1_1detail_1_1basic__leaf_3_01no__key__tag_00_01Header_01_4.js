@@ -7,5 +7,6 @@ var classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4 =
     [ "get_size", "classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4.html#a7e477ff3c5599976d47cf86d4d5b0d12", null ],
     [ "get_value", "classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4.html#a34ee1b322256b279dcf31820a568b696", null ],
     [ "get_value_view", "classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4.html#a76e6dfe61db6eeeb152acbd250d92cc1", null ],
-    [ "matches", "classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4.html#a77d99f50529d7ae0b4c5dd6f0cc55e92", null ]
+    [ "matches", "classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4.html#a77d99f50529d7ae0b4c5dd6f0cc55e92", null ],
+    [ "set_value", "classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4.html#a4cd336e9dbe6de8d361b8fdb902fdc5a", null ]
 ];

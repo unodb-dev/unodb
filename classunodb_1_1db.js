@@ -59,6 +59,7 @@ var classunodb_1_1db =
     [ "scan", "classunodb_1_1db.html#a27a69c736ca0405bc8eaed20cf875a09", null ],
     [ "scan_from", "classunodb_1_1db.html#a5d68530937371b08951f2084761b56fd", null ],
     [ "scan_range", "classunodb_1_1db.html#a5f45c60b21a68bfd64062ca2c2be2ddf", null ],
+    [ "upsert", "classunodb_1_1db.html#a177aadc027f5d50a9369b9a3a8ece8ee", null ],
     [ "detail::basic_art_policy", "classunodb_1_1db.html#a751c802fc92dd464a0e3c4e8acbb4111", null ],
     [ "detail::basic_db_inode_deleter", "classunodb_1_1db.html#ae96ae9741ef57bdec0060d3b43f2fd36", null ],
     [ "detail::basic_db_leaf_deleter", "classunodb_1_1db.html#ae619cc4a8d95fc5ddc04afd1eb7f2417", null ],

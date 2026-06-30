@@ -2,7 +2,7 @@ var classunodb_1_1detail_1_1basic__inode__4 =
 [
     [ "key_union", "unionunodb_1_1detail_1_1basic__inode__4_1_1key__union.html", "unionunodb_1_1detail_1_1basic__inode__4_1_1key__union" ],
     [ "art_key_type", "classunodb_1_1detail_1_1basic__inode__4.html#a789345e4cacd1d9e179e0dcfe7aa064a", null ],
-    [ "bitmask_base", "classunodb_1_1detail_1_1basic__inode__4.html#aad5836c0b2033d455f198ee78934d1c9", null ],
+    [ "bitmask_base", "classunodb_1_1detail_1_1basic__inode__4.html#a0588bc8076779cafbdf54d140c0c1649", null ],
     [ "critical_section_policy", "classunodb_1_1detail_1_1basic__inode__4.html#ad86305f68f4d5ee1c7c060f3b997ee99", null ],
     [ "db_leaf_unique_ptr", "classunodb_1_1detail_1_1basic__inode__4.html#aa0833ddfc1e689707d1c487e2f34767c", null ],
     [ "db_type", "classunodb_1_1detail_1_1basic__inode__4.html#aada67e1b1be140b695c809ff1ebbeb44", null ],

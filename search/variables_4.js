@@ -8,5 +8,6 @@ var searchData=
   ['epoch_5fdealloc_5fper_5fthread_5fcount_5fvariance_5',['epoch_dealloc_per_thread_count_variance',['../classunodb_1_1qsbr.html#a0da4b62330891a9f4f5661be310f9286',1,'unodb::qsbr']]],
   ['epoch_5fin_5fword_5foffset_6',['epoch_in_word_offset',['../structunodb_1_1qsbr__state.html#a83fc5302dcb15e5cdd1c5d4355bf233a',1,'unodb::qsbr_state']]],
   ['epoch_5fval_7',['epoch_val',['../classunodb_1_1qsbr__epoch.html#a5815976f4e8328bf4b44fc28bbed0318',1,'unodb::qsbr_epoch']]],
-  ['exceptions_5fat_5fctor_8',['exceptions_at_ctor',['../structunodb_1_1quiescent__state__on__scope__exit.html#a3cccedbca284edccb346ae9d910f8011',1,'unodb::quiescent_state_on_scope_exit']]]
+  ['erase_5ffn_8',['erase_fn',['../namespaceanonymous__namespace_02test__art__upsert_8cpp_03.html#adb1a584e82fd86f12e2601c544b4d244',1,'anonymous_namespace{test_art_upsert.cpp}']]],
+  ['exceptions_5fat_5fctor_9',['exceptions_at_ctor',['../structunodb_1_1quiescent__state__on__scope__exit.html#a3cccedbca284edccb346ae9d910f8011',1,'unodb::quiescent_state_on_scope_exit']]]
 ];

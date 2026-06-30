@@ -19,10 +19,11 @@ var searchData=
   ['anonymous_5fnamespace_7btest_5fart_5fkey_5fview_5ffull_5fchain_2ecpp_7d_16',['anonymous_namespace{test_art_key_view_full_chain.cpp}',['../namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html',1,'']]],
   ['anonymous_5fnamespace_7btest_5fart_5foom_2ecpp_7d_17',['anonymous_namespace{test_art_oom.cpp}',['../namespaceanonymous__namespace_02test__art__oom_8cpp_03.html',1,'']]],
   ['anonymous_5fnamespace_7btest_5fart_5fscan_2ecpp_7d_18',['anonymous_namespace{test_art_scan.cpp}',['../namespaceanonymous__namespace_02test__art__scan_8cpp_03.html',1,'']]],
-  ['anonymous_5fnamespace_7btest_5fkey_5fencode_5fdecode_2ecpp_7d_19',['anonymous_namespace{test_key_encode_decode.cpp}',['../namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03.html',1,'']]],
-  ['anonymous_5fnamespace_7btest_5folc_5fno_5fqsbr_2ecpp_7d_20',['anonymous_namespace{test_olc_no_qsbr.cpp}',['../namespaceanonymous__namespace_02test__olc__no__qsbr_8cpp_03.html',1,'']]],
-  ['anonymous_5fnamespace_7btest_5fqsbr_2ecpp_7d_21',['anonymous_namespace{test_qsbr.cpp}',['../namespaceanonymous__namespace_02test__qsbr_8cpp_03.html',1,'']]],
-  ['anonymous_5fnamespace_7btest_5fqsbr_5ffuzz_5fdeepstate_2ecpp_7d_22',['anonymous_namespace{test_qsbr_fuzz_deepstate.cpp}',['../namespaceanonymous__namespace_02test__qsbr__fuzz__deepstate_8cpp_03.html',1,'']]],
-  ['anonymous_5fnamespace_7btest_5fqsbr_5foom_2ecpp_7d_23',['anonymous_namespace{test_qsbr_oom.cpp}',['../namespaceanonymous__namespace_02test__qsbr__oom_8cpp_03.html',1,'']]],
-  ['anonymous_5fnamespace_7btest_5fqsbr_5fptr_2ecpp_7d_24',['anonymous_namespace{test_qsbr_ptr.cpp}',['../namespaceanonymous__namespace_02test__qsbr__ptr_8cpp_03.html',1,'']]]
+  ['anonymous_5fnamespace_7btest_5fart_5fupsert_2ecpp_7d_19',['anonymous_namespace{test_art_upsert.cpp}',['../namespaceanonymous__namespace_02test__art__upsert_8cpp_03.html',1,'']]],
+  ['anonymous_5fnamespace_7btest_5fkey_5fencode_5fdecode_2ecpp_7d_20',['anonymous_namespace{test_key_encode_decode.cpp}',['../namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03.html',1,'']]],
+  ['anonymous_5fnamespace_7btest_5folc_5fno_5fqsbr_2ecpp_7d_21',['anonymous_namespace{test_olc_no_qsbr.cpp}',['../namespaceanonymous__namespace_02test__olc__no__qsbr_8cpp_03.html',1,'']]],
+  ['anonymous_5fnamespace_7btest_5fqsbr_2ecpp_7d_22',['anonymous_namespace{test_qsbr.cpp}',['../namespaceanonymous__namespace_02test__qsbr_8cpp_03.html',1,'']]],
+  ['anonymous_5fnamespace_7btest_5fqsbr_5ffuzz_5fdeepstate_2ecpp_7d_23',['anonymous_namespace{test_qsbr_fuzz_deepstate.cpp}',['../namespaceanonymous__namespace_02test__qsbr__fuzz__deepstate_8cpp_03.html',1,'']]],
+  ['anonymous_5fnamespace_7btest_5fqsbr_5foom_2ecpp_7d_24',['anonymous_namespace{test_qsbr_oom.cpp}',['../namespaceanonymous__namespace_02test__qsbr__oom_8cpp_03.html',1,'']]],
+  ['anonymous_5fnamespace_7btest_5fqsbr_5fptr_2ecpp_7d_25',['anonymous_namespace{test_qsbr_ptr.cpp}',['../namespaceanonymous__namespace_02test__qsbr__ptr_8cpp_03.html',1,'']]]
 ];

@@ -11,8 +11,7 @@ var annotated_dup =
     ] ],
     [ "anonymous_namespace{test_art_concurrency.cpp}", "namespaceanonymous__namespace_02test__art__concurrency_8cpp_03.html", [
       [ "ARTChainConcurrencyTest", "classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTChainConcurrencyTest.html", null ],
-      [ "ARTConcurrencyTest", "classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTConcurrencyTest.html", null ],
-      [ "sync_point_guard", "structanonymous__namespace_02test__art__concurrency_8cpp_03_1_1sync__point__guard.html", null ]
+      [ "ARTConcurrencyTest", "classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTConcurrencyTest.html", null ]
     ] ],
     [ "anonymous_namespace{test_art_iter.cpp}", "namespaceanonymous__namespace_02test__art__iter_8cpp_03.html", [
       [ "ARTIteratorTest", "classanonymous__namespace_02test__art__iter_8cpp_03_1_1ARTIteratorTest.html", null ]
@@ -29,6 +28,11 @@ var annotated_dup =
     ] ],
     [ "anonymous_namespace{test_art_scan.cpp}", "namespaceanonymous__namespace_02test__art__scan_8cpp_03.html", [
       [ "ARTScanTest", "classanonymous__namespace_02test__art__scan_8cpp_03_1_1ARTScanTest.html", null ]
+    ] ],
+    [ "anonymous_namespace{test_art_upsert.cpp}", "namespaceanonymous__namespace_02test__art__upsert_8cpp_03.html", [
+      [ "UpsertConcurrencyTest", "classanonymous__namespace_02test__art__upsert_8cpp_03_1_1UpsertConcurrencyTest.html", null ],
+      [ "UpsertOOMTest", "classanonymous__namespace_02test__art__upsert_8cpp_03_1_1UpsertOOMTest.html", null ],
+      [ "UpsertTest", "classanonymous__namespace_02test__art__upsert_8cpp_03_1_1UpsertTest.html", null ]
     ] ],
     [ "anonymous_namespace{test_key_encode_decode.cpp}", "namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03.html", [
       [ "ARTKeyEncodeDecodeTest", "classanonymous__namespace_02test__key__encode__decode_8cpp_03_1_1ARTKeyEncodeDecodeTest.html", null ],
@@ -82,7 +86,7 @@ var annotated_dup =
         [ "no_key_tag", "structunodb_1_1detail_1_1no__key__tag.html", null ],
         [ "no_leaf_tag", "structunodb_1_1detail_1_1no__leaf__tag.html", null ],
         [ "node_header", "structunodb_1_1detail_1_1node__header.html", null ],
-        [ "olc_impl_helpers", "structunodb_1_1detail_1_1olc__impl__helpers.html", null ],
+        [ "olc_impl_helpers", "structunodb_1_1detail_1_1olc__impl__helpers.html", "structunodb_1_1detail_1_1olc__impl__helpers" ],
         [ "olc_inode", "classunodb_1_1detail_1_1olc__inode.html", null ],
         [ "olc_inode_16", "classunodb_1_1detail_1_1olc__inode__16.html", "classunodb_1_1detail_1_1olc__inode__16" ],
         [ "olc_inode_256", "classunodb_1_1detail_1_1olc__inode__256.html", "classunodb_1_1detail_1_1olc__inode__256" ],
@@ -95,14 +99,15 @@ var annotated_dup =
         [ "thread_sync", "classunodb_1_1detail_1_1thread__sync.html", "classunodb_1_1detail_1_1thread__sync" ],
         [ "tree_depth", "classunodb_1_1detail_1_1tree__depth.html", "classunodb_1_1detail_1_1tree__depth" ],
         [ "value_bitmask_field", "structunodb_1_1detail_1_1value__bitmask__field.html", "structunodb_1_1detail_1_1value__bitmask__field" ],
-        [ "value_bitmask_field< Enabled, std::array< T, N > >", "structunodb_1_1detail_1_1value__bitmask__field_3_01Enabled_00_01std_1_1array_3_01T_00_01N_01_4_01_4.html", null ],
-        [ "value_bitmask_field< false, std::array< T, N > >", "structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01std_1_1array_3_01T_00_01N_01_4_01_4.html", null ],
-        [ "value_bitmask_field< false, Storage >", "structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01Storage_01_4.html", null ]
+        [ "value_bitmask_field< Enabled, std::array< T, N >, CritSec >", "structunodb_1_1detail_1_1value__bitmask__field_3_01Enabled_00_01std_1_1array_3_01T_00_01N_01_4_00_01CritSec_01_4.html", null ],
+        [ "value_bitmask_field< false, std::array< T, N >, CritSec >", "structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01std_1_1array_3_01T_00_01N_01_4_00_01CritSec_01_4.html", null ],
+        [ "value_bitmask_field< false, Storage, CritSec >", "structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01Storage_00_01CritSec_01_4.html", null ]
       ] ],
       [ "test", "namespaceunodb_1_1test.html", [
         [ "allocation_failure_injector", "classunodb_1_1test_1_1allocation__failure__injector.html", "classunodb_1_1test_1_1allocation__failure__injector" ],
         [ "pause_heap_faults", "structunodb_1_1test_1_1pause__heap__faults.html", "structunodb_1_1test_1_1pause__heap__faults" ],
         [ "QSBRTestBase", "classunodb_1_1test_1_1QSBRTestBase.html", null ],
+        [ "sync_point_guard", "structunodb_1_1test_1_1sync__point__guard.html", "structunodb_1_1test_1_1sync__point__guard" ],
         [ "tree_verifier", "classunodb_1_1test_1_1tree__verifier.html", "classunodb_1_1test_1_1tree__verifier" ]
       ] ],
       [ "allocator_type", "structunodb_1_1allocator__type.html", "structunodb_1_1allocator__type" ],

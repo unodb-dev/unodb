@@ -237,8 +237,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>publish_quiescent_sta
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-methods" name="pri-static-methods"></a>
 Static Private Member Functions</h2></td></tr>
-<tr class="memitem:a84792dbd2519dc5d072e5e2e36e964b5" id="r_a84792dbd2519dc5d072e5e2e36e964b5"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr.html#a84792dbd2519dc5d072e5e2e36e964b5">deallocate</a> (void *pointer, std::size_t size, <a class="el" href="namespaceunodb_1_1detail.html#a22bcecdbe2a6176ad1956f2fbaddce06">detail::destroy_callback_type</a> destroy_callback, void *ctx, const <a class="el" href="classunodb_1_1detail_1_1deallocation__request.html#a005b7873662cb6c0e8e2519c0a7efa16">detail::deallocation_request::debug_callback</a> &amp;debug_callback) noexcept</td></tr>
-<tr class="memdesc:a84792dbd2519dc5d072e5e2e36e964b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free memory at <em>pointer</em> using <a class="el" href="namespaceunodb_1_1detail.html#a857e30bf5bbe06e321300ee868010df9" title="Free heap memory allocated with allocate_aligned().">detail::free_aligned</a>.  <br /></td></tr>
+<tr class="memitem:a84792dbd2519dc5d072e5e2e36e964b5" id="r_a84792dbd2519dc5d072e5e2e36e964b5"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr.html#a84792dbd2519dc5d072e5e2e36e964b5">deallocate</a> (void *pointer, std::size_t size, detail::destroy_callback_type destroy_callback, void *ctx, const <a class="el" href="classunodb_1_1detail_1_1deallocation__request.html#a005b7873662cb6c0e8e2519c0a7efa16">detail::deallocation_request::debug_callback</a> &amp;debug_callback) noexcept</td></tr>
+<tr class="memdesc:a84792dbd2519dc5d072e5e2e36e964b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free memory at <em>pointer</em> using detail::free_aligned.  <br /></td></tr>
 <tr class="separator:a84792dbd2519dc5d072e5e2e36e964b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a12cd3058880cc8a4ced8466f959aed83" id="r_a12cd3058880cc8a4ced8466f959aed83"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1qsbr.html#a12cd3058880cc8a4ced8466f959aed83">thread_epoch_change_barrier</a> () noexcept</td></tr>
 <tr class="memdesc:a12cd3058880cc8a4ced8466f959aed83"><td class="mdescLeft">&#160;</td><td class="mdescRight">Synchronization barrier for thread epoch changes.  <br /></td></tr>
@@ -251,11 +251,11 @@ std::atomic&lt; <a class="el" href="structunodb_1_1qsbr__state.html#a9ded9024be6
 <tr class="memdesc:a01a260fb085274cacc7465cc0389f38e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The global QSBR state. <br /></td></tr>
 <tr class="separator:a01a260fb085274cacc7465cc0389f38e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa23d57ccaec3e73c3f9bf5cd412c69ed" id="r_aa23d57ccaec3e73c3f9bf5cd412c69ed"><td class="memItemLeft" align="right" valign="top"><a id="aa23d57ccaec3e73c3f9bf5cd412c69ed" name="aa23d57ccaec3e73c3f9bf5cd412c69ed"></a>
-std::atomic&lt; <a class="el" href="structunodb_1_1detail_1_1dealloc__vector__list__node.html">detail::dealloc_vector_list_node</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>orphaned_previous_interval_dealloc_requests</b></td></tr>
+std::atomic&lt; detail::dealloc_vector_list_node * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>orphaned_previous_interval_dealloc_requests</b></td></tr>
 <tr class="memdesc:aa23d57ccaec3e73c3f9bf5cd412c69ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Orphaned deallocation requests for the previous epoch from terminated threads. <br /></td></tr>
 <tr class="separator:aa23d57ccaec3e73c3f9bf5cd412c69ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa4be949c57da4d0d59bfe2651f4b741c" id="r_aa4be949c57da4d0d59bfe2651f4b741c"><td class="memItemLeft" align="right" valign="top"><a id="aa4be949c57da4d0d59bfe2651f4b741c" name="aa4be949c57da4d0d59bfe2651f4b741c"></a>
-std::atomic&lt; <a class="el" href="structunodb_1_1detail_1_1dealloc__vector__list__node.html">detail::dealloc_vector_list_node</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>orphaned_current_interval_dealloc_requests</b></td></tr>
+std::atomic&lt; detail::dealloc_vector_list_node * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>orphaned_current_interval_dealloc_requests</b></td></tr>
 <tr class="memdesc:aa4be949c57da4d0d59bfe2651f4b741c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Orphaned deallocation requests for the current epoch from terminated threads. <br /></td></tr>
 <tr class="separator:aa4be949c57da4d0d59bfe2651f4b741c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2391754d3c55265df8c7b34d6289d290" id="r_a2391754d3c55265df8c7b34d6289d290"><td class="memItemLeft" align="right" valign="top"><a id="a2391754d3c55265df8c7b34d6289d290" name="a2391754d3c55265df8c7b34d6289d290"></a>
@@ -390,7 +390,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr_per_thread</b><
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#a22bcecdbe2a6176ad1956f2fbaddce06">detail::destroy_callback_type</a>&#160;</td>
+          <td class="paramtype">detail::destroy_callback_type&#160;</td>
           <td class="paramname"><em>destroy_callback</em>, </td>
         </tr>
         <tr>
@@ -418,7 +418,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr_per_thread</b><
 </table>
 </div><div class="memdoc">
 
-<p>Free memory at <em>pointer</em> using <a class="el" href="namespaceunodb_1_1detail.html#a857e30bf5bbe06e321300ee868010df9" title="Free heap memory allocated with allocate_aligned().">detail::free_aligned</a>. </p>
+<p>Free memory at <em>pointer</em> using detail::free_aligned. </p>
 <p>In debug builds, call <em>debug_callback</em> at the actual deallocation time. </p>
 
 </div>

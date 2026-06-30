@@ -112,39 +112,39 @@ $(document).ready(function(){initNavTree('classunodb_1_1detail_1_1thread__sync.h
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:aa3a414b7ff86453cdceb3e4c5875676f" id="r_aa3a414b7ff86453cdceb3e4c5875676f"><td class="memItemLeft" align="right" valign="top"><a id="aa3a414b7ff86453cdceb3e4c5875676f" name="aa3a414b7ff86453cdceb3e4c5875676f"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>thread_sync</b> () noexcept=default</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>thread_sync</b> () <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a>=<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">default</a></td></tr>
 <tr class="memdesc:aa3a414b7ff86453cdceb3e4c5875676f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default constructor creates the synchronization primitive in reset state. <br /></td></tr>
 <tr class="separator:aa3a414b7ff86453cdceb3e4c5875676f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5614608130e0bda19a073f95c2e5cd59" id="r_a5614608130e0bda19a073f95c2e5cd59"><td class="memItemLeft" align="right" valign="top"><a id="a5614608130e0bda19a073f95c2e5cd59" name="a5614608130e0bda19a073f95c2e5cd59"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>~thread_sync</b> () noexcept</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>~thread_sync</b> () <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
 <tr class="memdesc:a5614608130e0bda19a073f95c2e5cd59"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor, asserting that the sync object, if signaled, was actually waited-for. <br /></td></tr>
 <tr class="separator:a5614608130e0bda19a073f95c2e5cd59"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a14dda0cce9399317443d757d11862e17" id="r_a14dda0cce9399317443d757d11862e17"><td class="memItemLeft" align="right" valign="top"><a id="a14dda0cce9399317443d757d11862e17" name="a14dda0cce9399317443d757d11862e17"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_reset</b> () const</td></tr>
+<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>is_reset</b> () <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">const</a></td></tr>
 <tr class="memdesc:a14dda0cce9399317443d757d11862e17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the synchronization primitive is in reset state. <br /></td></tr>
 <tr class="separator:a14dda0cce9399317443d757d11862e17"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac49b6f0f0180abea03a8759296279ea8" id="r_ac49b6f0f0180abea03a8759296279ea8"><td class="memItemLeft" align="right" valign="top"><a id="ac49b6f0f0180abea03a8759296279ea8" name="ac49b6f0f0180abea03a8759296279ea8"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>notify</b> ()</td></tr>
+<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>notify</b> ()</td></tr>
 <tr class="memdesc:ac49b6f0f0180abea03a8759296279ea8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal to allow a waiting thread to proceed. <br /></td></tr>
 <tr class="separator:ac49b6f0f0180abea03a8759296279ea8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a34a77e47a451242d985f7ae30c4ff37e" id="r_a34a77e47a451242d985f7ae30c4ff37e"><td class="memItemLeft" align="right" valign="top"><a id="a34a77e47a451242d985f7ae30c4ff37e" name="a34a77e47a451242d985f7ae30c4ff37e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>wait</b> ()</td></tr>
+<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>wait</b> ()</td></tr>
 <tr class="memdesc:a34a77e47a451242d985f7ae30c4ff37e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait until notified, then reset. <br /></td></tr>
 <tr class="separator:a34a77e47a451242d985f7ae30c4ff37e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af06ff91804738213556c7bd6777a722c" id="r_af06ff91804738213556c7bd6777a722c"><td class="memItemLeft" align="right" valign="top"><a id="af06ff91804738213556c7bd6777a722c" name="af06ff91804738213556c7bd6777a722c"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>thread_sync</b> (const <a class="el" href="classunodb_1_1detail_1_1thread__sync.html">thread_sync</a> &amp;)=delete</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>thread_sync</b> (<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">const</a> <a class="el" href="classunodb_1_1detail_1_1thread__sync.html">thread_sync</a> &amp;)=<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">delete</a></td></tr>
 <tr class="memdesc:af06ff91804738213556c7bd6777a722c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy construction is disabled. <br /></td></tr>
 <tr class="separator:af06ff91804738213556c7bd6777a722c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac7e1945fd6d651fb86ef8546cfa134d3" id="r_ac7e1945fd6d651fb86ef8546cfa134d3"><td class="memItemLeft" align="right" valign="top"><a id="ac7e1945fd6d651fb86ef8546cfa134d3" name="ac7e1945fd6d651fb86ef8546cfa134d3"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>thread_sync</b> (<a class="el" href="classunodb_1_1detail_1_1thread__sync.html">thread_sync</a> &amp;&amp;)=delete</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>thread_sync</b> (<a class="el" href="classunodb_1_1detail_1_1thread__sync.html">thread_sync</a> &amp;&amp;)=<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">delete</a></td></tr>
 <tr class="memdesc:ac7e1945fd6d651fb86ef8546cfa134d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move construction is disabled. <br /></td></tr>
 <tr class="separator:ac7e1945fd6d651fb86ef8546cfa134d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6d5a28b8e35c5a27ff56a1412070a459" id="r_a6d5a28b8e35c5a27ff56a1412070a459"><td class="memItemLeft" align="right" valign="top"><a id="a6d5a28b8e35c5a27ff56a1412070a459" name="a6d5a28b8e35c5a27ff56a1412070a459"></a>
-<a class="el" href="classunodb_1_1detail_1_1thread__sync.html">thread_sync</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="classunodb_1_1detail_1_1thread__sync.html">thread_sync</a> &amp;)=delete</td></tr>
+<a class="el" href="classunodb_1_1detail_1_1thread__sync.html">thread_sync</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">const</a> <a class="el" href="classunodb_1_1detail_1_1thread__sync.html">thread_sync</a> &amp;)=<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">delete</a></td></tr>
 <tr class="memdesc:a6d5a28b8e35c5a27ff56a1412070a459"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy assignment is disabled. <br /></td></tr>
 <tr class="separator:a6d5a28b8e35c5a27ff56a1412070a459"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3bbd2947a75a68277b6a37f634a06305" id="r_a3bbd2947a75a68277b6a37f634a06305"><td class="memItemLeft" align="right" valign="top"><a id="a3bbd2947a75a68277b6a37f634a06305" name="a3bbd2947a75a68277b6a37f634a06305"></a>
-<a class="el" href="classunodb_1_1detail_1_1thread__sync.html">thread_sync</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classunodb_1_1detail_1_1thread__sync.html">thread_sync</a> &amp;&amp;)=delete</td></tr>
+<a class="el" href="classunodb_1_1detail_1_1thread__sync.html">thread_sync</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classunodb_1_1detail_1_1thread__sync.html">thread_sync</a> &amp;&amp;)=<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">delete</a></td></tr>
 <tr class="memdesc:a3bbd2947a75a68277b6a37f634a06305"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move assignment is disabled. <br /></td></tr>
 <tr class="separator:a3bbd2947a75a68277b6a37f634a06305"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -159,7 +159,7 @@ std::mutex&#160;</td><td class="memItemRight" valign="bottom"><b>sync_mutex</b><
 <tr class="memdesc:a04c33dad94dfb05725467da4a2013eba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mutex for protecting the flag. <br /></td></tr>
 <tr class="separator:a04c33dad94dfb05725467da4a2013eba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad53abbcc8f46d484b73cb04250b07cc3" id="r_ad53abbcc8f46d484b73cb04250b07cc3"><td class="memItemLeft" align="right" valign="top"><a id="ad53abbcc8f46d484b73cb04250b07cc3" name="ad53abbcc8f46d484b73cb04250b07cc3"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>flag</b> {false}</td></tr>
+<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>flag</b> {<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">false</a>}</td></tr>
 <tr class="memdesc:ad53abbcc8f46d484b73cb04250b07cc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag indicating whether the <a class="el" href="classunodb_1_1detail_1_1thread__sync.html" title="A simple one-way synchronization mechanism to make one thread wait until another one signals it.">thread_sync</a> has been notified. <br /></td></tr>
 <tr class="separator:ad53abbcc8f46d484b73cb04250b07cc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>

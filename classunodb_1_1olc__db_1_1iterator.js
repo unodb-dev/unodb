@@ -28,6 +28,5 @@ var classunodb_1_1olc__db_1_1iterator =
     [ "valid", "classunodb_1_1olc__db_1_1iterator.html#a3f78ee2b000d780336beddc3609dc1f1", null ],
     [ "db_", "classunodb_1_1olc__db_1_1iterator.html#af020f84dcc6007e101309abcef54cd39", null ],
     [ "keybuf_", "classunodb_1_1olc__db_1_1iterator.html#a66fc3fbe506575866d55b8099edfbebe", null ],
-    [ "stack_", "classunodb_1_1olc__db_1_1iterator.html#a786d85ab1ebe90a1359de4c2bb7ed380", null ],
-    [ "stack_inline_capacity", "classunodb_1_1olc__db_1_1iterator.html#a8af0a7ba0cbb5adf3119d76c55fd21d8", null ]
+    [ "stack_", "classunodb_1_1olc__db_1_1iterator.html#a58c016ff5086ef9cee40ee4a8aaa72d5", null ]
 ];

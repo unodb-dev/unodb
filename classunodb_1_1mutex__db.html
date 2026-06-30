@@ -156,6 +156,10 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>empty</b> () const</t
 <tr class="memitem:a4de54b9c77294c1efdcc3f290ad16b0d" id="r_a4de54b9c77294c1efdcc3f290ad16b0d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#a4de54b9c77294c1efdcc3f290ad16b0d">remove</a> (Key search_key)</td></tr>
 <tr class="memdesc:a4de54b9c77294c1efdcc3f290ad16b0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove the entry associated with the key.  <br /></td></tr>
 <tr class="separator:a4de54b9c77294c1efdcc3f290ad16b0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab96b338b5cbf2cd0b351f644070b5ed2" id="r_ab96b338b5cbf2cd0b351f644070b5ed2"><td class="memTemplParams" colspan="2">template&lt;typename FN &gt; </td></tr>
+<tr class="memitem:ab96b338b5cbf2cd0b351f644070b5ed2"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#ab96b338b5cbf2cd0b351f644070b5ed2">upsert</a> (Key k, <a class="el" href="classunodb_1_1mutex__db.html#a95da9eb65d7d477a1c43666848f8e362">value_type</a> v, FN fn)</td></tr>
+<tr class="memdesc:ab96b338b5cbf2cd0b351f644070b5ed2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert or update a key.  <br /></td></tr>
+<tr class="separator:ab96b338b5cbf2cd0b351f644070b5ed2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a58a3c66a09d76f19a014875c93b1e310" id="r_a58a3c66a09d76f19a014875c93b1e310"><td class="memItemLeft" align="right" valign="top"><a id="a58a3c66a09d76f19a014875c93b1e310" name="a58a3c66a09d76f19a014875c93b1e310"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>clear</b> ()</td></tr>
 <tr class="memdesc:a58a3c66a09d76f19a014875c93b1e310"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes all entries in the index. <br /></td></tr>
@@ -215,20 +219,20 @@ static bool&#160;</td><td class="memItemRight" valign="bottom"><b>key_found</b> 
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-types" name="pri-types"></a>
 Private Types</h2></td></tr>
 <tr class="memitem:aa0531a2d5ef1ca02b566d6259f0c51d0" id="r_aa0531a2d5ef1ca02b566d6259f0c51d0"><td class="memItemLeft" align="right" valign="top"><a id="aa0531a2d5ef1ca02b566d6259f0c51d0" name="aa0531a2d5ef1ca02b566d6259f0c51d0"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>art_key_type</b> = <a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">detail::basic_art_key</a>&lt; Key &gt;</td></tr>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>art_key_type</b> = detail::basic_art_key&lt; Key &gt;</td></tr>
 <tr class="separator:aa0531a2d5ef1ca02b566d6259f0c51d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
 <tr class="memitem:a5e6952f21d537dda7d6d182c88808b64" id="r_a5e6952f21d537dda7d6d182c88808b64"><td class="memItemLeft" align="right" valign="top"><a id="a5e6952f21d537dda7d6d182c88808b64" name="a5e6952f21d537dda7d6d182c88808b64"></a>
-<a class="el" href="classunodb_1_1mutex__db.html#a5ddc9814e5b512a63053f17c37c3aa15">get_result</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_internal</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k) const noexcept</td></tr>
+<a class="el" href="classunodb_1_1mutex__db.html#a5ddc9814e5b512a63053f17c37c3aa15">get_result</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_internal</b> (art_key_type k) const noexcept</td></tr>
 <tr class="memdesc:a5e6952f21d537dda7d6d182c88808b64"><td class="mdescLeft">&#160;</td><td class="mdescRight">Querying with an encoded key. <br /></td></tr>
 <tr class="separator:a5e6952f21d537dda7d6d182c88808b64"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a793cf23de6dc1854ccace69ae0926131" id="r_a793cf23de6dc1854ccace69ae0926131"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#a793cf23de6dc1854ccace69ae0926131">insert_internal</a> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k, <a class="el" href="classunodb_1_1mutex__db.html#a95da9eb65d7d477a1c43666848f8e362">value_type</a> v)</td></tr>
+<tr class="memitem:a793cf23de6dc1854ccace69ae0926131" id="r_a793cf23de6dc1854ccace69ae0926131"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#a793cf23de6dc1854ccace69ae0926131">insert_internal</a> (art_key_type k, <a class="el" href="classunodb_1_1mutex__db.html#a95da9eb65d7d477a1c43666848f8e362">value_type</a> v)</td></tr>
 <tr class="memdesc:a793cf23de6dc1854ccace69ae0926131"><td class="mdescLeft">&#160;</td><td class="mdescRight">Modifying with an encoded key.  <br /></td></tr>
 <tr class="separator:a793cf23de6dc1854ccace69ae0926131"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a524eccc5543a63b3fbbc2582271cafa7" id="r_a524eccc5543a63b3fbbc2582271cafa7"><td class="memItemLeft" align="right" valign="top"><a id="a524eccc5543a63b3fbbc2582271cafa7" name="a524eccc5543a63b3fbbc2582271cafa7"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>remove_internal</b> (<a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a> k)</td></tr>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>remove_internal</b> (art_key_type k)</td></tr>
 <tr class="memdesc:a524eccc5543a63b3fbbc2582271cafa7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removing with an encoded key. <br /></td></tr>
 <tr class="separator:a524eccc5543a63b3fbbc2582271cafa7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -367,7 +371,7 @@ template&lt;typename Key , typename Value &gt; </div>
         <tr>
           <td class="memname">bool <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key, Value &gt;::insert_internal </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__art__key.html">art_key_type</a>&#160;</td>
+          <td class="paramtype">art_key_type&#160;</td>
           <td class="paramname"><em>k</em>, </td>
         </tr>
         <tr>
@@ -588,6 +592,61 @@ template&lt;typename FN &gt; </div>
     <tr><td class="paramname">from_key</td><td>is an inclusive bound for the starting point of the scan.</td></tr>
     <tr><td class="paramname">to_key</td><td>is an exclusive bound for the ending point of the scan.</td></tr>
     <tr><td class="paramname">fn</td><td>A function <code>f(<a class="el" href="classunodb_1_1visitor.html" title="Wrapper providing access to key and value during index scan.">unodb::visitor</a>&lt;unodb::mutex_db::iterator&gt;&amp;)</code> returning <code>bool</code>. The traversal will halt if the function returns <code>true</code>. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ab96b338b5cbf2cd0b351f644070b5ed2" name="ab96b338b5cbf2cd0b351f644070b5ed2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab96b338b5cbf2cd0b351f644070b5ed2">&#9670;&#160;</a></span>upsert()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+<div class="memtemplate">
+template&lt;typename FN &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key, Value &gt;::upsert </td>
+          <td>(</td>
+          <td class="paramtype">Key&#160;</td>
+          <td class="paramname"><em>k</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1mutex__db.html#a95da9eb65d7d477a1c43666848f8e362">value_type</a>&#160;</td>
+          <td class="paramname"><em>v</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FN&#160;</td>
+          <td class="paramname"><em>fn</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Insert or update a key. </p>
+<p>If the key is absent, inserts <em>v</em> and returns <code>true</code> without calling <em>fn</em>. If the key is present, invokes <em>fn</em> with a mutable reference to the existing value; the returned <code>upsert_action</code> determines whether the value is kept, updated, or erased. Returns <code>false</code> in this case.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">FN</td><td>Callable as <code>upsert_action(value_type&amp;)</code>. </td></tr>
   </table>
   </dd>
 </dl>

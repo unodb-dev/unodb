@@ -3,6 +3,7 @@ var group__test_internals =
     [ "deepstate_utils.hpp", "deepstate__utils_8hpp.html", null ],
     [ "gtest_utils.hpp", "gtest__utils_8hpp.html", null ],
     [ "qsbr_test_utils.hpp", "qsbr__test__utils_8hpp.html", null ],
+    [ "sync_point_test_utils.hpp", "sync__point__test__utils_8hpp.html", null ],
     [ "test_utils.hpp", "test__utils_8hpp.html", null ],
     [ "test_heap.cpp", "test__heap_8cpp.html", null ],
     [ "test_heap.hpp", "test__heap_8hpp.html", null ],

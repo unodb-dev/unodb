@@ -207,10 +207,10 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>value_size_type</b> 
 using&#160;</td><td class="memItemRight" valign="bottom"><b>value_view</b> = std::span&lt; const std::byte &gt;</td></tr>
 <tr class="memdesc:ae25127f715f2aac269da8a3616284c0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Non-owning view of value bytes, copied into index upon insertion. <br /></td></tr>
 <tr class="separator:ae25127f715f2aac269da8a3616284c0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8105523dd9adff845377f54dd034b838" id="r_a8105523dd9adff845377f54dd034b838"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#a8105523dd9adff845377f54dd034b838">node_type_counter_array</a> = std::array&lt; std::uint64_t, <a class="el" href="namespaceunodb_1_1detail.html#ad81082c8f2c103492eb9f6917f0483bc">detail::node_type_count</a> &gt;</td></tr>
+<tr class="memitem:a8105523dd9adff845377f54dd034b838" id="r_a8105523dd9adff845377f54dd034b838"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#a8105523dd9adff845377f54dd034b838">node_type_counter_array</a> = std::array&lt; std::uint64_t, detail::node_type_count &gt;</td></tr>
 <tr class="memdesc:a8105523dd9adff845377f54dd034b838"><td class="mdescLeft">&#160;</td><td class="mdescRight"><code>std::array</code> of <code>std::uint64_t</code> values for each node type.  <br /></td></tr>
 <tr class="separator:a8105523dd9adff845377f54dd034b838"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a60a52550ffa9f2d0d9e1cd9ebc7cab28" id="r_a60a52550ffa9f2d0d9e1cd9ebc7cab28"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#a60a52550ffa9f2d0d9e1cd9ebc7cab28">inode_type_counter_array</a> = std::array&lt; std::uint64_t, <a class="el" href="namespaceunodb_1_1detail.html#aa11fc0dc02ee0b061504cd50856ea7dd">detail::inode_type_count</a> &gt;</td></tr>
+<tr class="memitem:a60a52550ffa9f2d0d9e1cd9ebc7cab28" id="r_a60a52550ffa9f2d0d9e1cd9ebc7cab28"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#a60a52550ffa9f2d0d9e1cd9ebc7cab28">inode_type_counter_array</a> = std::array&lt; std::uint64_t, detail::inode_type_count &gt;</td></tr>
 <tr class="memdesc:a60a52550ffa9f2d0d9e1cd9ebc7cab28"><td class="mdescLeft">&#160;</td><td class="mdescRight"><code>std::array</code> of <code>std::uint64_t</code> values for each internal node type.  <br /></td></tr>
 <tr class="separator:a60a52550ffa9f2d0d9e1cd9ebc7cab28"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a70595f75a79bde2520bdcfb07689da7b" id="r_a70595f75a79bde2520bdcfb07689da7b"><td class="memItemLeft" align="right" valign="top"><a id="a70595f75a79bde2520bdcfb07689da7b" name="a70595f75a79bde2520bdcfb07689da7b"></a>
@@ -224,6 +224,12 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>qsbr_thread_count_ty
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
+<tr class="memitem:a64d4c56bb0eec45bd7782645b9dbc0d1" id="r_a64d4c56bb0eec45bd7782645b9dbc0d1"><td class="memItemLeft" align="right" valign="top"><a id="a64d4c56bb0eec45bd7782645b9dbc0d1" name="a64d4c56bb0eec45bd7782645b9dbc0d1"></a>enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#a64d4c56bb0eec45bd7782645b9dbc0d1">upsert_action</a> { <b>keep</b>
+, <b>update</b>
+, <b>erase</b>
+ }</td></tr>
+<tr class="memdesc:a64d4c56bb0eec45bd7782645b9dbc0d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Action returned by the upsert lambda to indicate what should happen to an existing key. <br /></td></tr>
+<tr class="separator:a64d4c56bb0eec45bd7782645b9dbc0d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a074fabb6a852ee032fb9b7f35a64b8e3" id="r_a074fabb6a852ee032fb9b7f35a64b8e3"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> : std::uint8_t { <br />
 &#160;&#160;<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350">LEAF</a>
 , <a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a3542ac61a301c83960ca9c44a79260e9">I4</a>
@@ -271,6 +277,10 @@ Variables</h2></td></tr>
 <tr class="memitem:a775cf37c7ccec6301c8512193550b424"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#a775cf37c7ccec6301c8512193550b424">internal_as_i</a></td></tr>
 <tr class="memdesc:a775cf37c7ccec6301c8512193550b424"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert internal <em>NodeType</em> to a value suitable for use as an index.  <br /></td></tr>
 <tr class="separator:a775cf37c7ccec6301c8512193550b424"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3497d5273f6a0991bdeef3345c1db78e" id="r_a3497d5273f6a0991bdeef3345c1db78e"><td class="memTemplParams" colspan="2"><a id="a3497d5273f6a0991bdeef3345c1db78e" name="a3497d5273f6a0991bdeef3345c1db78e"></a>
+template&lt;typename Key , typename Value &gt; </td></tr>
+<tr class="memitem:a3497d5273f6a0991bdeef3345c1db78e"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1olc__db.html">olc_db</a>&lt; Key, Value &gt;::try_update_result_type&#160;</td><td class="memTemplItemRight" valign="bottom"><b>UNODB_DETAIL_DISABLE_MSVC_WARNING</b> (26440) <a class="el" href="classunodb_1_1olc__db.html">olc_db</a>&lt; Key</td></tr>
+<tr class="separator:a3497d5273f6a0991bdeef3345c1db78e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a43c189e41434317736d00dfa2cda4429" id="r_a43c189e41434317736d00dfa2cda4429"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="namespaceunodb.html#ada0b4ac1dc20e0b46e360f0743ee24d4">qsbr_thread_count_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#a43c189e41434317736d00dfa2cda4429">max_qsbr_threads</a> = (2UL &lt;&lt; 29U) - 1U</td></tr>
 <tr class="memdesc:a43c189e41434317736d00dfa2cda4429"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of threads that can participate in QSBR simultaneously.  <br /></td></tr>
 <tr class="separator:a43c189e41434317736d00dfa2cda4429"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -285,7 +295,7 @@ Variables</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="namespaceunodb.html#a60a52550ffa9f2d0d9e1cd9ebc7cab28">unodb::inode_type_counter_array</a> = typedef std::array&lt;std::uint64_t, <a class="el" href="namespaceunodb_1_1detail.html#aa11fc0dc02ee0b061504cd50856ea7dd">detail::inode_type_count</a>&gt;</td>
+          <td class="memname">using <a class="el" href="namespaceunodb.html#a60a52550ffa9f2d0d9e1cd9ebc7cab28">unodb::inode_type_counter_array</a> = typedef std::array&lt;std::uint64_t, detail::inode_type_count&gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -302,7 +312,7 @@ Variables</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="namespaceunodb.html#a8105523dd9adff845377f54dd034b838">unodb::node_type_counter_array</a> = typedef std::array&lt;std::uint64_t, <a class="el" href="namespaceunodb_1_1detail.html#ad81082c8f2c103492eb9f6917f0483bc">detail::node_type_count</a>&gt;</td>
+          <td class="memname">using <a class="el" href="namespaceunodb.html#a8105523dd9adff845377f54dd034b838">unodb::node_type_counter_array</a> = typedef std::array&lt;std::uint64_t, detail::node_type_count&gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">

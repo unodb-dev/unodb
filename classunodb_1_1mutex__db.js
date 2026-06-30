@@ -15,5 +15,6 @@ var classunodb_1_1mutex__db =
     [ "remove_internal", "classunodb_1_1mutex__db.html#a524eccc5543a63b3fbbc2582271cafa7", null ],
     [ "scan", "classunodb_1_1mutex__db.html#af2359973d76a675229b88bf5ef0fa8a5", null ],
     [ "scan_from", "classunodb_1_1mutex__db.html#ab6a1564ab98be4126bf3cf65d208831f", null ],
-    [ "scan_range", "classunodb_1_1mutex__db.html#ac8852fa0deb950e7af233b71a46ab570", null ]
+    [ "scan_range", "classunodb_1_1mutex__db.html#ac8852fa0deb950e7af233b71a46ab570", null ],
+    [ "upsert", "classunodb_1_1mutex__db.html#ab96b338b5cbf2cd0b351f644070b5ed2", null ]
 ];

@@ -24,6 +24,9 @@ var classunodb_1_1olc__db =
     [ "try_collapse_i4", "classunodb_1_1olc__db.html#a109c37847970bb6c5851881d6870e3c3", null ],
     [ "try_insert", "classunodb_1_1olc__db.html#a654ac331a170f35e23b3599ef65dac94", null ],
     [ "try_remove_fixed_width_key", "classunodb_1_1olc__db.html#ac07ab4b1afbbb2b903a5161780836654", null ],
-    [ "try_remove_key_view", "classunodb_1_1olc__db.html#aa24244d16dcb651d8e7d842856af49fb", null ],
+    [ "try_remove_key_view", "classunodb_1_1olc__db.html#a6fc5ce4aa05b2235b07d698f878ce743", null ],
+    [ "try_upsert", "classunodb_1_1olc__db.html#a7d44db8815f707618059d759154bb380", null ],
+    [ "try_upsert_erase", "classunodb_1_1olc__db.html#a2ae64b908c8f9ab75bac440e3e0240ae", null ],
+    [ "upsert", "classunodb_1_1olc__db.html#a002074d9a4a5a7adaa21517390e94e06", null ],
     [ "allocator_", "classunodb_1_1olc__db.html#a1b8583b3aa3f627a0384caf47ddbe15f", null ]
 ];
