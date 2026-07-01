@@ -17,9 +17,12 @@
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
+#include <future>
 #include <iostream>
+#include <iterator>
 #include <optional>
 #include <stack>
+#include <stdexcept>
 #include <type_traits>
 #include <vector>
 
@@ -32,6 +35,7 @@
 #include "assert.hpp"
 #include "in_fake_critical_section.hpp"
 #include "node_type.hpp"
+#include "portability_execution.hpp"
 
 namespace unodb {
 
@@ -110,6 +114,11 @@ using leaf_type = basic_leaf<leaf_key_type<Key, Value>, node_header>;
 /// access to inode_4, inode_16, inode_48, and inode_256.
 template <typename Key, typename Value>
 class inode : public inode_base<Key, Value> {};
+
+/// Forward declaration of shared bulk_load algorithm.
+template <typename Db, typename ExecutionPolicy, typename RandomIt>
+void bulk_load_impl(Db& self, ExecutionPolicy&& policy, RandomIt first,
+                    RandomIt last);
 
 }  // namespace detail
 
@@ -194,6 +203,53 @@ class db final {
   /// \return true if the delete was successful (i.e. the key was found in the
   /// tree and the associated index entry was removed).
   [[nodiscard]] bool remove_internal(art_key_type remove_key);
+
+  // ─── Bulk Load Infrastructure ─────────────────────────────────────────
+
+  /// Tagged return from build_subtree: pointer + whether it's a VIS packed
+  /// value (not a real heap pointer — must not be passed to delete_subtree).
+  struct build_result {
+    detail::node_ptr ptr{nullptr};
+    bool is_packed_value{false};
+  };
+
+  /// RAII guard for subtrees during bulk construction.
+  /// Skips deallocation for VIS packed values (not heap-allocated).
+  struct bulk_subtree_guard {
+    db_type& db_;
+    detail::node_ptr ptr{nullptr};
+    bool is_packed_value{false};
+
+    constexpr explicit bulk_subtree_guard(db_type& db
+                                          UNODB_DETAIL_LIFETIMEBOUND) noexcept
+        : db_{db} {}
+
+    ~bulk_subtree_guard() noexcept {
+      if (ptr != nullptr && !is_packed_value) {
+        art_policy::delete_subtree(ptr, db_);
+      }
+    }
+
+    void release() noexcept { ptr = nullptr; }
+
+    bulk_subtree_guard(const bulk_subtree_guard&) = delete;
+    bulk_subtree_guard(bulk_subtree_guard&& other) noexcept
+        : db_{other.db_},
+          ptr{other.ptr},
+          is_packed_value{other.is_packed_value} {
+      other.ptr = nullptr;
+    }
+    auto& operator=(const bulk_subtree_guard&) = delete;
+    auto& operator=(bulk_subtree_guard&&) = delete;
+  };
+
+  /// Extract byte at \a depth from a key. Handles big-endian uint64_t
+  /// (via art_key_type bswap) and key_view (direct byte access).
+  [[nodiscard]] static constexpr std::byte key_byte_at(
+      const key_type& key, detail::tree_depth<art_key_type> depth) noexcept {
+    const art_key_type ak{key};
+    return ak[depth];
+  }
 
   /// Two-pass removal with chain cleanup for variable-length keys.
   [[nodiscard]] bool remove_internal_key_view(art_key_type remove_key);
@@ -303,6 +359,26 @@ class db final {
   /// After this operation, empty() returns true and all memory used by tree
   /// nodes is freed. Node growth/shrink counters are preserved.
   void clear() noexcept;
+
+  /// Bulk-load an ART tree from a pre-sorted range of key-value pairs.
+  ///
+  /// \tparam RandomIt  Random-access iterator to std::pair<key_type,
+  /// value_type>
+  /// \param policy     Execution policy (ignored for db — allocator not
+  ///                   thread-safe).
+  /// \param first      Start of sorted range (ART byte order, no duplicates).
+  /// \param last       End of sorted range.
+  /// \pre empty() == true
+  /// \throws std::invalid_argument if tree is non-empty.
+  /// \throws std::bad_alloc (strong guarantee — tree left empty).
+  template <typename ExecutionPolicy, typename RandomIt>
+  void bulk_load(ExecutionPolicy&& policy, RandomIt first, RandomIt last);
+
+  /// Convenience overload: sequential execution.
+  template <typename RandomIt>
+  void bulk_load(RandomIt first, RandomIt last) {
+    bulk_load(std::execution::seq, first, last);
+  }
 
   /// Internal iterator for tree traversal.
   ///
@@ -870,6 +946,15 @@ class db final {
   /// Node type with 4 children.
   using inode_4 = detail::inode_4<Key, Value>;
 
+  /// Node type with 16 children.
+  using inode_16 = detail::inode_16<Key, Value>;
+
+  /// Node type with 48 children.
+  using inode_48 = detail::inode_48<Key, Value>;
+
+  /// Node type with 256 children.
+  using inode_256 = detail::inode_256<Key, Value>;
+
   /// Tree depth tracking type.
   using tree_depth_type = detail::tree_depth<art_key_type>;
 
@@ -972,6 +1057,10 @@ class db final {
   /// detail::make_db_leaf_ptr
   friend auto detail::make_db_leaf_ptr<Key, Value, db>(art_key_type, value_type,
                                                        db&);
+
+  /// detail::bulk_load_impl
+  template <typename Db2, typename Ep2, typename It2>
+  friend void detail::bulk_load_impl(Db2&, Ep2&&, It2, It2);
 
   /// detail::basic_db_leaf_deleter
   template <class>
@@ -2745,6 +2834,25 @@ bool db<Key, Value>::upsert(Key k, value_type v, FN fn) {
   }
 }
 
+template <typename Key, typename Value>
+template <typename ExecutionPolicy, typename RandomIt>
+void db<Key, Value>::bulk_load(ExecutionPolicy&& policy, RandomIt first,
+                               RandomIt last) {
+  if (!empty()) {
+    throw std::invalid_argument("bulk_load requires empty tree");
+  }
+  if (first == last) return;
+  try {
+    detail::bulk_load_impl(*this, std::forward<ExecutionPolicy>(policy), first,
+                           last);
+  } catch (...) {
+    clear();
+    throw;
+  }
+}
+
 }  // namespace unodb
+
+#include "art_bulk_load_detail.hpp"
 
 #endif  // UNODB_DETAIL_ART_HPP

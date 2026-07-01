@@ -147,6 +147,24 @@ class mutex_db final {
     db_.clear();
   }
 
+  /// Bulk-load sorted key-value pairs into an empty tree.
+  ///
+  /// \tparam RandomIt Random access iterator over pairs of (key, value)
+  /// \param first Start of sorted range
+  /// \param last End of sorted range
+  /// \param policy Execution policy (std::execution::seq or par)
+  template <typename ExecutionPolicy, typename RandomIt>
+  void bulk_load(ExecutionPolicy&& policy, RandomIt first, RandomIt last) {
+    const std::lock_guard guard{mutex};
+    db_.bulk_load(std::forward<ExecutionPolicy>(policy), first, last);
+  }
+
+  /// Convenience overload: sequential execution.
+  template <typename RandomIt>
+  void bulk_load(RandomIt first, RandomIt last) {
+    bulk_load(std::execution::seq, first, last);
+  }
+
   //
   // scan API.
   //

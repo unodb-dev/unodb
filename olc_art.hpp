@@ -13,6 +13,7 @@
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
+#include <future>
 #include <iostream>
 #include <optional>
 #include <stack>
@@ -30,6 +31,7 @@
 #include "node_type.hpp"
 #include "optimistic_lock.hpp"
 #include "portability_arch.hpp"
+#include "portability_execution.hpp"
 #include "qsbr.hpp"
 #include "sync.hpp"
 
@@ -167,6 +169,11 @@ template <typename Key, typename Value>
 using olc_leaf_unique_ptr =
     basic_db_leaf_unique_ptr<Key, Value, olc_node_header, olc_db>;
 
+/// Forward declaration of shared bulk_load algorithm.
+template <typename Db, typename ExecutionPolicy, typename RandomIt>
+void bulk_load_impl(Db& self, ExecutionPolicy&& policy, RandomIt first,
+                    RandomIt last);
+
 }  // namespace detail
 
 /// A thread-safe Adaptive Radix Tree that is synchronized using optimistic lock
@@ -295,6 +302,22 @@ class olc_db final {
   ///
   /// \note Only legal in single-threaded context, as destructor
   void clear() noexcept;
+
+  /// Bulk-load sorted key-value pairs into an empty tree.
+  ///
+  /// \note Only legal in single-threaded context (same as clear).
+  /// \tparam RandomIt Random access iterator over pairs of (key, value)
+  /// \param policy Execution policy (parallelism hint; 0=auto, 1=sequential)
+  /// \param first Start of sorted range
+  /// \param last End of sorted range
+  template <typename ExecutionPolicy, typename RandomIt>
+  void bulk_load(ExecutionPolicy&& policy, RandomIt first, RandomIt last);
+
+  /// Convenience overload: sequential execution.
+  template <typename RandomIt>
+  void bulk_load(RandomIt first, RandomIt last) {
+    bulk_load(std::execution::seq, first, last);
+  }
 
   //
   // iterator (the iterator is an internal API, the public API is scan()).
@@ -854,6 +877,42 @@ class olc_db final {
   using visitor_type = visitor<db_type::iterator>;
   using olc_db_leaf_unique_ptr_type =
       detail::olc_db_leaf_unique_ptr<Key, Value>;
+
+  /// Result of subtree construction during bulk_load.
+  struct build_result {
+    detail::olc_node_ptr ptr{nullptr};
+    bool is_packed_value{false};
+  };
+
+  /// RAII guard for subtrees during bulk construction.
+  struct bulk_subtree_guard {
+    olc_db& db_;
+    detail::olc_node_ptr ptr{nullptr};
+    bool is_packed_value{false};
+
+    constexpr explicit bulk_subtree_guard(olc_db& db
+                                          UNODB_DETAIL_LIFETIMEBOUND) noexcept
+        : db_{db} {}
+
+    ~bulk_subtree_guard() noexcept {
+      if (ptr != nullptr && !is_packed_value) {
+        art_policy::delete_subtree(ptr, db_);
+      }
+    }
+
+    void release() noexcept { ptr = nullptr; }
+
+    bulk_subtree_guard(const bulk_subtree_guard&) = delete;
+    bulk_subtree_guard(bulk_subtree_guard&& other) noexcept
+        : db_{other.db_},
+          ptr{other.ptr},
+          is_packed_value{other.is_packed_value} {
+      other.ptr = nullptr;
+    }
+    auto& operator=(const bulk_subtree_guard&) = delete;
+    auto& operator=(bulk_subtree_guard&&) = delete;
+  };
+
   // If get_result is not present, the search was interrupted. Yes, this
   // resolves to std::optional<std::optional<value_view>>, but IMHO both
   // levels of std::optional are clear here
@@ -1022,6 +1081,10 @@ class olc_db final {
 
   friend auto detail::make_db_leaf_ptr<Key, Value, olc_db>(art_key_type,
                                                            value_type, olc_db&);
+
+  /// detail::bulk_load_impl
+  template <typename Db2, typename Ep2, typename It2>
+  friend void detail::bulk_load_impl(Db2&, Ep2&&, It2, It2);
 
   template <class>
   friend class detail::basic_db_leaf_deleter;
@@ -4967,5 +5030,33 @@ olc_db<Key, Value>::try_chain_cut(
   return true;
 }
 }  // namespace unodb
+
+// ─── olc_db::bulk_load ───────────────────────────────────────────────────────
+
+namespace unodb {
+
+template <typename Key, typename Value>
+template <typename ExecutionPolicy, typename RandomIt>
+void olc_db<Key, Value>::bulk_load(ExecutionPolicy&& policy, RandomIt first,
+                                   RandomIt last) {
+  UNODB_DETAIL_QSBR_ASSERT(
+      qsbr_state::single_thread_mode(qsbr::instance().get_state()));
+
+  if (!empty()) {
+    throw std::invalid_argument("bulk_load requires empty tree");
+  }
+  if (first == last) return;
+  try {
+    detail::bulk_load_impl(*this, std::forward<ExecutionPolicy>(policy), first,
+                           last);
+  } catch (...) {
+    clear();
+    throw;
+  }
+}
+
+}  // namespace unodb
+
+#include "art_bulk_load_detail.hpp"
 
 #endif  // UNODB_DETAIL_OLC_ART_HPP

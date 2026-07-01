@@ -1,4 +1,4 @@
-// Copyright 2022-2025 UnoDB contributors
+// Copyright 2022-2026 UnoDB contributors
 
 #ifndef NDEBUG
 
@@ -11,6 +11,8 @@
 
 #include <cstdint>
 #include <new>  // IWYU pragma: keep
+#include <utility>
+#include <vector>
 
 #include <gtest/gtest.h>
 
@@ -642,6 +644,87 @@ UNODB_TYPED_TEST(ARTKeyViewOOMTest, BuildChainMultiNode) {
         UNODB_ASSERT_FALSE(verifier.get_db().get(long_key).has_value());
       },
       [](unodb::test::tree_verifier<TypeParam>&) {});
+}
+
+// ===================================================================
+// bulk_load OOM tests — strong exception guarantee: tree stays empty
+// ===================================================================
+
+template <class TypeParam>
+void bulk_load_oom_test(
+    unsigned fail_limit,
+    std::vector<std::pair<std::uint64_t, unodb::value_view>>
+        kv) {  // NOLINT(performance-unnecessary-value-param)
+  unsigned fail_n;
+  for (fail_n = 1; fail_n <= fail_limit; ++fail_n) {
+    TypeParam test_db;
+
+    unodb::test::allocation_failure_injector::fail_on_nth_allocation(fail_n);
+    try {
+      test_db.bulk_load(kv.begin(), kv.end());
+      // Success: we've found the limit
+      unodb::test::allocation_failure_injector::reset();
+      UNODB_ASSERT_FALSE(test_db.empty());
+      for (const auto& [k, v] : kv) {
+        UNODB_ASSERT_TRUE(TypeParam::key_found(test_db.get(k)));
+      }
+      return;
+    } catch (const std::bad_alloc&) {
+      unodb::test::allocation_failure_injector::reset();
+      // Strong guarantee: tree must be empty after failed bulk_load
+      UNODB_ASSERT_TRUE(test_db.empty());
+#ifdef UNODB_DETAIL_WITH_STATS
+      UNODB_ASSERT_EQ(test_db.get_current_memory_use(), 0);
+#endif
+    }
+  }
+  FAIL() << "bulk_load did not succeed within " << fail_limit << " allocations";
+}
+
+// Small tree (single leaf → one allocation)
+UNODB_TYPED_TEST(ARTOOMTest, BulkLoadSingleKey) {
+  constexpr auto val = unodb::test::test_values[0];
+  const std::vector<std::pair<std::uint64_t, unodb::value_view>> kv{{42, val}};
+  bulk_load_oom_test<TypeParam>(5, kv);
+}
+
+// Tree that creates one inode4 (4 leaves + 1 inode4)
+UNODB_TYPED_TEST(ARTOOMTest, BulkLoadInode4) {
+  constexpr auto val = unodb::test::test_values[0];
+  std::vector<std::pair<std::uint64_t, unodb::value_view>> kv;
+  kv.reserve(4);
+  for (std::uint64_t i = 0; i < 4; ++i) kv.emplace_back(i << 56U, val);
+  bulk_load_oom_test<TypeParam>(10, kv);
+}
+
+// Tree that creates an inode16 (10 leaves + 1 inode16)
+UNODB_TYPED_TEST(ARTOOMTest, BulkLoadInode16) {
+  constexpr auto val = unodb::test::test_values[0];
+  std::vector<std::pair<std::uint64_t, unodb::value_view>> kv;
+  kv.reserve(10);
+  for (std::uint64_t i = 0; i < 10; ++i) kv.emplace_back(i << 56U, val);
+  bulk_load_oom_test<TypeParam>(15, kv);
+}
+
+// Tree that creates an inode48 (20 leaves + 1 inode48)
+UNODB_TYPED_TEST(ARTOOMTest, BulkLoadInode48) {
+  constexpr auto val = unodb::test::test_values[0];
+  std::vector<std::pair<std::uint64_t, unodb::value_view>> kv;
+  kv.reserve(20);
+  for (std::uint64_t i = 0; i < 20; ++i) kv.emplace_back(i << 56U, val);
+  bulk_load_oom_test<TypeParam>(30, kv);
+}
+
+// Tree with nested inodes (two inode4s under one root inode4)
+UNODB_TYPED_TEST(ARTOOMTest, BulkLoadNested) {
+  constexpr auto val = unodb::test::test_values[0];
+  std::vector<std::pair<std::uint64_t, unodb::value_view>> kv;
+  kv.reserve(8);
+  for (std::uint64_t i = 0; i < 4; ++i)
+    kv.emplace_back((1ULL << 56U) | (i << 48U), val);
+  for (std::uint64_t i = 0; i < 4; ++i)
+    kv.emplace_back((2ULL << 56U) | (i << 48U), val);
+  bulk_load_oom_test<TypeParam>(20, kv);
 }
 
 }  // namespace

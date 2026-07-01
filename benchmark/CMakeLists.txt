@@ -10,6 +10,7 @@ set(micro_benchmark_quick_arg
   "--benchmark_filter=\".*/100$$|.*/1000/.*:800$$|.*/100/.*:0$$\"")
 set(micro_benchmark_mutex_quick_arg "--benchmark_filter=\"/4/70000/\"")
 set(micro_benchmark_olc_quick_arg "--benchmark_filter=\"/4/70000/\"")
+set(micro_benchmark_bulk_load_quick_arg "--benchmark_filter=\"/1024\"")
 
 add_custom_target(benchmarks
   env ${SANITIZER_ENV} ./micro_benchmark_key_prefix
@@ -20,7 +21,8 @@ add_custom_target(benchmarks
   COMMAND env ${SANITIZER_ENV} ./micro_benchmark_n256
   COMMAND env ${SANITIZER_ENV} ./micro_benchmark
   COMMAND env ${SANITIZER_ENV} ./micro_benchmark_mutex
-  COMMAND env ${SANITIZER_ENV} ./micro_benchmark_olc)
+  COMMAND env ${SANITIZER_ENV} ./micro_benchmark_olc
+  COMMAND env ${SANITIZER_ENV} ./micro_benchmark_bulk_load)
 
 add_custom_target(quick_benchmarks
   env ${SANITIZER_ENV}
@@ -40,7 +42,9 @@ add_custom_target(quick_benchmarks
   COMMAND env ${SANITIZER_ENV}
   ./micro_benchmark_mutex ${micro_benchmark_mutex_quick_arg}
   COMMAND env ${SANITIZER_ENV}
-  ./micro_benchmark_olc ${micro_benchmark_olc_quick_arg})
+  ./micro_benchmark_olc ${micro_benchmark_olc_quick_arg}
+  COMMAND env ${SANITIZER_ENV}
+  ./micro_benchmark_bulk_load ${micro_benchmark_bulk_load_quick_arg})
 
 add_custom_target(valgrind_benchmarks
   COMMAND ${VALGRIND_COMMAND} ./micro_benchmark_key_prefix
@@ -59,7 +63,9 @@ add_custom_target(valgrind_benchmarks
   COMMAND ${VALGRIND_COMMAND} ./micro_benchmark_mutex
   ${micro_benchmark_mutex_quick_arg}
   COMMAND ${VALGRIND_COMMAND} ./micro_benchmark_olc
-  ${micro_benchmark_olc_quick_arg})
+  ${micro_benchmark_olc_quick_arg}
+  COMMAND ${VALGRIND_COMMAND} ./micro_benchmark_bulk_load
+  ${micro_benchmark_bulk_load_quick_arg})
 
 add_library(micro_benchmark_utils STATIC micro_benchmark_utils.cpp
   micro_benchmark_utils.hpp)
@@ -102,3 +108,4 @@ add_node_benchmark_target(micro_benchmark_n256)
 add_node_benchmark_target(micro_benchmark)
 add_concurrent_benchmark_target(micro_benchmark_mutex)
 add_concurrent_benchmark_target(micro_benchmark_olc)
+add_benchmark_target(micro_benchmark_bulk_load)

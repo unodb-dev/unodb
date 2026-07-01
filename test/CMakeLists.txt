@@ -59,6 +59,11 @@ add_db_test_target(test_key_encode_decode)
 add_db_test_target(test_art)
 target_compile_options(test_art PRIVATE "$<${is_msvc}:/bigobj>")
 
+add_db_test_target(test_art_bulk_load)
+add_db_test_target(test_art_bulk_load_structural)
+add_db_test_target(test_art_bulk_load_ops)
+target_link_libraries(test_art_bulk_load_ops PRIVATE qsbr_test_utils)
+
 add_db_test_target(test_art_key_view)
 add_db_test_target(test_art_key_view_full_chain)
 add_db_test_target(test_art_iter)
@@ -99,7 +104,7 @@ add_test(NAME test_olc_no_qsbr COMMAND test_olc_no_qsbr)
 if(COVERAGE)
   add_custom_target(tests_for_coverage ctest
     DEPENDS test_key_encode_decode test_art test_art_key_view test_art_key_view_full_chain test_art_iter test_art_scan test_art_concurrency test_art_allocator test_art_upsert test_olc_no_qsbr test_qsbr_ptr test_qsbr test_art_oom
-            test_qsbr_oom)
+            test_qsbr_oom test_art_bulk_load test_art_bulk_load_structural test_art_bulk_load_ops)
   add_coverage_target(TARGET coverage DEPENDENCY tests_for_coverage)
 endif()
 
@@ -115,5 +120,8 @@ add_custom_target(valgrind_tests
   COMMAND ${VALGRIND_COMMAND} ./test_art_iter;
   COMMAND ${VALGRIND_COMMAND} ./test_art_scan;
   COMMAND ${VALGRIND_COMMAND} ./test_art_concurrency;
-  COMMAND ${VALGRIND_COMMAND} ./test_art_upsert
-  DEPENDS test_qsbr_ptr test_qsbr test_key_encode_decode test_art test_art_key_view test_art_key_view_full_chain test_art_iter test_art_scan test_art_concurrency test_art_upsert)
+  COMMAND ${VALGRIND_COMMAND} ./test_art_upsert;
+  COMMAND ${VALGRIND_COMMAND} ./test_art_bulk_load;
+  COMMAND ${VALGRIND_COMMAND} ./test_art_bulk_load_structural;
+  COMMAND ${VALGRIND_COMMAND} ./test_art_bulk_load_ops
+  DEPENDS test_qsbr_ptr test_qsbr test_key_encode_decode test_art test_art_key_view test_art_key_view_full_chain test_art_iter test_art_scan test_art_concurrency test_art_upsert test_art_bulk_load test_art_bulk_load_structural test_art_bulk_load_ops)

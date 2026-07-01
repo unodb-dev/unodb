@@ -39,12 +39,16 @@ target_link_libraries(example_olc_art PRIVATE unodb)
 add_executable(example_upsert example_upsert.cpp)
 target_link_libraries(example_upsert PRIVATE unodb)
 
+add_executable(example_bulk_load example_bulk_load.cpp)
+target_link_libraries(example_bulk_load PRIVATE unodb)
+
 add_custom_target(examples
   ./example_art
   COMMAND ./example_art_stats
   COMMAND ./example_olc_art
   COMMAND ./example_upsert
-  DEPENDS example_art example_art_stats example_olc_art example_upsert)
+  COMMAND ./example_bulk_load
+  DEPENDS example_art example_art_stats example_olc_art example_upsert example_bulk_load)
 
 set(VALGRIND_COMMAND "valgrind" "--error-exitcode=1" "--leak-check=full"
   "--trace-children=yes" "-v")
@@ -54,4 +58,5 @@ add_custom_target(valgrind_examples
   COMMAND ${VALGRIND_COMMAND} ./example_art_stats
   COMMAND ${VALGRIND_COMMAND} ./example_olc_art
   COMMAND ${VALGRIND_COMMAND} ./example_upsert
-  DEPENDS example_art example_art_stats example_olc_art example_upsert)
+  COMMAND ${VALGRIND_COMMAND} ./example_bulk_load
+  DEPENDS example_art example_art_stats example_olc_art example_upsert example_bulk_load)

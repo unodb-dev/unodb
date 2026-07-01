@@ -23,6 +23,7 @@
 #include <iostream>
 #include <limits>
 #include <memory>
+#include <span>
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
@@ -147,6 +148,14 @@ struct value_bitmask_field<false, std::array<T, N>, CritSec> {
   static constexpr void clear(std::uint8_t) noexcept {}
   static constexpr void remove_at(std::uint8_t) noexcept {}
   static constexpr void insert_at(std::uint8_t) noexcept {}
+};
+
+/// A child entry for bulk inode construction.
+/// Pre-sorted by key_byte; used by create_bulk factories.
+template <class NodePtr>
+struct bulk_child {
+  std::byte key_byte;
+  NodePtr child;
 };
 
 #ifdef UNODB_DETAIL_X86_64
@@ -2193,6 +2202,16 @@ class [[nodiscard]] basic_inode : public basic_inode_impl<ArtPolicy> {
                         tree_depth<art_key_type> depth,
                         single_child_tag) noexcept
       : parent{1, prefix_len, k1, depth} {}
+
+  /// Tag type to select the bulk-load constructor.
+  struct bulk_load_tag {};
+
+  /// Construct with arbitrary children count and explicit prefix.
+  /// Used by create_bulk for bulk-loading sorted data.
+  constexpr basic_inode(unsigned n_children, detail::key_prefix_size prefix_len,
+                        unodb::key_view k1, tree_depth<art_key_type> depth,
+                        bulk_load_tag) noexcept
+      : parent{n_children, prefix_len, k1, depth} {}
 };
 
 /// Type alias for basic_inode_4 parent class.
@@ -2379,6 +2398,14 @@ class basic_inode_4
                      typename parent_class::single_child_tag{}} {
     init(key_byte, child);
   }
+
+  /// Construct for bulk load with explicit children count and prefix.
+  constexpr basic_inode_4(db_type&, unsigned n_children,
+                          detail::key_prefix_size prefix_len, key_view k1,
+                          // cppcheck-suppress passedByValue
+                          tree_depth_type depth,
+                          typename parent_class::bulk_load_tag tag) noexcept
+      : parent_class{n_children, prefix_len, k1, depth, tag}, children{} {}
 
   /// \}
 
@@ -3037,6 +3064,43 @@ class basic_inode_4
   template <class>
   friend class basic_inode_16;
   friend class basic_inode_impl<ArtPolicy>;
+
+ public:
+  /// Bulk-construct an inode4 with pre-sorted children.
+  ///
+  /// \pre children.size() in [2, 4]
+  /// \pre children sorted by key_byte
+  /// \param db_instance Database for allocation
+  /// \param prefix_len Prefix bytes to store
+  /// \param prefix_key Key view for prefix extraction
+  /// \param depth Depth at which prefix starts
+  /// \param children_span Span of sorted (key_byte, child_ptr) pairs
+  /// \param value_mask Precomputed VIS bitmask
+  UNODB_DETAIL_DISABLE_CLANG_21_WARNING("-Wnrvo")
+  [[nodiscard]] static auto create_bulk(
+      db_type& db_instance, detail::key_prefix_size prefix_len,
+      unodb::key_view prefix_key, tree_depth_type depth,
+      std::span<const detail::bulk_child<node_ptr>> children_span,
+      std::uint8_t value_mask = 0) {
+    const auto n = static_cast<unsigned>(children_span.size());
+    UNODB_DETAIL_ASSERT(n >= 2 && n <= 4);
+    auto result =
+        inode4_type::create(db_instance, n, prefix_len, prefix_key, depth,
+                            typename parent_class::bulk_load_tag{});
+    auto* node = result.get();
+    for (unsigned i = 0; i < n; ++i) {
+      node->keys.byte_array[i] = children_span[i].key_byte;
+      node->children[i] = children_span[i].child;
+    }
+#ifndef UNODB_DETAIL_X86_64
+    for (unsigned i = n; i < 4; ++i) node->keys.byte_array[i] = unused_key_byte;
+#endif
+    if constexpr (ArtPolicy::can_eliminate_leaf) {
+      node->bitmask_base::bits = value_mask;
+    }
+    return result;
+  }
+  UNODB_DETAIL_RESTORE_CLANG_21_WARNINGS()
 };  // class basic_inode_4
 
 /// Type alias for basic_inode_16 parent class.
@@ -3122,6 +3186,14 @@ class basic_inode_16
       : parent_class{source_node} {
     init(db_instance, source_node, child_to_delete);
   }
+
+  /// Construct for bulk load with explicit children count and prefix.
+  constexpr basic_inode_16(db_type&, unsigned n_children,
+                           detail::key_prefix_size prefix_len, key_view k1,
+                           // cppcheck-suppress passedByValue
+                           tree_depth_type depth,
+                           typename parent_class::bulk_load_tag tag) noexcept
+      : parent_class{n_children, prefix_len, k1, depth, tag}, children{} {}
 
   /// Initialize by growing from basic_inode_4 and adding a child.
   ///
@@ -3659,6 +3731,34 @@ class basic_inode_16
   friend class basic_inode_impl<ArtPolicy>;
   template <class>
   friend class basic_inode_48;
+
+ public:
+  /// Bulk-construct an inode16 with pre-sorted children.
+  ///
+  /// \pre children_span.size() in [5, 16]
+  /// \pre children sorted by key_byte
+  UNODB_DETAIL_DISABLE_CLANG_21_WARNING("-Wnrvo")
+  [[nodiscard]] static auto create_bulk(
+      db_type& db_instance, detail::key_prefix_size prefix_len,
+      unodb::key_view prefix_key, tree_depth_type depth,
+      std::span<const detail::bulk_child<node_ptr>> children_span,
+      std::uint16_t value_mask = 0) {
+    const auto n = static_cast<unsigned>(children_span.size());
+    UNODB_DETAIL_ASSERT(n >= 5 && n <= 16);
+    auto result =
+        inode16_type::create(db_instance, n, prefix_len, prefix_key, depth,
+                             typename parent_class::bulk_load_tag{});
+    auto* node = result.get();
+    for (unsigned i = 0; i < n; ++i) {
+      node->keys.byte_array[i] = children_span[i].key_byte;
+      node->children[i] = children_span[i].child;
+    }
+    if constexpr (ArtPolicy::can_eliminate_leaf) {
+      node->bitmask_base::bits = value_mask;
+    }
+    return result;
+  }
+  UNODB_DETAIL_RESTORE_CLANG_21_WARNINGS()
 };  // class basic_inode_16
 
 /// Type alias for basic_inode_48 parent class.
@@ -3748,6 +3848,16 @@ class basic_inode_48
       : parent_class{source_node} {
     init(db_instance, source_node, child_to_delete);
   }
+
+  /// Construct for bulk load with explicit children count and prefix.
+  constexpr basic_inode_48(db_type&, unsigned n_children,
+                           detail::key_prefix_size prefix_len, key_view k1,
+                           // cppcheck-suppress passedByValue
+                           tree_depth_type depth,
+                           typename parent_class::bulk_load_tag tag) noexcept
+      : parent_class{n_children, prefix_len, k1, depth, tag},
+        child_indexes{},
+        children{} {}
 
   /// Initialize by growing from basic_inode_16 and adding a child.
   ///
@@ -4436,6 +4546,40 @@ class basic_inode_48
   friend class basic_inode_impl<ArtPolicy>;
   template <class>
   friend class basic_inode_256;
+
+ public:
+  /// Bulk-construct an inode48 with pre-sorted children.
+  ///
+  /// \pre children_span.size() in [17, 48]
+  /// \pre children sorted by key_byte
+  UNODB_DETAIL_DISABLE_CLANG_21_WARNING("-Wnrvo")
+  [[nodiscard]] static auto create_bulk(
+      db_type& db_instance, detail::key_prefix_size prefix_len,
+      unodb::key_view prefix_key, tree_depth_type depth,
+      std::span<const detail::bulk_child<node_ptr>> children_span,
+      std::array<std::uint8_t, 6> value_mask = {}) {
+    const auto n = static_cast<unsigned>(children_span.size());
+    UNODB_DETAIL_ASSERT(n >= 17 && n <= 48);
+    auto result =
+        inode48_type::create(db_instance, n, prefix_len, prefix_key, depth,
+                             typename parent_class::bulk_load_tag{});
+    auto* node = result.get();
+    for (unsigned i = 0; i < n; ++i) {
+      const auto kb = static_cast<std::uint8_t>(children_span[i].key_byte);
+      node->child_indexes[kb] = static_cast<std::uint8_t>(i);
+      node->children.pointer_array[i] = children_span[i].child;
+    }
+    for (unsigned i = n; i < 48; ++i) {
+      node->children.pointer_array[i] = node_ptr{nullptr};
+    }
+    if constexpr (ArtPolicy::can_eliminate_leaf) {
+      for (std::size_t i = 0; i < value_mask.size(); ++i) {
+        node->bitmask_base::bits[i] = value_mask[i];
+      }
+    }
+    return result;
+  }
+  UNODB_DETAIL_RESTORE_CLANG_21_WARNINGS()
 };  // class basic_inode_48
 
 /// Type alias for basic_inode_256 parent class.
@@ -4507,6 +4651,14 @@ class basic_inode_256
       : parent_class{source_node} {
     init(db_instance, source_node, packed_value, depth, key_byte);
   }
+
+  /// Construct for bulk load with explicit children count and prefix.
+  constexpr basic_inode_256(db_type&, unsigned n_children,
+                            detail::key_prefix_size prefix_len, key_view k1,
+                            // cppcheck-suppress passedByValue
+                            tree_depth_type depth,
+                            typename parent_class::bulk_load_tag tag) noexcept
+      : parent_class{n_children, prefix_len, k1, depth, tag}, children{} {}
 
   /// Initialize by growing from basic_inode_48 and adding a child.
   ///
@@ -4881,6 +5033,39 @@ class basic_inode_256
   template <class>
   friend class basic_inode_48;
   friend class basic_inode_impl<ArtPolicy>;
+
+ public:
+  /// Bulk-construct an inode256 with pre-sorted children.
+  ///
+  /// \pre children_span.size() in [49, 256]
+  /// \pre children sorted by key_byte
+  UNODB_DETAIL_DISABLE_CLANG_21_WARNING("-Wnrvo")
+  [[nodiscard]] static auto create_bulk(
+      db_type& db_instance, detail::key_prefix_size prefix_len,
+      unodb::key_view prefix_key, tree_depth_type depth,
+      std::span<const detail::bulk_child<node_ptr>> children_span,
+      std::array<std::uint8_t, 32> value_mask = {}) {
+    const auto n = static_cast<unsigned>(children_span.size());
+    UNODB_DETAIL_ASSERT(n >= 49 && n <= 256);
+    auto result =
+        parent_class::create(db_instance, n, prefix_len, prefix_key, depth,
+                             typename parent_class::bulk_load_tag{});
+    auto* node = result.get();
+    for (unsigned i = 0; i < 256; ++i) {
+      node->children[i] = node_ptr{nullptr};
+    }
+    for (unsigned i = 0; i < n; ++i) {
+      const auto kb = static_cast<std::uint8_t>(children_span[i].key_byte);
+      node->children[kb] = children_span[i].child;
+    }
+    if constexpr (ArtPolicy::can_eliminate_leaf) {
+      for (std::size_t i = 0; i < value_mask.size(); ++i) {
+        node->bitmask_base::bits[i] = value_mask[i];
+      }
+    }
+    return result;
+  }
+  UNODB_DETAIL_RESTORE_CLANG_21_WARNINGS()
 };  // class basic_inode_256
 
 }  // namespace unodb::detail
