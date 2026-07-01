@@ -4,7 +4,7 @@ var searchData=
   ['keep_5ffn_1',['keep_fn',['../namespaceanonymous__namespace_02test__art__upsert_8cpp_03.html#a34ced657d9ebd4e50808f008a289e5f5',1,'anonymous_namespace{test_art_upsert.cpp}']]],
   ['key_2',['key',['../structunodb_1_1detail_1_1basic__art__key.html#abc8d474caa99eac94a1b49eee7a9df07',1,'unodb::detail::basic_art_key']]],
   ['key_20generators_3',['Key generators',['..//home/runner/work/unodb/unodb/benchmark/micro_benchmark_key_view.cpp#autotoc_md14',1,'']]],
-  ['key_20invariants_4',['Key Invariants',['..//home/runner/work/unodb/unodb/spec/tla/README.md#autotoc_md59',1,'']]],
+  ['key_20invariants_4',['Key Invariants',['..//home/runner/work/unodb/unodb/spec/tla/README.md#autotoc_md72',1,'']]],
   ['key_5fbuffer_5',['key_buffer',['../classunodb_1_1detail_1_1key__buffer.html',1,'unodb::detail::key_buffer'],['../classunodb_1_1detail_1_1key__buffer.html#adb0a2d71045bac06074b03ceeae358ad',1,'unodb::detail::key_buffer::key_buffer(key_buffer &amp;&amp;)=delete'],['../classunodb_1_1detail_1_1key__buffer.html#aa2f1990980281226761af423b36fe6ba',1,'unodb::detail::key_buffer::key_buffer() noexcept=default'],['../classunodb_1_1detail_1_1key__buffer.html#af808a3148656413ab0ab0d605c633164',1,'unodb::detail::key_buffer::key_buffer(const key_buffer &amp;)=delete']]],
   ['key_5fbyte_6',['key_byte',['../structunodb_1_1detail_1_1iter__result.html#af629f13328e6b7ebd271a9939d7559a8',1,'unodb::detail::iter_result']]],
   ['key_5fbytes_7',['key_bytes',['../structunodb_1_1detail_1_1basic__art__key.html#aa1c673bbd12a302556a7880df52aa9b8',1,'unodb::detail::basic_art_key']]],

@@ -18,8 +18,8 @@ var searchData=
   ['epoch_5ftype_15',['epoch_type',['../classunodb_1_1qsbr__epoch.html#a4387f6234755159582f44801fe1dbe5d',1,'unodb::qsbr_epoch']]],
   ['epoch_5fval_16',['epoch_val',['../classunodb_1_1qsbr__epoch.html#a5815976f4e8328bf4b44fc28bbed0318',1,'unodb::qsbr_epoch']]],
   ['erase_5ffn_17',['erase_fn',['../namespaceanonymous__namespace_02test__art__upsert_8cpp_03.html#adb1a584e82fd86f12e2601c544b4d244',1,'anonymous_namespace{test_art_upsert.cpp}']]],
-  ['examples_18',['Examples',['../group__optimistic-lock.html#autotoc_md30',1,'']]],
-  ['exceptions_19',['Before pushing (MANDATORY — no exceptions)',['../md_AGENTS.html#autotoc_md4',1,'']]],
+  ['examples_18',['Examples',['../group__optimistic-lock.html#autotoc_md43',1,'']]],
+  ['exceptions_19',['exceptions',['../md_AGENTS.html#autotoc_md4',1,'Before pushing (MANDATORY — no exceptions)'],['../md_CLAUDE.html#autotoc_md19',1,'Before pushing (MANDATORY — no exceptions)']]],
   ['exceptions_5fat_5fctor_20',['exceptions_at_ctor',['../structunodb_1_1quiescent__state__on__scope__exit.html#a3cccedbca284edccb346ae9d910f8011',1,'unodb::quiescent_state_on_scope_exit']]],
   ['execute_5fprevious_5frequests_21',['execute_previous_requests',['../classunodb_1_1qsbr__per__thread.html#af465973b9d681794c30bb1147f693d15',1,'unodb::qsbr_per_thread']]],
   ['expect_5fidle_5fqsbr_22',['expect_idle_qsbr',['../namespaceunodb_1_1test.html#a53fd24c90ff6a59ad8dfb2a9c86cc725',1,'unodb::test']]]
