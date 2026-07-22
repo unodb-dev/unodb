@@ -21,5 +21,6 @@ var art_8hpp =
     [ "inode_defs", "art_8hpp.html#a6e0155f4cc9c31cf3cc24939b69c13d0", null ],
     [ "leaf_type", "art_8hpp.html#a4c1fb4a85ef87c7a61e214c4871eb76f", null ],
     [ "node_ptr", "art_8hpp.html#aaa98550b35b9c4011a17dd6d7f96f25a", null ],
+    [ "bulk_load_impl", "art_8hpp.html#a1c68489cdee9af299bbbd77412574483", null ],
     [ "unwrap_fake_critical_section", "art_8hpp.html#a315446f662ab93a69546e61c3c72a492", null ]
 ];

@@ -113,8 +113,10 @@ $(document).ready(function(){initNavTree('art_8hpp.html',''); initResizable(); }
 <code>#include &lt;cstddef&gt;</code><br />
 <code>#include &lt;cstdint&gt;</code><br />
 <code>#include &lt;iostream&gt;</code><br />
+<code>#include &lt;iterator&gt;</code><br />
 <code>#include &lt;optional&gt;</code><br />
 <code>#include &lt;stack&gt;</code><br />
+<code>#include &lt;stdexcept&gt;</code><br />
 <code>#include &lt;type_traits&gt;</code><br />
 <code>#include &lt;vector&gt;</code><br />
 <code>#include &lt;boost/container/small_vector.hpp&gt;</code><br />
@@ -125,6 +127,7 @@ $(document).ready(function(){initNavTree('art_8hpp.html',''); initResizable(); }
 <code>#include &quot;<a class="el" href="assert_8hpp_source.html">assert.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="in__fake__critical__section_8hpp_source.html">in_fake_critical_section.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="node__type_8hpp_source.html">node_type.hpp</a>&quot;</code><br />
+<code>#include &quot;art_bulk_load_detail.hpp&quot;</code><br />
 </div>
 <p><a href="art_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -224,6 +227,11 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a1c68489cdee9af299bbbd77412574483" id="r_a1c68489cdee9af299bbbd77412574483"><td class="memTemplParams" colspan="2"><a id="a1c68489cdee9af299bbbd77412574483" name="a1c68489cdee9af299bbbd77412574483"></a>
+template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">typename</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">Db</a> , <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">typename</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">Fork</a> , <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">typename</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">RandomIt</a> &gt; </td></tr>
+<tr class="memitem:a1c68489cdee9af299bbbd77412574483"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><b>unodb::detail::bulk_load_impl</b> (<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">Db</a> &amp;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">self</a>, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">Fork</a> &amp;&amp;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">fork</a>, std::size_t <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">max_tasks</a>, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">RandomIt</a> first, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">RandomIt</a> last)</td></tr>
+<tr class="memdesc:a1c68489cdee9af299bbbd77412574483"><td class="mdescLeft">&#160;</td><td class="mdescRight">Forward declarations of bulk_load algorithm and helpers. <br /></td></tr>
+<tr class="separator:a1c68489cdee9af299bbbd77412574483"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a315446f662ab93a69546e61c3c72a492" id="r_a315446f662ab93a69546e61c3c72a492"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">auto</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a315446f662ab93a69546e61c3c72a492">unodb::detail::unwrap_fake_critical_section</a> (<a class="el" href="classunodb_1_1in__fake__critical__section.html">unodb::in_fake_critical_section</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">unodb::detail::node_ptr</a> &gt; *ptr) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
 <tr class="memdesc:a315446f662ab93a69546e61c3c72a492"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unwrap fake critical section wrapper to access underlying node pointer.  <br /></td></tr>
 <tr class="separator:a315446f662ab93a69546e61c3c72a492"><td class="memSeparator" colspan="2">&#160;</td></tr>

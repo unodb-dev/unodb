@@ -15,5 +15,11 @@ var searchData=
   ['basic_5fleaf_3c_20no_5fkey_5ftag_2c_20header_20_3e_12',['basic_leaf&lt; no_key_tag, Header &gt;',['../classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4.html',1,'unodb::detail']]],
   ['basic_5fnode_5fptr_13',['basic_node_ptr',['../classunodb_1_1detail_1_1basic__node__ptr.html',1,'unodb::detail']]],
   ['basic_5fnode_5fptr_3c_20nodeheader_20_3e_14',['basic_node_ptr&lt; NodeHeader &gt;',['../classunodb_1_1detail_1_1basic__node__ptr.html',1,'unodb::detail']]],
-  ['batched_5fprng_15',['batched_prng',['../classunodb_1_1benchmark_1_1batched__prng.html',1,'unodb::benchmark']]]
+  ['batched_5fprng_15',['batched_prng',['../classunodb_1_1benchmark_1_1batched__prng.html',1,'unodb::benchmark']]],
+  ['bulk_5fbuild_5fresult_16',['bulk_build_result',['../structunodb_1_1detail_1_1bulk__build__result.html',1,'unodb::detail']]],
+  ['bulk_5fchild_17',['bulk_child',['../structunodb_1_1detail_1_1bulk__child.html',1,'unodb::detail']]],
+  ['bulk_5fload_5fhelpers_18',['bulk_load_helpers',['../structunodb_1_1detail_1_1bulk__load__helpers.html',1,'unodb::detail']]],
+  ['bulk_5fload_5fstats_5faccumulator_19',['bulk_load_stats_accumulator',['../structunodb_1_1detail_1_1bulk__load__stats__accumulator.html',1,'unodb::detail']]],
+  ['bulk_5fload_5ftag_20',['bulk_load_tag',['../structunodb_1_1detail_1_1basic__inode_1_1bulk__load__tag.html',1,'unodb::detail::basic_inode']]],
+  ['bulk_5fsubtree_5fguard_21',['bulk_subtree_guard',['../structunodb_1_1detail_1_1bulk__subtree__guard.html',1,'unodb::detail']]]
 ];

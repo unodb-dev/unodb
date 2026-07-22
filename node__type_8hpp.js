@@ -1,5 +1,6 @@
 var node__type_8hpp =
 [
+    [ "unodb::detail::bulk_load_stats_accumulator", "structunodb_1_1detail_1_1bulk__load__stats__accumulator.html", null ],
     [ "inode_type_counter_array", "node__type_8hpp.html#a60a52550ffa9f2d0d9e1cd9ebc7cab28", null ],
     [ "node_type_counter_array", "node__type_8hpp.html#a8105523dd9adff845377f54dd034b838", null ],
     [ "node_type", "node__type_8hpp.html#a074fabb6a852ee032fb9b7f35a64b8e3", [
@@ -13,5 +14,6 @@ var node__type_8hpp =
     [ "as_i", "node__type_8hpp.html#af9b052db17b88851bb075efd8d84f8d1", null ],
     [ "inode_type_count", "node__type_8hpp.html#aa11fc0dc02ee0b061504cd50856ea7dd", null ],
     [ "internal_as_i", "node__type_8hpp.html#a775cf37c7ccec6301c8512193550b424", null ],
-    [ "node_type_count", "node__type_8hpp.html#ad81082c8f2c103492eb9f6917f0483bc", null ]
+    [ "node_type_count", "node__type_8hpp.html#ad81082c8f2c103492eb9f6917f0483bc", null ],
+    [ "tls_bulk_load_stats", "node__type_8hpp.html#ac07048f94a0dadccc609dfdacb0ebf9c", null ]
 ];

@@ -152,6 +152,20 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">basic_node_ptr</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tagged pointer with node type stored in low bits.  <a href="classunodb_1_1detail_1_1basic__node__ptr.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1bulk__build__result.html">bulk_build_result</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tagged return from build_subtree: pointer + whether it's a VIS packed value (not a real heap pointer — must not be passed to delete_subtree).  <a href="structunodb_1_1detail_1_1bulk__build__result.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1bulk__child.html">bulk_child</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A child entry for bulk inode construction.  <a href="structunodb_1_1detail_1_1bulk__child.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1bulk__load__helpers.html">bulk_load_helpers</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1bulk__load__stats__accumulator.html">bulk_load_stats_accumulator</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Thread-local stats accumulator for parallel bulk_load.  <a href="structunodb_1_1detail_1_1bulk__load__stats__accumulator.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1bulk__subtree__guard.html">bulk_subtree_guard</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">RAII guard for subtrees during bulk construction.  <a href="structunodb_1_1detail_1_1bulk__subtree__guard.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1db__inode__qsbr__deleter.html">db_inode_qsbr_deleter</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1db__leaf__qsbr__deleter.html">db_leaf_qsbr_deleter</a></td></tr>
@@ -413,6 +427,11 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a1c68489cdee9af299bbbd77412574483" id="r_a1c68489cdee9af299bbbd77412574483"><td class="memTemplParams" colspan="2"><a id="a1c68489cdee9af299bbbd77412574483" name="a1c68489cdee9af299bbbd77412574483"></a>
+template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">typename</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">Db</a> , <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">typename</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">Fork</a> , <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">typename</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">RandomIt</a> &gt; </td></tr>
+<tr class="memitem:a1c68489cdee9af299bbbd77412574483"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><b>bulk_load_impl</b> (<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">Db</a> &amp;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">self</a>, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">Fork</a> &amp;&amp;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">fork</a>, std::size_t <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">max_tasks</a>, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">RandomIt</a> first, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">RandomIt</a> last)</td></tr>
+<tr class="memdesc:a1c68489cdee9af299bbbd77412574483"><td class="mdescLeft">&#160;</td><td class="mdescRight">Forward declarations of bulk_load algorithm and helpers. <br /></td></tr>
+<tr class="separator:a1c68489cdee9af299bbbd77412574483"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a315446f662ab93a69546e61c3c72a492" id="r_a315446f662ab93a69546e61c3c72a492"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">auto</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a315446f662ab93a69546e61c3c72a492">unwrap_fake_critical_section</a> (<a class="el" href="classunodb_1_1in__fake__critical__section.html">unodb::in_fake_critical_section</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#aaa98550b35b9c4011a17dd6d7f96f25a">unodb::detail::node_ptr</a> &gt; *ptr) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
 <tr class="memdesc:a315446f662ab93a69546e61c3c72a492"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unwrap fake critical section wrapper to access underlying node pointer.  <br /></td></tr>
 <tr class="separator:a315446f662ab93a69546e61c3c72a492"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -458,6 +477,10 @@ Functions</h2></td></tr>
 <tr class="memitem:a7d9586a5c7fc84c4bbc05b716fd1ce03" id="r_a7d9586a5c7fc84c4bbc05b716fd1ce03"><td class="memItemLeft" align="right" valign="top">std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a7d9586a5c7fc84c4bbc05b716fd1ce03">get_u64</a> (<a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">key_view</a> key) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
 <tr class="memdesc:a7d9586a5c7fc84c4bbc05b716fd1ce03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return first 64 bits of encoded <em>key</em> view.  <br /></td></tr>
 <tr class="separator:a7d9586a5c7fc84c4bbc05b716fd1ce03"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2c562326baf81b52c2efddf403e1e176" id="r_a2c562326baf81b52c2efddf403e1e176"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">class</a> ArtPolicy &gt; </td></tr>
+<tr class="memitem:a2c562326baf81b52c2efddf403e1e176"><td class="memTemplItemLeft" align="right" valign="top">ArtPolicy::node_ptr&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a2c562326baf81b52c2efddf403e1e176">bulk_build_chain</a> (<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">typename</a> ArtPolicy::db_type &amp;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">self</a>, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">typename</a> ArtPolicy::art_key_type <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">k</a>, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">typename</a> ArtPolicy::node_ptr child, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">typename</a> ArtPolicy::art_key_type &gt; <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">start_depth</a>)</td></tr>
+<tr class="memdesc:a2c562326baf81b52c2efddf403e1e176"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a chain of inode4 nodes for prefix compression during bulk load.  <br /></td></tr>
+<tr class="separator:a2c562326baf81b52c2efddf403e1e176"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a25eb4ea7710810f49fcc23353dad6c8f" id="r_a25eb4ea7710810f49fcc23353dad6c8f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">auto</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a25eb4ea7710810f49fcc23353dad6c8f">_mm_cmple_epu8</a> (<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">__m128i</a> x, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">__m128i</a> y) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
 <tr class="memdesc:a25eb4ea7710810f49fcc23353dad6c8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare packed unsigned 8-bit integers for less-than-or-equal.  <br /></td></tr>
 <tr class="separator:a25eb4ea7710810f49fcc23353dad6c8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -527,7 +550,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
 <tr class="memitem:a0edfb68fb566e194dae77eac5d0558ee"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">T</a> &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>obsolete</b> (<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">T</a> &amp;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">t</a>, <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">unodb::optimistic_lock::write_guard</a> &amp;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">guard</a>) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
 <tr class="separator:a0edfb68fb566e194dae77eac5d0558ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9c2f21cfd995a020eb66f0d5c6dac59f" id="r_a9c2f21cfd995a020eb66f0d5c6dac59f"><td class="memItemLeft" align="right" valign="top"><a id="a9c2f21cfd995a020eb66f0d5c6dac59f" name="a9c2f21cfd995a020eb66f0d5c6dac59f"></a>
-<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">auto</a>&#160;</td><td class="memItemRight" valign="bottom"><b>obsolete_child_by_index</b> (std::uint8_t <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">child</a>, <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">unodb::optimistic_lock::write_guard</a> &amp;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">guard</a>) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
+<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">auto</a>&#160;</td><td class="memItemRight" valign="bottom"><b>obsolete_child_by_index</b> (std::uint8_t child, <a class="el" href="classunodb_1_1optimistic__lock_1_1write__guard.html">unodb::optimistic_lock::write_guard</a> &amp;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">guard</a>) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
 <tr class="separator:a9c2f21cfd995a020eb66f0d5c6dac59f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1800c86bea3908be3bd5cdabbe212695" id="r_a1800c86bea3908be3bd5cdabbe212695"><td class="memTemplParams" colspan="2"><a id="a1800c86bea3908be3bd5cdabbe212695" name="a1800c86bea3908be3bd5cdabbe212695"></a>
 template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">typename</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">Key</a> , <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">typename</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">Value</a> &gt; </td></tr>
@@ -571,6 +594,9 @@ Variables</h2></td></tr>
 <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">constexpr</a> std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>inode_type_count</b> {4}</td></tr>
 <tr class="memdesc:aa11fc0dc02ee0b061504cd50856ea7dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of different internal node types. <br /></td></tr>
 <tr class="separator:aa11fc0dc02ee0b061504cd50856ea7dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac07048f94a0dadccc609dfdacb0ebf9c" id="r_ac07048f94a0dadccc609dfdacb0ebf9c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">thread_local</a> <a class="el" href="structunodb_1_1detail_1_1bulk__load__stats__accumulator.html">bulk_load_stats_accumulator</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#ac07048f94a0dadccc609dfdacb0ebf9c">tls_bulk_load_stats</a> {<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">nullptr</a>}</td></tr>
+<tr class="memdesc:ac07048f94a0dadccc609dfdacb0ebf9c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Per-thread pointer to the active stats accumulator.  <br /></td></tr>
+<tr class="separator:ac07048f94a0dadccc609dfdacb0ebf9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2fe93a1f46346cb671f4756b8a2f58e9" id="r_a2fe93a1f46346cb671f4756b8a2f58e9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">const</a> <a class="el" href="structunodb_1_1allocator__type.html">allocator_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a2fe93a1f46346cb671f4756b8a2f58e9">olc_default_allocator</a></td></tr>
 <tr class="memdesc:a2fe93a1f46346cb671f4756b8a2f58e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">OLC allocator with QSBR-based deferred reclamation (defined in <a class="el" href="qsbr_8cpp.html" title="QSBR implementation details.">qsbr.cpp</a>).  <br /></td></tr>
 <tr class="separator:a2fe93a1f46346cb671f4756b8a2f58e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -997,6 +1023,68 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Object of type <em>To</em> with the same bit pattern as <em>input</em>.</dd></dl>
 <dl class="section pre"><dt>Precondition</dt><dd><code><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb" title="Base class for all internal nodes in non-thread-safe ART.">sizeof(To)</a> == <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb" title="Base class for all internal nodes in non-thread-safe ART.">sizeof(From)</a></code> </dd></dl>
+
+</div>
+</div>
+<a id="a2c562326baf81b52c2efddf403e1e176" name="a2c562326baf81b52c2efddf403e1e176"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2c562326baf81b52c2efddf403e1e176">&#9670;&#160;</a></span>bulk_build_chain()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">class</a> ArtPolicy &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">ArtPolicy::node_ptr unodb::detail::bulk_build_chain </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">typename</a> ArtPolicy::db_type &amp;&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">typename</a> ArtPolicy::art_key_type&#160;</td>
+          <td class="paramname"><em>k</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">typename</a> ArtPolicy::node_ptr&#160;</td>
+          <td class="paramname"><em>child</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">typename</a> ArtPolicy::art_key_type &gt;&#160;</td>
+          <td class="paramname"><em>start_depth</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Build a chain of inode4 nodes for prefix compression during bulk load. </p>
+<p>Constructs bottom-up from key end toward start_depth. Each chain node consumes up to key_prefix_capacity prefix bytes + 1 dispatch byte.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">ArtPolicy</td><td>Policy type (provides node_ptr, db_type, inode types) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">self</td><td>Database instance </td></tr>
+    <tr><td class="paramname">k</td><td>Encoded key for prefix extraction </td></tr>
+    <tr><td class="paramname">child</td><td>Child pointer to wrap in the chain </td></tr>
+    <tr><td class="paramname">start_depth</td><td>Depth at which the chain terminates </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The top node pointer of the chain </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Defined at end of <a class="el" href="art__internal__impl_8hpp.html" title="Implementation details for Adaptive Radix Tree (ART) internal nodes.">art_internal_impl.hpp</a> (after inode types). </dd></dl>
 
 </div>
 </div>
@@ -1890,6 +1978,31 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
 
 <p>Global array of thread synchronization objects. </p>
 <p>The array size is determined by test needs. </p>
+
+</div>
+</div>
+<a id="ac07048f94a0dadccc609dfdacb0ebf9c" name="ac07048f94a0dadccc609dfdacb0ebf9c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac07048f94a0dadccc609dfdacb0ebf9c">&#9670;&#160;</a></span>tls_bulk_load_stats</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">thread_local</a> <a class="el" href="structunodb_1_1detail_1_1bulk__load__stats__accumulator.html">bulk_load_stats_accumulator</a>* unodb::detail::tls_bulk_load_stats {<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">nullptr</a>}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Per-thread pointer to the active stats accumulator. </p>
+<p>Null during normal operation; set per-thread during parallel bulk_load. </p>
 
 </div>
 </div>

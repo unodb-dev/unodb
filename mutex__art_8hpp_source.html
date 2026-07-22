@@ -211,123 +211,140 @@ $(document).ready(function(){initNavTree('mutex__art_8hpp_source.html',''); init
 <div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>  }</div>
 </div>
 <div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span> </div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>  <span class="comment">//</span></div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>  <span class="comment">// scan API.</span></div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>  <span class="comment">//</span></div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span> </div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>  <span class="keyword">using </span>iterator = <span class="keyword">typename</span> <a class="code hl_class" href="classunodb_1_1db_1_1iterator.html">unodb::db&lt;Key, Value&gt;::iterator</a>;</div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span> </div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> FN&gt;</div>
-<div class="foldopen" id="foldopen00166" data-start="{" data-end="}">
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno"><a class="line" href="classunodb_1_1mutex__db.html#af2359973d76a675229b88bf5ef0fa8a5">  166</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1mutex__db.html#af2359973d76a675229b88bf5ef0fa8a5">scan</a>(FN fn, <span class="keywordtype">bool</span> fwd = <span class="keyword">true</span>) noexcept {</div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    db_.scan(fn, fwd);</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> Fork, <span class="keyword">typename</span> RandomIt&gt;</div>
+<div class="foldopen" id="foldopen00159" data-start="{" data-end="}">
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno"><a class="line" href="classunodb_1_1mutex__db.html#a2fdfa47cc4b6a3f8ac3e26a8b3296fa3">  159</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1mutex__db.html#a2fdfa47cc4b6a3f8ac3e26a8b3296fa3">bulk_load</a>(Fork&amp;&amp; fork, std::size_t max_tasks, RandomIt first,</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>                 RandomIt last) {</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>    db_.bulk_load(std::forward&lt;Fork&gt;(fork), max_tasks, first, last);</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>  }</div>
+</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span> </div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> RandomIt&gt;</div>
+<div class="foldopen" id="foldopen00167" data-start="{" data-end="}">
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno"><a class="line" href="classunodb_1_1mutex__db.html#aad4cc68a6661f0f59f9ea413ecc4afba">  167</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1mutex__db.html#aad4cc68a6661f0f59f9ea413ecc4afba">bulk_load</a>(RandomIt first, RandomIt last) {</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    <a class="code hl_function" href="classunodb_1_1mutex__db.html#a2fdfa47cc4b6a3f8ac3e26a8b3296fa3">bulk_load</a>(<span class="keyword">nullptr</span>, 0, first, last);</div>
 <div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>  }</div>
 </div>
 <div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span> </div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> FN&gt;</div>
-<div class="foldopen" id="foldopen00184" data-start="{" data-end="}">
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno"><a class="line" href="classunodb_1_1mutex__db.html#ab6a1564ab98be4126bf3cf65d208831f">  184</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1mutex__db.html#ab6a1564ab98be4126bf3cf65d208831f">scan_from</a>(Key from_key, FN fn, <span class="keywordtype">bool</span> fwd = <span class="keyword">true</span>) noexcept {</div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>    db_.scan_from(from_key, fn, fwd);</div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>  }</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>  <span class="comment">//</span></div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>  <span class="comment">// scan API.</span></div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>  <span class="comment">//</span></div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span> </div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>  <span class="keyword">using </span>iterator = <span class="keyword">typename</span> <a class="code hl_class" href="classunodb_1_1db_1_1iterator.html">unodb::db&lt;Key, Value&gt;::iterator</a>;</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span> </div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> FN&gt;</div>
+<div class="foldopen" id="foldopen00187" data-start="{" data-end="}">
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno"><a class="line" href="classunodb_1_1mutex__db.html#af2359973d76a675229b88bf5ef0fa8a5">  187</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1mutex__db.html#af2359973d76a675229b88bf5ef0fa8a5">scan</a>(FN fn, <span class="keywordtype">bool</span> fwd = <span class="keyword">true</span>) noexcept {</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    db_.scan(fn, fwd);</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>  }</div>
 </div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span> </div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span> </div>
 <div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> FN&gt;</div>
 <div class="foldopen" id="foldopen00205" data-start="{" data-end="}">
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno"><a class="line" href="classunodb_1_1mutex__db.html#ac8852fa0deb950e7af233b71a46ab570">  205</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1mutex__db.html#ac8852fa0deb950e7af233b71a46ab570">scan_range</a>(Key from_key, Key to_key, FN fn) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno"><a class="line" href="classunodb_1_1mutex__db.html#ab6a1564ab98be4126bf3cf65d208831f">  205</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1mutex__db.html#ab6a1564ab98be4126bf3cf65d208831f">scan_from</a>(Key from_key, FN fn, <span class="keywordtype">bool</span> fwd = <span class="keyword">true</span>) noexcept {</div>
 <div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    db_.scan_range(from_key, to_key, fn);</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    db_.scan_from(from_key, fn, fwd);</div>
 <div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>  }</div>
 </div>
 <div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span> </div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>  <span class="comment">//</span></div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>  <span class="comment">// TEST ONLY METHODS</span></div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>  <span class="comment">//</span></div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span> </div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>  <span class="comment">// Used to write the iterator tests.</span></div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>  iterator test_only_iterator() noexcept { <span class="keywordflow">return</span> db_.test_only_iterator(); }</div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span> </div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>  <span class="comment">// Stats</span></div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span><span class="preprocessor">#ifdef UNODB_DETAIL_WITH_STATS</span></div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span> </div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>  [[nodiscard]] std::size_t get_current_memory_use()<span class="keyword"> const </span>{</div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>    <span class="keywordflow">return</span> db_.get_current_memory_use();</div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>  }</div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span> </div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>  <span class="keyword">template</span> &lt;node_type NodeType&gt;</div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>  [[nodiscard]] std::uint64_t get_node_count()<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> FN&gt;</div>
+<div class="foldopen" id="foldopen00226" data-start="{" data-end="}">
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno"><a class="line" href="classunodb_1_1mutex__db.html#ac8852fa0deb950e7af233b71a46ab570">  226</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classunodb_1_1mutex__db.html#ac8852fa0deb950e7af233b71a46ab570">scan_range</a>(Key from_key, Key to_key, FN fn) <span class="keyword">noexcept</span> {</div>
 <div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>    <span class="keywordflow">return</span> db_.template get_node_count&lt;NodeType&gt;();</div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>    db_.scan_range(from_key, to_key, fn);</div>
 <div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>  }</div>
+</div>
 <div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span> </div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>  [[nodiscard]] <a class="code hl_typedef" href="namespaceunodb.html#a8105523dd9adff845377f54dd034b838">node_type_counter_array</a> get_node_counts()<span class="keyword"> const </span>{</div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    <span class="keywordflow">return</span> db_.get_node_counts();</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>  }</div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span> </div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>  <span class="keyword">template</span> &lt;node_type NodeType&gt;</div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>  [[nodiscard]] std::uint64_t get_growing_inode_count()<span class="keyword"> const </span>{</div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>    <span class="keywordflow">return</span> db_.template get_growing_inode_count&lt;NodeType&gt;();</div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>  }</div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span> </div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>  [[nodiscard]] <a class="code hl_typedef" href="namespaceunodb.html#a60a52550ffa9f2d0d9e1cd9ebc7cab28">inode_type_counter_array</a> get_growing_inode_counts()<span class="keyword"> const </span>{</div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    <span class="keywordflow">return</span> db_.get_growing_inode_counts();</div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>  }</div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span> </div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>  <span class="keyword">template</span> &lt;node_type NodeType&gt;</div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>  [[nodiscard]] std::uint64_t get_shrinking_inode_count()<span class="keyword"> const </span>{</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    <span class="keywordflow">return</span> db_.template get_shrinking_inode_count&lt;NodeType&gt;();</div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>  }</div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span> </div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>  [[nodiscard]] <a class="code hl_typedef" href="namespaceunodb.html#a60a52550ffa9f2d0d9e1cd9ebc7cab28">inode_type_counter_array</a> get_shrinking_inode_counts()<span class="keyword"> const </span>{</div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>    <span class="keywordflow">return</span> db_.get_shrinking_inode_counts();</div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>  }</div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span> </div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>  [[nodiscard]] std::uint64_t get_key_prefix_splits()<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>  <span class="comment">//</span></div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>  <span class="comment">// TEST ONLY METHODS</span></div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>  <span class="comment">//</span></div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span> </div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>  <span class="comment">// Used to write the iterator tests.</span></div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>  iterator test_only_iterator() noexcept { <span class="keywordflow">return</span> db_.test_only_iterator(); }</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span> </div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>  <span class="comment">// Stats</span></div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span><span class="preprocessor">#ifdef UNODB_DETAIL_WITH_STATS</span></div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span> </div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>  [[nodiscard]] std::size_t get_current_memory_use()<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>    <span class="keywordflow">return</span> db_.get_current_memory_use();</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>  }</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span> </div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>  <span class="keyword">template</span> &lt;node_type NodeType&gt;</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>  [[nodiscard]] std::uint64_t get_node_count()<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>    <span class="keywordflow">return</span> db_.template get_node_count&lt;NodeType&gt;();</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>  }</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span> </div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>  [[nodiscard]] <a class="code hl_typedef" href="namespaceunodb.html#a8105523dd9adff845377f54dd034b838">node_type_counter_array</a> get_node_counts()<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>    <span class="keywordflow">return</span> db_.get_node_counts();</div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>  }</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span> </div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>  <span class="keyword">template</span> &lt;node_type NodeType&gt;</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>  [[nodiscard]] std::uint64_t get_growing_inode_count()<span class="keyword"> const </span>{</div>
 <div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>    <span class="keywordflow">return</span> db_.get_key_prefix_splits();</div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>    <span class="keywordflow">return</span> db_.template get_growing_inode_count&lt;NodeType&gt;();</div>
 <div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>  }</div>
 <div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span> </div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_WITH_STATS</span></div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span> </div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>  <span class="comment">// Public utils</span></div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span> </div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>  <span class="comment">// Releases the mutex in the case key was not found, keeps it locked</span></div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>  <span class="comment">// otherwise.</span></div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>  [[nodiscard]] <span class="keyword">static</span> <span class="keywordtype">bool</span> key_found(<span class="keyword">const</span> <a class="code hl_typedef" href="classunodb_1_1mutex__db.html#a5ddc9814e5b512a63053f17c37c3aa15">get_result</a>&amp; result) <span class="keyword">noexcept</span> {</div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span><span class="preprocessor">#ifndef NDEBUG</span></div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; lock{result.second};</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>    <span class="comment">// NOLINTNEXTLINE(readability-simplify-boolean-expr)</span></div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>    assert(!result.first || lock.owns_lock());</div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span> </div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>    <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span><span class="keywordtype">bool</span><span class="keyword">&gt;</span>(result.first);</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>  [[nodiscard]] <a class="code hl_typedef" href="namespaceunodb.html#a60a52550ffa9f2d0d9e1cd9ebc7cab28">inode_type_counter_array</a> get_growing_inode_counts()<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>    <span class="keywordflow">return</span> db_.get_growing_inode_counts();</div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>  }</div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span> </div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>  <span class="keyword">template</span> &lt;node_type NodeType&gt;</div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>  [[nodiscard]] std::uint64_t get_shrinking_inode_count()<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    <span class="keywordflow">return</span> db_.template get_shrinking_inode_count&lt;NodeType&gt;();</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>  }</div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span> </div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>  [[nodiscard]] <a class="code hl_typedef" href="namespaceunodb.html#a60a52550ffa9f2d0d9e1cd9ebc7cab28">inode_type_counter_array</a> get_shrinking_inode_counts()<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>    <span class="keywordflow">return</span> db_.get_shrinking_inode_counts();</div>
 <div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>  }</div>
 <div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span> </div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>  <span class="comment">// Debugging</span></div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>  [[gnu::cold]] <a class="code hl_define" href="group__internal.html#ga5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> <span class="keywordtype">void</span> dump(std::ostream&amp; os)<span class="keyword"> const </span>{</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>    db_.dump(os);</div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>  }</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span> </div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span> <span class="keyword">private</span>:</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>  db&lt;Key, Value&gt; db_;</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>  <span class="keyword">mutable</span> std::mutex mutex;</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>};</div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>  [[nodiscard]] std::uint64_t get_key_prefix_splits()<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>    <span class="keywordflow">return</span> db_.get_key_prefix_splits();</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>  }</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span> </div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_WITH_STATS</span></div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span> </div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>  <span class="comment">// Public utils</span></div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span> </div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>  <span class="comment">// Releases the mutex in the case key was not found, keeps it locked</span></div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>  <span class="comment">// otherwise.</span></div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>  [[nodiscard]] <span class="keyword">static</span> <span class="keywordtype">bool</span> key_found(<span class="keyword">const</span> <a class="code hl_typedef" href="classunodb_1_1mutex__db.html#a5ddc9814e5b512a63053f17c37c3aa15">get_result</a>&amp; result) <span class="keyword">noexcept</span> {</div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span><span class="preprocessor">#ifndef NDEBUG</span></div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>    <span class="keyword">const</span> <span class="keyword">auto</span>&amp; lock{result.second};</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>    <span class="comment">// NOLINTNEXTLINE(readability-simplify-boolean-expr)</span></div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>    assert(!result.first || lock.owns_lock());</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span> </div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>    <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span><span class="keywordtype">bool</span><span class="keyword">&gt;</span>(result.first);</div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>  }</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span> </div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>  <span class="comment">// Debugging</span></div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>  [[gnu::cold]] <a class="code hl_define" href="group__internal.html#ga5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a> <span class="keywordtype">void</span> dump(std::ostream&amp; os)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>    <span class="keyword">const</span> std::lock_guard guard{mutex};</div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>    db_.dump(os);</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>  }</div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span> </div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span> <span class="keyword">private</span>:</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>  db&lt;Key, Value&gt; db_;</div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>  <span class="keyword">mutable</span> std::mutex mutex;</div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>};</div>
 </div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span> </div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>}  <span class="comment">// namespace unodb</span></div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span> </div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_MUTEX_ART_HPP</span></div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span> </div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>}  <span class="comment">// namespace unodb</span></div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span> </div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span><span class="preprocessor">#endif  </span><span class="comment">// UNODB_DETAIL_MUTEX_ART_HPP</span></div>
 <div class="ttc" id="aart_8hpp_html"><div class="ttname"><a href="art_8hpp.html">art.hpp</a></div><div class="ttdoc">Non-thread-safe Adaptive Radix Tree (ART) implementation.</div></div>
-<div class="ttc" id="aclassunodb_1_1db_1_1iterator_html"><div class="ttname"><a href="classunodb_1_1db_1_1iterator.html">unodb::db::iterator</a></div><div class="ttdoc">Internal iterator for tree traversal.</div><div class="ttdef"><b>Definition</b> art.hpp:312</div></div>
+<div class="ttc" id="aclassunodb_1_1db_1_1iterator_html"><div class="ttname"><a href="classunodb_1_1db_1_1iterator.html">unodb::db::iterator</a></div><div class="ttdoc">Internal iterator for tree traversal.</div><div class="ttdef"><b>Definition</b> art.hpp:375</div></div>
 <div class="ttc" id="aclassunodb_1_1mutex__db_html"><div class="ttname"><a href="classunodb_1_1mutex__db.html">unodb::mutex_db</a></div><div class="ttdoc">A thread-safe implementation of the Adaptive Radix Tree (ART) using an explicit global lock.</div><div class="ttdef"><b>Definition</b> mutex_art.hpp:23</div></div>
+<div class="ttc" id="aclassunodb_1_1mutex__db_html_a2fdfa47cc4b6a3f8ac3e26a8b3296fa3"><div class="ttname"><a href="classunodb_1_1mutex__db.html#a2fdfa47cc4b6a3f8ac3e26a8b3296fa3">unodb::mutex_db::bulk_load</a></div><div class="ttdeci">void bulk_load(Fork &amp;&amp;fork, std::size_t max_tasks, RandomIt first, RandomIt last)</div><div class="ttdoc">Bulk-load sorted key-value pairs into an empty tree.</div><div class="ttdef"><b>Definition</b> mutex_art.hpp:159</div></div>
 <div class="ttc" id="aclassunodb_1_1mutex__db_html_a4de54b9c77294c1efdcc3f290ad16b0d"><div class="ttname"><a href="classunodb_1_1mutex__db.html#a4de54b9c77294c1efdcc3f290ad16b0d">unodb::mutex_db::remove</a></div><div class="ttdeci">bool remove(Key search_key)</div><div class="ttdoc">Remove the entry associated with the key.</div><div class="ttdef"><b>Definition</b> mutex_art.hpp:125</div></div>
 <div class="ttc" id="aclassunodb_1_1mutex__db_html_a524eccc5543a63b3fbbc2582271cafa7"><div class="ttname"><a href="classunodb_1_1mutex__db.html#a524eccc5543a63b3fbbc2582271cafa7">unodb::mutex_db::remove_internal</a></div><div class="ttdeci">bool remove_internal(art_key_type k)</div><div class="ttdoc">Removing with an encoded key.</div><div class="ttdef"><b>Definition</b> mutex_art.hpp:61</div></div>
 <div class="ttc" id="aclassunodb_1_1mutex__db_html_a58a3c66a09d76f19a014875c93b1e310"><div class="ttname"><a href="classunodb_1_1mutex__db.html#a58a3c66a09d76f19a014875c93b1e310">unodb::mutex_db::clear</a></div><div class="ttdeci">void clear()</div><div class="ttdoc">Removes all entries in the index.</div><div class="ttdef"><b>Definition</b> mutex_art.hpp:145</div></div>
@@ -336,17 +353,18 @@ $(document).ready(function(){initNavTree('mutex__art_8hpp_source.html',''); init
 <div class="ttc" id="aclassunodb_1_1mutex__db_html_a6ae7b322c7cdb1dac205e40590b38677"><div class="ttname"><a href="classunodb_1_1mutex__db.html#a6ae7b322c7cdb1dac205e40590b38677">unodb::mutex_db::mutex_db</a></div><div class="ttdeci">mutex_db() noexcept=default</div><div class="ttdoc">Construct empty mutex-protected ART index with default allocator.</div></div>
 <div class="ttc" id="aclassunodb_1_1mutex__db_html_a793cf23de6dc1854ccace69ae0926131"><div class="ttname"><a href="classunodb_1_1mutex__db.html#a793cf23de6dc1854ccace69ae0926131">unodb::mutex_db::insert_internal</a></div><div class="ttdeci">bool insert_internal(art_key_type k, value_type v)</div><div class="ttdoc">Modifying with an encoded key.</div><div class="ttdef"><b>Definition</b> mutex_art.hpp:55</div></div>
 <div class="ttc" id="aclassunodb_1_1mutex__db_html_a95da9eb65d7d477a1c43666848f8e362"><div class="ttname"><a href="classunodb_1_1mutex__db.html#a95da9eb65d7d477a1c43666848f8e362">unodb::mutex_db::value_type</a></div><div class="ttdeci">Value value_type</div><div class="ttdoc">The type of the value associated with the keys in the index.</div><div class="ttdef"><b>Definition</b> mutex_art.hpp:28</div></div>
+<div class="ttc" id="aclassunodb_1_1mutex__db_html_aad4cc68a6661f0f59f9ea413ecc4afba"><div class="ttname"><a href="classunodb_1_1mutex__db.html#aad4cc68a6661f0f59f9ea413ecc4afba">unodb::mutex_db::bulk_load</a></div><div class="ttdeci">void bulk_load(RandomIt first, RandomIt last)</div><div class="ttdoc">Convenience overload: sequential execution.</div><div class="ttdef"><b>Definition</b> mutex_art.hpp:167</div></div>
 <div class="ttc" id="aclassunodb_1_1mutex__db_html_ab0955c6dbac92d44a2997f55d53b1028"><div class="ttname"><a href="classunodb_1_1mutex__db.html#ab0955c6dbac92d44a2997f55d53b1028">unodb::mutex_db::key_type</a></div><div class="ttdeci">Key key_type</div><div class="ttdoc">The type of the keys in the index.</div><div class="ttdef"><b>Definition</b> mutex_art.hpp:26</div></div>
-<div class="ttc" id="aclassunodb_1_1mutex__db_html_ab6a1564ab98be4126bf3cf65d208831f"><div class="ttname"><a href="classunodb_1_1mutex__db.html#ab6a1564ab98be4126bf3cf65d208831f">unodb::mutex_db::scan_from</a></div><div class="ttdeci">void scan_from(Key from_key, FN fn, bool fwd=true) noexcept</div><div class="ttdoc">Scan in the indicated direction, applying the caller's lambda to each visited leaf.</div><div class="ttdef"><b>Definition</b> mutex_art.hpp:184</div></div>
+<div class="ttc" id="aclassunodb_1_1mutex__db_html_ab6a1564ab98be4126bf3cf65d208831f"><div class="ttname"><a href="classunodb_1_1mutex__db.html#ab6a1564ab98be4126bf3cf65d208831f">unodb::mutex_db::scan_from</a></div><div class="ttdeci">void scan_from(Key from_key, FN fn, bool fwd=true) noexcept</div><div class="ttdoc">Scan in the indicated direction, applying the caller's lambda to each visited leaf.</div><div class="ttdef"><b>Definition</b> mutex_art.hpp:205</div></div>
 <div class="ttc" id="aclassunodb_1_1mutex__db_html_ab96b338b5cbf2cd0b351f644070b5ed2"><div class="ttname"><a href="classunodb_1_1mutex__db.html#ab96b338b5cbf2cd0b351f644070b5ed2">unodb::mutex_db::upsert</a></div><div class="ttdeci">bool upsert(Key k, value_type v, FN fn)</div><div class="ttdoc">Insert or update a key.</div><div class="ttdef"><b>Definition</b> mutex_art.hpp:139</div></div>
-<div class="ttc" id="aclassunodb_1_1mutex__db_html_ac8852fa0deb950e7af233b71a46ab570"><div class="ttname"><a href="classunodb_1_1mutex__db.html#ac8852fa0deb950e7af233b71a46ab570">unodb::mutex_db::scan_range</a></div><div class="ttdeci">void scan_range(Key from_key, Key to_key, FN fn) noexcept</div><div class="ttdoc">Scan a half-open key range, applying the caller's lambda to each visited leaf.</div><div class="ttdef"><b>Definition</b> mutex_art.hpp:205</div></div>
+<div class="ttc" id="aclassunodb_1_1mutex__db_html_ac8852fa0deb950e7af233b71a46ab570"><div class="ttname"><a href="classunodb_1_1mutex__db.html#ac8852fa0deb950e7af233b71a46ab570">unodb::mutex_db::scan_range</a></div><div class="ttdeci">void scan_range(Key from_key, Key to_key, FN fn) noexcept</div><div class="ttdoc">Scan a half-open key range, applying the caller's lambda to each visited leaf.</div><div class="ttdef"><b>Definition</b> mutex_art.hpp:226</div></div>
 <div class="ttc" id="aclassunodb_1_1mutex__db_html_ad68550989439f654f98ecc827b814f41"><div class="ttname"><a href="classunodb_1_1mutex__db.html#ad68550989439f654f98ecc827b814f41">unodb::mutex_db::get_allocator</a></div><div class="ttdeci">constexpr const allocator_type &amp; get_allocator() const noexcept</div><div class="ttdoc">Return the allocator used by this tree.</div><div class="ttdef"><b>Definition</b> mutex_art.hpp:77</div></div>
 <div class="ttc" id="aclassunodb_1_1mutex__db_html_ae71cb90594f0f045e65854c06c18b8b9"><div class="ttname"><a href="classunodb_1_1mutex__db.html#ae71cb90594f0f045e65854c06c18b8b9">unodb::mutex_db::insert</a></div><div class="ttdeci">bool insert(Key insert_key, value_type v)</div><div class="ttdoc">Insert a value under a key iff there is no entry for that key.</div><div class="ttdef"><b>Definition</b> mutex_art.hpp:114</div></div>
 <div class="ttc" id="aclassunodb_1_1mutex__db_html_aeade57112531c5a734cb6e8390026bc3"><div class="ttname"><a href="classunodb_1_1mutex__db.html#aeade57112531c5a734cb6e8390026bc3">unodb::mutex_db::get</a></div><div class="ttdeci">get_result get(Key search_key) const noexcept</div><div class="ttdoc">Query for a value associated with a key.</div><div class="ttdef"><b>Definition</b> mutex_art.hpp:87</div></div>
-<div class="ttc" id="aclassunodb_1_1mutex__db_html_af2359973d76a675229b88bf5ef0fa8a5"><div class="ttname"><a href="classunodb_1_1mutex__db.html#af2359973d76a675229b88bf5ef0fa8a5">unodb::mutex_db::scan</a></div><div class="ttdeci">void scan(FN fn, bool fwd=true) noexcept</div><div class="ttdoc">Scan the tree, applying the caller's lambda to each visited leaf.</div><div class="ttdef"><b>Definition</b> mutex_art.hpp:166</div></div>
+<div class="ttc" id="aclassunodb_1_1mutex__db_html_af2359973d76a675229b88bf5ef0fa8a5"><div class="ttname"><a href="classunodb_1_1mutex__db.html#af2359973d76a675229b88bf5ef0fa8a5">unodb::mutex_db::scan</a></div><div class="ttdeci">void scan(FN fn, bool fwd=true) noexcept</div><div class="ttdoc">Scan the tree, applying the caller's lambda to each visited leaf.</div><div class="ttdef"><b>Definition</b> mutex_art.hpp:187</div></div>
 <div class="ttc" id="aglobal_8hpp_html"><div class="ttname"><a href="global_8hpp.html">global.hpp</a></div><div class="ttdoc">Global defines that must precede every other include directive in all the source files.</div></div>
 <div class="ttc" id="agroup__internal_html_ga5b23fa8d0f373d55f1cd77b698f74d33"><div class="ttname"><a href="group__internal.html#ga5b23fa8d0f373d55f1cd77b698f74d33">UNODB_DETAIL_NOINLINE</a></div><div class="ttdeci">#define UNODB_DETAIL_NOINLINE</div><div class="ttdoc">Ask the compiler to not inline the function.</div><div class="ttdef"><b>Definition</b> global.hpp:272</div></div>
-<div class="ttc" id="anamespaceunodb_html"><div class="ttname"><a href="namespaceunodb.html">unodb</a></div><div class="ttdoc">Namespace for the public UnoDB API.</div><div class="ttdef"><b>Definition</b> art.hpp:36</div></div>
+<div class="ttc" id="anamespaceunodb_html"><div class="ttname"><a href="namespaceunodb.html">unodb</a></div><div class="ttdoc">Namespace for the public UnoDB API.</div><div class="ttdef"><b>Definition</b> art.hpp:38</div></div>
 <div class="ttc" id="anamespaceunodb_html_a60a52550ffa9f2d0d9e1cd9ebc7cab28"><div class="ttname"><a href="namespaceunodb.html#a60a52550ffa9f2d0d9e1cd9ebc7cab28">unodb::inode_type_counter_array</a></div><div class="ttdeci">std::array&lt; std::uint64_t, detail::inode_type_count &gt; inode_type_counter_array</div><div class="ttdoc">std::array of std::uint64_t values for each internal node type.</div><div class="ttdef"><b>Definition</b> node_type.hpp:79</div></div>
 <div class="ttc" id="anamespaceunodb_html_a8105523dd9adff845377f54dd034b838"><div class="ttname"><a href="namespaceunodb.html#a8105523dd9adff845377f54dd034b838">unodb::node_type_counter_array</a></div><div class="ttdeci">std::array&lt; std::uint64_t, detail::node_type_count &gt; node_type_counter_array</div><div class="ttdoc">std::array of std::uint64_t values for each node type.</div><div class="ttdef"><b>Definition</b> node_type.hpp:69</div></div>
 <div class="ttc" id="astructunodb_1_1allocator__type_html"><div class="ttname"><a href="structunodb_1_1allocator__type.html">unodb::allocator_type</a></div><div class="ttdoc">Pluggable allocator for ART trees.</div><div class="ttdef"><b>Definition</b> art_allocator.hpp:38</div></div>

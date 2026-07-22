@@ -118,6 +118,7 @@ $(document).ready(function(){initNavTree('art__internal__impl_8hpp.html',''); in
 <code>#include &lt;iostream&gt;</code><br />
 <code>#include &lt;limits&gt;</code><br />
 <code>#include &lt;memory&gt;</code><br />
+<code>#include &lt;span&gt;</code><br />
 <code>#include &lt;stdexcept&gt;</code><br />
 <code>#include &lt;type_traits&gt;</code><br />
 <code>#include &lt;utility&gt;</code><br />
@@ -146,6 +147,15 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01std_1_1array_3_01T_00_01N_01_4_00_01CritSec_01_4.html">unodb::detail::value_bitmask_field&lt; false, std::array&lt; T, N &gt;, CritSec &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disabled specialization for array-based bitmasks.  <a href="structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01std_1_1array_3_01T_00_01N_01_4_00_01CritSec_01_4.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1bulk__child.html">unodb::detail::bulk_child&lt; NodePtr &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A child entry for bulk inode construction.  <a href="structunodb_1_1detail_1_1bulk__child.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1bulk__build__result.html">unodb::detail::bulk_build_result&lt; ArtPolicy &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tagged return from build_subtree: pointer + whether it's a VIS packed value (not a real heap pointer — must not be passed to delete_subtree).  <a href="structunodb_1_1detail_1_1bulk__build__result.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1bulk__subtree__guard.html">unodb::detail::bulk_subtree_guard&lt; ArtPolicy &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">RAII guard for subtrees during bulk construction.  <a href="structunodb_1_1detail_1_1bulk__subtree__guard.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__leaf.html">unodb::detail::basic_leaf&lt; Key, Header &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Leaf node storing key-value pair.  <a href="classunodb_1_1detail_1_1basic__leaf.html#details">More...</a><br /></td></tr>
@@ -191,6 +201,9 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__inode_1_1single__child__tag.html">unodb::detail::basic_inode&lt; ArtPolicy, MinSize, Capacity, NodeType, SmallerDerived, LargerDerived, Derived &gt;::single_child_tag</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag type to select the single-child chain constructor.  <a href="structunodb_1_1detail_1_1basic__inode_1_1single__child__tag.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__inode_1_1bulk__load__tag.html">unodb::detail::basic_inode&lt; ArtPolicy, MinSize, Capacity, NodeType, SmallerDerived, LargerDerived, Derived &gt;::bulk_load_tag</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag type to select the bulk-load constructor.  <a href="structunodb_1_1detail_1_1basic__inode_1_1bulk__load__tag.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__4.html">unodb::detail::basic_inode_4&lt; ArtPolicy &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Internal node with 2-4 children (N4).  <a href="classunodb_1_1detail_1_1basic__inode__4.html#details">More...</a><br /></td></tr>
@@ -256,6 +269,10 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a2c562326baf81b52c2efddf403e1e176" id="r_a2c562326baf81b52c2efddf403e1e176"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">class</a> ArtPolicy &gt; </td></tr>
+<tr class="memitem:a2c562326baf81b52c2efddf403e1e176"><td class="memTemplItemLeft" align="right" valign="top">ArtPolicy::node_ptr&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a2c562326baf81b52c2efddf403e1e176">unodb::detail::bulk_build_chain</a> (<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">typename</a> ArtPolicy::db_type &amp;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">self</a>, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">typename</a> ArtPolicy::art_key_type <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">k</a>, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">typename</a> ArtPolicy::node_ptr child, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">typename</a> ArtPolicy::art_key_type &gt; <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">start_depth</a>)</td></tr>
+<tr class="memdesc:a2c562326baf81b52c2efddf403e1e176"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a chain of inode4 nodes for prefix compression during bulk load.  <br /></td></tr>
+<tr class="separator:a2c562326baf81b52c2efddf403e1e176"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a25eb4ea7710810f49fcc23353dad6c8f" id="r_a25eb4ea7710810f49fcc23353dad6c8f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">auto</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a25eb4ea7710810f49fcc23353dad6c8f">unodb::detail::_mm_cmple_epu8</a> (<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">__m128i</a> x, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">__m128i</a> y) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
 <tr class="memdesc:a25eb4ea7710810f49fcc23353dad6c8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare packed unsigned 8-bit integers for less-than-or-equal.  <br /></td></tr>
 <tr class="separator:a25eb4ea7710810f49fcc23353dad6c8f"><td class="memSeparator" colspan="2">&#160;</td></tr>

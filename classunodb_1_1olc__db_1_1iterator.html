@@ -150,7 +150,7 @@ Public Member Functions</h2></td></tr>
 <a class="el" href="classunodb_1_1olc__db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>prior</b> ()</td></tr>
 <tr class="memdesc:a2e40d0642da63e5b5906b9cd287d4598"><td class="mdescLeft">&#160;</td><td class="mdescRight">Position the iterator on the previous entry in the index. <br /></td></tr>
 <tr class="separator:a2e40d0642da63e5b5906b9cd287d4598"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae8010e6805f3a30d036747669a6c7142" id="r_ae8010e6805f3a30d036747669a6c7142"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#ae8010e6805f3a30d036747669a6c7142">seek</a> (art_key_type search_key, bool &amp;match, bool fwd=true)</td></tr>
+<tr class="memitem:ae8010e6805f3a30d036747669a6c7142" id="r_ae8010e6805f3a30d036747669a6c7142"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#ae8010e6805f3a30d036747669a6c7142">seek</a> (<a class="el" href="classunodb_1_1olc__db.html#a298eec197f7dacb3e894ad7e8821e473">art_key_type</a> search_key, bool &amp;match, bool fwd=true)</td></tr>
 <tr class="memdesc:ae8010e6805f3a30d036747669a6c7142"><td class="mdescLeft">&#160;</td><td class="mdescRight">Position the iterator on, before, or after the caller's key.  <br /></td></tr>
 <tr class="separator:ae8010e6805f3a30d036747669a6c7142"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5191fc0f0314395d129d42ed78892164" id="r_a5191fc0f0314395d129d42ed78892164"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#af09c41276e8ea862c798dba2cc06aace">get_key_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a5191fc0f0314395d129d42ed78892164">get_key</a> () noexcept</td></tr>
@@ -191,7 +191,7 @@ Protected Member Functions</h2></td></tr>
 <tr class="memitem:a1f1df12aa14bcf6379c721875d1e42eb" id="r_a1f1df12aa14bcf6379c721875d1e42eb"><td class="memItemLeft" align="right" valign="top"><a id="a1f1df12aa14bcf6379c721875d1e42eb" name="a1f1df12aa14bcf6379c721875d1e42eb"></a>
 <a class="el" href="classunodb_1_1olc__db_1_1iterator.html">iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="classunodb_1_1olc__db_1_1iterator.html">iterator</a> &amp;)=delete</td></tr>
 <tr class="separator:a1f1df12aa14bcf6379c721875d1e42eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac843013a7e0e7459901a7b9defd1abbb" id="r_ac843013a7e0e7459901a7b9defd1abbb"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#ac843013a7e0e7459901a7b9defd1abbb">cmp</a> (const art_key_type &amp;akey) const noexcept</td></tr>
+<tr class="memitem:ac843013a7e0e7459901a7b9defd1abbb" id="r_ac843013a7e0e7459901a7b9defd1abbb"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#ac843013a7e0e7459901a7b9defd1abbb">cmp</a> (const <a class="el" href="classunodb_1_1olc__db.html#a298eec197f7dacb3e894ad7e8821e473">art_key_type</a> &amp;akey) const noexcept</td></tr>
 <tr class="memdesc:ac843013a7e0e7459901a7b9defd1abbb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare the given key (e.g., the to_key) to the current key in the internal buffer.  <br /></td></tr>
 <tr class="separator:ac843013a7e0e7459901a7b9defd1abbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace012d208ac5040e5d7c819f96da8eeb" id="r_ace012d208ac5040e5d7c819f96da8eeb"><td class="memItemLeft" align="right" valign="top"><a id="ace012d208ac5040e5d7c819f96da8eeb" name="ace012d208ac5040e5d7c819f96da8eeb"></a>
@@ -249,7 +249,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>try_right_most_traver
 <tr class="memdesc:a09bcbb5f112c73acd5eaf7529cad4a32"><td class="mdescLeft">&#160;</td><td class="mdescRight">Descend from the current state of the stack to the right most child leaf, updating the state of the iterator during the descent. <br /></td></tr>
 <tr class="separator:a09bcbb5f112c73acd5eaf7529cad4a32"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae7dac20521f2b23e44c4510e62a328fc" id="r_ae7dac20521f2b23e44c4510e62a328fc"><td class="memItemLeft" align="right" valign="top"><a id="ae7dac20521f2b23e44c4510e62a328fc" name="ae7dac20521f2b23e44c4510e62a328fc"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>try_seek</b> (art_key_type search_key, bool &amp;match, bool fwd)</td></tr>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>try_seek</b> (<a class="el" href="classunodb_1_1olc__db.html#a298eec197f7dacb3e894ad7e8821e473">art_key_type</a> search_key, bool &amp;match, bool fwd)</td></tr>
 <tr class="memdesc:ae7dac20521f2b23e44c4510e62a328fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Core logic invoked from retry loop. <br /></td></tr>
 <tr class="separator:ae7dac20521f2b23e44c4510e62a328fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -299,7 +299,7 @@ template&lt;typename Key , typename Value &gt; </div>
         <tr>
           <td class="memname">int <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value &gt;::iterator::cmp </td>
           <td>(</td>
-          <td class="paramtype">const art_key_type &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classunodb_1_1olc__db.html#a298eec197f7dacb3e894ad7e8821e473">art_key_type</a> &amp;&#160;</td>
           <td class="paramname"><em>akey</em></td><td>)</td>
           <td> const</td>
         </tr>
@@ -440,7 +440,7 @@ template&lt;typename Key , typename Value &gt; </div>
         <tr>
           <td class="memname"><a class="el" href="classunodb_1_1olc__db.html">olc_db</a>&lt; Key, Value &gt;<a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a61065013166e1c7ab8d27eb62921e049">::iterator</a> &amp; <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value &gt;::iterator::seek </td>
           <td>(</td>
-          <td class="paramtype">art_key_type&#160;</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1olc__db.html#a298eec197f7dacb3e894ad7e8821e473">art_key_type</a>&#160;</td>
           <td class="paramname"><em>search_key</em>, </td>
         </tr>
         <tr>

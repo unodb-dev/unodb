@@ -5,6 +5,8 @@ var classunodb_1_1mutex__db =
     [ "value_type", "classunodb_1_1mutex__db.html#a95da9eb65d7d477a1c43666848f8e362", null ],
     [ "mutex_db", "classunodb_1_1mutex__db.html#a6ae7b322c7cdb1dac205e40590b38677", null ],
     [ "mutex_db", "classunodb_1_1mutex__db.html#a9f1c7434b9dfa04a1185f12ab3960c28", null ],
+    [ "bulk_load", "classunodb_1_1mutex__db.html#a2fdfa47cc4b6a3f8ac3e26a8b3296fa3", null ],
+    [ "bulk_load", "classunodb_1_1mutex__db.html#aad4cc68a6661f0f59f9ea413ecc4afba", null ],
     [ "clear", "classunodb_1_1mutex__db.html#a58a3c66a09d76f19a014875c93b1e310", null ],
     [ "get", "classunodb_1_1mutex__db.html#aeade57112531c5a734cb6e8390026bc3", null ],
     [ "get_allocator", "classunodb_1_1mutex__db.html#ad68550989439f654f98ecc827b814f41", null ],

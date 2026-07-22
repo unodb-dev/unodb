@@ -118,17 +118,17 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"classunodb_1_1db.html#ae96ae9741ef57bdec0060d3b43f2fd36",
-"classunodb_1_1detail_1_1basic__inode__256.html#a69ee45c77017182499a59843ebe0ada0",
-"classunodb_1_1detail_1_1basic__inode__impl.html#a697a7cbb45d3f7c687712e19e8dcefd7",
-"classunodb_1_1detail_1_1key__buffer.html#a2ed442b3f16f8c4c49cdd397bcc986fa",
-"classunodb_1_1key__encoder.html#a38cb81c43056442a3c98755280ac8ad0",
-"classunodb_1_1optimistic__lock_1_1atomic__version__type.html#a94a722b0d55d428125b52b38eeb63c9a",
-"classunodb_1_1qsbr__per__thread.html#aa3d30dde1b08b22f8a2bc5f1677cf024",
-"group__internal.html#ga2511c41e0d213dddb7f50a9b76b27404",
-"namespaceanonymous__namespace_02test__qsbr__oom_8cpp_03.html",
-"structunodb_1_1detail_1_1basic__art__policy.html#a617c611c68387ce3a3e195948c028833",
-"structunodb_1_1test_1_1pause__heap__faults.html#af02e2ec271e40aab0e6fb702ac67535f"
+"classunodb_1_1db.html#ac3e9da364737e347b1d03b51bbe42fdd",
+"classunodb_1_1detail_1_1basic__inode__16.html#af470045f63b1888c85166604c3d8a6be",
+"classunodb_1_1detail_1_1basic__inode__48.html#af470045f63b1888c85166604c3d8a6be",
+"classunodb_1_1detail_1_1deferred__requests.html#ab8ccb1328add23dc0d55a3efed8c6b84",
+"classunodb_1_1key__decoder.html#a3945bba5bf4a21d6de3dab6004201026",
+"classunodb_1_1olc__db_1_1iterator.html#a893e4b2df424ad935a9f3a69db3a7927",
+"classunodb_1_1qsbr__epoch.html#a500bb15ce2db81222a1bed2aadbaba54",
+"duckdb__encode__decode_8hpp.html",
+"namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html#ab224aa823326a5425487b5c941ce2912",
+"structanonymous__namespace_02test__qsbr__fuzz__deepstate_8cpp_03_1_1thread__info.html",
+"structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01std_1_1array_3_01T_00_01N_01_4_00_01CritSec_01_4.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

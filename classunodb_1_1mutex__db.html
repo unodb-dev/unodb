@@ -164,6 +164,15 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>empty</b> () const</t
 void&#160;</td><td class="memItemRight" valign="bottom"><b>clear</b> ()</td></tr>
 <tr class="memdesc:a58a3c66a09d76f19a014875c93b1e310"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes all entries in the index. <br /></td></tr>
 <tr class="separator:a58a3c66a09d76f19a014875c93b1e310"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2fdfa47cc4b6a3f8ac3e26a8b3296fa3" id="r_a2fdfa47cc4b6a3f8ac3e26a8b3296fa3"><td class="memTemplParams" colspan="2">template&lt;typename Fork , typename RandomIt &gt; </td></tr>
+<tr class="memitem:a2fdfa47cc4b6a3f8ac3e26a8b3296fa3"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#a2fdfa47cc4b6a3f8ac3e26a8b3296fa3">bulk_load</a> (Fork &amp;&amp;fork, std::size_t max_tasks, RandomIt first, RandomIt last)</td></tr>
+<tr class="memdesc:a2fdfa47cc4b6a3f8ac3e26a8b3296fa3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bulk-load sorted key-value pairs into an empty tree.  <br /></td></tr>
+<tr class="separator:a2fdfa47cc4b6a3f8ac3e26a8b3296fa3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad4cc68a6661f0f59f9ea413ecc4afba" id="r_aad4cc68a6661f0f59f9ea413ecc4afba"><td class="memTemplParams" colspan="2"><a id="aad4cc68a6661f0f59f9ea413ecc4afba" name="aad4cc68a6661f0f59f9ea413ecc4afba"></a>
+template&lt;typename RandomIt &gt; </td></tr>
+<tr class="memitem:aad4cc68a6661f0f59f9ea413ecc4afba"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>bulk_load</b> (RandomIt first, RandomIt last)</td></tr>
+<tr class="memdesc:aad4cc68a6661f0f59f9ea413ecc4afba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenience overload: sequential execution. <br /></td></tr>
+<tr class="separator:aad4cc68a6661f0f59f9ea413ecc4afba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af2359973d76a675229b88bf5ef0fa8a5" id="r_af2359973d76a675229b88bf5ef0fa8a5"><td class="memTemplParams" colspan="2">template&lt;typename FN &gt; </td></tr>
 <tr class="memitem:af2359973d76a675229b88bf5ef0fa8a5"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classunodb_1_1mutex__db.html#af2359973d76a675229b88bf5ef0fa8a5">scan</a> (FN fn, bool fwd=true) noexcept</td></tr>
 <tr class="memdesc:af2359973d76a675229b88bf5ef0fa8a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scan the tree, applying the caller's lambda to each visited leaf.  <br /></td></tr>
@@ -271,6 +280,76 @@ template&lt;typename Key , typename Value &gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a2fdfa47cc4b6a3f8ac3e26a8b3296fa3" name="a2fdfa47cc4b6a3f8ac3e26a8b3296fa3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2fdfa47cc4b6a3f8ac3e26a8b3296fa3">&#9670;&#160;</a></span>bulk_load()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+<div class="memtemplate">
+template&lt;typename Fork , typename RandomIt &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classunodb_1_1mutex__db.html">unodb::mutex_db</a>&lt; Key, Value &gt;::bulk_load </td>
+          <td>(</td>
+          <td class="paramtype">Fork &amp;&amp;&#160;</td>
+          <td class="paramname"><em>fork</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::size_t&#160;</td>
+          <td class="paramname"><em>max_tasks</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">RandomIt&#160;</td>
+          <td class="paramname"><em>first</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">RandomIt&#160;</td>
+          <td class="paramname"><em>last</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Bulk-load sorted key-value pairs into an empty tree. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">Fork</td><td>Callable: fork(Callable) -&gt; Future&lt;R&gt; with .<a class="el" href="classunodb_1_1mutex__db.html#aeade57112531c5a734cb6e8390026bc3" title="Query for a value associated with a key.">get()</a> </td></tr>
+    <tr><td class="paramname">RandomIt</td><td>Random access iterator over pairs of (key, value) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">fork</td><td>Callable to submit parallel tasks </td></tr>
+    <tr><td class="paramname">max_tasks</td><td>Maximum tasks to fork </td></tr>
+    <tr><td class="paramname">first</td><td>Start of sorted range </td></tr>
+    <tr><td class="paramname">last</td><td>End of sorted range </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="aeade57112531c5a734cb6e8390026bc3" name="aeade57112531c5a734cb6e8390026bc3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aeade57112531c5a734cb6e8390026bc3">&#9670;&#160;</a></span>get()</h2>
 

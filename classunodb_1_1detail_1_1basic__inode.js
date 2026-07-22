@@ -1,5 +1,6 @@
 var classunodb_1_1detail_1_1basic__inode =
 [
+    [ "bulk_load_tag", "structunodb_1_1detail_1_1basic__inode_1_1bulk__load__tag.html", null ],
     [ "single_child_tag", "structunodb_1_1detail_1_1basic__inode_1_1single__child__tag.html", null ],
     [ "art_key_type", "classunodb_1_1detail_1_1basic__inode.html#a789345e4cacd1d9e179e0dcfe7aa064a", null ],
     [ "db_leaf_unique_ptr", "classunodb_1_1detail_1_1basic__inode.html#aa0833ddfc1e689707d1c487e2f34767c", null ],
@@ -16,6 +17,7 @@ var classunodb_1_1detail_1_1basic__inode =
     [ "basic_inode", "classunodb_1_1detail_1_1basic__inode.html#a0af82e138493a350472f26ee364becd6", null ],
     [ "basic_inode", "classunodb_1_1detail_1_1basic__inode.html#a7e407f1f60307c3cc92b9d54c9030830", null ],
     [ "basic_inode", "classunodb_1_1detail_1_1basic__inode.html#a6645d1b943113c416b4fa17b74ce7f9f", null ],
+    [ "basic_inode", "classunodb_1_1detail_1_1basic__inode.html#a2f7ea21e426f6ef0fb59d5631368a9a3", null ],
     [ "create", "classunodb_1_1detail_1_1basic__inode.html#a44b86f121e219eb243c69433816b2173", null ],
     [ "is_full_for_add", "classunodb_1_1detail_1_1basic__inode.html#a8d1cc0321605ea86c48978fdb898fdfb", null ],
     [ "is_min_size", "classunodb_1_1detail_1_1basic__inode.html#ac0b0a49458da13290693abb4d81cb5c6", null ],

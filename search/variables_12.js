@@ -8,5 +8,6 @@ var searchData=
   ['thread_5fcount_5fmask_5',['thread_count_mask',['../structunodb_1_1qsbr__state.html#a4e938754e4f52f03d657335a19c698e3',1,'unodb::qsbr_state']]],
   ['thread_5fsyncs_6',['thread_syncs',['../namespaceunodb_1_1detail.html#a04a041b47bebde8ed0f3bd97327e450c',1,'unodb::detail']]],
   ['threads_5fin_5fprevious_5fepoch_5fin_5fword_5fmask_7',['threads_in_previous_epoch_in_word_mask',['../structunodb_1_1qsbr__state.html#a94eff2759b60138b7241f6bfb881d871',1,'unodb::qsbr_state']]],
-  ['type_8',['type',['../classunodb_1_1detail_1_1basic__inode.html#af41844dd5e406d97b60ee4a41b8bc0d3',1,'unodb::detail::basic_inode']]]
+  ['tls_5fbulk_5fload_5fstats_8',['tls_bulk_load_stats',['../namespaceunodb_1_1detail.html#ac07048f94a0dadccc609dfdacb0ebf9c',1,'unodb::detail']]],
+  ['type_9',['type',['../classunodb_1_1detail_1_1basic__inode.html#af41844dd5e406d97b60ee4a41b8bc0d3',1,'unodb::detail::basic_inode']]]
 ];

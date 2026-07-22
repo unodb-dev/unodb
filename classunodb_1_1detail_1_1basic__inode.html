@@ -138,6 +138,9 @@ Inheritance diagram for unodb::detail::basic_inode&lt; ArtPolicy, MinSize, Capac
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__inode_1_1bulk__load__tag.html">bulk_load_tag</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag type to select the bulk-load constructor.  <a href="structunodb_1_1detail_1_1basic__inode_1_1bulk__load__tag.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__inode_1_1single__child__tag.html">single_child_tag</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag type to select the single-child chain constructor.  <a href="structunodb_1_1detail_1_1basic__inode_1_1single__child__tag.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -377,6 +380,9 @@ Protected Member Functions</h2></td></tr>
 <tr class="memitem:a6645d1b943113c416b4fa17b74ce7f9f" id="r_a6645d1b943113c416b4fa17b74ce7f9f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">constexpr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a6645d1b943113c416b4fa17b74ce7f9f">basic_inode</a> (detail::key_prefix_size <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">prefix_len</a>, <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">k1</a>, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; <a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a789345e4cacd1d9e179e0dcfe7aa064a">art_key_type</a> &gt; <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">depth</a>, <a class="el" href="structunodb_1_1detail_1_1basic__inode_1_1single__child__tag.html">single_child_tag</a>) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
 <tr class="memdesc:a6645d1b943113c416b4fa17b74ce7f9f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct single-child node with explicit prefix length.  <br /></td></tr>
 <tr class="separator:a6645d1b943113c416b4fa17b74ce7f9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f7ea21e426f6ef0fb59d5631368a9a3" id="r_a2f7ea21e426f6ef0fb59d5631368a9a3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">constexpr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a2f7ea21e426f6ef0fb59d5631368a9a3">basic_inode</a> (<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">unsigned</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">n_children</a>, detail::key_prefix_size <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">prefix_len</a>, <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">k1</a>, <a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; <a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a789345e4cacd1d9e179e0dcfe7aa064a">art_key_type</a> &gt; <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">depth</a>, <a class="el" href="structunodb_1_1detail_1_1basic__inode_1_1bulk__load__tag.html">bulk_load_tag</a>) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
+<tr class="memdesc:a2f7ea21e426f6ef0fb59d5631368a9a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct with arbitrary children count and explicit prefix.  <br /></td></tr>
+<tr class="separator:a2f7ea21e426f6ef0fb59d5631368a9a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_classunodb_1_1detail_1_1basic__inode__impl"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classunodb_1_1detail_1_1basic__inode__impl')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html">unodb::detail::basic_inode_impl&lt; ArtPolicy &gt;</a></td></tr>
 <tr class="memitem:a17f1e7ea4e127322897b3678c98067ca inherit pro_methods_classunodb_1_1detail_1_1basic__inode__impl" id="r_a17f1e7ea4e127322897b3678c98067ca"><td class="memItemLeft" align="right" valign="top">
 <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">os</a>, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">bool</a>) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">const</a></td></tr>
@@ -420,7 +426,7 @@ class unodb::detail::basic_inode&lt; ArtPolicy, MinSize, Capacity, NodeType, Sma
 </dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a31fd8624bc71996b089ceeff12ffc5eb" name="a31fd8624bc71996b089ceeff12ffc5eb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a31fd8624bc71996b089ceeff12ffc5eb">&#9670;&#160;</a></span>basic_inode() <span class="overload">[1/4]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a31fd8624bc71996b089ceeff12ffc5eb">&#9670;&#160;</a></span>basic_inode() <span class="overload">[1/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -474,7 +480,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
 </div>
 </div>
 <a id="a71b038c0de17eacd59e333ea92468cae" name="a71b038c0de17eacd59e333ea92468cae"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a71b038c0de17eacd59e333ea92468cae">&#9670;&#160;</a></span>basic_inode() <span class="overload">[2/4]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a71b038c0de17eacd59e333ea92468cae">&#9670;&#160;</a></span>basic_inode() <span class="overload">[2/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -521,7 +527,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
 </div>
 </div>
 <a id="a7e407f1f60307c3cc92b9d54c9030830" name="a7e407f1f60307c3cc92b9d54c9030830"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7e407f1f60307c3cc92b9d54c9030830">&#9670;&#160;</a></span>basic_inode() <span class="overload">[3/4]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a7e407f1f60307c3cc92b9d54c9030830">&#9670;&#160;</a></span>basic_inode() <span class="overload">[3/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -582,7 +588,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
 </div>
 </div>
 <a id="a6645d1b943113c416b4fa17b74ce7f9f" name="a6645d1b943113c416b4fa17b74ce7f9f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6645d1b943113c416b4fa17b74ce7f9f">&#9670;&#160;</a></span>basic_inode() <span class="overload">[4/4]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a6645d1b943113c416b4fa17b74ce7f9f">&#9670;&#160;</a></span>basic_inode() <span class="overload">[4/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -631,6 +637,65 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
 
 <p>Construct single-child node with explicit prefix length. </p>
 <p>Used by build_chain when remaining key &lt; key_prefix_capacity. </p>
+
+</div>
+</div>
+<a id="a2f7ea21e426f6ef0fb59d5631368a9a3" name="a2f7ea21e426f6ef0fb59d5631368a9a3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f7ea21e426f6ef0fb59d5631368a9a3">&#9670;&#160;</a></span>basic_inode() <span class="overload">[5/5]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">class</a> ArtPolicy , <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">unsigned</a> MinSize, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">unsigned</a> Capacity, <a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> NodeType, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">class</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">SmallerDerived</a> , <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">class</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">LargerDerived</a> , <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">class</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">Derived</a> &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1basic__inode.html">unodb::detail::basic_inode</a>&lt; ArtPolicy, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">MinSize</a>, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">Capacity</a>, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">NodeType</a>, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">SmallerDerived</a>, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">LargerDerived</a>, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">Derived</a> &gt;::basic_inode </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">unsigned</a>&#160;</td>
+          <td class="paramname"><em>n_children</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">detail::key_prefix_size&#160;</td>
+          <td class="paramname"><em>prefix_len</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a>&#160;</td>
+          <td class="paramname"><em>k1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1detail_1_1tree__depth.html">tree_depth</a>&lt; <a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a789345e4cacd1d9e179e0dcfe7aa064a">art_key_type</a> &gt;&#160;</td>
+          <td class="paramname"><em>depth</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structunodb_1_1detail_1_1basic__inode_1_1bulk__load__tag.html">bulk_load_tag</a>&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">protected</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Construct with arbitrary children count and explicit prefix. </p>
+<p>Used by create_bulk for bulk-loading sorted data. </p>
 
 </div>
 </div>

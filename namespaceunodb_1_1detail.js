@@ -15,6 +15,11 @@ var namespaceunodb_1_1detail =
     [ "basic_leaf", "classunodb_1_1detail_1_1basic__leaf.html", "classunodb_1_1detail_1_1basic__leaf" ],
     [ "basic_leaf< no_key_tag, Header >", "classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4.html", "classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4" ],
     [ "basic_node_ptr", "classunodb_1_1detail_1_1basic__node__ptr.html", "classunodb_1_1detail_1_1basic__node__ptr" ],
+    [ "bulk_build_result", "structunodb_1_1detail_1_1bulk__build__result.html", null ],
+    [ "bulk_child", "structunodb_1_1detail_1_1bulk__child.html", null ],
+    [ "bulk_load_helpers", "structunodb_1_1detail_1_1bulk__load__helpers.html", null ],
+    [ "bulk_load_stats_accumulator", "structunodb_1_1detail_1_1bulk__load__stats__accumulator.html", null ],
+    [ "bulk_subtree_guard", "structunodb_1_1detail_1_1bulk__subtree__guard.html", null ],
     [ "db_inode_qsbr_deleter", "classunodb_1_1detail_1_1db__inode__qsbr__deleter.html", null ],
     [ "db_leaf_qsbr_deleter", "classunodb_1_1detail_1_1db__leaf__qsbr__deleter.html", null ],
     [ "dealloc_vector_list_node", "structunodb_1_1detail_1_1dealloc__vector__list__node.html", "structunodb_1_1detail_1_1dealloc__vector__list__node" ],
@@ -78,6 +83,8 @@ var namespaceunodb_1_1detail =
     [ "assert_failure", "namespaceunodb_1_1detail.html#a73ccae20a7fde29e0381b903bbf0c58a", null ],
     [ "bit_cast", "namespaceunodb_1_1detail.html#ae1bd0a219522dc54b6e2726f277e9677", null ],
     [ "bswap", "namespaceunodb_1_1detail.html#ac205dcfa11427da52c49ee216f264824", null ],
+    [ "bulk_build_chain", "namespaceunodb_1_1detail.html#a2c562326baf81b52c2efddf403e1e176", null ],
+    [ "bulk_load_impl", "namespaceunodb_1_1detail.html#a1c68489cdee9af299bbbd77412574483", null ],
     [ "cannot_happen", "namespaceunodb_1_1detail.html#a84376061f77319109e51399dd10a3135", null ],
     [ "compare", "namespaceunodb_1_1detail.html#a749463245ed07a65e2df960ac1beb847", null ],
     [ "compare", "namespaceunodb_1_1detail.html#a60d6d8602d9590be64fd0031611bbf07", null ],
@@ -116,5 +123,6 @@ var namespaceunodb_1_1detail =
     [ "sync_before_insert_grow_guard", "namespaceunodb_1_1detail.html#a91070248f026b90cbc1a13cae9c654f4", null ],
     [ "sync_before_remove_write_guard", "namespaceunodb_1_1detail.html#ab39d0da261fb0203d1afaa9cf2a1749a", null ],
     [ "sync_between_chain_locks", "namespaceunodb_1_1detail.html#af901b0308c5439f03f4c38539f2b946d", null ],
-    [ "thread_syncs", "namespaceunodb_1_1detail.html#a04a041b47bebde8ed0f3bd97327e450c", null ]
+    [ "thread_syncs", "namespaceunodb_1_1detail.html#a04a041b47bebde8ed0f3bd97327e450c", null ],
+    [ "tls_bulk_load_stats", "namespaceunodb_1_1detail.html#ac07048f94a0dadccc609dfdacb0ebf9c", null ]
 ];

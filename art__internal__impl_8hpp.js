@@ -4,6 +4,9 @@ var art__internal__impl_8hpp =
     [ "unodb::detail::value_bitmask_field< Enabled, std::array< T, N >, CritSec >", "structunodb_1_1detail_1_1value__bitmask__field_3_01Enabled_00_01std_1_1array_3_01T_00_01N_01_4_00_01CritSec_01_4.html", null ],
     [ "unodb::detail::value_bitmask_field< false, Storage, CritSec >", "structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01Storage_00_01CritSec_01_4.html", null ],
     [ "unodb::detail::value_bitmask_field< false, std::array< T, N >, CritSec >", "structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01std_1_1array_3_01T_00_01N_01_4_00_01CritSec_01_4.html", null ],
+    [ "unodb::detail::bulk_child< NodePtr >", "structunodb_1_1detail_1_1bulk__child.html", null ],
+    [ "unodb::detail::bulk_build_result< ArtPolicy >", "structunodb_1_1detail_1_1bulk__build__result.html", null ],
+    [ "unodb::detail::bulk_subtree_guard< ArtPolicy >", "structunodb_1_1detail_1_1bulk__subtree__guard.html", null ],
     [ "unodb::detail::basic_leaf< Key, Header >", "classunodb_1_1detail_1_1basic__leaf.html", "classunodb_1_1detail_1_1basic__leaf" ],
     [ "unodb::detail::basic_leaf< no_key_tag, Header >", "classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4.html", "classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4" ],
     [ "unodb::detail::basic_inode_def< INode, Node4, Node16, Node48, Node256 >", "structunodb_1_1detail_1_1basic__inode__def.html", "structunodb_1_1detail_1_1basic__inode__def" ],
@@ -19,6 +22,7 @@ var art__internal__impl_8hpp =
     [ "unodb::detail::basic_inode_impl< ArtPolicy >", "classunodb_1_1detail_1_1basic__inode__impl.html", "classunodb_1_1detail_1_1basic__inode__impl" ],
     [ "unodb::detail::basic_inode< ArtPolicy, MinSize, Capacity, NodeType, SmallerDerived, LargerDerived, Derived >", "classunodb_1_1detail_1_1basic__inode.html", "classunodb_1_1detail_1_1basic__inode" ],
     [ "unodb::detail::basic_inode< ArtPolicy, MinSize, Capacity, NodeType, SmallerDerived, LargerDerived, Derived >::single_child_tag", "structunodb_1_1detail_1_1basic__inode_1_1single__child__tag.html", null ],
+    [ "unodb::detail::basic_inode< ArtPolicy, MinSize, Capacity, NodeType, SmallerDerived, LargerDerived, Derived >::bulk_load_tag", "structunodb_1_1detail_1_1basic__inode_1_1bulk__load__tag.html", null ],
     [ "unodb::detail::basic_inode_4< ArtPolicy >", "classunodb_1_1detail_1_1basic__inode__4.html", "classunodb_1_1detail_1_1basic__inode__4" ],
     [ "unodb::detail::basic_inode_4< ArtPolicy >::key_union", "unionunodb_1_1detail_1_1basic__inode__4_1_1key__union.html", "unionunodb_1_1detail_1_1basic__inode__4_1_1key__union" ],
     [ "unodb::detail::basic_inode_16< ArtPolicy >", "classunodb_1_1detail_1_1basic__inode__16.html", "classunodb_1_1detail_1_1basic__inode__16" ],
@@ -33,6 +37,7 @@ var art__internal__impl_8hpp =
     [ "iter_result_opt", "art__internal__impl_8hpp.html#a52168a8b4ef78db5b5cdc3f60a97eb38", null ],
     [ "key_prefix_size", "art__internal__impl_8hpp.html#a2a48856979c828fe6f91a83b8b43e0be", null ],
     [ "_mm_cmple_epu8", "art__internal__impl_8hpp.html#a25eb4ea7710810f49fcc23353dad6c8f", null ],
+    [ "bulk_build_chain", "art__internal__impl_8hpp.html#a2c562326baf81b52c2efddf403e1e176", null ],
     [ "make_db_leaf_ptr", "art__internal__impl_8hpp.html#a99221afa5558df0e2ff0f3bb95616f2b", null ],
     [ "key_prefix_capacity", "art__internal__impl_8hpp.html#a6affb48b09460b87dbcb8ab404f26263", null ]
 ];
