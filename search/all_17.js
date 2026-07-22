@@ -1,10 +1,10 @@
 var searchData=
 [
-  ['u64_0',['u64',['../unionunodb_1_1detail_1_1key__prefix.html#a2866197edfbf076586ccdc781aacb0f1',1,'unodb::detail::key_prefix::u64'],['../unionunodb_1_1detail_1_1key__prefix__snapshot.html#ae33099d9d470b9e1d42a1f6f3747603f',1,'unodb::detail::key_prefix_snapshot::u64'],['../classunodb_1_1test_1_1tree__verifier.html#aa7373b14dd50b75e137b990048017f44',1,'unodb::test::tree_verifier::u64']]],
-  ['ubuntu_2022_2004_1',['Ubuntu 22.04',['../index.html#autotoc_md58',1,'']]],
+  ['u64_0',['u64',['../classunodb_1_1test_1_1tree__verifier.html#aa7373b14dd50b75e137b990048017f44',1,'unodb::test::tree_verifier::u64'],['../unionunodb_1_1detail_1_1key__prefix__snapshot.html#ae33099d9d470b9e1d42a1f6f3747603f',1,'unodb::detail::key_prefix_snapshot::u64'],['../unionunodb_1_1detail_1_1key__prefix.html#a2866197edfbf076586ccdc781aacb0f1',1,'unodb::detail::key_prefix::u64']]],
+  ['ubuntu_2022_2004_1',['Ubuntu 22.04',['../index.html#autotoc_md44',1,'']]],
   ['unlock_2',['unlock',['../classunodb_1_1optimistic__lock_1_1write__guard.html#aa9e2296850d48a7c50d40be79036be07',1,'unodb::optimistic_lock::write_guard']]],
   ['unlock_5fand_5fobsolete_3',['unlock_and_obsolete',['../classunodb_1_1optimistic__lock_1_1write__guard.html#a4083c784a45907e08d1b159b30af6bdb',1,'unodb::optimistic_lock::write_guard']]],
-  ['unodb_4',['unodb',['../md_AGENTS.html',1,'Agent Bootstrap — unodb'],['../md_CLAUDE.html',1,'Agent Bootstrap — unodb'],['../md_CONTRIBUTING.html#autotoc_md28',1,'Contributing to UnoDB'],['../index.html#autotoc_md51',1,'unodb'],['../index.html',1,'UnoDB'],['../namespaceunodb.html',1,'unodb']]],
+  ['unodb_4',['unodb',['../md_AGENTS.html',1,'Agent Bootstrap — unodb'],['../md_CLAUDE.html',1,'Agent Bootstrap — unodb'],['../md_CONTRIBUTING.html#autotoc_md14',1,'Contributing to UnoDB'],['../index.html#autotoc_md37',1,'unodb'],['../index.html',1,'UnoDB'],['../namespaceunodb.html',1,'unodb']]],
   ['unodb_3a_3aanonymous_5fnamespace_7bqsbr_2ecpp_7d_5',['anonymous_namespace{qsbr.cpp}',['../namespaceunodb_1_1anonymous__namespace_02qsbr_8cpp_03.html',1,'unodb']]],
   ['unodb_3a_3adetail_6',['detail',['../namespaceunodb_1_1detail.html',1,'unodb']]],
   ['unodb_3a_3adetail_3a_3aanonymous_5fnamespace_7bqsbr_2ecpp_7d_7',['anonymous_namespace{qsbr.cpp}',['../namespaceunodb_1_1detail_1_1anonymous__namespace_02qsbr_8cpp_03.html',1,'unodb::detail']]],
@@ -90,7 +90,5 @@ var searchData=
   ['upsertconcurrencytest_87',['UpsertConcurrencyTest',['../classanonymous__namespace_02test__art__upsert_8cpp_03_1_1UpsertConcurrencyTest.html',1,'anonymous_namespace{test_art_upsert.cpp}']]],
   ['upsertoomtest_88',['UpsertOOMTest',['../classanonymous__namespace_02test__art__upsert_8cpp_03_1_1UpsertOOMTest.html',1,'anonymous_namespace{test_art_upsert.cpp}']]],
   ['upserttest_89',['UpsertTest',['../classanonymous__namespace_02test__art__upsert_8cpp_03_1_1UpsertTest.html',1,'anonymous_namespace{test_art_upsert.cpp}']]],
-  ['upstream_90',['upstream',['../md_CLAUDE.html#autotoc_md20',1,'Fork CI (MSVC + coverage) — run BEFORE pushing to upstream'],['../md_AGENTS.html#autotoc_md5',1,'Fork CI (MSVC + coverage) — run BEFORE pushing to upstream']]],
-  ['upstream_20ci_20—_20poll_20after_20pushing_91',['upstream ci — poll after pushing',['../md_CLAUDE.html#autotoc_md21',1,'Upstream CI — poll after pushing'],['../md_AGENTS.html#autotoc_md6',1,'Upstream CI — poll after pushing']]],
-  ['usage_92',['Usage',['../index.html#autotoc_md61',1,'']]]
+  ['usage_90',['Usage',['../index.html#autotoc_md47',1,'']]]
 ];

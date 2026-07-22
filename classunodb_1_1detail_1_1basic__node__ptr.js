@@ -10,7 +10,6 @@ var classunodb_1_1detail_1_1basic__node__ptr =
     [ "operator==", "classunodb_1_1detail_1_1basic__node__ptr.html#a6f8d6e616791979c2f91ab81be435e50", null ],
     [ "ptr", "classunodb_1_1detail_1_1basic__node__ptr.html#ad2cfa7af4f6dd3cf89cd000edabd53c7", null ],
     [ "raw_val", "classunodb_1_1detail_1_1basic__node__ptr.html#ad84602cfdb8eb02367a61443a6a53630", null ],
-    [ "static_asserts", "classunodb_1_1detail_1_1basic__node__ptr.html#ac6dc70e3915473e37377008c0a5b0e2b", null ],
     [ "tag_ptr", "classunodb_1_1detail_1_1basic__node__ptr.html#a24db0018c63295bd96a1f6694e7e6104", null ],
     [ "type", "classunodb_1_1detail_1_1basic__node__ptr.html#a08a07d5e5b31f87c500fc63be6144860", null ],
     [ "lowest_non_tag_bit", "classunodb_1_1detail_1_1basic__node__ptr.html#abbdb97298a0f07ae140cb2df9f832583", null ],

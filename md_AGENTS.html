@@ -99,69 +99,24 @@ $(document).ready(function(){initNavTree('md_AGENTS.html',''); initResizable(); 
   <div class="headertitle"><div class="title">Agent Bootstrap — unodb</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="autotoc_md0"></a> </p>
-<h1><a class="anchor" id="autotoc_md1"></a>
-Scope</h1>
-<ul>
-<li>Repository: <code>unodb-dev/unodb</code> (upstream), <code>thompsonbry/unodb</code> (fork)</li>
-<li>Fork remote: <code>origin</code> (SSH push target — updates upstream PRs automatically)</li>
-<li>Upstream remote: <code>upstream</code> (read-only reference)</li>
+<div class="textblock"><p><a class="anchor" id="autotoc_md0"></a></p><ul>
+<li>Repository: <code>unodb-dev/unodb</code></li>
 </ul>
-<h1><a class="anchor" id="autotoc_md2"></a>
+<h1><a class="anchor" id="autotoc_md1"></a>
 Repository Orientation</h1>
 <p>At the start of every session, read:</p>
 <ol type="1">
 <li>This file</li>
-<li><code>.unodb-work/blackboards/session-context.md</code> — active branch state, known bugs, task status</li>
-<li><code>.unodb-work/blackboards/roadmap.md</code> — feature roadmap</li>
+<li><code>CONTRIBUTING.md</code> — code quality standards and build instructions</li>
+<li><code>README.md</code> — project overview, API reference, build options</li>
 </ol>
-<h1><a class="anchor" id="autotoc_md3"></a>
-CI Process</h1>
-<p>All CI tooling lives in <code>.unodb-work/</code>. Scripts are executable.</p>
-<h2><a class="anchor" id="autotoc_md4"></a>
-Before pushing (MANDATORY — no exceptions)</h2>
-<div class="fragment"><div class="line">bash .unodb-work/pre-push-checks.sh        # FULL: format, build, test, sanitizers</div>
-</div><!-- fragment --><p><b>Do NOT use <code>--quick</code> before pushing to origin.</b> The full run catches issues that waste 12+ hours of CI time if missed. <code>--quick</code> is only for local iteration.</p>
-<h2><a class="anchor" id="autotoc_md5"></a>
-Fork CI (MSVC + coverage) — run BEFORE pushing to upstream</h2>
-<div class="fragment"><div class="line">bash .unodb-work/trigger-msvc-ci.sh         # Merges branch into msvc-check, pushes</div>
-<div class="line">bash .unodb-work/trigger-coverage-ci.sh     # Merges branch into coverage-check, pushes</div>
-<div class="line">bash .unodb-work/check-msvc-ci.sh           # Poll MSVC status</div>
-<div class="line">bash .unodb-work/check-coverage-ci.sh       # Poll coverage status</div>
-<div class="line">bash .unodb-work/check-coverage-ci.sh --download  # Download lcov artifacts</div>
-<div class="line">bash .unodb-work/parse-lcov-patch.sh        # Patch coverage analysis (target ≥ 98.63%)</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md6"></a>
-Upstream CI — poll after pushing</h2>
-<div class="fragment"><div class="line">bash .unodb-work/check-ci.sh https://github.com/unodb-dev/unodb/pull/&lt;N&gt;</div>
-</div><!-- fragment --><p>Known infra failures (not our code): SonarCloud, claude-review. <b>Read the actual CI failure logs</b> — do not assume failures are FPs without checking.</p>
-<h2><a class="anchor" id="autotoc_md7"></a>
-Formatting</h2>
-<div class="fragment"><div class="line">docker run --rm -v &quot;$(pwd):/src&quot; -w /src unodb-clang21 \</div>
-<div class="line">  clang-format-21 -i &lt;files&gt;                    # Fix</div>
-<div class="line">docker run --rm -v &quot;$(pwd):/src&quot; -w /src unodb-clang21 \</div>
-<div class="line">  clang-format-21 --dry-run -Werror &lt;files&gt;     # Check</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md8"></a>
+<h1><a class="anchor" id="autotoc_md2"></a>
 Git Rules</h1>
 <ul>
 <li><b>Never amend commits</b> — always make new ones.</li>
 <li><b>Never <code>git add -A</code></b> — stage specific files.</li>
-<li><b>Push to <code>origin</code></b> (fork) via SSH — this updates the upstream PR.</li>
-<li><b>clang-format-21 via docker</b> (<code>unodb-clang21</code>) is canonical.</li>
-<li>**<code>gh</code> CLI token**: Run <code>unset GITHUB_TOKEN</code> before <code>gh pr create</code> so <code>gh</code> falls back to <code>~/.config/gh/hosts.yml</code> which has <code>repo</code> scope.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md9"></a>
-Push Workflow (complete sequence)</h1>
-<ol type="1">
-<li>Run FULL pre-push checks: <code>bash .unodb-work/pre-push-checks.sh</code></li>
-<li>Trigger fork CI: MSVC + coverage (scripts above)</li>
-<li>Wait for MSVC to pass (9/9 jobs)</li>
-<li>Wait for coverage CI to pass, then download and verify patch coverage: <div class="fragment"><div class="line">bash .unodb-work/check-coverage-ci.sh --download</div>
-<div class="line">bash .unodb-work/parse-lcov-patch.sh   # MUST show ≥ 98.63%</div>
-</div><!-- fragment --> If patch coverage is below target, fix uncovered lines before pushing.</li>
-<li>Push: <code>git push origin &lt;branch&gt;</code></li>
-<li>Poll upstream CI and READ failure logs — do not assume FPs</li>
-</ol>
-<h1><a class="anchor" id="autotoc_md10"></a>
+<h1><a class="anchor" id="autotoc_md3"></a>
 Code Quality Rules (from CONTRIBUTING.md)</h1>
 <ul>
 <li><code>const</code> everywhere possible (except by-value params and movable fields).</li>
@@ -170,16 +125,14 @@ Code Quality Rules (from CONTRIBUTING.md)</h1>
 <li><code>noexcept</code> on everything that cannot throw.</li>
 <li>Pass by const reference for non-trivial types.</li>
 <li>All testable paths must be tested; LCOV_EXCL only for genuinely dead code.</li>
-<li>Coverage target: ≥ 98.63% patch coverage.</li>
 <li>Doxygen comments on all declarations including private members.</li>
 <li>A clean CI run is a prerequisite for merging.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md11"></a>
+<h1><a class="anchor" id="autotoc_md4"></a>
 Build Rules</h1>
-<h2><a class="anchor" id="autotoc_md12"></a>
+<h2><a class="anchor" id="autotoc_md5"></a>
 TSan and OLC Fields</h2>
-<p><b>Never use <code>DISABLE_TSAN</code> or <code>__attribute__((no_sanitize("thread")))</code>.</b> The pre-push check enforces this mechanically.</p>
-<p>OLC uses optimistic reads (read without lock, validate version after). TSan cannot model this protocol and reports races on unprotected fields. The correct fix is to wrap the field in the existing <code>in_critical_section&lt;T&gt;</code> template (relaxed atomics that TSan understands) — NOT to suppress TSan.</p>
+<p><b>Never use <code>DISABLE_TSAN</code> or <code>__attribute__((no_sanitize("thread")))</code>.</b> The OLC protocol uses optimistic reads (read without lock, validate version after). TSan cannot model this and reports false races. The correct fix is to wrap the field in the existing <code>in_critical_section&lt;T&gt;</code> template (relaxed atomics that TSan understands) — NOT to suppress TSan.</p>
 <p>Pattern:</p>
 <ul>
 <li><code>in_critical_section&lt;T&gt;</code> (from <code><a class="el" href="optimistic__lock_8hpp.html" title="Optimistic lock.">optimistic_lock.hpp</a></code>) — for OLC/concurrent use</li>

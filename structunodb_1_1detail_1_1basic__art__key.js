@@ -12,7 +12,6 @@ var structunodb_1_1detail_1_1basic__art__key =
     [ "operator[]", "structunodb_1_1detail_1_1basic__art__key.html#aa5234b1c24ea8029f6ca8a4ce3c4231f", null ],
     [ "shift_right", "structunodb_1_1detail_1_1basic__art__key.html#a883f9d04af426ae51af3b3f8b6c0026d", null ],
     [ "size", "structunodb_1_1detail_1_1basic__art__key.html#a1e070387a8d6335076f3d14bad7e7b25", null ],
-    [ "static_asserts", "structunodb_1_1detail_1_1basic__art__key.html#a7f533761914d776e97107316f117db14", null ],
     [ "operator<<", "structunodb_1_1detail_1_1basic__art__key.html#a9df8f2c9dc5f0b843d97ce6b35f16407", null ],
     [ "key", "structunodb_1_1detail_1_1basic__art__key.html#abc8d474caa99eac94a1b49eee7a9df07", null ],
     [ "key_bytes", "structunodb_1_1detail_1_1basic__art__key.html#aa1c673bbd12a302556a7880df52aa9b8", null ]
