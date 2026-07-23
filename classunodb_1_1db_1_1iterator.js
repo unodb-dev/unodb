@@ -4,7 +4,7 @@ var classunodb_1_1db_1_1iterator =
     [ "key_type", "classunodb_1_1db_1_1iterator.html#aa528130c72932f5e1cb4f3b442d202da", null ],
     [ "stack_entry", "classunodb_1_1db_1_1iterator.html#a9166f2a1d9fcc47bc1c9f09da8806919", null ],
     [ "value_type", "classunodb_1_1db_1_1iterator.html#a4839e9e424e83bb670e2bef82c71255a", null ],
-    [ "iterator", "classunodb_1_1db_1_1iterator.html#ac92ace17e87447215c0c9d0bce25d693", null ],
+    [ "iterator", "classunodb_1_1db_1_1iterator.html#a698f87a59c0d26514fe953c27145f0fb", null ],
     [ "iterator", "classunodb_1_1db_1_1iterator.html#a3b8a7300df10e9957750ed2bfe029ef0", null ],
     [ "iterator", "classunodb_1_1db_1_1iterator.html#a183fbec499bd2aee9b4f67275fcf4099", null ],
     [ "cmp", "classunodb_1_1db_1_1iterator.html#a8f6d2107b7184fa1126dc174cc0ec270", null ],

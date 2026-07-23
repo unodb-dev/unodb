@@ -99,7 +99,8 @@ $(document).ready(function(){initNavTree('namespaceanonymous__namespace_02test__
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">anonymous_namespace{test_art_oom.cpp} Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -134,6 +135,10 @@ template&lt;class TypeParam , typename Init , typename CheckAfterSuccess &gt; </
 template&lt;class TypeParam , typename Init , typename CheckAfterSuccess &gt; </td></tr>
 <tr class="memitem:a8d53ee080106a6a4926161cc93071fab"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>oom_remove_test</b> (unsigned fail_limit, Init init, std::uint64_t k, CheckAfterSuccess check_after_success)</td></tr>
 <tr class="separator:a8d53ee080106a6a4926161cc93071fab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a79f0c8a1ab78afee97a5d3f80101b1b4" id="r_a79f0c8a1ab78afee97a5d3f80101b1b4"><td class="memTemplParams" colspan="2"><a id="a79f0c8a1ab78afee97a5d3f80101b1b4" name="a79f0c8a1ab78afee97a5d3f80101b1b4"></a>
+template&lt;class TypeParam , typename ScanOp &gt; </td></tr>
+<tr class="memitem:a79f0c8a1ab78afee97a5d3f80101b1b4"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>oom_scan_test</b> (unsigned fail_limit, ScanOp scan_op)</td></tr>
+<tr class="separator:a79f0c8a1ab78afee97a5d3f80101b1b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa66e73be96261e91291a124c0c56a186" id="r_aa66e73be96261e91291a124c0c56a186"><td class="memItemLeft" align="right" valign="top"><a id="aa66e73be96261e91291a124c0c56a186" name="aa66e73be96261e91291a124c0c56a186"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__oom_8cpp_03_1_1ARTOOMTest.html">ARTOOMTest</a>, CtorDoesNotAllocate)</td></tr>
 <tr class="separator:aa66e73be96261e91291a124c0c56a186"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -179,6 +184,9 @@ template&lt;class TypeParam , typename Init , typename CheckAfterSuccess &gt; </
 <tr class="memitem:ac95a59707dabab4b4861b8110475da1a" id="r_ac95a59707dabab4b4861b8110475da1a"><td class="memItemLeft" align="right" valign="top"><a id="ac95a59707dabab4b4861b8110475da1a" name="ac95a59707dabab4b4861b8110475da1a"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__oom_8cpp_03_1_1ARTOOMTest.html">ARTOOMTest</a>, Node256ShrinkToNode48)</td></tr>
 <tr class="separator:ac95a59707dabab4b4861b8110475da1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a946d3bdd2f312be62377991ce2f6accb" id="r_a946d3bdd2f312be62377991ce2f6accb"><td class="memItemLeft" align="right" valign="top"><a id="a946d3bdd2f312be62377991ce2f6accb" name="a946d3bdd2f312be62377991ce2f6accb"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__oom_8cpp_03_1_1ARTOOMTest.html">ARTOOMTest</a>, Scan)</td></tr>
+<tr class="separator:a946d3bdd2f312be62377991ce2f6accb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8e648347149614055eba308c4bb24ac8" id="r_a8e648347149614055eba308c4bb24ac8"><td class="memTemplParams" colspan="2"><a id="a8e648347149614055eba308c4bb24ac8" name="a8e648347149614055eba308c4bb24ac8"></a>
 template&lt;class Db &gt; </td></tr>
 <tr class="memitem:a8e648347149614055eba308c4bb24ac8"><td class="memTemplItemLeft" align="right" valign="top">constexpr unsigned&#160;</td><td class="memTemplItemRight" valign="bottom"><b>chain_oom_limit</b> (unsigned vis_allocs)</td></tr>
@@ -214,7 +222,41 @@ template&lt;class TypeParam &gt; </td></tr>
 <tr class="memitem:a0998115a44d49431918468ab265ab06b" id="r_a0998115a44d49431918468ab265ab06b"><td class="memItemLeft" align="right" valign="top"><a id="a0998115a44d49431918468ab265ab06b" name="a0998115a44d49431918468ab265ab06b"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__oom_8cpp_03_1_1ARTOOMTest.html">ARTOOMTest</a>, BulkLoadNested)</td></tr>
 <tr class="separator:a0998115a44d49431918468ab265ab06b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:af4972f1016801fc3fcab80bb5c5136fe" id="r_af4972f1016801fc3fcab80bb5c5136fe"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02test__art__oom_8cpp_03.html#af4972f1016801fc3fcab80bb5c5136fe">oom_scan_noop_visitor</a></td></tr>
+<tr class="separator:af4972f1016801fc3fcab80bb5c5136fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5016b6252e2a8cd77f809b3de4fa56ad" id="r_a5016b6252e2a8cd77f809b3de4fa56ad"><td class="memItemLeft" align="right" valign="top"><a id="a5016b6252e2a8cd77f809b3de4fa56ad" name="a5016b6252e2a8cd77f809b3de4fa56ad"></a>
+constexpr unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>oom_scan_fail_limit</b> = 20</td></tr>
+<tr class="separator:a5016b6252e2a8cd77f809b3de4fa56ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="af4972f1016801fc3fcab80bb5c5136fe" name="af4972f1016801fc3fcab80bb5c5136fe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af4972f1016801fc3fcab80bb5c5136fe">&#9670;&#160;</a></span>oom_scan_noop_visitor</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto anonymous_namespace{test_art_oom.cpp}::oom_scan_noop_visitor</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">= [](<span class="keyword">const</span> <span class="keyword">auto</span>&amp;) <span class="keyword">noexcept</span> {</div>
+<div class="line">  <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line">}</div>
+</div><!-- fragment -->
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

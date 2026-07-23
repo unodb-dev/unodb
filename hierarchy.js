@@ -34,6 +34,9 @@ var hierarchy =
     [ "unodb::detail::deallocation_request", "classunodb_1_1detail_1_1deallocation__request.html", null ],
     [ "unodb::detail::deferred_requests", "classunodb_1_1detail_1_1deferred__requests.html", null ],
     [ "unodb::detail::basic_art_policy< Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator >::delete_db_node_ptr_at_scope_exit", "structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html", null ],
+    [ "std::exception", null, [
+      [ "anonymous_namespace{test_art_scan.cpp}::scan_callback_exception", "structanonymous__namespace_02test__art__scan_8cpp_03_1_1scan__callback__exception.html", null ]
+    ] ],
     [ "unodb::detail::fake_inode", "classunodb_1_1detail_1_1fake__inode.html", null ],
     [ "unodb::fake_lock", "classunodb_1_1fake__lock.html", null ],
     [ "unodb::fake_read_critical_section", "classunodb_1_1fake__read__critical__section.html", null ],

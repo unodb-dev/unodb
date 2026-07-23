@@ -27,7 +27,8 @@ var annotated_dup =
       [ "ARTOOMTest", "classanonymous__namespace_02test__art__oom_8cpp_03_1_1ARTOOMTest.html", null ]
     ] ],
     [ "anonymous_namespace{test_art_scan.cpp}", "namespaceanonymous__namespace_02test__art__scan_8cpp_03.html", [
-      [ "ARTScanTest", "classanonymous__namespace_02test__art__scan_8cpp_03_1_1ARTScanTest.html", null ]
+      [ "ARTScanTest", "classanonymous__namespace_02test__art__scan_8cpp_03_1_1ARTScanTest.html", null ],
+      [ "scan_callback_exception", "structanonymous__namespace_02test__art__scan_8cpp_03_1_1scan__callback__exception.html", null ]
     ] ],
     [ "anonymous_namespace{test_art_upsert.cpp}", "namespaceanonymous__namespace_02test__art__upsert_8cpp_03.html", [
       [ "UpsertConcurrencyTest", "classanonymous__namespace_02test__art__upsert_8cpp_03_1_1UpsertConcurrencyTest.html", null ],

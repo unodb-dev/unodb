@@ -245,8 +245,8 @@ var NAVTREEINDEX9 =
 "qsbr_8hpp_source.html":[7,0,21],
 "qsbr__gtest__utils_8hpp_source.html":[7,0,2,2],
 "qsbr__ptr_8cpp.html":[7,0,22],
-"qsbr__ptr_8hpp.html":[7,0,23],
 "qsbr__ptr_8hpp.html":[4,1,0,2],
+"qsbr__ptr_8hpp.html":[7,0,23],
 "qsbr__ptr_8hpp.html#a5710c60b3e8525518398d85e89a7a40d":[7,0,23,3],
 "qsbr__ptr_8hpp_source.html":[7,0,23],
 "qsbr__test__utils_8hpp.html":[4,1,1,2]
