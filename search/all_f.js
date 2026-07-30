@@ -27,7 +27,7 @@ var searchData=
   ['messages_24',['Commit messages',['../md_CONTRIBUTING.html#autotoc_md24',1,'']]],
   ['micro_5fbenchmark_5fkey_5fview_2ecpp_25',['micro_benchmark_key_view.cpp',['../micro__benchmark__key__view_8cpp.html',1,'']]],
   ['min_5fsize_26',['min_size',['../classunodb_1_1detail_1_1basic__inode.html#a87dc5686f6c4ded6672e3c1deefabba3',1,'unodb::detail::basic_inode']]],
-  ['model_27',['model',['../group__optimistic-lock.html#autotoc_md35',1,'Memory model'],['..//home/runner/work/unodb/unodb/spec/tla/README.md#autotoc_md59',1,'Stage 12: Tree Structure Model']]],
+  ['model_27',['model',['../group__optimistic-lock.html#autotoc_md35',1,'Memory model'],['..//home/runner/work/unodb/unodb/spec/tla/README.md#autotoc_md60',1,'Stage 12: Tree Structure Model']]],
   ['msb_28',['msb',['../namespaceunodb_1_1detail.html#aa11dfd956f06126308971d516d631d85',1,'unodb::detail']]],
   ['msb16_29',['msb16',['../classunodb_1_1key__encoder.html#abfc674f94f24dd67301ba6f03773973b',1,'unodb::key_encoder::msb16'],['../classunodb_1_1key__decoder.html#aefc1a2ce62e49da6b7c7c17c2842a0fd',1,'unodb::key_decoder::msb16']]],
   ['msb32_30',['msb32',['../classunodb_1_1key__encoder.html#ae4421b780422e13353b52d1bd2a83324',1,'unodb::key_encoder::msb32'],['../classunodb_1_1key__decoder.html#a3ae263d165a40a0f3089c1c3908955d3',1,'unodb::key_decoder::msb32']]],

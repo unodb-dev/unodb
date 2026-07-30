@@ -44,8 +44,9 @@ var NAVTREE =
         [ "Quiescent State-Based Reclamation (QSBR)", "index.html#autotoc_md51", null ]
       ] ],
       [ "Related Projects", "index.html#autotoc_md52", null ],
-      [ "Contributing", "index.html#autotoc_md53", null ],
-      [ "Literature", "index.html#autotoc_md54", null ]
+      [ "Contributors", "index.html#autotoc_md53", null ],
+      [ "Contributing", "index.html#autotoc_md54", null ],
+      [ "Literature", "index.html#autotoc_md55", null ]
     ] ],
     [ "Agent Bootstrap — unodb", "md_AGENTS.html", [
       [ "Repository Orientation", "md_AGENTS.html#autotoc_md1", null ],
@@ -126,8 +127,8 @@ var NAVTREEINDEX =
 "classunodb_1_1olc__db_1_1iterator.html#a893e4b2df424ad935a9f3a69db3a7927",
 "classunodb_1_1qsbr__epoch.html#a500bb15ce2db81222a1bed2aadbaba54",
 "duckdb__encode__decode_8hpp.html",
-"namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html#ab224aa823326a5425487b5c941ce2912",
-"structanonymous__namespace_02test__art__scan_8cpp_03_1_1scan__callback__exception.html",
+"namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html#ab17f42536be7ef0043960f2068bac239",
+"qsbr__test__utils_8hpp.html",
 "structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01Storage_00_01CritSec_01_4.html"
 ];
 

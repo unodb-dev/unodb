@@ -56,7 +56,7 @@ var searchData=
   ['internals_53',['internals',['../group__optimistic-lock.html#autotoc_md34',1,'Internals'],['../group__internal.html',1,'Internals']]],
   ['introduction_54',['Introduction',['../index.html#autotoc_md38',1,'']]],
   ['invalidate_55',['invalidate',['../classunodb_1_1db_1_1iterator.html#ab9fa414f12d5d5d4a57bebb8800ca92c',1,'unodb::db::iterator::invalidate()'],['../classunodb_1_1olc__db_1_1iterator.html#acf49d1f0c3c52b0a9635c947a6c9ff34',1,'unodb::olc_db::iterator::invalidate()']]],
-  ['invariants_56',['Key Invariants',['..//home/runner/work/unodb/unodb/spec/tla/README.md#autotoc_md58',1,'']]],
+  ['invariants_56',['Key Invariants',['..//home/runner/work/unodb/unodb/spec/tla/README.md#autotoc_md59',1,'']]],
   ['is_5ffree_57',['is_free',['../classunodb_1_1optimistic__lock_1_1version__type.html#ac5213291bc880b42167098855ece7dbd',1,'unodb::optimistic_lock::version_type']]],
   ['is_5ffull_5ffor_5fadd_58',['is_full_for_add',['../classunodb_1_1detail_1_1basic__inode.html#a8d1cc0321605ea86c48978fdb898fdfb',1,'unodb::detail::basic_inode']]],
   ['is_5finode_59',['is_inode',['../structunodb_1_1detail_1_1basic__inode__def.html#a28669ae36f931f1ac88a5eec7b4a6da4',1,'unodb::detail::basic_inode_def']]],

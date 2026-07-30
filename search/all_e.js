@@ -18,7 +18,7 @@ var searchData=
   ['linting_20and_20static_20analysis_15',['Linting and static analysis',['../md_CONTRIBUTING.html#autotoc_md21',1,'']]],
   ['linux_202_16',['Amazon Linux 2',['../index.html#autotoc_md46',1,'']]],
   ['linux_202023_17',['Amazon Linux 2023',['../index.html#autotoc_md45',1,'']]],
-  ['literature_18',['literature',['../group__optimistic-lock.html#autotoc_md36',1,'Literature'],['../index.html#autotoc_md54',1,'Literature']]],
+  ['literature_18',['literature',['../group__optimistic-lock.html#autotoc_md36',1,'Literature'],['../index.html#autotoc_md55',1,'Literature']]],
   ['load_19',['load',['../classunodb_1_1in__critical__section.html#a8eb1c277a49389a3ea0697c405dec31f',1,'unodb::in_critical_section::load()'],['../classunodb_1_1in__fake__critical__section.html#a72d88e12287402107ad417b79f7045dd',1,'unodb::in_fake_critical_section::load()']]],
   ['load_5facquire_20',['load_acquire',['../classunodb_1_1optimistic__lock_1_1atomic__version__type.html#ab1bd489f032fd876be87fdda82ec0fb3',1,'unodb::optimistic_lock::atomic_version_type']]],
   ['load_5frelaxed_21',['load_relaxed',['../classunodb_1_1optimistic__lock_1_1atomic__version__type.html#a58e25f698739d17ed135f6940e31674d',1,'unodb::optimistic_lock::atomic_version_type']]],
