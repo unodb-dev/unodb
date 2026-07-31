@@ -1880,7 +1880,11 @@ class basic_inode_impl : public ArtPolicy::header_type {
   ///
   /// \param type Current node type
   /// \param child_index Child index
-  /// \return Child node pointer
+  /// \return Child node pointer, or nullptr if an empty slot was observed
+  /// (OLC torn read); act on the result only after a successful
+  /// read_critical_section::check(), and use is_value_in_slot() to
+  /// distinguish a legitimately packed zero value, which shares the nullptr
+  /// representation in value-in-slot mode, from an empty slot.
   ///
   /// \note For basic_inode_48, child_index is index into child_indices[]. For
   /// other types, it is direct index into children[]. This method hides this
@@ -2937,7 +2941,10 @@ class basic_inode_4
   ///
   /// \param child_index Index of child
   ///
-  /// \return Child node pointer
+  /// \return Child node pointer; nullptr only for a legitimately packed zero
+  /// value in value-in-slot mode
+  ///
+  /// \sa get_child(node_type, std::uint8_t) for the full nullptr contract
   [[nodiscard, gnu::pure]] constexpr node_ptr get_child(
       std::uint8_t child_index) noexcept {
     return children[child_index].load();
@@ -3662,7 +3669,10 @@ class basic_inode_16
   ///
   /// \param child_index Index of child
   ///
-  /// \return Child node pointer
+  /// \return Child node pointer; nullptr only for a legitimately packed zero
+  /// value in value-in-slot mode
+  ///
+  /// \sa get_child(node_type, std::uint8_t) for the full nullptr contract
   [[nodiscard, gnu::pure]] constexpr node_ptr get_child(
       std::uint8_t child_index) noexcept {
     return children[child_index].load();
@@ -4336,6 +4346,8 @@ class basic_inode_48
   /// \param child_index Key byte index of child
   ///
   /// \return Child node pointer, or nullptr if empty slot
+  ///
+  /// \sa get_child(node_type, std::uint8_t) for the full nullptr contract
   // N48: This is the case where we need to indirect through child_indices.
   [[nodiscard, gnu::pure]] constexpr node_ptr get_child(
       std::uint8_t child_index) noexcept {
@@ -4987,7 +4999,9 @@ class basic_inode_256
   ///
   /// \param child_index Key byte index of child
   ///
-  /// \return Child node pointer
+  /// \return Child node pointer, or nullptr if the slot was observed empty
+  ///
+  /// \sa get_child(node_type, std::uint8_t) for the full nullptr contract
   [[nodiscard, gnu::pure]] constexpr node_ptr get_child(
       std::uint8_t child_index) noexcept {
     return children[child_index].load();
