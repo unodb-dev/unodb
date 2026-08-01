@@ -700,11 +700,6 @@ class db final {
       return stack_.top();
     }
 
-    /// Return node at top of stack, or nullptr if stack is empty.
-    [[nodiscard]] detail::node_ptr current_node() const noexcept {
-      return stack_.empty() ? detail::node_ptr(nullptr) : stack_.top().node;
-    }
-
     /// \}
 
    private:
