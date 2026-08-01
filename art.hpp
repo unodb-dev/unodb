@@ -728,11 +728,21 @@ class db final {
     ///
     /// The stack is made up of `(node_ptr, key, child_index)` entries.
     ///
-    /// The `node_ptr` is never `nullptr` and points to the internal node or
-    /// leaf for that step in the path from the root to some leaf. For the
-    /// bottom of the stack, `node_ptr` is the root. For the top of the stack,
-    /// `node_ptr` is the current leaf. In the degenerate case where the tree is
-    /// a single root leaf, then the stack contains just that leaf.
+    /// The `node_ptr` is the internal node for that step in the path from the
+    /// root. For the bottom of the stack, `node_ptr` is the root. For the top
+    /// of the stack it is the current leaf or, in value-in-slot mode, the
+    /// packed value, with `packed_leaf` set. In the degenerate case where the
+    /// tree is a single root leaf, the stack contains just that leaf;
+    /// value-in-slot mode has no leaf nodes, so that case does not arise there.
+    ///
+    /// The `node_ptr` is never `nullptr` except for a `packed_leaf` entry
+    /// holding the value zero: detail::basic_art_policy::pack_value() writes
+    /// the raw value over the whole word, so a packed zero is bit-identical to
+    /// a null `node_ptr` (and, since node_type::LEAF is 0, reports
+    /// node_type::LEAF). Occupancy is therefore decided by
+    /// detail::basic_inode_impl::is_value_in_slot(), never by comparing a slot
+    /// against `nullptr`, and next() and prior() tolerate a null node on a
+    /// `packed_leaf` entry rather than asserting plain non-nullness.
     ///
     /// The `key` is the `std::byte` along which the path descends from that
     /// `node_ptr`. The `key` has no meaning for a leaf. The key byte may be

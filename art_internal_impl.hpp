@@ -1542,7 +1542,8 @@ struct iter_result {
   /// Node pointer type.
   using node_ptr = basic_node_ptr<NodeHeader>;
 
-  /// Node pointer (internal or leaf).
+  /// Node pointer: an internal node, a leaf, or, when #packed_leaf is set, the
+  /// packed value itself.
   node_ptr node;
 
   /// Key byte consumed at this level when stepping down to the child node. For
