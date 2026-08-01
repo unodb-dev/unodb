@@ -18,7 +18,7 @@ var classunodb_1_1detail_1_1basic__inode =
     [ "basic_inode", "classunodb_1_1detail_1_1basic__inode.html#a7e407f1f60307c3cc92b9d54c9030830", null ],
     [ "basic_inode", "classunodb_1_1detail_1_1basic__inode.html#a6645d1b943113c416b4fa17b74ce7f9f", null ],
     [ "basic_inode", "classunodb_1_1detail_1_1basic__inode.html#a2f7ea21e426f6ef0fb59d5631368a9a3", null ],
-    [ "create", "classunodb_1_1detail_1_1basic__inode.html#a44b86f121e219eb243c69433816b2173", null ],
+    [ "create", "classunodb_1_1detail_1_1basic__inode.html#a4cd08c0943dc7429cdb28b5222bd7107", null ],
     [ "is_full_for_add", "classunodb_1_1detail_1_1basic__inode.html#a8d1cc0321605ea86c48978fdb898fdfb", null ],
     [ "is_min_size", "classunodb_1_1detail_1_1basic__inode.html#ac0b0a49458da13290693abb4d81cb5c6", null ],
     [ "capacity", "classunodb_1_1detail_1_1basic__inode.html#a8a9f7cf8d7ee999fd402894bcc04a28f", null ],

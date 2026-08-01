@@ -35,7 +35,7 @@ var classunodb_1_1olc__db =
     [ "try_upsert", "classunodb_1_1olc__db.html#a7d44db8815f707618059d759154bb380", null ],
     [ "try_upsert_erase", "classunodb_1_1olc__db.html#a2ae64b908c8f9ab75bac440e3e0240ae", null ],
     [ "upsert", "classunodb_1_1olc__db.html#a002074d9a4a5a7adaa21517390e94e06", null ],
-    [ "detail::bulk_build_chain", "classunodb_1_1olc__db.html#a689e64eb47953f55d620acfc584ac9a3", null ],
+    [ "detail::bulk_build_chain", "classunodb_1_1olc__db.html#a077072f790b94481f48370dda26b0b15", null ],
     [ "detail::bulk_load_helpers", "classunodb_1_1olc__db.html#a1841e513aec9ce5d3e1a35e2e4b83914", null ],
     [ "detail::bulk_load_impl", "classunodb_1_1olc__db.html#a07df0b7a4c643a33a74509ab5f61ca78", null ],
     [ "allocator_", "classunodb_1_1olc__db.html#a1b8583b3aa3f627a0384caf47ddbe15f", null ]

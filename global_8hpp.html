@@ -279,8 +279,8 @@ Macros</h2></td></tr>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_RESTORE_GCC_11_WARNINGS</b>()</td></tr>
 <tr class="memdesc:gad564cfad4e209ae80d3f840512f12b84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Re-enable the warning that was previously disabled with <a class="el" href="group__internal.html#ga9c47c060745e8461f22da709df7d736f" title="Disable a GCC version 11 or later warning x until UNODB_DETAIL_RESTORE_GCC_WARNINGS().">UNODB_DETAIL_DISABLE_GCC_11_WARNING()</a>. <br /></td></tr>
 <tr class="separator:gad564cfad4e209ae80d3f840512f12b84"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr><td colspan="2"><div class="groupHeader">Debug or release build macros</div></td></tr>
-<tr><td colspan="2"><div class="groupText"><p>Definitions conditional on the build type </p>
+<tr><td colspan="2"><div class="groupHeader">Build configuration macros</div></td></tr>
+<tr><td colspan="2"><div class="groupText"><p>Definitions conditional on the build configuration </p>
 </div></td></tr>
 <tr class="memitem:gaa8aeacc5131f05ad1100686b1d5cbf1d" id="r_gaa8aeacc5131f05ad1100686b1d5cbf1d"><td class="memItemLeft" align="right" valign="top">
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_RELEASE_CONSTEXPR</b></td></tr>
@@ -297,6 +297,10 @@ Macros</h2></td></tr>
 <tr class="memitem:ga635640d5d3b202d11b61c3730f6c2988" id="r_ga635640d5d3b202d11b61c3730f6c2988"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__internal.html#ga635640d5d3b202d11b61c3730f6c2988">UNODB_DETAIL_USED_IN_DEBUG</a></td></tr>
 <tr class="memdesc:ga635640d5d3b202d11b61c3730f6c2988"><td class="mdescLeft">&#160;</td><td class="mdescRight">Marks a declaration as intentionally unused in release builds, but used in debug ones.  <br /></td></tr>
 <tr class="separator:ga635640d5d3b202d11b61c3730f6c2988"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gace2209bf93d6d20515096437eedb3321" id="r_gace2209bf93d6d20515096437eedb3321"><td class="memItemLeft" align="right" valign="top">
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_NO_STATS_CONST</b></td></tr>
+<tr class="memdesc:gace2209bf93d6d20515096437eedb3321"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expands to <code>const</code> when the statistics counters are compiled out, empty otherwise. <br /></td></tr>
+<tr class="separator:gace2209bf93d6d20515096437eedb3321"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Feature macros</div></td></tr>
 <tr><td colspan="2"><div class="groupText"><p>Compile-time feature selection macros </p>
 </div></td></tr>

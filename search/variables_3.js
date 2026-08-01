@@ -1,7 +1,7 @@
 var searchData=
 [
   ['data_0',['data',['../classunodb_1_1detail_1_1basic__leaf.html#a9b9efcf5222a040cac645af90218351b',1,'unodb::detail::basic_leaf']]],
-  ['db_1',['db',['../classunodb_1_1detail_1_1basic__db__leaf__deleter.html#ac43af13f812bfc204d9c5f132ea17a71',1,'unodb::detail::basic_db_leaf_deleter::db'],['../classunodb_1_1detail_1_1basic__db__inode__deleter.html#aa47c38aa74fa64a4f00528d9f166b16e',1,'unodb::detail::basic_db_inode_deleter::db'],['../structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html#aefd27b65c62681e61435dd960a0a3197',1,'unodb::detail::basic_art_policy::delete_db_node_ptr_at_scope_exit::db']]],
+  ['db_1',['db',['../classunodb_1_1detail_1_1basic__db__leaf__deleter.html#a4403f75f60b858a7c5db028ced9ec45f',1,'unodb::detail::basic_db_leaf_deleter::db'],['../classunodb_1_1detail_1_1basic__db__inode__deleter.html#ab862e072dd273ac65bebd9e67d20e834',1,'unodb::detail::basic_db_inode_deleter::db'],['../structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html#a3bd1de3c1e1dfac11eec9febaec1193c',1,'unodb::detail::basic_art_policy::delete_db_node_ptr_at_scope_exit::db']]],
   ['db_5f_2',['db_',['../classunodb_1_1db_1_1iterator.html#aa094c5e39d773de49bd5466645c7f50a',1,'unodb::db::iterator::db_'],['../classunodb_1_1olc__db_1_1iterator.html#af020f84dcc6007e101309abcef54cd39',1,'unodb::olc_db::iterator::db_']]],
   ['dealloc_3',['dealloc',['../structunodb_1_1allocator__type.html#a30968dbcf9679a2075411b52f83b14d8',1,'unodb::allocator_type']]],
   ['dealloc_5fcallback_4',['dealloc_callback',['../classunodb_1_1detail_1_1deallocation__request.html#a0625f115fb1ff05f1d5c2294b13b492f',1,'unodb::detail::deallocation_request']]],

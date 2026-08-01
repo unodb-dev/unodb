@@ -6,7 +6,7 @@ var searchData=
   ['get_5fchildren_5fcount_3',['get_children_count',['../classunodb_1_1detail_1_1basic__inode__impl.html#a407ab192f4429938569c5a726ca81898',1,'unodb::detail::basic_inode_impl']]],
   ['get_5fcurrent_5finterval_5ftotal_5fdealloc_5fsize_4',['get_current_interval_total_dealloc_size',['../classunodb_1_1qsbr__per__thread.html#ab01458452f2f594358c13598ab051170',1,'unodb::qsbr_per_thread']]],
   ['get_5fcurrent_5fmemory_5fuse_5',['get_current_memory_use',['../classunodb_1_1db.html#ac0705aacac581408a26b3b6741687c9d',1,'unodb::db']]],
-  ['get_5fdb_6',['get_db',['../classunodb_1_1detail_1_1basic__db__leaf__deleter.html#ac6b2e540dfe31bc471a98cf229788edb',1,'unodb::detail::basic_db_leaf_deleter::get_db()'],['../classunodb_1_1detail_1_1basic__db__inode__deleter.html#a851f2f03dfda3727fba8e40d4f0a147f',1,'unodb::detail::basic_db_inode_deleter::get_db()']]],
+  ['get_5fdb_6',['get_db',['../classunodb_1_1detail_1_1basic__db__leaf__deleter.html#a19f235b1858c87cb73825ce2e7e2dd63',1,'unodb::detail::basic_db_leaf_deleter::get_db()'],['../classunodb_1_1detail_1_1basic__db__inode__deleter.html#a45e3bca54ba7e1979f6dbb400e1b4fc5',1,'unodb::detail::basic_db_inode_deleter::get_db()']]],
   ['get_5fepoch_7',['get_epoch',['../structunodb_1_1qsbr__state.html#ac160914e4ad33da86ae0b92ba55dc746',1,'unodb::qsbr_state']]],
   ['get_5fepoch_5fcallback_5fcount_5fmax_8',['get_epoch_callback_count_max',['../classunodb_1_1qsbr.html#a9cef099598527975e1efe188f1945294',1,'unodb::qsbr']]],
   ['get_5fepoch_5fcallback_5fcount_5fvariance_9',['get_epoch_callback_count_variance',['../classunodb_1_1qsbr.html#a5943d4828314d047e2e8248ce782d13b',1,'unodb::qsbr']]],

@@ -37,7 +37,7 @@ var art__internal__impl_8hpp =
     [ "iter_result_opt", "art__internal__impl_8hpp.html#a52168a8b4ef78db5b5cdc3f60a97eb38", null ],
     [ "key_prefix_size", "art__internal__impl_8hpp.html#a2a48856979c828fe6f91a83b8b43e0be", null ],
     [ "_mm_cmple_epu8", "art__internal__impl_8hpp.html#a25eb4ea7710810f49fcc23353dad6c8f", null ],
-    [ "bulk_build_chain", "art__internal__impl_8hpp.html#a2c562326baf81b52c2efddf403e1e176", null ],
-    [ "make_db_leaf_ptr", "art__internal__impl_8hpp.html#a99221afa5558df0e2ff0f3bb95616f2b", null ],
+    [ "bulk_build_chain", "art__internal__impl_8hpp.html#a86ed9effe700c174446c05691bcbaeca", null ],
+    [ "make_db_leaf_ptr", "art__internal__impl_8hpp.html#ad8b0a57c80c986238878f28a2b214632", null ],
     [ "key_prefix_capacity", "art__internal__impl_8hpp.html#a6affb48b09460b87dbcb8ab404f26263", null ]
 ];

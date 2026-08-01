@@ -1,5 +1,5 @@
 var classunodb_1_1detail_1_1olc__inode__256 =
 [
-    [ "init", "classunodb_1_1detail_1_1olc__inode__256.html#a7ebf39e692ebfae55972c55ccf82a7dc", null ],
-    [ "init", "classunodb_1_1detail_1_1olc__inode__256.html#a53490cc1ba166679132a5971a4791931", null ]
+    [ "init", "classunodb_1_1detail_1_1olc__inode__256.html#a019111fa229113920a65be413b8fea00", null ],
+    [ "init", "classunodb_1_1detail_1_1olc__inode__256.html#a09204ac29fae923cca33510cca3da77c", null ]
 ];
