@@ -1886,9 +1886,9 @@ class basic_inode_impl : public ArtPolicy::header_type {
   /// distinguish a legitimately packed zero value, which shares the nullptr
   /// representation in value-in-slot mode, from an empty slot.
   ///
-  /// \note For basic_inode_48, child_index is index into child_indices[]. For
-  /// other types, it is direct index into children[]. This method hides this
-  /// distinction.
+  /// \note For basic_inode_48, child_index is index into
+  /// basic_inode_48::child_indexes[]. For other types, it is direct index into
+  /// children[]. This method hides this distinction.
   [[nodiscard, gnu::pure]] constexpr node_ptr get_child(
       node_type type, std::uint8_t child_index) noexcept {
     UNODB_DETAIL_ASSERT(type != node_type::LEAF);
@@ -4341,22 +4341,20 @@ class basic_inode_48
   /// Get child pointer at given key byte index.
   ///
   /// Indirects through child_indexes array to find actual child pointer.
-  /// Returns `nullptr` if index is empty.
   ///
   /// \param child_index Key byte index of child
   ///
   /// \return Child node pointer, or nullptr if empty slot
   ///
   /// \sa get_child(node_type, std::uint8_t) for the full nullptr contract
-  // N48: This is the case where we need to indirect through child_indices.
   [[nodiscard, gnu::pure]] constexpr node_ptr get_child(
       std::uint8_t child_index) noexcept {
     const auto child_i = child_indexes[child_index].load();
-    // In a data race, the child_indices[] can be concurrently
+    // In a data race, the child_indexes[] can be concurrently
     // modified, which will cause the OLC version tag to get
     // bumped. However, we are in the middle of reading and acting on
     // the data while that happens.  This can cause the value stored
-    // in child_indices[] at our desired child_index to be empty_child
+    // in child_indexes[] at our desired child_index to be empty_child
     // (0xFF).  In this circumstance, the caller will correctly detect
     // a problem when they do read_critical_section::check(), but we
     // will have still indirected beyond the end of the allocation and
@@ -5009,7 +5007,9 @@ class basic_inode_256
 
   /// Get iterator result for first child.
   ///
-  /// Scans children array for first non-null entry (smallest key).
+  /// Scans children array for the first occupied slot (smallest key). A slot
+  /// is occupied if it holds a non-null child pointer or its value-in-slot bit
+  /// is set; a packed zero value is bit-identical to nullptr.
   ///
   /// \return Iterator result pointing to first child, or torn_read_result if
   /// every child slot was observed empty (OLC torn read)
@@ -5033,7 +5033,9 @@ class basic_inode_256
 
   /// Get iterator result for last child.
   ///
-  /// Scans children array in reverse for last non-null entry (greatest key).
+  /// Scans children array in reverse for the last occupied slot (greatest
+  /// key). A slot is occupied if it holds a non-null child pointer or its
+  /// value-in-slot bit is set; a packed zero value is bit-identical to nullptr.
   ///
   /// \return Iterator result pointing to last child, or torn_read_result if
   /// every child slot was observed empty (OLC torn read)
@@ -5140,7 +5142,7 @@ class basic_inode_256
   /// Iterate over all children with callback function.
   ///
   /// \tparam Function Callable type accepting (unsigned index, node_ptr child)
-  /// \param func Callback to invoke for each non-null child
+  /// \param func Callback to invoke for each occupied child slot
   // TODO(laurynas) Lifting this out might help with iterator and
   // lambda patterns.
   template <typename Function>
