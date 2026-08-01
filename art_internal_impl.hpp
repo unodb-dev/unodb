@@ -1563,10 +1563,14 @@ struct iter_result {
   /// Snapshot of key prefix for node.
   key_prefix_snapshot prefix;
 
-  /// True when this entry represents a packed value (value-in-slot) rather
-  /// than an inode or leaf pointer.  Used by the iterator to distinguish
-  /// value-in-slot entries from regular children whose child_index happens
-  /// to equal 0xFF.
+  /// True when this entry was pushed at a leaf position, by
+  /// unodb::db::iterator::push_leaf() or
+  /// unodb::olc_db::iterator::try_push_leaf(). That is a packed value when
+  /// ArtPolicy::can_eliminate_leaf, in which case the tree has no leaf nodes
+  /// at all, and a leaf pointer otherwise; the flag itself does not
+  /// distinguish the two. Testing specifically for a packed value therefore
+  /// requires `ArtPolicy::can_eliminate_leaf && packed_leaf`, or a bare read
+  /// from inside an `if constexpr (ArtPolicy::can_eliminate_leaf)` branch.
   bool packed_leaf{false};
 };
 
