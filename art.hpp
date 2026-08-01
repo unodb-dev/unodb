@@ -2184,7 +2184,8 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::next() {
   while (!empty()) {
     const auto& e = top();
     const auto node{e.node};
-    UNODB_DETAIL_ASSERT(node != nullptr || e.packed_leaf);
+    UNODB_DETAIL_ASSERT(node != nullptr ||
+                        (art_policy::can_eliminate_leaf && e.packed_leaf));
     const auto node_type = node.type();
     if (node_type == node_type::LEAF ||
         (art_policy::can_eliminate_leaf && e.packed_leaf)) {
@@ -2220,7 +2221,8 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::prior() {
   while (!empty()) {
     const auto& e = top();
     const auto node{e.node};
-    UNODB_DETAIL_ASSERT(node != nullptr || e.packed_leaf);
+    UNODB_DETAIL_ASSERT(node != nullptr ||
+                        (art_policy::can_eliminate_leaf && e.packed_leaf));
     const auto node_type = node.type();
     if (node_type == node_type::LEAF ||
         (art_policy::can_eliminate_leaf && e.packed_leaf)) {
