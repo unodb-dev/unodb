@@ -547,9 +547,9 @@ class olc_db final {
     [[nodiscard]] bool empty() const noexcept { return stack_.empty(); }
 
     /// Push an entry onto the stack.
-    bool try_push(detail::olc_node_ptr node, std::byte key_byte,
-                  std::uint8_t child_index, detail::key_prefix_snapshot prefix,
-                  const optimistic_lock::read_critical_section& rcs) {
+    void push(detail::olc_node_ptr node, std::byte key_byte,
+              std::uint8_t child_index, detail::key_prefix_snapshot prefix,
+              const optimistic_lock::read_critical_section& rcs) {
       // For variable length keys we need to know the number of bytes
       // associated with the node's key_prefix.  In addition there is
       // one byte for the descent to the child node along the
@@ -560,12 +560,11 @@ class olc_db final {
       stack_.push({{node, key_byte, child_index, prefix}, rcs.get()});
       keybuf_.push(prefix.get_key_view());
       keybuf_.push(key_byte);
-      return true;
     }
 
     /// Push a leaf onto the stack.
-    bool try_push_leaf(detail::olc_node_ptr aleaf,
-                       const optimistic_lock::read_critical_section& rcs) {
+    void push_leaf(detail::olc_node_ptr aleaf,
+                   const optimistic_lock::read_critical_section& rcs) {
       // The [key], [child_index] and [prefix] are ignored for a leaf.
       stack_.push({{aleaf,
                     static_cast<std::byte>(0xFFU),     // ignored for leaf
@@ -573,7 +572,6 @@ class olc_db final {
                     detail::key_prefix_snapshot(0),    // ignored for leaf
                     true},                             // packed_leaf
                    rcs.get()});
-      return true;
     }
 
     /// Push an entry \a e onto the stack.
@@ -585,10 +583,10 @@ class olc_db final {
     ///
     /// \sa detail::basic_inode_impl::torn_read_result for why the assert lives
     /// here rather than at the callers
-    bool try_push(const typename inode_base::iter_result& e,
-                  const optimistic_lock::read_critical_section& rcs) {
+    void push(const typename inode_base::iter_result& e,
+              const optimistic_lock::read_critical_section& rcs) {
       UNODB_DETAIL_ASSERT(e.node != nullptr);
-      return try_push(e.node, e.key_byte, e.child_index, e.prefix, rcs);
+      push(e.node, e.key_byte, e.child_index, e.prefix, rcs);
     }
 
     /// Pop an entry from the stack and the corresponding bytes from
@@ -3983,15 +3981,13 @@ bool olc_db<Key, Value>::iterator::try_next() {
     // Fix up stack for new parent node state and left-most descent.
     const auto& e2 = nxt.value();
     pop();
-    if (UNODB_DETAIL_UNLIKELY(!try_push(e2, node_critical_section)))
-      return false;                                            // LCOV_EXCL_LINE
-    auto child = inode->get_child(node_type, e2.child_index);  // descend
+    push(e2, node_critical_section);
+    auto child = inode->get_child(node_type, e2.child_index);   // descend
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))  // before using
       return false;  // LCOV_EXCL_LINE
     if constexpr (art_policy::can_eliminate_leaf) {
       if (inode->is_value_in_slot(node_type, e2.child_index)) {
-        if (UNODB_DETAIL_UNLIKELY(!try_push_leaf(child, node_critical_section)))
-          return false;  // LCOV_EXCL_LINE
+        push_leaf(child, node_critical_section);
         return UNODB_DETAIL_LIKELY(node_critical_section.try_read_unlock());
       }
     }
@@ -4071,15 +4067,13 @@ bool olc_db<Key, Value>::iterator::try_prior() {
     UNODB_DETAIL_ASSERT(nxt);  // value exists for std::optional.
     const auto& e2 = nxt.value();
     pop();
-    if (UNODB_DETAIL_UNLIKELY(!try_push(e2, node_critical_section)))
-      return false;                                            // LCOV_EXCL_LINE
-    auto child = inode->get_child(node_type, e2.child_index);  // get child
+    push(e2, node_critical_section);
+    auto child = inode->get_child(node_type, e2.child_index);   // get child
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))  // before using
       return false;  // LCOV_EXCL_LINE
     if constexpr (art_policy::can_eliminate_leaf) {
       if (inode->is_value_in_slot(node_type, e2.child_index)) {
-        if (UNODB_DETAIL_UNLIKELY(!try_push_leaf(child, node_critical_section)))
-          return false;  // LCOV_EXCL_LINE
+        push_leaf(child, node_critical_section);
         return UNODB_DETAIL_LIKELY(node_critical_section.try_read_unlock());
       }
     }
@@ -4174,8 +4168,7 @@ bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
               !parent_critical_section.try_read_unlock()))  // unlock parent
         return false;                                       // LCOV_EXCL_LINE
       const auto* const leaf{node.template ptr<leaf_type*>()};
-      if (UNODB_DETAIL_UNLIKELY(!try_push_leaf(node, node_critical_section)))
-        return false;  // LCOV_EXCL_LINE
+      push_leaf(node, node_critical_section);
       int cmp_{0};
       if constexpr (art_policy::full_key_in_inode_path) {
         cmp_ = unodb::detail::compare(keybuf_.get_key_view(), k.get_key_view());
@@ -4310,14 +4303,10 @@ bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
                       !c_critical_section.check()))  // before using [nchild]
                 return false;                        // LCOV_EXCL_LINE
               pop();
-              if (UNODB_DETAIL_UNLIKELY(
-                      !try_push(e2, c_critical_section)))  // push sibling
-                return false;                              // LCOV_EXCL_LINE
+              push(e2, c_critical_section);  // push sibling
               if constexpr (art_policy::can_eliminate_leaf) {
                 if (icnode->is_value_in_slot(cnode.type(), e2.child_index)) {
-                  if (UNODB_DETAIL_UNLIKELY(
-                          !try_push_leaf(nchild, c_critical_section)))
-                    return false;  // LCOV_EXCL_LINE
+                  push_leaf(nchild, c_critical_section);
                   return UNODB_DETAIL_LIKELY(
                       c_critical_section.try_read_unlock());
                 }
@@ -4341,14 +4330,11 @@ bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
                 !parent_critical_section.try_read_unlock()))  // unlock parent
           return false;                                       // LCOV_EXCL_LINE
         // push the path we took
-        if (UNODB_DETAIL_UNLIKELY(!try_push(node, tmp.key_byte, child_index,
-                                            tmp.prefix, node_critical_section)))
-          return false;  // LCOV_EXCL_LINE
+        push(node, tmp.key_byte, child_index, tmp.prefix,
+             node_critical_section);
         if constexpr (art_policy::can_eliminate_leaf) {
           if (inode->is_value_in_slot(node_type, child_index)) {
-            if (UNODB_DETAIL_UNLIKELY(
-                    !try_push_leaf(child, node_critical_section)))
-              return false;  // LCOV_EXCL_LINE
+            push_leaf(child, node_critical_section);
             return UNODB_DETAIL_LIKELY(node_critical_section.try_read_unlock());
           }
         }
@@ -4389,14 +4375,10 @@ bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
                     !c_critical_section.check()))  // before using [nchild]
               return false;                        // LCOV_EXCL_LINE
             pop();
-            if (UNODB_DETAIL_UNLIKELY(
-                    !try_push(e2, c_critical_section)))  // push sibling
-              return false;                              // LCOV_EXCL_LINE
+            push(e2, c_critical_section);  // push sibling
             if constexpr (art_policy::can_eliminate_leaf) {
               if (icnode->is_value_in_slot(cnode.type(), e2.child_index)) {
-                if (UNODB_DETAIL_UNLIKELY(
-                        !try_push_leaf(nchild, c_critical_section)))
-                  return false;  // LCOV_EXCL_LINE
+                push_leaf(nchild, c_critical_section);
                 return UNODB_DETAIL_LIKELY(
                     c_critical_section.try_read_unlock());
               }
@@ -4420,14 +4402,10 @@ bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
               !parent_critical_section.try_read_unlock()))  // unlock parent
         return false;                                       // LCOV_EXCL_LINE
       // push the path we took
-      if (UNODB_DETAIL_UNLIKELY(!try_push(node, tmp.key_byte, child_index,
-                                          tmp.prefix, node_critical_section)))
-        return false;  // LCOV_EXCL_LINE
+      push(node, tmp.key_byte, child_index, tmp.prefix, node_critical_section);
       if constexpr (art_policy::can_eliminate_leaf) {
         if (inode->is_value_in_slot(node_type, child_index)) {
-          if (UNODB_DETAIL_UNLIKELY(
-                  !try_push_leaf(child, node_critical_section)))
-            return false;  // LCOV_EXCL_LINE
+          push_leaf(child, node_critical_section);
           return UNODB_DETAIL_LIKELY(node_critical_section.try_read_unlock());
         }
       }
@@ -4436,9 +4414,8 @@ bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
     // Simple case. There is a child for the current key byte.
     const auto child_index{res.first};
     const auto* const child{res.second};
-    if (UNODB_DETAIL_UNLIKELY(!try_push(node, remaining_key[0], child_index,
-                                        key_prefix, node_critical_section)))
-      return false;  // LCOV_EXCL_LINE
+    push(node, remaining_key[0], child_index, key_prefix,
+         node_critical_section);
     if constexpr (art_policy::can_eliminate_leaf) {
       if (inode->is_value_in_slot(node_type, child_index)) {
         // Value-in-slot: child is a packed value, not a subtree pointer.
@@ -4448,8 +4425,7 @@ bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
         if (UNODB_DETAIL_UNLIKELY(
                 !parent_critical_section.try_read_unlock()))  // unlock parent
           return false;                                       // LCOV_EXCL_LINE
-        if (UNODB_DETAIL_UNLIKELY(!try_push_leaf(node, node_critical_section)))
-          return false;  // LCOV_EXCL_LINE
+        push_leaf(node, node_critical_section);
         if (UNODB_DETAIL_UNLIKELY(
                 !node_critical_section.try_read_unlock()))  // unlock node
           return false;                                     // LCOV_EXCL_LINE
@@ -4498,8 +4474,7 @@ bool olc_db<Key, Value>::iterator::try_left_most_traversal(
       return false;  // LCOV_EXCL_LINE
     const auto node_type = node.type();
     if (node_type == node_type::LEAF) {
-      if (UNODB_DETAIL_UNLIKELY(!try_push_leaf(node, node_critical_section)))
-        return false;  // LCOV_EXCL_LINE
+      push_leaf(node, node_critical_section);
       return UNODB_DETAIL_LIKELY(node_critical_section.try_read_unlock());
     }
     // recursive descent.
@@ -4507,14 +4482,12 @@ bool olc_db<Key, Value>::iterator::try_left_most_traversal(
     const auto t =
         inode->begin(node_type);  // first chold of current internal node
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return false;
-    if (UNODB_DETAIL_UNLIKELY(!try_push(t, node_critical_section)))
-      return false;  // LCOV_EXCL_LINE
+    push(t, node_critical_section);
     if constexpr (art_policy::can_eliminate_leaf) {
       if (inode->is_value_in_slot(node_type, t.child_index)) {
         node = inode->get_child(node_type, t.child_index);
         if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return false;
-        if (UNODB_DETAIL_UNLIKELY(!try_push_leaf(node, node_critical_section)))
-          return false;  // LCOV_EXCL_LINE
+        push_leaf(node, node_critical_section);
         return UNODB_DETAIL_LIKELY(node_critical_section.try_read_unlock());
       }
     }
@@ -4553,8 +4526,7 @@ bool olc_db<Key, Value>::iterator::try_right_most_traversal(
       return false;  // LCOV_EXCL_LINE
     const auto node_type = node.type();
     if (node_type == node_type::LEAF) {
-      if (UNODB_DETAIL_UNLIKELY(!try_push_leaf(node, node_critical_section)))
-        return false;  // LCOV_EXCL_LINE
+      push_leaf(node, node_critical_section);
       return UNODB_DETAIL_LIKELY(node_critical_section.try_read_unlock());
     }
     // recursive descent.
@@ -4562,14 +4534,12 @@ bool olc_db<Key, Value>::iterator::try_right_most_traversal(
     const auto t =
         inode->last(node_type);  // last child of current internal node
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return false;
-    if (UNODB_DETAIL_UNLIKELY(!try_push(t, node_critical_section)))
-      return false;  // LCOV_EXCL_LINE
+    push(t, node_critical_section);
     if constexpr (art_policy::can_eliminate_leaf) {
       if (inode->is_value_in_slot(node_type, t.child_index)) {
         node = inode->get_child(node_type, t.child_index);
         if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return false;
-        if (UNODB_DETAIL_UNLIKELY(!try_push_leaf(node, node_critical_section)))
-          return false;  // LCOV_EXCL_LINE
+        push_leaf(node, node_critical_section);
         return UNODB_DETAIL_LIKELY(node_critical_section.try_read_unlock());
       }
     }

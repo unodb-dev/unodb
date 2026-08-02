@@ -1565,7 +1565,7 @@ struct iter_result {
 
   /// True when this entry was pushed at a leaf position, by
   /// unodb::db::iterator::push_leaf() or
-  /// unodb::olc_db::iterator::try_push_leaf(). That is a packed value when
+  /// unodb::olc_db::iterator::push_leaf(). That is a packed value when
   /// ArtPolicy::can_eliminate_leaf, in which case the tree has no leaf nodes
   /// at all, and a leaf pointer otherwise; the flag itself does not
   /// distinguish the two. Testing specifically for a packed value therefore
@@ -2175,13 +2175,12 @@ class basic_inode_impl : public ArtPolicy::header_type {
   /// `read_critical_section::check()` fails before the result is used. The
   /// single-threaded db traversals take no critical section at all and cannot
   /// observe this value. Both db::iterator::push() and
-  /// olc_db::iterator::try_push() assert the node is non-null, keeping a
-  /// tripwire on each side: structural corruption for db, a missed version
-  /// bump for olc_db. Asserting in the dispatcher rather than at each caller
-  /// covers every producer and names the fault. The 4- and 5-argument
-  /// push()/try_push() they forward to would reject a null as well, since a
-  /// null node_ptr reports node_type::LEAF, but only as a generic type
-  /// violation.
+  /// olc_db::iterator::push() assert the node is non-null, keeping a tripwire
+  /// on each side: structural corruption for db, a missed version bump for
+  /// olc_db. Asserting in the dispatcher rather than at each caller covers
+  /// every producer and names the fault. The 4- and 5-argument push() they
+  /// forward to would reject a null as well, since a null node_ptr reports
+  /// node_type::LEAF, but only as a generic type violation.
   ///
   /// \sa get_child(node_type, std::uint8_t), which returns nullptr on the same
   /// torn read
