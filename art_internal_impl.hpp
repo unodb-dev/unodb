@@ -4690,6 +4690,16 @@ class basic_inode_48
       empty_child};
 
   /// Union for child pointer storage with SIMD vector access.
+  ///
+  /// The two members alias deliberately: free slots are written as
+  /// `node_ptr{nullptr}` through `pointer_array` (by init() and
+  /// remove_child_entry()) and then found by comparing `pointer_vector`
+  /// against an all-zero vector in add_to_nonfull(). That search is correct
+  /// only because a null `node_ptr` is the all-zero tagged value — a non-zero
+  /// null encoding would leave the scan unable to recognize a free slot.
+  ///
+  /// \sa unodb::detail::basic_node_ptr for the null representation relied on
+  /// here
   union children_union {
     /// Array access to child pointers.
     std::array<critical_section_policy<node_ptr>, basic_inode_48::capacity>
