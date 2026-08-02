@@ -588,10 +588,6 @@ class olc_db final {
     bool try_push(const typename inode_base::iter_result& e,
                   const optimistic_lock::read_critical_section& rcs) {
       UNODB_DETAIL_ASSERT(e.node != nullptr);
-      const auto node_type = e.node.type();
-      if (UNODB_DETAIL_UNLIKELY(node_type == node_type::LEAF)) {
-        return try_push_leaf(e.node, rcs);
-      }
       return try_push(e.node, e.key_byte, e.child_index, e.prefix, rcs);
     }
 

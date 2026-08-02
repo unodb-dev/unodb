@@ -670,11 +670,6 @@ class db final {
     /// here rather than at the callers
     void push(const typename inode_base::iter_result& e) {
       UNODB_DETAIL_ASSERT(e.node != nullptr);
-      const auto node_type = e.node.type();
-      if (UNODB_DETAIL_UNLIKELY(node_type == node_type::LEAF)) {
-        push_leaf(e.node);
-        return;
-      }
       push(e.node, e.key_byte, e.child_index, e.prefix);
     }
 

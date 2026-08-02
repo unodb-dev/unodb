@@ -2177,12 +2177,11 @@ class basic_inode_impl : public ArtPolicy::header_type {
   /// observe this value. Both db::iterator::push() and
   /// olc_db::iterator::try_push() assert the node is non-null, keeping a
   /// tripwire on each side: structural corruption for db, a missed version
-  /// bump for olc_db. Both assert in the dispatcher rather than at the callers
-  /// so that every producer is covered, and so that the null is caught before
-  /// push_leaf() / try_push_leaf() stamps packed_leaf on it: under
-  /// ArtPolicy::can_eliminate_leaf it would then be indistinguishable from a
-  /// legitimate packed zero and unpack_value() would return 0, and otherwise
-  /// the entry would be dereferenced as a leaf.
+  /// bump for olc_db. Asserting in the dispatcher rather than at each caller
+  /// covers every producer and names the fault. The 4- and 5-argument
+  /// push()/try_push() they forward to would reject a null as well, since a
+  /// null node_ptr reports node_type::LEAF, but only as a generic type
+  /// violation.
   ///
   /// \sa get_child(node_type, std::uint8_t), which returns nullptr on the same
   /// torn read
