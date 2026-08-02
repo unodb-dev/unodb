@@ -4366,7 +4366,7 @@ class basic_inode_48
     // case and rely on the caller to detect a problem when they call
     // read_critical_section::check().
     return UNODB_DETAIL_UNLIKELY(child_i == empty_child)
-               ? node_ptr()  // aka nullptr
+               ? node_ptr{nullptr}
                : children.pointer_array[child_i].load();
   }
 
