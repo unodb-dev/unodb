@@ -923,7 +923,7 @@ class olc_db final {
  private:
   using art_policy = detail::olc_art_policy<Key, Value, PolicyTag>;
   using header_type = typename art_policy::header_type;
-  using inode_type = detail::olc_inode<Key, Value>;
+  using inode_type = detail::basic_inode_impl<art_policy>;
   using inode_4 = detail::olc_inode_4<Key, Value, PolicyTag>;
   using inode_16 = detail::olc_inode_16<Key, Value, PolicyTag>;
   using inode_48 = detail::olc_inode_48<Key, Value, PolicyTag>;

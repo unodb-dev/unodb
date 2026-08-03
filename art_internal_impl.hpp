@@ -917,7 +917,8 @@ struct basic_art_policy final {
 
   /// Unique pointer to leaf.
   using db_leaf_unique_ptr =
-      basic_db_leaf_unique_ptr<key_type, value_type, header_type, Db>;
+      basic_db_leaf_unique_ptr<key_type, value_type, header_type, Db,
+                               PolicyTag>;
 
   /// \}
 
