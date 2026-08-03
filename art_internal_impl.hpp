@@ -749,8 +749,8 @@ template <typename Key, typename Value,
           template <typename, typename, typename> class Db,
           template <class> class CriticalSectionPolicy, class LockPolicy,
           class ReadCriticalSection, class NodePtr,
-          template <typename, typename> class INodeDefs,
-          template <typename, typename, class> class INodeReclamator,
+          template <typename, typename, typename> class INodeDefs,
+          template <typename, typename, class, typename> class INodeReclamator,
           template <class> class LeafReclamator,
           typename PolicyTag = void>
 struct basic_art_policy final {
@@ -779,7 +779,7 @@ struct basic_art_policy final {
   using read_critical_section = ReadCriticalSection;
 
   /// Internal node definitions.
-  using inode_defs = INodeDefs<Key, Value>;
+  using inode_defs = INodeDefs<Key, Value, PolicyTag>;
 
   /// Base internal node type.
   using inode = typename inode_defs::inode;
@@ -913,7 +913,7 @@ struct basic_art_policy final {
   /// Unique pointer to internal node for deferred reclamation.
   template <class INode>
   using db_inode_reclaimable_ptr =
-      std::unique_ptr<INode, INodeReclamator<Key, Value, INode>>;
+      std::unique_ptr<INode, INodeReclamator<Key, Value, INode, PolicyTag>>;
 
   /// Unique pointer to leaf.
   using db_leaf_unique_ptr =
@@ -1047,7 +1047,7 @@ struct basic_art_policy final {
       UNODB_DETAIL_NO_STATS_CONST db_type& db_instance
       UNODB_DETAIL_LIFETIMEBOUND) noexcept {
     return db_inode_reclaimable_ptr<INode>{
-        inode_ptr, INodeReclamator<Key, Value, INode>{db_instance}};
+        inode_ptr, INodeReclamator<Key, Value, INode, PolicyTag>{db_instance}};
   }
 
  private:

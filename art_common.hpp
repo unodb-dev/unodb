@@ -311,8 +311,10 @@ class visitor {
   }
 
  private:
-  friend class olc_db<key_type, value_type>;
-  friend class db<key_type, value_type>;
+  template <typename, typename, typename>
+  friend class olc_db;
+  template <typename, typename, typename>
+  friend class db;
 };  // class visitor
 
 namespace detail {

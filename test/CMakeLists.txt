@@ -96,6 +96,10 @@ endif()
 target_link_libraries(test_art_concurrency PRIVATE qsbr_test_utils)
 target_link_libraries(test_art_upsert PRIVATE qsbr_test_utils)
 
+# TupleHeap secondary index tests.
+add_db_test_target(test_art_heap)
+target_link_libraries(test_art_heap PRIVATE qsbr_test_utils)
+
 # Regression test: olc_db with custom allocator must link without libunodb_qsbr.
 # Intentionally links only unodb_util (header-only) and Threads, NOT unodb or
 # unodb_qsbr.  Does NOT use common_target_properties (which defines
