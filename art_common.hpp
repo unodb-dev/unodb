@@ -6,6 +6,7 @@
 #include "global.hpp"
 
 #include <bit>
+#include <concepts>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -14,6 +15,7 @@
 #include <iostream>
 #include <span>
 #include <string_view>
+#include <type_traits>
 
 #include "duckdb_encode_decode.hpp"
 #include "heap.hpp"
@@ -28,10 +30,10 @@
 
 namespace unodb {
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename PolicyTag = void>
 class db;
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename PolicyTag = void>
 class olc_db;
 
 /// Type alias determining the maximum size in bytes of a key that may be stored
@@ -40,6 +42,35 @@ using key_size_type = std::uint32_t;
 
 /// Non-owning view of key bytes, copied into index upon insertion.
 using key_view = std::span<const std::byte>;
+
+// Forward declaration — full definition below.
+class key_encoder;
+
+/// Concept for a tuple heap used as a secondary index key source.
+///
+/// A type satisfying TupleHeap provides key recovery from tuple identifiers
+/// stored in VIS slots.  When used as the third template parameter on `db`
+/// or `olc_db`, the tree stores only the minimum-distinct prefix in the
+/// inode path and recovers full keys via the heap at divergence points.
+///
+/// Requirements:
+///   - `heap.extract_key(id, buf)` encodes the full key for tuple `id` into
+///     the provided key_encoder buffer and returns a key_view of the result.
+///   - The returned key_view points into `buf` (or into stable heap memory
+///     for the zero-copy fixed-length case).
+///   - The view is valid as long as `buf` is alive.
+///   - Must be thread-safe for concurrent reads (multiple threads may call
+///     with different buf instances simultaneously).
+///
+/// The key_encoder provides small-buffer optimization (256B inline, no malloc
+/// for keys ≤ 256 bytes) and standard encoding methods.  The buffer is placed
+/// on the stack at each mutation site — no TLS, no fiber issues.
+///
+/// \sa detail::leaf_policy_for
+template <typename H, typename ValueType>
+concept TupleHeap = requires(const H& heap, ValueType id, key_encoder& buf) {
+  { heap.extract_key(id, buf) } -> std::convertible_to<key_view>;
+};
 
 namespace detail {
 
@@ -65,6 +96,115 @@ template <typename Key, typename Value>
 using leaf_key_type =
     std::conditional_t<can_eliminate_key_in_leaf_v<Key, Value>, no_key_tag,
                        Key>;
+
+// ---------------------------------------------------------------------------
+// Leaf policy infrastructure
+// ---------------------------------------------------------------------------
+
+/// Whether the third template parameter is a TupleHeap (vs void/default).
+///
+/// Used throughout the implementation to gate heap-specific behavior via
+/// `if constexpr`.
+template <typename Heap, typename Value>
+inline constexpr bool is_heap_v =
+    !std::is_void_v<Heap> && TupleHeap<Heap, Value>;
+
+/// Default leaf policy — matches the existing VIS (Value-In-Slot) behavior.
+///
+/// When no explicit Heap is provided to `db`/`olc_db` (Heap=void), this policy
+/// applies.  The full key is encoded in the inode path, leaves can be
+/// eliminated entirely (value packed into the parent inode's child slot).
+struct default_leaf_policy {
+  static constexpr bool full_key_in_inode_path = true;
+  static constexpr bool can_eliminate_leaf = true;
+  static constexpr bool value_in_slot = true;
+};
+
+/// Heap-backed leaf policy — VIS with shortest keys.
+///
+/// The tree stores only the minimum-distinct prefix in the inode path.
+/// Values (tuple identifiers) are packed in VIS slots.  Full key recovery
+/// happens via the heap at divergence points during mutations.
+struct heap_leaf_policy {
+  static constexpr bool full_key_in_inode_path = false;
+  static constexpr bool can_eliminate_leaf = true;
+  static constexpr bool value_in_slot = true;
+};
+
+/// Primary template: maps a Heap type to its internal leaf_policy struct.
+///
+/// The primary template resolves to `default_leaf_policy` (Heap=void).
+/// The partial specialization below selects `heap_leaf_policy` for any
+/// non-void Heap type.
+template <typename Heap, typename Value, typename = void>
+struct leaf_policy_for_impl {
+  using type = default_leaf_policy;
+};
+
+/// Partial specialization: any non-void Heap that satisfies TupleHeap.
+template <typename Heap, typename Value>
+struct leaf_policy_for_impl<Heap, Value,
+                            std::enable_if_t<!std::is_void_v<Heap>>> {
+  using type = heap_leaf_policy;
+};
+
+/// Convenience alias for the leaf policy given a Heap and Value type.
+template <typename Heap, typename Value>
+using leaf_policy_for = typename leaf_policy_for_impl<Heap, Value>::type;
+
+/// Compile-time gate: heap mode is only valid with key_view keys.
+///
+/// For fixed-width keys (e.g., uint64_t), the tree is already optimally
+/// shallow.  This static_assert fires at class template instantiation time
+/// to prevent misuse.
+///
+/// \tparam Key The key type parameter from db/olc_db
+/// \tparam Heap The heap type (void for default)
+template <typename Key, typename Heap>
+inline constexpr bool heap_key_check_v =
+    std::is_void_v<Heap> || std::is_same_v<Key, key_view>;
+
+/// Whether the policy forces full_key_in_inode_path off.
+/// Used by `if constexpr` dispatch in the tree implementation.
+template <typename Heap, typename Value>
+inline constexpr bool policy_full_key_in_inode_path_v =
+    leaf_policy_for<Heap, Value>::full_key_in_inode_path;
+
+/// Whether the policy allows leaf elimination.
+/// Used by `if constexpr` dispatch in the tree implementation.
+template <typename Heap, typename Value>
+inline constexpr bool policy_can_eliminate_leaf_v =
+    leaf_policy_for<Heap, Value>::can_eliminate_leaf;
+
+/// Whether the policy allows value-in-slot packing.
+/// Used by `if constexpr` dispatch in the tree implementation.
+template <typename Heap, typename Value>
+inline constexpr bool policy_value_in_slot_v =
+    leaf_policy_for<Heap, Value>::value_in_slot;
+
+/// Empty placeholder when no heap is configured.  Used with
+/// `[[no_unique_address]]` so the member occupies zero bytes.
+struct empty_heap_holder {
+  constexpr empty_heap_holder() noexcept = default;
+};
+
+/// Wrapper holding a const reference to the heap.  Used as the
+/// `[[no_unique_address]]` member in db/olc_db when has_heap is true.
+template <typename Heap>
+struct heap_ref_holder {
+  const Heap& heap;
+  constexpr explicit heap_ref_holder(const Heap& h) noexcept : heap{h} {}
+  // Not default-constructible — must be provided at tree construction.
+  heap_ref_holder() = delete;
+  heap_ref_holder(const heap_ref_holder&) = default;
+  heap_ref_holder& operator=(const heap_ref_holder&) = delete;
+};
+
+/// Selects the correct holder type based on whether a heap is configured.
+template <typename Heap, typename Value>
+using heap_holder_t = std::conditional_t<is_heap_v<Heap, Value>,
+                                         heap_ref_holder<Heap>,
+                                         empty_heap_holder>;
 
 }  // namespace detail
 

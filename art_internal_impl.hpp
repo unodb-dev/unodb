@@ -23,6 +23,7 @@
 #include <iostream>
 #include <limits>
 #include <memory>
+#include <new>
 #include <span>
 #include <stdexcept>
 #include <type_traits>
@@ -50,10 +51,10 @@
 
 namespace unodb {
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename PolicyTag>
 class db;
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename PolicyTag>
 class olc_db;
 
 }  // namespace unodb
@@ -581,7 +582,6 @@ class [[nodiscard]] basic_leaf<no_key_tag, Header> final : public Header {
 };  // class basic_leaf<no_key_tag, Header>
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-/// Create unique pointer to new leaf with given key and value.
 ///
 /// Allocates memory for leaf and constructs it with placement new.
 ///
@@ -596,11 +596,14 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 /// \return Unique pointer to newly created leaf
 ///
 /// \throws std::length_error if key or value exceeds maximum size
-template <typename Key, typename Value, template <typename, typename> class Db>
+template <typename Key, typename Value,
+          template <typename, typename, typename> class Db,
+          typename PolicyTag = void>
 [[nodiscard]] auto make_db_leaf_ptr(
     basic_art_key<Key> k, Value v,
-    UNODB_DETAIL_NO_STATS_CONST Db<Key, Value>& db UNODB_DETAIL_LIFETIMEBOUND) {
-  using db_type = Db<Key, Value>;
+    UNODB_DETAIL_NO_STATS_CONST Db<Key, Value, PolicyTag>& db
+        UNODB_DETAIL_LIFETIMEBOUND) {
+  using db_type = Db<Key, Value, PolicyTag>;
   using header_type = typename db_type::header_type;
   using leaf_type = basic_leaf<leaf_key_type<Key, Value>, header_type>;
 
@@ -741,12 +744,15 @@ inline void basic_db_inode_deleter<INode, Db>::operator()(
 /// \tparam INodeDefs Internal node definitions template
 /// \tparam INodeReclamator Internal node reclamation policy
 /// \tparam LeafReclamator Leaf reclamation policy
-template <typename Key, typename Value, template <typename, typename> class Db,
+/// \tparam PolicyTag Leaf policy tag (void = default behavior)
+template <typename Key, typename Value,
+          template <typename, typename, typename> class Db,
           template <class> class CriticalSectionPolicy, class LockPolicy,
           class ReadCriticalSection, class NodePtr,
           template <typename, typename> class INodeDefs,
           template <typename, typename, class> class INodeReclamator,
-          template <class> class LeafReclamator>
+          template <class> class LeafReclamator,
+          typename PolicyTag = void>
 struct basic_art_policy final {
   /// \name Type aliases
   /// \{
@@ -796,23 +802,44 @@ struct basic_art_policy final {
   /// Whether values are stored directly in inode child slots rather than
   /// in separate leaf nodes.  True when the value fits in a uint64_t.
   static constexpr bool value_in_slot =
-      std::is_trivially_copyable_v<Value> &&
-      (sizeof(Value) <= sizeof(std::uint64_t));
+      !std::is_void_v<PolicyTag>
+          ? leaf_policy_for<PolicyTag, Value>::value_in_slot
+          : (std::is_trivially_copyable_v<Value> &&
+             (sizeof(Value) <= sizeof(std::uint64_t)));
   static_assert(sizeof(std::uintptr_t) <= sizeof(std::uint64_t),
                 "node_ptr must fit in a uint64_t slot");
 
   /// Whether the full key is encoded in the inode path (prefix + dispatch
   /// bytes at every level).  True for key_view keys with small values.
-  static constexpr bool full_key_in_inode_path = std::is_same_v<Key, key_view>;
+  /// False when a TupleHeap provides key recovery.
+  static constexpr bool full_key_in_inode_path =
+      !std::is_void_v<PolicyTag>
+          ? leaf_policy_for<PolicyTag, Value>::full_key_in_inode_path
+          : std::is_same_v<Key, key_view>;
 
   /// Whether the key can be omitted from the leaf.
+  /// For heap mode: true (key lives in the heap, not in any leaf).
   static constexpr bool can_eliminate_key_in_leaf =
-      can_eliminate_key_in_leaf_v<Key, Value>;
+      !std::is_void_v<PolicyTag>
+          ? leaf_policy_for<PolicyTag, Value>::full_key_in_inode_path ||
+                leaf_policy_for<PolicyTag, Value>::can_eliminate_leaf
+          : can_eliminate_key_in_leaf_v<Key, Value>;
 
-  /// Whether leaf allocation can be eliminated entirely.  Requires the
-  /// full key in the inode path AND the value in the inode child slot.
+  /// Whether leaf allocation can be eliminated entirely.  Requires
+  /// the value in the inode child slot.  For the default policy this also
+  /// requires full_key_in_inode_path.  For the heap policy, the heap
+  /// provides key recovery so leaves can be eliminated with short keys.
   static constexpr bool can_eliminate_leaf =
-      full_key_in_inode_path && value_in_slot;
+      !std::is_void_v<PolicyTag>
+          ? leaf_policy_for<PolicyTag, Value>::can_eliminate_leaf
+          : (full_key_in_inode_path && value_in_slot);
+
+  /// Whether a TupleHeap is configured for key recovery.
+  static constexpr bool has_heap = !std::is_void_v<PolicyTag> &&
+                                   is_heap_v<PolicyTag, Value>;
+
+  /// The heap type (void when no heap is configured).
+  using heap_type = PolicyTag;
 
   /// Pack a value into a node_ptr slot (value-in-slot mode).
   /// The parent inode's value_bitmask distinguishes this from a pointer.
@@ -846,7 +873,7 @@ struct basic_art_policy final {
                          basic_leaf<leaf_key_type<Key, Value>, header_type>>;
 
   /// Database type.
-  using db_type = Db<Key, Value>;
+  using db_type = Db<Key, Value, PolicyTag>;
 
  private:
   /// Internal node deleter type.
@@ -911,7 +938,8 @@ struct basic_art_policy final {
     static_assert(
         !can_eliminate_leaf,
         "make_db_leaf_ptr must not be called when leaf is eliminated");
-    return ::unodb::detail::make_db_leaf_ptr<Key, Value, Db>(k, v, db_instance);
+    return ::unodb::detail::make_db_leaf_ptr<Key, Value, Db, PolicyTag>(
+        k, v, db_instance);
   }
 
   /// Create reclaimable pointer to leaf for deferred deletion.

@@ -99,12 +99,12 @@ using db_inode_deleter = basic_db_inode_deleter<INode, unodb::db<Key, Value>>;
 ///
 /// Bundles type definitions and synchronization primitives (fake locks for
 /// single-threaded access) used throughout the ART implementation.
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename PolicyTag = void>
 using art_policy =
     basic_art_policy<Key, Value, unodb::db, unodb::in_fake_critical_section,
                      unodb::fake_lock, unodb::fake_read_critical_section,
                      node_ptr, inode_defs, db_inode_deleter,
-                     basic_db_leaf_deleter>;
+                     basic_db_leaf_deleter, PolicyTag>;
 
 /// Base class for all internal nodes in non-thread-safe ART.
 ///
@@ -142,12 +142,16 @@ class mutex_db;
 /// A non-thread-safe implementation of the Adaptive Radix Tree (ART).
 ///
 /// \sa unodb::olc_db for a highly concurrent thread-safe ART implementation.
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename PolicyTag>
 class db final {
   /// Allow mutex_db to access private members for thread-safe wrapper.
   friend class mutex_db<Key, Value>;
 
  public:
+  /// Whether a TupleHeap is configured for key recovery.
+  static constexpr bool has_heap =
+      detail::is_heap_v<PolicyTag, Value>;
+
   /// The type of the keys in the index.
   using key_type = Key;
 
@@ -170,7 +174,7 @@ class db final {
   using leaf_type = detail::leaf_type<Key, Value>;
 
   /// Database type (self-reference for template instantiation).
-  using db_type = db<Key, Value>;
+  using db_type = db<Key, Value, PolicyTag>;
 
   /// Query for a value associated with an encoded \a search_key.
   [[nodiscard, gnu::pure]] get_result get_internal(
@@ -253,11 +257,28 @@ class db final {
   // Creation and destruction
 
   /// Construct empty ART index with default allocator.
-  db() noexcept = default;
+  /// Construct empty ART index with default allocator.
+  db() noexcept requires(!has_heap) = default;
+
+  /// Construct empty ART index backed by a tuple heap for key recovery.
+  template <typename H = PolicyTag,
+            typename = std::enable_if_t<has_heap && std::is_same_v<H, PolicyTag>>>
+  constexpr explicit db(const H& heap) noexcept
+      : heap_{heap} {}
 
   /// Construct empty ART index with a custom allocator.
   constexpr explicit db(const allocator_type& alloc) noexcept
+      requires(!has_heap)
       : allocator_{alloc} {
+    UNODB_DETAIL_ASSERT(allocator_.alloc != nullptr);
+    UNODB_DETAIL_ASSERT(allocator_.dealloc != nullptr);
+  }
+
+  /// Construct heap-backed ART index with a custom allocator.
+  template <typename H = PolicyTag,
+            typename = std::enable_if_t<has_heap && std::is_same_v<H, PolicyTag>>>
+  constexpr db(const H& heap, const allocator_type& alloc) noexcept
+      : heap_{heap}, allocator_{alloc} {
     UNODB_DETAIL_ASSERT(allocator_.alloc != nullptr);
     UNODB_DETAIL_ASSERT(allocator_.dealloc != nullptr);
   }
@@ -387,9 +408,10 @@ class db final {
     // Note: The iterator is backed by a std::stack. This means that
     // the iterator methods accessing the stack can not be declared as
     // [[noexcept]].
-    static_assert(!detail::art_policy<Key, Value>::can_eliminate_leaf ||
-                      detail::art_policy<Key, Value>::full_key_in_inode_path,
-                  "VIS requires full_key_in_inode_path for key reconstruction");
+    static_assert(!detail::art_policy<Key, Value, PolicyTag>::can_eliminate_leaf ||
+                      detail::art_policy<Key, Value, PolicyTag>::full_key_in_inode_path ||
+                      detail::art_policy<Key, Value, PolicyTag>::has_heap,
+                  "VIS requires full_key_in_inode_path or a TupleHeap for key recovery");
 
     /// unodb::db
     friend class db;
@@ -945,7 +967,7 @@ class db final {
 
  private:
   /// Policy type for ART implementation.
-  using art_policy = detail::art_policy<Key, Value>;
+  using art_policy = detail::art_policy<Key, Value, PolicyTag>;
 
   /// Node header type.
   using header_type = typename art_policy::header_type;
@@ -1061,6 +1083,9 @@ class db final {
   /// Allocator for tree nodes.
   allocator_type allocator_{detail::default_allocator};
 
+  /// Heap reference (zero-size when no heap is configured via PolicyTag).
+  [[no_unique_address]] detail::heap_holder_t<PolicyTag, Value> heap_{};
+
 #ifdef UNODB_DETAIL_WITH_STATS
 
   /// Current memory use by all tree nodes in bytes.
@@ -1108,14 +1133,15 @@ class db final {
   /// detail::basic_art_policy
   template <typename,                             // Key
             typename,                             // Value
-            template <typename, typename> class,  // Db
+            template <typename, typename, typename> class,  // Db
             template <class> class,               // CriticalSectionPolicy
             class,                                // Fake lock implementation
             class,  // Fake read_critical_section implementation
             class,  // NodePtr
             template <typename, typename> class,         // INodeDefs
             template <typename, typename, class> class,  // INodeReclamator
-            template <class> class>                      // LeafReclamator
+            template <class> class,                      // LeafReclamator
+            typename>                                    // PolicyTag
   friend struct detail::basic_art_policy;
 
   /// detail::basic_db_inode_deleter
@@ -1571,13 +1597,13 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 }  // namespace detail
 
-template <typename Key, typename Value>
-db<Key, Value>::~db() noexcept {
+template <typename Key, typename Value, typename PolicyTag>
+db<Key, Value, PolicyTag>::~db() noexcept {
   delete_root_subtree();
 }
 
-template <typename Key, typename Value>
-typename db<Key, Value>::get_result db<Key, Value>::get_internal(
+template <typename Key, typename Value, typename PolicyTag>
+typename db<Key, Value, PolicyTag>::get_result db<Key, Value, PolicyTag>::get_internal(
     art_key_type k) const noexcept {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return {};
   if constexpr (std::is_same_v<Key, key_view>) {
@@ -1629,8 +1655,8 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26430)
 // pointers with LIFETIMEBOUND on db param, but release() transfers ownership
 // and the raw pointer's validity is independent of the temporary unique_ptr.
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
-template <typename Key, typename Value>
-bool db<Key, Value>::insert_internal(art_key_type insert_key, value_type v) {
+template <typename Key, typename Value, typename PolicyTag>
+bool db<Key, Value, PolicyTag>::insert_internal(art_key_type insert_key, value_type v) {
   if constexpr (std::is_same_v<Key, key_view>) {
     if (UNODB_DETAIL_UNLIKELY(insert_key.size() == 0)) {
       throw std::length_error("Key must not be empty");
@@ -1668,10 +1694,10 @@ bool db<Key, Value>::insert_internal(art_key_type insert_key, value_type v) {
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=noreturn")
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename PolicyTag>
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
 // cppcheck-suppress missingReturn
-bool db<Key, Value>::insert_internal_fixed(art_key_type insert_key,
+bool db<Key, Value, PolicyTag>::insert_internal_fixed(art_key_type insert_key,
                                            value_type v) {
   if constexpr (std::is_same_v<Key, key_view>) {
     // LCOV_EXCL_START — dead: caller dispatches key_view to
@@ -1747,8 +1773,8 @@ bool db<Key, Value>::insert_internal_fixed(art_key_type insert_key,
   }  // else (non-key_view)
 }
 
-template <typename Key, typename Value>
-detail::node_ptr db<Key, Value>::build_chain(art_key_type k,
+template <typename Key, typename Value, typename PolicyTag>
+detail::node_ptr db<Key, Value, PolicyTag>::build_chain(art_key_type k,
                                              detail::node_ptr child,
                                              tree_depth_type start_depth) {
   return detail::bulk_build_chain<art_policy>(*this, k, child, start_depth);
@@ -1758,8 +1784,8 @@ UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-template <typename Key, typename Value>
-bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
+template <typename Key, typename Value, typename PolicyTag>
+bool db<Key, Value, PolicyTag>::insert_internal_key_view(art_key_type insert_key,
                                               value_type v) {
   auto* node = &root;
   tree_depth_type depth{};
@@ -1916,8 +1942,8 @@ bool db<Key, Value>::insert_internal_key_view(art_key_type insert_key,
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-template <typename Key, typename Value>
-bool db<Key, Value>::remove_internal(art_key_type remove_key) {
+template <typename Key, typename Value, typename PolicyTag>
+bool db<Key, Value, PolicyTag>::remove_internal(art_key_type remove_key) {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return false;
   if constexpr (std::is_same_v<Key, key_view>) {
     if (UNODB_DETAIL_UNLIKELY(remove_key.size() == 0)) return false;
@@ -1942,8 +1968,8 @@ bool db<Key, Value>::remove_internal(art_key_type remove_key) {
   }
 }
 
-template <typename Key, typename Value>
-bool db<Key, Value>::remove_internal_fixed(art_key_type remove_key) {
+template <typename Key, typename Value, typename PolicyTag>
+bool db<Key, Value, PolicyTag>::remove_internal_fixed(art_key_type remove_key) {
   auto* node = &root;
   auto remaining_key{remove_key};
 
@@ -1973,10 +1999,10 @@ bool db<Key, Value>::remove_internal_fixed(art_key_type remove_key) {
   }
 }
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename PolicyTag>
 // MSVC C26815 false positive: ptr<>() on local node_ptr values
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
-    Key, Value>::remove_internal_key_view(art_key_type remove_key) {
+    Key, Value, PolicyTag>::remove_internal_key_view(art_key_type remove_key) {
   struct stack_entry {
     detail::node_ptr* slot;
     std::uint8_t child_i;
@@ -2153,24 +2179,24 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 // TODO(laurynas): the method pairs first, last; next, prior;
 // left_most_traversal, right_most_traversal are identical except for a couple
 // lines. Extract helper methods templatized on the differences.
-template <typename Key, typename Value>
-typename db<Key, Value>::iterator& db<Key, Value>::iterator::first() {
+template <typename Key, typename Value, typename PolicyTag>
+typename db<Key, Value, PolicyTag>::iterator& db<Key, Value, PolicyTag>::iterator::first() {
   invalidate();  // clear the stack
   if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // empty tree.
   const auto node{db_.root};
   return left_most_traversal(node);
 }
 
-template <typename Key, typename Value>
-typename db<Key, Value>::iterator& db<Key, Value>::iterator::last() {
+template <typename Key, typename Value, typename PolicyTag>
+typename db<Key, Value, PolicyTag>::iterator& db<Key, Value, PolicyTag>::iterator::last() {
   invalidate();  // clear the stack
   if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // empty tree.
   const auto node{db_.root};
   return right_most_traversal(node);
 }
 
-template <typename Key, typename Value>
-typename db<Key, Value>::iterator& db<Key, Value>::iterator::next() {
+template <typename Key, typename Value, typename PolicyTag>
+typename db<Key, Value, PolicyTag>::iterator& db<Key, Value, PolicyTag>::iterator::next() {
   while (!empty()) {
     const auto& e = top();
     const auto node{e.node};
@@ -2205,8 +2231,8 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::next() {
   return *this;  // stack is empty, so iterator is at the end
 }
 
-template <typename Key, typename Value>
-typename db<Key, Value>::iterator& db<Key, Value>::iterator::prior() {
+template <typename Key, typename Value, typename PolicyTag>
+typename db<Key, Value, PolicyTag>::iterator& db<Key, Value, PolicyTag>::iterator::prior() {
   while (!empty()) {
     const auto& e = top();
     const auto node{e.node};
@@ -2241,9 +2267,9 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::prior() {
   return *this;  // stack is empty, so iterator is at the end.
 }
 
-template <typename Key, typename Value>
-typename db<Key, Value>::iterator&
-db<Key, Value>::iterator::left_most_traversal(detail::node_ptr node) {
+template <typename Key, typename Value, typename PolicyTag>
+typename db<Key, Value, PolicyTag>::iterator&
+db<Key, Value, PolicyTag>::iterator::left_most_traversal(detail::node_ptr node) {
   while (true) {
     UNODB_DETAIL_ASSERT(node != nullptr);
     const auto node_type = node.type();
@@ -2268,9 +2294,9 @@ db<Key, Value>::iterator::left_most_traversal(detail::node_ptr node) {
   UNODB_DETAIL_CANNOT_HAPPEN();
 }
 
-template <typename Key, typename Value>
-typename db<Key, Value>::iterator&
-db<Key, Value>::iterator::right_most_traversal(detail::node_ptr node) {
+template <typename Key, typename Value, typename PolicyTag>
+typename db<Key, Value, PolicyTag>::iterator&
+db<Key, Value, PolicyTag>::iterator::right_most_traversal(detail::node_ptr node) {
   while (true) {
     UNODB_DETAIL_ASSERT(node != nullptr);
     const auto node_type = node.type();
@@ -2295,8 +2321,8 @@ db<Key, Value>::iterator::right_most_traversal(detail::node_ptr node) {
   UNODB_DETAIL_CANNOT_HAPPEN();
 }
 
-template <typename Key, typename Value>
-typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
+template <typename Key, typename Value, typename PolicyTag>
+typename db<Key, Value, PolicyTag>::iterator& db<Key, Value, PolicyTag>::iterator::seek(
     art_key_type search_key, bool& match, bool fwd) {
   invalidate();   // invalidate the iterator (clear the stack).
   match = false;  // unless we wind up with an exact match.
@@ -2493,9 +2519,9 @@ typename db<Key, Value>::iterator& db<Key, Value>::iterator::seek(
 }
 
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
-template <typename Key, typename Value>
-typename db<Key, Value>::iterator::get_key_result
-db<Key, Value>::iterator::get_key() noexcept {
+template <typename Key, typename Value, typename PolicyTag>
+typename db<Key, Value, PolicyTag>::iterator::get_key_result
+db<Key, Value, PolicyTag>::iterator::get_key() noexcept {
   UNODB_DETAIL_ASSERT(valid());  // by contract
   if constexpr (art_policy::full_key_in_inode_path) {
     return transient_key_view{keybuf_.get_key_view()};
@@ -2509,8 +2535,8 @@ db<Key, Value>::iterator::get_key() noexcept {
 }
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
-template <typename Key, typename Value>
-typename db<Key, Value>::value_type db<Key, Value>::iterator::get_val()
+template <typename Key, typename Value, typename PolicyTag>
+typename db<Key, Value, PolicyTag>::value_type db<Key, Value, PolicyTag>::iterator::get_val()
     const noexcept {
   UNODB_DETAIL_ASSERT(valid());  // by contract
   const auto& e = stack_.top();
@@ -2528,9 +2554,9 @@ typename db<Key, Value>::value_type db<Key, Value>::iterator::get_val()
 // ART scan implementations.
 //
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename PolicyTag>
 template <typename FN>
-void db<Key, Value>::scan(FN fn, bool fwd) {
+void db<Key, Value, PolicyTag>::scan(FN fn, bool fwd) {
   if (fwd) {
     iterator it(*this);
     it.first();
@@ -2550,9 +2576,9 @@ void db<Key, Value>::scan(FN fn, bool fwd) {
   }
 }
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename PolicyTag>
 template <typename FN>
-void db<Key, Value>::scan_from(Key from_key, FN fn, bool fwd) {
+void db<Key, Value, PolicyTag>::scan_from(Key from_key, FN fn, bool fwd) {
   const art_key_type from_key_{from_key};  // convert to internal key
   bool match{};
   if (fwd) {
@@ -2574,9 +2600,9 @@ void db<Key, Value>::scan_from(Key from_key, FN fn, bool fwd) {
   }
 }
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename PolicyTag>
 template <typename FN>
-void db<Key, Value>::scan_range(Key from_key, Key to_key, FN fn) {
+void db<Key, Value, PolicyTag>::scan_range(Key from_key, Key to_key, FN fn) {
   // TODO(thompsonbry) : variable length keys. Explore a cheaper way
   // to handle the exclusive bound case when developing variable
   // length key support based on the maintained key buffer.
@@ -2624,8 +2650,8 @@ void db<Key, Value>::scan_range(Key from_key, Key to_key, FN fn) {
   }
 }
 
-template <typename Key, typename Value>
-void db<Key, Value>::delete_root_subtree() noexcept {
+template <typename Key, typename Value, typename PolicyTag>
+void db<Key, Value, PolicyTag>::delete_root_subtree() noexcept {
   if (root != nullptr) art_policy::delete_subtree(root, *this);
 
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -2635,8 +2661,8 @@ void db<Key, Value>::delete_root_subtree() noexcept {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-template <typename Key, typename Value>
-void db<Key, Value>::clear() noexcept {
+template <typename Key, typename Value, typename PolicyTag>
+void db<Key, Value, PolicyTag>::clear() noexcept {
   delete_root_subtree();
 
   root = nullptr;
@@ -2651,9 +2677,9 @@ void db<Key, Value>::clear() noexcept {
 
 #ifdef UNODB_DETAIL_WITH_STATS
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename PolicyTag>
 template <class INode>
-constexpr void db<Key, Value>::increment_inode_count() noexcept {
+constexpr void db<Key, Value, PolicyTag>::increment_inode_count() noexcept {
   static_assert(inode_defs_type::template is_inode<INode>());
 
   if (auto* const acc = detail::tls_bulk_load_stats; acc != nullptr) {
@@ -2665,9 +2691,9 @@ constexpr void db<Key, Value>::increment_inode_count() noexcept {
   increase_memory_use(sizeof(INode));
 }
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename PolicyTag>
 template <class INode>
-constexpr void db<Key, Value>::decrement_inode_count() noexcept {
+constexpr void db<Key, Value, PolicyTag>::decrement_inode_count() noexcept {
   static_assert(inode_defs_type::template is_inode<INode>());
   UNODB_DETAIL_ASSERT(node_counts[as_i<INode::type>] > 0);
 
@@ -2675,9 +2701,9 @@ constexpr void db<Key, Value>::decrement_inode_count() noexcept {
   decrease_memory_use(sizeof(INode));
 }
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename PolicyTag>
 template <node_type NodeType>
-constexpr void db<Key, Value>::account_growing_inode() noexcept {
+constexpr void db<Key, Value, PolicyTag>::account_growing_inode() noexcept {
   static_assert(NodeType != node_type::LEAF);
 
   if (auto* const acc = detail::tls_bulk_load_stats; acc != nullptr) {
@@ -2690,9 +2716,9 @@ constexpr void db<Key, Value>::account_growing_inode() noexcept {
                       node_counts[as_i<NodeType>]);
 }
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename PolicyTag>
 template <node_type NodeType>
-constexpr void db<Key, Value>::account_shrinking_inode() noexcept {
+constexpr void db<Key, Value, PolicyTag>::account_shrinking_inode() noexcept {
   static_assert(NodeType != node_type::LEAF);
 
   ++shrinking_inode_counts[internal_as_i<NodeType>];
@@ -2702,8 +2728,8 @@ constexpr void db<Key, Value>::account_shrinking_inode() noexcept {
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
-template <typename Key, typename Value>
-void db<Key, Value>::dump(std::ostream& os) const {
+template <typename Key, typename Value, typename PolicyTag>
+void db<Key, Value, PolicyTag>::dump(std::ostream& os) const {
 #ifdef UNODB_DETAIL_WITH_STATS
   os << "db dump, current memory use = " << get_current_memory_use() << '\n';
 #else
@@ -2713,15 +2739,15 @@ void db<Key, Value>::dump(std::ostream& os) const {
 }
 
 // LCOV_EXCL_START
-template <typename Key, typename Value>
-void db<Key, Value>::dump() const {
+template <typename Key, typename Value, typename PolicyTag>
+void db<Key, Value, PolicyTag>::dump() const {
   dump(std::cerr);
 }
 // LCOV_EXCL_STOP
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename PolicyTag>
 template <typename FN>
-bool db<Key, Value>::upsert(Key k, value_type v, FN fn) {
+bool db<Key, Value, PolicyTag>::upsert(Key k, value_type v, FN fn) {
   static_assert(std::is_invocable_r_v<upsert_action, FN, value_type&>,
                 "upsert lambda must be callable as upsert_action(value_type&)");
 
@@ -2816,9 +2842,9 @@ bool db<Key, Value>::upsert(Key k, value_type v, FN fn) {
   }
 }
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename PolicyTag>
 template <typename Fork, typename RandomIt>
-void db<Key, Value>::bulk_load(Fork&& fork, std::size_t max_tasks,
+void db<Key, Value, PolicyTag>::bulk_load(Fork&& fork, std::size_t max_tasks,
                                RandomIt first, RandomIt last) {
   if (!empty()) {
     throw std::invalid_argument("bulk_load requires empty tree");
