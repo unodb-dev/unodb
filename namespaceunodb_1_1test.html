@@ -113,6 +113,9 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1test_1_1allocation__failure__injector.html">allocation_failure_injector</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Test helper class for deterministically injecting memory allocation faults.  <a href="classunodb_1_1test_1_1allocation__failure__injector.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1test_1_1fail__on__nth__allocation__guard.html">fail_on_nth_allocation_guard</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lexically scoped guard that fails the nth heap allocation and resets the injector on every exit from the scope, including the injected failure itself and a fatal test assertion.  <a href="structunodb_1_1test_1_1fail__on__nth__allocation__guard.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1test_1_1pause__heap__faults.html">pause_heap_faults</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lexically scoped guard to pause heap allocation tracking and faulting for this thread.  <a href="structunodb_1_1test_1_1pause__heap__faults.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -172,10 +175,21 @@ template&lt;class Db &gt; </td></tr>
 <tr class="memitem:a53fd24c90ff6a59ad8dfb2a9c86cc725" id="r_a53fd24c90ff6a59ad8dfb2a9c86cc725"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1test.html#a53fd24c90ff6a59ad8dfb2a9c86cc725">expect_idle_qsbr</a> () noexcept</td></tr>
 <tr class="memdesc:a53fd24c90ff6a59ad8dfb2a9c86cc725"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expects in Google Test that <a class="el" href="group__qsbr.html">Quiescent State-Based Reclamation</a> is idle.  <br /></td></tr>
 <tr class="separator:a53fd24c90ff6a59ad8dfb2a9c86cc725"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aff59723575f4893311a70fb45b41de4f" id="r_aff59723575f4893311a70fb45b41de4f"><td class="memTemplParams" colspan="2">template&lt;typename TestAction &gt; </td></tr>
-<tr class="memitem:aff59723575f4893311a70fb45b41de4f"><td class="memTemplItemLeft" align="right" valign="top">std::invoke_result_t&lt; TestAction &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">must_not_allocate</a> (TestAction test_action) noexcept(noexcept(test_action()))</td></tr>
-<tr class="memdesc:aff59723575f4893311a70fb45b41de4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Test that given action does not allocate heap memory.  <br /></td></tr>
-<tr class="separator:aff59723575f4893311a70fb45b41de4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5cd5f67c8d7ee3fff0dc3f20b72ce9ce" id="r_a5cd5f67c8d7ee3fff0dc3f20b72ce9ce"><td class="memTemplParams" colspan="2">template&lt;typename TestAction &gt; <br />
+requires (!std::is_void_v&lt;std::invoke_result_t&lt;const TestAction&amp;&gt;&gt;)</td></tr>
+<tr class="memitem:a5cd5f67c8d7ee3fff0dc3f20b72ce9ce"><td class="memTemplItemLeft" align="right" valign="top">std::invoke_result_t&lt; const TestAction &amp; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1test.html#a5cd5f67c8d7ee3fff0dc3f20b72ce9ce">must_not_allocate</a> (const TestAction &amp;test_action) noexcept(noexcept(test_action()))</td></tr>
+<tr class="memdesc:a5cd5f67c8d7ee3fff0dc3f20b72ce9ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Test that given action does not allocate heap memory.  <br /></td></tr>
+<tr class="separator:a5cd5f67c8d7ee3fff0dc3f20b72ce9ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b6666f4e1ec44c87f681abe1c861222" id="r_a1b6666f4e1ec44c87f681abe1c861222"><td class="memTemplParams" colspan="2"><a id="a1b6666f4e1ec44c87f681abe1c861222" name="a1b6666f4e1ec44c87f681abe1c861222"></a>
+template&lt;typename TestAction &gt; <br />
+requires std::is_void_v&lt;std::invoke_result_t&lt;const TestAction&amp;&gt;&gt;</td></tr>
+<tr class="memitem:a1b6666f4e1ec44c87f681abe1c861222"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>must_not_allocate</b> (const TestAction &amp;test_action) noexcept(noexcept(test_action()))</td></tr>
+<tr class="memdesc:a1b6666f4e1ec44c87f681abe1c861222"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is an overloaded member function, provided for convenience. It differs from the above function only in what argument(s) it accepts. <br /></td></tr>
+<tr class="separator:a1b6666f4e1ec44c87f681abe1c861222"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5015fee2ce42bd5402f24105eb620f7d" id="r_a5015fee2ce42bd5402f24105eb620f7d"><td class="memTemplParams" colspan="2">template&lt;typename Action &gt; </td></tr>
+<tr class="memitem:a5015fee2ce42bd5402f24105eb620f7d"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1test.html#a5015fee2ce42bd5402f24105eb620f7d">throws_bad_alloc</a> (std::uint64_t fail_n, const Action &amp;action) noexcept(noexcept(action()))</td></tr>
+<tr class="memdesc:a5015fee2ce42bd5402f24105eb620f7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run <em>action</em> with the allocation failure injector armed to fail allocation number <em>fail_n</em>, and report whether it threw <code>std::bad_alloc</code>.  <br /></td></tr>
+<tr class="separator:a5015fee2ce42bd5402f24105eb620f7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -237,21 +251,22 @@ constexpr std::array&lt; std::uint64_t, 6 &gt;&#160;</td><td class="memItemRight
 
 </div>
 </div>
-<a id="aff59723575f4893311a70fb45b41de4f" name="aff59723575f4893311a70fb45b41de4f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aff59723575f4893311a70fb45b41de4f">&#9670;&#160;</a></span>must_not_allocate()</h2>
+<a id="a5cd5f67c8d7ee3fff0dc3f20b72ce9ce" name="a5cd5f67c8d7ee3fff0dc3f20b72ce9ce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5cd5f67c8d7ee3fff0dc3f20b72ce9ce">&#9670;&#160;</a></span>must_not_allocate()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename TestAction &gt; </div>
+template&lt;typename TestAction &gt; <br />
+requires (!std::is_void_v&lt;std::invoke_result_t&lt;const TestAction&amp;&gt;&gt;)</div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::invoke_result_t&lt; TestAction &gt; unodb::test::must_not_allocate </td>
+          <td class="memname">std::invoke_result_t&lt; const TestAction &amp; &gt; unodb::test::must_not_allocate </td>
           <td>(</td>
-          <td class="paramtype">TestAction&#160;</td>
+          <td class="paramtype">const TestAction &amp;&#160;</td>
           <td class="paramname"><em>test_action</em></td><td>)</td>
           <td></td>
         </tr>
@@ -264,8 +279,14 @@ template&lt;typename TestAction &gt; </div>
 </div><div class="memdoc">
 
 <p>Test that given action does not allocate heap memory. </p>
-<p>This function configures the allocation failure injector to fail on the first allocation, executes the provided test action, and then resets the injector state. If the action tries to allocate memory, it will throw <code>std::bad_alloc</code>. If it completes successfully, we know it didn't allocate.</p>
-<dl class="section warning"><dt>Warning</dt><dd>This function affects global state. No other threads should allocate memory during execution of this function, as the allocation failure injector is global.</dd></dl>
+<p>This function configures the allocation failure injector to fail on the first allocation and executes the provided test action. If the action tries to allocate memory, it will throw <code>std::bad_alloc</code>. If it completes successfully, we know it didn't allocate. The injector is reset on every exit from the pinned scope: a normal return, a fatal Google Test assertion inside <em>test_action</em>, and the injected <code>std::bad_alloc</code> alike. Under <code>NDEBUG</code> the injector compiles away, so the pin is not enforced and <em>test_action</em> simply runs: the check is skipped rather than answered wrongly.</p>
+<dl class="section warning"><dt>Warning</dt><dd>Armed scopes must not nest on one thread: doing so trips <a class="el" href="structunodb_1_1test_1_1fail__on__nth__allocation__guard.html" title="Lexically scoped guard that fails the nth heap allocation and resets the injector on every exit from ...">unodb::test::fail_on_nth_allocation_guard</a>'s debug assert, which aborts the process instead of reporting a test failure.</dd>
+<dd>
+A <code>noexcept</code> <em>test_action</em> does not unwind: the injected <code>std::bad_alloc</code> crosses its own <code>noexcept</code> boundary, so a violated pin terminates the process instead of producing an observable <code>std::bad_alloc</code>. The QSBR accessors pass such actions deliberately, as CONTRIBUTING.md asks for <code>noexcept</code> on anything that cannot throw in a release build, which is what these are once this guard compiles away.</dd>
+<dd>
+An assertion inside <em>test_action</em> runs armed: its failure escapes as <code>std::bad_alloc</code>, losing the diagnostic. Assert on the result instead.</dd>
+<dd>
+This function affects global state. No other threads should allocate memory during execution of this function, as the allocation failure injector is global.</dd></dl>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
     <tr><td class="paramname">TestAction</td><td>Type of the test action callable </td></tr>
@@ -279,6 +300,67 @@ template&lt;typename TestAction &gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The result of test_action (if non-void) </dd></dl>
+
+</div>
+</div>
+<a id="a5015fee2ce42bd5402f24105eb620f7d" name="a5015fee2ce42bd5402f24105eb620f7d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5015fee2ce42bd5402f24105eb620f7d">&#9670;&#160;</a></span>throws_bad_alloc()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Action &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool unodb::test::throws_bad_alloc </td>
+          <td>(</td>
+          <td class="paramtype">std::uint64_t&#160;</td>
+          <td class="paramname"><em>fail_n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Action &amp;&#160;</td>
+          <td class="paramname"><em>action</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Run <em>action</em> with the allocation failure injector armed to fail allocation number <em>fail_n</em>, and report whether it threw <code>std::bad_alloc</code>. </p>
+<p>Keeps the armed scope around <em>action</em> alone: the guard is destroyed while the injected failure unwinds, so the handler below, and the caller's assertion on the result, both run disarmed. Asserting on the result afterwards, rather than wrapping <em>action</em> in an assertion, matters: a failing assertion builds its message with the injector still armed at its trip point, so the diagnostic would be replaced by an escaping <code>std::bad_alloc</code>.</p>
+<p>Declared in debug builds only. Under <code>NDEBUG</code> the injector compiles away, where this would arm nothing and report <code>false</code> for every <em>fail_n</em> &mdash; a wrong answer rather than a skipped check, unlike <a class="el" href="namespaceunodb_1_1test.html#a5cd5f67c8d7ee3fff0dc3f20b72ce9ce" title="Test that given action does not allocate heap memory.">must_not_allocate()</a>. Every call site must therefore sit inside <code>#ifndef NDEBUG</code>, which the absent declaration enforces at compile time.</p>
+<dl class="section warning"><dt>Warning</dt><dd>An assertion inside <em>action</em> runs armed past the trip point, so its failure escapes as <code>std::bad_alloc</code> and is reported here as the expected outcome, leaving the check unmade. Pause across such assertions.</dd>
+<dd>
+Arms a process-wide injector; concurrent allocations can interfere.</dd>
+<dd>
+Must not call <a class="el" href="namespaceunodb_1_1test.html#a5cd5f67c8d7ee3fff0dc3f20b72ce9ce" title="Test that given action does not allocate heap memory.">must_not_allocate()</a> or be called from it.</dd></dl>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">Action</td><td>Type of the action callable </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">fail_n</td><td>The 1-based number of the allocation that should fail </td></tr>
+    <tr><td class="paramname">action</td><td>Operation under test </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Whether <em>action</em> threw <code>std::bad_alloc</code> </dd></dl>
 
 </div>
 </div>

@@ -27,9 +27,17 @@ var namespaces_dup =
     [ "anonymous_namespace{test_art_oom.cpp}", "namespaceanonymous__namespace_02test__art__oom_8cpp_03.html", "namespaceanonymous__namespace_02test__art__oom_8cpp_03" ],
     [ "anonymous_namespace{test_art_scan.cpp}", "namespaceanonymous__namespace_02test__art__scan_8cpp_03.html", "namespaceanonymous__namespace_02test__art__scan_8cpp_03" ],
     [ "anonymous_namespace{test_art_upsert.cpp}", "namespaceanonymous__namespace_02test__art__upsert_8cpp_03.html", "namespaceanonymous__namespace_02test__art__upsert_8cpp_03" ],
+    [ "anonymous_namespace{test_fault_injection.cpp}", "namespaceanonymous__namespace_02test__fault__injection_8cpp_03.html", [
+      [ "allocate_and_free", "namespaceanonymous__namespace_02test__fault__injection_8cpp_03.html#a8da4879386899a2f1fbd23badc03bda5", null ],
+      [ "armed_scope", "namespaceanonymous__namespace_02test__fault__injection_8cpp_03.html#a2f90965cac8e2bf8b103440e5b77f053", null ],
+      [ "concurrently_armed_scopes", "namespaceanonymous__namespace_02test__fault__injection_8cpp_03.html#afa5ae77b3273dd4c1bcd5516f5c4aab3", null ],
+      [ "nested_armed_scopes", "namespaceanonymous__namespace_02test__fault__injection_8cpp_03.html#ae1a48e29ec7db910012b9289f23601ce", null ],
+      [ "throw_not_bad_alloc", "namespaceanonymous__namespace_02test__fault__injection_8cpp_03.html#ac26cc5761ffa63be05a98783e9a5284e", null ],
+      [ "zero_armed_scope", "namespaceanonymous__namespace_02test__fault__injection_8cpp_03.html#a693820e46140a3105607148eb3ff5f08", null ]
+    ] ],
     [ "anonymous_namespace{test_key_encode_decode.cpp}", "namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03.html", "namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03" ],
     [ "anonymous_namespace{test_olc_no_qsbr.cpp}", "namespaceanonymous__namespace_02test__olc__no__qsbr_8cpp_03.html", null ],
-    [ "anonymous_namespace{test_qsbr.cpp}", "namespaceanonymous__namespace_02test__qsbr_8cpp_03.html", null ],
+    [ "anonymous_namespace{test_qsbr.cpp}", "namespaceanonymous__namespace_02test__qsbr_8cpp_03.html", "namespaceanonymous__namespace_02test__qsbr_8cpp_03" ],
     [ "anonymous_namespace{test_qsbr_fuzz_deepstate.cpp}", "namespaceanonymous__namespace_02test__qsbr__fuzz__deepstate_8cpp_03.html", "namespaceanonymous__namespace_02test__qsbr__fuzz__deepstate_8cpp_03" ],
     [ "anonymous_namespace{test_qsbr_oom.cpp}", "namespaceanonymous__namespace_02test__qsbr__oom_8cpp_03.html", null ],
     [ "anonymous_namespace{test_qsbr_ptr.cpp}", "namespaceanonymous__namespace_02test__qsbr__ptr_8cpp_03.html", null ],

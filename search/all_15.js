@@ -17,13 +17,13 @@ var searchData=
   ['shrinking_5finode_5fcounts_14',['shrinking_inode_counts',['../classunodb_1_1db.html#a814bf5c1215b6a976c172351cf60070f',1,'unodb::db']]],
   ['single_5fchild_5ftag_15',['single_child_tag',['../structunodb_1_1detail_1_1basic__inode_1_1single__child__tag.html',1,'unodb::detail::basic_inode']]],
   ['single_5fthread_5fmode_16',['single_thread_mode',['../structunodb_1_1qsbr__state.html#a34cec6a5c7739cb36a3df6041e45e118',1,'unodb::qsbr_state']]],
-  ['size_17',['size',['../classunodb_1_1detail_1_1deallocation__request.html#afe9640d80907ceca3c5b6edb171ca67f',1,'unodb::detail::deallocation_request::size'],['../structunodb_1_1detail_1_1basic__art__key.html#a1e070387a8d6335076f3d14bad7e7b25',1,'unodb::detail::basic_art_key::size()'],['../classunodb_1_1qsbr__ptr__span.html#af4b7a52caa50542b41f000781c49e195',1,'unodb::qsbr_ptr_span::size()']]],
-  ['size_5fbytes_18',['size_bytes',['../classunodb_1_1key__encoder.html#a073ecee2db9797158b058ce56b2c8a3b',1,'unodb::key_encoder::size_bytes()'],['../classunodb_1_1detail_1_1key__buffer.html#a802f979bb3d3afe56a901e57bf1aa590',1,'unodb::detail::key_buffer::size_bytes()']]],
+  ['size_17',['size',['../structunodb_1_1detail_1_1basic__art__key.html#a1e070387a8d6335076f3d14bad7e7b25',1,'unodb::detail::basic_art_key::size()'],['../classunodb_1_1qsbr__ptr__span.html#af4b7a52caa50542b41f000781c49e195',1,'unodb::qsbr_ptr_span::size()'],['../classunodb_1_1detail_1_1deallocation__request.html#afe9640d80907ceca3c5b6edb171ca67f',1,'unodb::detail::deallocation_request::size']]],
+  ['size_5fbytes_18',['size_bytes',['../classunodb_1_1detail_1_1key__buffer.html#a802f979bb3d3afe56a901e57bf1aa590',1,'unodb::detail::key_buffer::size_bytes()'],['../classunodb_1_1key__encoder.html#a073ecee2db9797158b058ce56b2c8a3b',1,'unodb::key_encoder::size_bytes() const noexcept']]],
   ['size_5ftype_19',['size_type',['../classunodb_1_1key__encoder.html#a09a289c46cce6e9fa710bcad5aba9c0f',1,'unodb::key_encoder']]],
   ['smaller_5fderived_5ftype_20',['smaller_derived_type',['../classunodb_1_1detail_1_1basic__inode.html#a21ee048102d910e4cb8b4b02f3ad0582',1,'unodb::detail::basic_inode']]],
   ['specific_20notes_21',['Platform-Specific Notes',['../index.html#autotoc_md43',1,'']]],
   ['spin_5fwait_5floop_5fbody_22',['spin_wait_loop_body',['../namespaceunodb.html#adf5c8f3a365ce28271526c3ef0ca4237',1,'unodb']]],
-  ['stack_5f_23',['stack_',['../classunodb_1_1olc__db_1_1iterator.html#a58c016ff5086ef9cee40ee4a8aaa72d5',1,'unodb::olc_db::iterator::stack_'],['../classunodb_1_1db_1_1iterator.html#a6653e19363aa0aaa8747510bfd1c6e30',1,'unodb::db::iterator::stack_']]],
+  ['stack_5f_23',['stack_',['../classunodb_1_1db_1_1iterator.html#a6653e19363aa0aaa8747510bfd1c6e30',1,'unodb::db::iterator::stack_'],['../classunodb_1_1olc__db_1_1iterator.html#a58c016ff5086ef9cee40ee4a8aaa72d5',1,'unodb::olc_db::iterator::stack_']]],
   ['stack_5fentry_24',['stack_entry',['../classunodb_1_1db_1_1iterator.html#a9166f2a1d9fcc47bc1c9f09da8806919',1,'unodb::db::iterator::stack_entry'],['../structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html',1,'unodb::olc_db&lt; Key, Value &gt;::iterator::stack_entry']]],
   ['stage_2012_3a_20tree_20structure_20model_25',['Stage 12: Tree Structure Model',['..//home/runner/work/unodb/unodb/spec/tla/README.md#autotoc_md60',1,'']]],
   ['stages_26',['Stages',['..//home/runner/work/unodb/unodb/spec/tla/README.md#autotoc_md57',1,'']]],
@@ -48,5 +48,6 @@ var searchData=
   ['sync_5fmutex_45',['sync_mutex',['../classunodb_1_1detail_1_1thread__sync.html#a04c33dad94dfb05725467da4a2013eba',1,'unodb::detail::thread_sync']]],
   ['sync_5fpoint_46',['sync_point',['../structunodb_1_1detail_1_1sync__point.html',1,'unodb::detail']]],
   ['sync_5fpoint_5fguard_47',['sync_point_guard',['../structunodb_1_1test_1_1sync__point__guard.html#adac0f917c82d6cab396986ea3da7f188',1,'unodb::test::sync_point_guard::sync_point_guard()'],['../structunodb_1_1test_1_1sync__point__guard.html',1,'unodb::test::sync_point_guard']]],
-  ['sync_5fpoint_5ftest_5futils_2ehpp_48',['sync_point_test_utils.hpp',['../sync__point__test__utils_8hpp.html',1,'']]]
+  ['sync_5fpoint_5ftest_5futils_2ehpp_48',['sync_point_test_utils.hpp',['../sync__point__test__utils_8hpp.html',1,'']]],
+  ['sync_5fto_5fnotify_49',['sync_to_notify',['../classanonymous__namespace_02test__qsbr_8cpp_03_1_1notify__thread__on__scope__exit.html#a49b99e580632ab3632591bc84f995f17',1,'anonymous_namespace{test_qsbr.cpp}::notify_thread_on_scope_exit']]]
 ];

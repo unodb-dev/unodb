@@ -11,5 +11,6 @@ var searchData=
   ['sync_5fbefore_5finsert_5fgrow_5fguard_8',['sync_before_insert_grow_guard',['../namespaceunodb_1_1detail.html#a91070248f026b90cbc1a13cae9c654f4',1,'unodb::detail']]],
   ['sync_5fbefore_5fremove_5fwrite_5fguard_9',['sync_before_remove_write_guard',['../namespaceunodb_1_1detail.html#ab39d0da261fb0203d1afaa9cf2a1749a',1,'unodb::detail']]],
   ['sync_5fbetween_5fchain_5flocks_10',['sync_between_chain_locks',['../namespaceunodb_1_1detail.html#af901b0308c5439f03f4c38539f2b946d',1,'unodb::detail']]],
-  ['sync_5fmutex_11',['sync_mutex',['../classunodb_1_1detail_1_1thread__sync.html#a04c33dad94dfb05725467da4a2013eba',1,'unodb::detail::thread_sync']]]
+  ['sync_5fmutex_11',['sync_mutex',['../classunodb_1_1detail_1_1thread__sync.html#a04c33dad94dfb05725467da4a2013eba',1,'unodb::detail::thread_sync']]],
+  ['sync_5fto_5fnotify_12',['sync_to_notify',['../classanonymous__namespace_02test__qsbr_8cpp_03_1_1notify__thread__on__scope__exit.html#a49b99e580632ab3632591bc84f995f17',1,'anonymous_namespace{test_qsbr.cpp}::notify_thread_on_scope_exit']]]
 ];

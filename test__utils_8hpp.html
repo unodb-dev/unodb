@@ -106,6 +106,9 @@ $(document).ready(function(){initNavTree('test__utils_8hpp.html',''); initResiza
 <p>Test API for verifying heap allocation behavior.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="global_8hpp_source.html">global.hpp</a>&quot;</code><br />
+<code>#include &lt;type_traits&gt;</code><br />
+<code>#include &lt;cstdint&gt;</code><br />
+<code>#include &lt;new&gt;</code><br />
 <code>#include &quot;<a class="el" href="test__heap_8hpp_source.html">test_heap.hpp</a>&quot;</code><br />
 </div>
 <p><a href="test__utils_8hpp_source.html">Go to the source code of this file.</a></p>
@@ -121,10 +124,21 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aff59723575f4893311a70fb45b41de4f" id="r_aff59723575f4893311a70fb45b41de4f"><td class="memTemplParams" colspan="2">template&lt;typename TestAction &gt; </td></tr>
-<tr class="memitem:aff59723575f4893311a70fb45b41de4f"><td class="memTemplItemLeft" align="right" valign="top">std::invoke_result_t&lt; TestAction &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1test.html#aff59723575f4893311a70fb45b41de4f">unodb::test::must_not_allocate</a> (TestAction test_action) noexcept(noexcept(test_action()))</td></tr>
-<tr class="memdesc:aff59723575f4893311a70fb45b41de4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Test that given action does not allocate heap memory.  <br /></td></tr>
-<tr class="separator:aff59723575f4893311a70fb45b41de4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5cd5f67c8d7ee3fff0dc3f20b72ce9ce" id="r_a5cd5f67c8d7ee3fff0dc3f20b72ce9ce"><td class="memTemplParams" colspan="2">template&lt;typename TestAction &gt; <br />
+requires (!std::is_void_v&lt;std::invoke_result_t&lt;const TestAction&amp;&gt;&gt;)</td></tr>
+<tr class="memitem:a5cd5f67c8d7ee3fff0dc3f20b72ce9ce"><td class="memTemplItemLeft" align="right" valign="top">std::invoke_result_t&lt; const TestAction &amp; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1test.html#a5cd5f67c8d7ee3fff0dc3f20b72ce9ce">unodb::test::must_not_allocate</a> (const TestAction &amp;test_action) noexcept(noexcept(test_action()))</td></tr>
+<tr class="memdesc:a5cd5f67c8d7ee3fff0dc3f20b72ce9ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Test that given action does not allocate heap memory.  <br /></td></tr>
+<tr class="separator:a5cd5f67c8d7ee3fff0dc3f20b72ce9ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b6666f4e1ec44c87f681abe1c861222" id="r_a1b6666f4e1ec44c87f681abe1c861222"><td class="memTemplParams" colspan="2"><a id="a1b6666f4e1ec44c87f681abe1c861222" name="a1b6666f4e1ec44c87f681abe1c861222"></a>
+template&lt;typename TestAction &gt; <br />
+requires std::is_void_v&lt;std::invoke_result_t&lt;const TestAction&amp;&gt;&gt;</td></tr>
+<tr class="memitem:a1b6666f4e1ec44c87f681abe1c861222"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>unodb::test::must_not_allocate</b> (const TestAction &amp;test_action) noexcept(noexcept(test_action()))</td></tr>
+<tr class="memdesc:a1b6666f4e1ec44c87f681abe1c861222"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is an overloaded member function, provided for convenience. It differs from the above function only in what argument(s) it accepts. <br /></td></tr>
+<tr class="separator:a1b6666f4e1ec44c87f681abe1c861222"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5015fee2ce42bd5402f24105eb620f7d" id="r_a5015fee2ce42bd5402f24105eb620f7d"><td class="memTemplParams" colspan="2">template&lt;typename Action &gt; </td></tr>
+<tr class="memitem:a5015fee2ce42bd5402f24105eb620f7d"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1test.html#a5015fee2ce42bd5402f24105eb620f7d">unodb::test::throws_bad_alloc</a> (std::uint64_t fail_n, const Action &amp;action) noexcept(noexcept(action()))</td></tr>
+<tr class="memdesc:a5015fee2ce42bd5402f24105eb620f7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run <em>action</em> with the allocation failure injector armed to fail allocation number <em>fail_n</em>, and report whether it threw <code>std::bad_alloc</code>.  <br /></td></tr>
+<tr class="separator:a5015fee2ce42bd5402f24105eb620f7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Test API for verifying heap allocation behavior. </p>

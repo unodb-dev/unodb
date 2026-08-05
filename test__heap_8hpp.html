@@ -107,6 +107,7 @@ $(document).ready(function(){initNavTree('test__heap_8hpp.html',''); initResizab
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="global_8hpp_source.html">global.hpp</a>&quot;</code><br />
 <code>#include &lt;atomic&gt;</code><br />
+<code>#include &lt;cassert&gt;</code><br />
 <code>#include &lt;cstdint&gt;</code><br />
 <code>#include &lt;iostream&gt;</code><br />
 <code>#include &lt;new&gt;</code><br />
@@ -121,6 +122,9 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1test_1_1pause__heap__faults.html">unodb::test::pause_heap_faults</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lexically scoped guard to pause heap allocation tracking and faulting for this thread.  <a href="structunodb_1_1test_1_1pause__heap__faults.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1test_1_1fail__on__nth__allocation__guard.html">unodb::test::fail_on_nth_allocation_guard</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lexically scoped guard that fails the nth heap allocation and resets the injector on every exit from the scope, including the injected failure itself and a fatal test assertion.  <a href="structunodb_1_1test_1_1fail__on__nth__allocation__guard.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
@@ -144,6 +148,9 @@ Macros</h2></td></tr>
 <tr class="memitem:gaa446d5e5546b7897d05473b9bcd0274c" id="r_gaa446d5e5546b7897d05473b9bcd0274c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#gaa446d5e5546b7897d05473b9bcd0274c">UNODB_DETAIL_PAUSE_HEAP_TRACKING_GUARD</a>()</td></tr>
 <tr class="memdesc:gaa446d5e5546b7897d05473b9bcd0274c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disable heap failure injection for current thread in the current scope.  <br /></td></tr>
 <tr class="separator:gaa446d5e5546b7897d05473b9bcd0274c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1a5d3a8daef8f3bd4d5b6bd86fa48ce1" id="r_ga1a5d3a8daef8f3bd4d5b6bd86fa48ce1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#ga1a5d3a8daef8f3bd4d5b6bd86fa48ce1">UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION_GUARD</a>(n)</td></tr>
+<tr class="memdesc:ga1a5d3a8daef8f3bd4d5b6bd86fa48ce1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fail the nth heap allocation in the current scope, disarming the injector on every exit from it.  <br /></td></tr>
+<tr class="separator:ga1a5d3a8daef8f3bd4d5b6bd86fa48ce1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Heap memory fault injection infrastructure. </p>

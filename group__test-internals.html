@@ -182,6 +182,9 @@ Namespaces</h2></td></tr>
 <tr class="memitem:ga906b745db633aac1e54c135d172a63fb" id="r_ga906b745db633aac1e54c135d172a63fb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#ga906b745db633aac1e54c135d172a63fb">UNODB_ASSERT_THROW</a>(statement,  expected_exception)</td></tr>
 <tr class="memdesc:ga906b745db633aac1e54c135d172a63fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>ASSERT_THROW</code> macro.  <br /></td></tr>
 <tr class="separator:ga906b745db633aac1e54c135d172a63fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga66c74a57b06e3218051e9453158004e7" id="r_ga66c74a57b06e3218051e9453158004e7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#ga66c74a57b06e3218051e9453158004e7">UNODB_ASSERT_NO_THROW</a>(statement)</td></tr>
+<tr class="memdesc:ga66c74a57b06e3218051e9453158004e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>ASSERT_NO_THROW</code> macro.  <br /></td></tr>
+<tr class="separator:ga66c74a57b06e3218051e9453158004e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga4af9e45d078fad7c18aa4a3d6aea0b5b" id="r_ga4af9e45d078fad7c18aa4a3d6aea0b5b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#ga4af9e45d078fad7c18aa4a3d6aea0b5b">UNODB_ASSERT_TRUE</a>(cond)</td></tr>
 <tr class="memdesc:ga4af9e45d078fad7c18aa4a3d6aea0b5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for Google Test <code>ASSERT_TRUE</code> macro.  <br /></td></tr>
 <tr class="separator:ga4af9e45d078fad7c18aa4a3d6aea0b5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -214,6 +217,9 @@ Namespaces</h2></td></tr>
 <tr class="memitem:gaa446d5e5546b7897d05473b9bcd0274c" id="r_gaa446d5e5546b7897d05473b9bcd0274c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#gaa446d5e5546b7897d05473b9bcd0274c">UNODB_DETAIL_PAUSE_HEAP_TRACKING_GUARD</a>()</td></tr>
 <tr class="memdesc:gaa446d5e5546b7897d05473b9bcd0274c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disable heap failure injection for current thread in the current scope.  <br /></td></tr>
 <tr class="separator:gaa446d5e5546b7897d05473b9bcd0274c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1a5d3a8daef8f3bd4d5b6bd86fa48ce1" id="r_ga1a5d3a8daef8f3bd4d5b6bd86fa48ce1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__test-internals.html#ga1a5d3a8daef8f3bd4d5b6bd86fa48ce1">UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION_GUARD</a>(n)</td></tr>
+<tr class="memdesc:ga1a5d3a8daef8f3bd4d5b6bd86fa48ce1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fail the nth heap allocation in the current scope, disarming the injector on every exit from it.  <br /></td></tr>
+<tr class="separator:ga1a5d3a8daef8f3bd4d5b6bd86fa48ce1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Common helpers for tests. </p>
@@ -477,6 +483,33 @@ Namespaces</h2></td></tr>
 
 </div>
 </div>
+<a id="ga66c74a57b06e3218051e9453158004e7" name="ga66c74a57b06e3218051e9453158004e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga66c74a57b06e3218051e9453158004e7">&#9670;&#160;</a></span>UNODB_ASSERT_NO_THROW</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_ASSERT_NO_THROW</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">statement</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">do</span> {                                       \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)  \</div>
+<div class="line">    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818) \</div>
+<div class="line">    ASSERT_NO_THROW(statement);              \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \</div>
+<div class="line">  } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p>Wrapper for Google Test <code>ASSERT_NO_THROW</code> macro. </p>
+
+</div>
+</div>
 <a id="gafe7e4b0dc71eed5ed6e5e16b88821ac3" name="gafe7e4b0dc71eed5ed6e5e16b88821ac3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gafe7e4b0dc71eed5ed6e5e16b88821ac3">&#9670;&#160;</a></span>UNODB_ASSERT_THAT</h2>
 
@@ -595,6 +628,32 @@ Namespaces</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Configure heap allocation to fail on given allocation number. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">n</td><td>The 1-based number of the allocation that should fail. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga1a5d3a8daef8f3bd4d5b6bd86fa48ce1" name="ga1a5d3a8daef8f3bd4d5b6bd86fa48ce1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga1a5d3a8daef8f3bd4d5b6bd86fa48ce1">&#9670;&#160;</a></span>UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION_GUARD</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_DETAIL_FAIL_ON_NTH_ALLOCATION_GUARD</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">n</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Fail the nth heap allocation in the current scope, disarming the injector on every exit from it. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">n</td><td>The 1-based number of the allocation that should fail. </td></tr>

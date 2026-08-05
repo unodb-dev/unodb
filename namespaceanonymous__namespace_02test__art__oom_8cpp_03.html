@@ -123,9 +123,9 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>ARTKeyViewTypes</b> 
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ae7747408dde4dd6d4fab31747a492e76" id="r_ae7747408dde4dd6d4fab31747a492e76"><td class="memTemplParams" colspan="2"><a id="ae7747408dde4dd6d4fab31747a492e76" name="ae7747408dde4dd6d4fab31747a492e76"></a>
-template&lt;class TypeParam , typename Init , typename Test , typename CheckAfterOOM , typename CheckAfterSuccess &gt; </td></tr>
-<tr class="memitem:ae7747408dde4dd6d4fab31747a492e76"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>oom_test</b> (unsigned fail_limit, Init init, Test test, CheckAfterOOM check_after_oom, CheckAfterSuccess check_after_success)</td></tr>
+<tr class="memitem:ae7747408dde4dd6d4fab31747a492e76" id="r_ae7747408dde4dd6d4fab31747a492e76"><td class="memTemplParams" colspan="2">template&lt;class TypeParam , typename Init , typename Test , typename CheckAfterOOM , typename CheckAfterSuccess &gt; </td></tr>
+<tr class="memitem:ae7747408dde4dd6d4fab31747a492e76"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02test__art__oom_8cpp_03.html#ae7747408dde4dd6d4fab31747a492e76">oom_test</a> (unsigned fail_limit, Init init, Test test, CheckAfterOOM check_after_oom, CheckAfterSuccess check_after_success)</td></tr>
+<tr class="memdesc:ae7747408dde4dd6d4fab31747a492e76"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exercise <em>test</em> at each expected allocation-failure point.  <br /></td></tr>
 <tr class="separator:ae7747408dde4dd6d4fab31747a492e76"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9aa1a79ac9702332915226693422c240" id="r_a9aa1a79ac9702332915226693422c240"><td class="memTemplParams" colspan="2"><a id="a9aa1a79ac9702332915226693422c240" name="a9aa1a79ac9702332915226693422c240"></a>
 template&lt;class TypeParam , typename Init , typename CheckAfterSuccess &gt; </td></tr>
@@ -135,13 +135,13 @@ template&lt;class TypeParam , typename Init , typename CheckAfterSuccess &gt; </
 template&lt;class TypeParam , typename Init , typename CheckAfterSuccess &gt; </td></tr>
 <tr class="memitem:a8d53ee080106a6a4926161cc93071fab"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>oom_remove_test</b> (unsigned fail_limit, Init init, std::uint64_t k, CheckAfterSuccess check_after_success)</td></tr>
 <tr class="separator:a8d53ee080106a6a4926161cc93071fab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a79f0c8a1ab78afee97a5d3f80101b1b4" id="r_a79f0c8a1ab78afee97a5d3f80101b1b4"><td class="memTemplParams" colspan="2"><a id="a79f0c8a1ab78afee97a5d3f80101b1b4" name="a79f0c8a1ab78afee97a5d3f80101b1b4"></a>
-template&lt;class TypeParam , typename ScanOp &gt; </td></tr>
-<tr class="memitem:a79f0c8a1ab78afee97a5d3f80101b1b4"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>oom_scan_test</b> (unsigned fail_limit, ScanOp scan_op)</td></tr>
-<tr class="separator:a79f0c8a1ab78afee97a5d3f80101b1b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa66e73be96261e91291a124c0c56a186" id="r_aa66e73be96261e91291a124c0c56a186"><td class="memItemLeft" align="right" valign="top"><a id="aa66e73be96261e91291a124c0c56a186" name="aa66e73be96261e91291a124c0c56a186"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__oom_8cpp_03_1_1ARTOOMTest.html">ARTOOMTest</a>, CtorDoesNotAllocate)</td></tr>
-<tr class="separator:aa66e73be96261e91291a124c0c56a186"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae591e9314ba4f24db05d7a4a7c2cabda" id="r_ae591e9314ba4f24db05d7a4a7c2cabda"><td class="memTemplParams" colspan="2">template&lt;class TypeParam , typename ScanOp &gt; </td></tr>
+<tr class="memitem:ae591e9314ba4f24db05d7a4a7c2cabda"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02test__art__oom_8cpp_03.html#ae591e9314ba4f24db05d7a4a7c2cabda">oom_scan_test</a> (unsigned fail_limit, const ScanOp &amp;scan_op)</td></tr>
+<tr class="memdesc:ae591e9314ba4f24db05d7a4a7c2cabda"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exercise a scan across its implementation-defined allocation points.  <br /></td></tr>
+<tr class="separator:ae591e9314ba4f24db05d7a4a7c2cabda"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab67272993681239d8ca9c7770aa8264a" id="r_ab67272993681239d8ca9c7770aa8264a"><td class="memItemLeft" align="right" valign="top"><a id="ab67272993681239d8ca9c7770aa8264a" name="ab67272993681239d8ca9c7770aa8264a"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__oom_8cpp_03_1_1ARTOOMTest.html">ARTOOMTest</a>, CtorAndDtorDoNotAllocate)</td></tr>
+<tr class="separator:ab67272993681239d8ca9c7770aa8264a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a786a048e83b32977af227d7e8b194385" id="r_a786a048e83b32977af227d7e8b194385"><td class="memItemLeft" align="right" valign="top"><a id="a786a048e83b32977af227d7e8b194385" name="a786a048e83b32977af227d7e8b194385"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__oom_8cpp_03_1_1ARTOOMTest.html">ARTOOMTest</a>, SingleNodeTreeEmptyValue)</td></tr>
 <tr class="separator:a786a048e83b32977af227d7e8b194385"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -231,6 +231,93 @@ Variables</h2></td></tr>
 constexpr unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>oom_scan_fail_limit</b> = 20</td></tr>
 <tr class="separator:a5016b6252e2a8cd77f809b3de4fa56ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="ae591e9314ba4f24db05d7a4a7c2cabda" name="ae591e9314ba4f24db05d7a4a7c2cabda"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae591e9314ba4f24db05d7a4a7c2cabda">&#9670;&#160;</a></span>oom_scan_test()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TypeParam , typename ScanOp &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void anonymous_namespace{test_art_oom.cpp}::oom_scan_test </td>
+          <td>(</td>
+          <td class="paramtype">unsigned&#160;</td>
+          <td class="paramname"><em>fail_limit</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const ScanOp &amp;&#160;</td>
+          <td class="paramname"><em>scan_op</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Exercise a scan across its implementation-defined allocation points. </p>
+<p>The count cannot be hardcoded: it comes from the iterator's std::stack/deque and key buffer, whose allocation counts are standard-library-dependent (libc++ vs libstdc++ debug mode). So fail_limit is only an upper bound: inject at each point until the scan completes without OOM. The scan is read-only, so the tree must be intact after every injection point, whether that iteration threw (the strong guarantee) or completed.</p>
+<p><a class="el" href="group__test-internals.html#ga3add166eb5d737f29030e4a878cc83dc" title="Wrapper for Google Test ASSERT_GT macro.">UNODB_ASSERT_GT(fail_n, 1U)</a> is the exception to the upper-bound adjustment rule: reported as "Expected: (fail_n) &gt; (1U), actual: 1 vs 1", it can only fire when the scan makes no injectable allocation at all, so the test exercises nothing. No fail_limit value repairs that - fix the scan, not the limit. </p>
+
+</div>
+</div>
+<a id="ae7747408dde4dd6d4fab31747a492e76" name="ae7747408dde4dd6d4fab31747a492e76"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae7747408dde4dd6d4fab31747a492e76">&#9670;&#160;</a></span>oom_test()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TypeParam , typename Init , typename Test , typename CheckAfterOOM , typename CheckAfterSuccess &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void anonymous_namespace{test_art_oom.cpp}::oom_test </td>
+          <td>(</td>
+          <td class="paramtype">unsigned&#160;</td>
+          <td class="paramname"><em>fail_limit</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Init&#160;</td>
+          <td class="paramname"><em>init</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Test&#160;</td>
+          <td class="paramname"><em>test</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">CheckAfterOOM&#160;</td>
+          <td class="paramname"><em>check_after_oom</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">CheckAfterSuccess&#160;</td>
+          <td class="paramname"><em>check_after_success</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Exercise <em>test</em> at each expected allocation-failure point. </p>
+<p>The assertions hold only when the operation makes exactly fail_limit - 1 injectable allocations, so recalibrate from that invariant rather than from a lookup table. A mid-loop failure, "Value of: ... throws_bad_alloc(...) /
+Actual: false / Expected: true", means the operation now makes fewer allocations than the limit assumes - a decrement. A failure on the last iteration, which expected false and got true, means the operation still reaches its fail_limit-th allocation - an increment. Neither message names the failing iteration, but the two shapes are monotone in fail_limit and mutually exclusive, so stepping or bisecting on them converges. </p>
+
+</div>
+</div>
 <h2 class="groupheader">Variable Documentation</h2>
 <a id="af4972f1016801fc3fcab80bb5c5136fe" name="af4972f1016801fc3fcab80bb5c5136fe"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af4972f1016801fc3fcab80bb5c5136fe">&#9670;&#160;</a></span>oom_scan_noop_visitor</h2>

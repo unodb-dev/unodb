@@ -39,6 +39,9 @@ var annotated_dup =
       [ "ARTKeyEncodeDecodeTest", "classanonymous__namespace_02test__key__encode__decode_8cpp_03_1_1ARTKeyEncodeDecodeTest.html", null ],
       [ "key_factory", "classanonymous__namespace_02test__key__encode__decode_8cpp_03_1_1key__factory.html", "classanonymous__namespace_02test__key__encode__decode_8cpp_03_1_1key__factory" ]
     ] ],
+    [ "anonymous_namespace{test_qsbr.cpp}", "namespaceanonymous__namespace_02test__qsbr_8cpp_03.html", [
+      [ "notify_thread_on_scope_exit", "classanonymous__namespace_02test__qsbr_8cpp_03_1_1notify__thread__on__scope__exit.html", "classanonymous__namespace_02test__qsbr_8cpp_03_1_1notify__thread__on__scope__exit" ]
+    ] ],
     [ "anonymous_namespace{test_qsbr_fuzz_deepstate.cpp}", "namespaceanonymous__namespace_02test__qsbr__fuzz__deepstate_8cpp_03.html", [
       [ "thread_info", "structanonymous__namespace_02test__qsbr__fuzz__deepstate_8cpp_03_1_1thread__info.html", null ]
     ] ],
@@ -111,6 +114,7 @@ var annotated_dup =
       ] ],
       [ "test", "namespaceunodb_1_1test.html", [
         [ "allocation_failure_injector", "classunodb_1_1test_1_1allocation__failure__injector.html", "classunodb_1_1test_1_1allocation__failure__injector" ],
+        [ "fail_on_nth_allocation_guard", "structunodb_1_1test_1_1fail__on__nth__allocation__guard.html", "structunodb_1_1test_1_1fail__on__nth__allocation__guard" ],
         [ "pause_heap_faults", "structunodb_1_1test_1_1pause__heap__faults.html", "structunodb_1_1test_1_1pause__heap__faults" ],
         [ "QSBRTestBase", "classunodb_1_1test_1_1QSBRTestBase.html", null ],
         [ "sync_point_guard", "structunodb_1_1test_1_1sync__point__guard.html", "structunodb_1_1test_1_1sync__point__guard" ],

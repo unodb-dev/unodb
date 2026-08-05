@@ -7,6 +7,7 @@ var gtest__utils_8hpp =
     [ "UNODB_ASSERT_LE", "group__test-internals.html#ga555acfdf6c9ad9d2f601824d23d86b29", null ],
     [ "UNODB_ASSERT_LT", "group__test-internals.html#ga40fe62fd5581991333766f181dc33a11", null ],
     [ "UNODB_ASSERT_NEAR", "group__test-internals.html#ga2d2f13c1772a67fd0d86b62eb960c865", null ],
+    [ "UNODB_ASSERT_NO_THROW", "group__test-internals.html#ga66c74a57b06e3218051e9453158004e7", null ],
     [ "UNODB_ASSERT_THAT", "group__test-internals.html#gafe7e4b0dc71eed5ed6e5e16b88821ac3", null ],
     [ "UNODB_ASSERT_THROW", "group__test-internals.html#ga906b745db633aac1e54c135d172a63fb", null ],
     [ "UNODB_ASSERT_TRUE", "group__test-internals.html#ga4af9e45d078fad7c18aa4a3d6aea0b5b", null ],

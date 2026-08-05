@@ -37,6 +37,7 @@ var hierarchy =
     [ "std::exception", null, [
       [ "anonymous_namespace{test_art_scan.cpp}::scan_callback_exception", "structanonymous__namespace_02test__art__scan_8cpp_03_1_1scan__callback__exception.html", null ]
     ] ],
+    [ "unodb::test::fail_on_nth_allocation_guard", "structunodb_1_1test_1_1fail__on__nth__allocation__guard.html", null ],
     [ "unodb::detail::fake_inode", "classunodb_1_1detail_1_1fake__inode.html", null ],
     [ "unodb::fake_lock", "classunodb_1_1fake__lock.html", null ],
     [ "unodb::fake_read_critical_section", "classunodb_1_1fake__read__critical__section.html", null ],
@@ -95,6 +96,7 @@ var hierarchy =
     [ "unodb::detail::no_key_tag", "structunodb_1_1detail_1_1no__key__tag.html", null ],
     [ "unodb::detail::no_leaf_tag", "structunodb_1_1detail_1_1no__leaf__tag.html", null ],
     [ "unodb::detail::node_header", "structunodb_1_1detail_1_1node__header.html", null ],
+    [ "anonymous_namespace{test_qsbr.cpp}::notify_thread_on_scope_exit", "classanonymous__namespace_02test__qsbr_8cpp_03_1_1notify__thread__on__scope__exit.html", null ],
     [ "unodb::olc_db< Key, Value >", "classunodb_1_1olc__db.html", null ],
     [ "unodb::detail::olc_impl_helpers", "structunodb_1_1detail_1_1olc__impl__helpers.html", null ],
     [ "unodb::detail::olc_node_header", "structunodb_1_1detail_1_1olc__node__header.html", null ],
