@@ -10,12 +10,14 @@
 // Build:
 //   cd build-heap-release
 //   cmake .. -DCMAKE_BUILD_TYPE=Release
-//   -DCMAKE_CXX_COMPILER=/usr/local/bin/clang++ \
+//     -DCMAKE_CXX_COMPILER=/usr/local/bin/clang++
 //     -DTESTS=OFF -DBENCHMARKS=ON -DSTATS=OFF
 //   make -j$(nproc) bench_heap_spoi_scan
 //
 // Run:
 //   ./benchmark/bench_heap_spoi_scan --benchmark_filter=".*"
+//
+// Platform: Linux only (uses mmap/MAP_HUGETLB).
 
 #include "global.hpp"
 

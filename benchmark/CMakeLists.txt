@@ -110,4 +110,6 @@ add_concurrent_benchmark_target(micro_benchmark_mutex)
 add_concurrent_benchmark_target(micro_benchmark_olc)
 add_benchmark_target(micro_benchmark_bulk_load)
 
-add_benchmark_target(bench_heap_spoi_scan)
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  add_benchmark_target(bench_heap_spoi_scan)
+endif()
