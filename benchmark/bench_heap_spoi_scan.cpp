@@ -1,3 +1,4 @@
+// Copyright 2026 UnoDB contributors
 // bench_heap_spoi_scan.cpp — Heap-backed secondary index scan benchmark.
 //
 // Exercises the new olc_db<key_view, uint64_t, HeapType> pattern with 14.5M
@@ -8,7 +9,8 @@
 //
 // Build:
 //   cd build-heap-release
-//   cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=/usr/local/bin/clang++ \
+//   cmake .. -DCMAKE_BUILD_TYPE=Release
+//   -DCMAKE_CXX_COMPILER=/usr/local/bin/clang++ \
 //     -DTESTS=OFF -DBENCHMARKS=ON -DSTATS=OFF
 //   make -j$(nproc) bench_heap_spoi_scan
 //
@@ -27,9 +29,8 @@
 #include <numeric>
 #include <vector>
 
-#include <sys/mman.h>
-
 #include <benchmark/benchmark.h>
+#include <sys/mman.h>
 
 #include "art_common.hpp"
 #include "olc_art.hpp"
@@ -48,20 +49,19 @@ namespace {
 class HugePageHeap {
  public:
   explicit HugePageHeap(std::size_t tuple_count)
-      : count_{tuple_count},
-        byte_size_{tuple_count * kTupleSize} {
+      : count_{tuple_count}, byte_size_{tuple_count * kTupleSize} {
     // Allocate with 2MB huge pages (MAP_HUGETLB).
     // Falls back to regular pages if huge pages are unavailable.
-    data_ = static_cast<std::byte*>(mmap(
-        nullptr, byte_size_, PROT_READ | PROT_WRITE,
-        MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | (21 << MAP_HUGE_SHIFT),
-        -1, 0));
+    data_ = static_cast<std::byte*>(
+        mmap(nullptr, byte_size_, PROT_READ | PROT_WRITE,
+             MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | (21 << MAP_HUGE_SHIFT),
+             -1, 0));
     if (data_ == MAP_FAILED) {
       // Fallback: regular pages
       std::cerr << "  [WARN] 2MB huge pages unavailable, using regular pages\n";
-      data_ = static_cast<std::byte*>(mmap(
-          nullptr, byte_size_, PROT_READ | PROT_WRITE,
-          MAP_PRIVATE | MAP_ANONYMOUS, -1, 0));
+      data_ = static_cast<std::byte*>(mmap(nullptr, byte_size_,
+                                           PROT_READ | PROT_WRITE,
+                                           MAP_PRIVATE | MAP_ANONYMOUS, -1, 0));
       if (data_ == MAP_FAILED) {
         std::cerr << "  [FATAL] mmap failed\n";
         std::abort();
@@ -201,7 +201,8 @@ constexpr std::size_t kMaxTuples = 14'500'000;
 dataset& get_dataset() {
   if (!g_ds.ready) {
     std::cerr << "=== Heap SPOI Scan Benchmark ===\n";
-    std::cerr << "Loading " << kMaxTuples << " tuples from /tmp/spatial-art-keys.bin...\n";
+    std::cerr << "Loading " << kMaxTuples
+              << " tuples from /tmp/spatial-art-keys.bin...\n";
 
     g_ds.heap = std::make_unique<HugePageHeap>(kMaxTuples);
     g_ds.heap->load_from_file("/tmp/spatial-art-keys.bin");
@@ -246,11 +247,12 @@ struct tree_builder;
 // Specialization for existing (void PolicyTag) tree.
 template <>
 struct tree_builder<existing_db_t> {
-  static std::unique_ptr<existing_db_t> build(const dataset& ds, std::size_t n) {
+  static std::unique_ptr<existing_db_t> build(const dataset& ds,
+                                              std::size_t n) {
     auto db = std::make_unique<existing_db_t>();
     for (std::size_t i = 0; i < n; ++i) {
-      std::ignore = db->insert(ds.prefixes.prefix(i),
-                               static_cast<std::uint64_t>(i));
+      std::ignore =
+          db->insert(ds.prefixes.prefix(i), static_cast<std::uint64_t>(i));
     }
     return db;
   }
@@ -262,8 +264,8 @@ struct tree_builder<heap_db_t> {
   static std::unique_ptr<heap_db_t> build(const dataset& ds, std::size_t n) {
     auto db = std::make_unique<heap_db_t>(*ds.heap);
     for (std::size_t i = 0; i < n; ++i) {
-      std::ignore = db->insert(ds.prefixes.prefix(i),
-                               static_cast<std::uint64_t>(i));
+      std::ignore =
+          db->insert(ds.prefixes.prefix(i), static_cast<std::uint64_t>(i));
     }
     return db;
   }
@@ -277,8 +279,8 @@ struct tree_builder<heap_db_t> {
 template <class Db>
 void BM_full_scan(benchmark::State& state) {
   auto& ds = get_dataset();
-  const auto n = std::min(static_cast<std::size_t>(state.range(0)),
-                          ds.heap->count());
+  const auto n =
+      std::min(static_cast<std::size_t>(state.range(0)), ds.heap->count());
 
   auto db = tree_builder<Db>::build(ds, n);
 
@@ -299,8 +301,8 @@ void BM_full_scan(benchmark::State& state) {
 template <class Db>
 void BM_scan_with_recovery(benchmark::State& state) {
   auto& ds = get_dataset();
-  const auto n = std::min(static_cast<std::size_t>(state.range(0)),
-                          ds.heap->count());
+  const auto n =
+      std::min(static_cast<std::size_t>(state.range(0)), ds.heap->count());
 
   auto db = tree_builder<Db>::build(ds, n);
 
@@ -325,8 +327,8 @@ void BM_scan_with_recovery(benchmark::State& state) {
 template <class Db>
 void BM_range_scan(benchmark::State& state) {
   auto& ds = get_dataset();
-  const auto n = std::min(static_cast<std::size_t>(state.range(0)),
-                          ds.heap->count());
+  const auto n =
+      std::min(static_cast<std::size_t>(state.range(0)), ds.heap->count());
 
   auto db = tree_builder<Db>::build(ds, n);
 
@@ -344,15 +346,15 @@ void BM_range_scan(benchmark::State& state) {
   }
 
   state.SetItemsProcessed(state.iterations() *
-                           static_cast<std::int64_t>(scan_limit));
+                          static_cast<std::int64_t>(scan_limit));
 }
 
 // Insert benchmark (tree build time).
 template <class Db>
 void BM_insert(benchmark::State& state) {
   auto& ds = get_dataset();
-  const auto n = std::min(static_cast<std::size_t>(state.range(0)),
-                          ds.heap->count());
+  const auto n =
+      std::min(static_cast<std::size_t>(state.range(0)), ds.heap->count());
 
   for (const auto _ : state) {
     auto db = tree_builder<Db>::build(ds, n);
@@ -370,30 +372,38 @@ void spoi_sizes(benchmark::internal::Benchmark* b) {
 
 // Existing pattern (external prefix, void PolicyTag)
 BENCHMARK(BM_full_scan<existing_db_t>)
-    ->Apply(spoi_sizes)->Unit(benchmark::kMillisecond)
+    ->Apply(spoi_sizes)
+    ->Unit(benchmark::kMillisecond)
     ->Name("FullScan/existing");
 BENCHMARK(BM_scan_with_recovery<existing_db_t>)
-    ->Apply(spoi_sizes)->Unit(benchmark::kMillisecond)
+    ->Apply(spoi_sizes)
+    ->Unit(benchmark::kMillisecond)
     ->Name("ScanRecover/existing");
 BENCHMARK(BM_range_scan<existing_db_t>)
-    ->Apply(spoi_sizes)->Unit(benchmark::kMillisecond)
+    ->Apply(spoi_sizes)
+    ->Unit(benchmark::kMillisecond)
     ->Name("RangeScan20pct/existing");
 BENCHMARK(BM_insert<existing_db_t>)
-    ->Apply(spoi_sizes)->Unit(benchmark::kMillisecond)
+    ->Apply(spoi_sizes)
+    ->Unit(benchmark::kMillisecond)
     ->Name("Insert/existing");
 
 // New pattern (heap-backed, PolicyTag = HugePageHeap)
 BENCHMARK(BM_full_scan<heap_db_t>)
-    ->Apply(spoi_sizes)->Unit(benchmark::kMillisecond)
+    ->Apply(spoi_sizes)
+    ->Unit(benchmark::kMillisecond)
     ->Name("FullScan/heap");
 BENCHMARK(BM_scan_with_recovery<heap_db_t>)
-    ->Apply(spoi_sizes)->Unit(benchmark::kMillisecond)
+    ->Apply(spoi_sizes)
+    ->Unit(benchmark::kMillisecond)
     ->Name("ScanRecover/heap");
 BENCHMARK(BM_range_scan<heap_db_t>)
-    ->Apply(spoi_sizes)->Unit(benchmark::kMillisecond)
+    ->Apply(spoi_sizes)
+    ->Unit(benchmark::kMillisecond)
     ->Name("RangeScan20pct/heap");
 BENCHMARK(BM_insert<heap_db_t>)
-    ->Apply(spoi_sizes)->Unit(benchmark::kMillisecond)
+    ->Apply(spoi_sizes)
+    ->Unit(benchmark::kMillisecond)
     ->Name("Insert/heap");
 
 }  // namespace
