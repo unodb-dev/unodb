@@ -602,7 +602,7 @@ template <typename Key, typename Value,
 [[nodiscard]] auto make_db_leaf_ptr(
     basic_art_key<Key> k, Value v,
     UNODB_DETAIL_NO_STATS_CONST Db<Key, Value, PolicyTag>& db
-        UNODB_DETAIL_LIFETIMEBOUND) {
+    UNODB_DETAIL_LIFETIMEBOUND) {
   using db_type = Db<Key, Value, PolicyTag>;
   using header_type = typename db_type::header_type;
   using leaf_type = basic_leaf<leaf_key_type<Key, Value>, header_type>;
@@ -751,8 +751,7 @@ template <typename Key, typename Value,
           class ReadCriticalSection, class NodePtr,
           template <typename, typename, typename> class INodeDefs,
           template <typename, typename, class, typename> class INodeReclamator,
-          template <class> class LeafReclamator,
-          typename PolicyTag = void>
+          template <class> class LeafReclamator, typename PolicyTag = void>
 struct basic_art_policy final {
   /// \name Type aliases
   /// \{
@@ -835,8 +834,8 @@ struct basic_art_policy final {
           : (full_key_in_inode_path && value_in_slot);
 
   /// Whether a TupleHeap is configured for key recovery.
-  static constexpr bool has_heap = !std::is_void_v<PolicyTag> &&
-                                   is_heap_v<PolicyTag, Value>;
+  static constexpr bool has_heap =
+      !std::is_void_v<PolicyTag> && is_heap_v<PolicyTag, Value>;
 
   /// The heap type (void when no heap is configured).
   using heap_type = PolicyTag;
@@ -1515,7 +1514,6 @@ union [[nodiscard]] key_prefix {
   }
 
  public:
-
   /// Return byte at specified index.
   ///
   /// \param i Index (must be less than length())

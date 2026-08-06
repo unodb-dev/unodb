@@ -202,9 +202,9 @@ struct heap_ref_holder {
 
 /// Selects the correct holder type based on whether a heap is configured.
 template <typename Heap, typename Value>
-using heap_holder_t = std::conditional_t<is_heap_v<Heap, Value>,
-                                         heap_ref_holder<Heap>,
-                                         empty_heap_holder>;
+using heap_holder_t =
+    std::conditional_t<is_heap_v<Heap, Value>, heap_ref_holder<Heap>,
+                       empty_heap_holder>;
 
 }  // namespace detail
 
