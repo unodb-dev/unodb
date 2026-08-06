@@ -85,11 +85,11 @@ struct impl_helpers;
 /// Packages inode, inode_4, inode_16, inode_48, and inode_256 for use by the
 /// ART policy configuration.
 template <typename Key, typename Value, typename PolicyTag = void>
-using inode_defs = basic_inode_def<inode<Key, Value>,
-                                   inode_4<Key, Value, PolicyTag>,
-                                   inode_16<Key, Value, PolicyTag>,
-                                   inode_48<Key, Value, PolicyTag>,
-                                   inode_256<Key, Value, PolicyTag>>;
+using inode_defs =
+    basic_inode_def<inode<Key, Value>, inode_4<Key, Value, PolicyTag>,
+                    inode_16<Key, Value, PolicyTag>,
+                    inode_48<Key, Value, PolicyTag>,
+                    inode_256<Key, Value, PolicyTag>>;
 
 /// Custom deleter for internal nodes in non-thread-safe ART.
 ///
@@ -152,8 +152,7 @@ class db final {
 
  public:
   /// Whether a TupleHeap is configured for key recovery.
-  static constexpr bool has_heap =
-      detail::is_heap_v<PolicyTag, Value>;
+  static constexpr bool has_heap = detail::is_heap_v<PolicyTag, Value>;
 
   /// The type of the keys in the index.
   using key_type = Key;
@@ -261,25 +260,28 @@ class db final {
 
   /// Construct empty ART index with default allocator.
   /// Construct empty ART index with default allocator.
-  db() noexcept requires(!has_heap) = default;
+  db() noexcept
+    requires(!has_heap)
+  = default;
 
   /// Construct empty ART index backed by a tuple heap for key recovery.
-  template <typename H = PolicyTag,
-            typename = std::enable_if_t<has_heap && std::is_same_v<H, PolicyTag>>>
-  constexpr explicit db(const H& heap) noexcept
-      : heap_{heap} {}
+  template <
+      typename H = PolicyTag,
+      typename = std::enable_if_t<has_heap && std::is_same_v<H, PolicyTag>>>
+  constexpr explicit db(const H& heap) noexcept : heap_{heap} {}
 
   /// Construct empty ART index with a custom allocator.
   constexpr explicit db(const allocator_type& alloc) noexcept
-      requires(!has_heap)
+    requires(!has_heap)
       : allocator_{alloc} {
     UNODB_DETAIL_ASSERT(allocator_.alloc != nullptr);
     UNODB_DETAIL_ASSERT(allocator_.dealloc != nullptr);
   }
 
   /// Construct heap-backed ART index with a custom allocator.
-  template <typename H = PolicyTag,
-            typename = std::enable_if_t<has_heap && std::is_same_v<H, PolicyTag>>>
+  template <
+      typename H = PolicyTag,
+      typename = std::enable_if_t<has_heap && std::is_same_v<H, PolicyTag>>>
   constexpr db(const H& heap, const allocator_type& alloc) noexcept
       : heap_{heap}, allocator_{alloc} {
     UNODB_DETAIL_ASSERT(allocator_.alloc != nullptr);
@@ -411,10 +413,11 @@ class db final {
     // Note: The iterator is backed by a std::stack. This means that
     // the iterator methods accessing the stack can not be declared as
     // [[noexcept]].
-    static_assert(!detail::art_policy<Key, Value, PolicyTag>::can_eliminate_leaf ||
-                      detail::art_policy<Key, Value, PolicyTag>::full_key_in_inode_path ||
-                      detail::art_policy<Key, Value, PolicyTag>::has_heap,
-                  "VIS requires full_key_in_inode_path or a TupleHeap for key recovery");
+    static_assert(
+        !detail::art_policy<Key, Value, PolicyTag>::can_eliminate_leaf ||
+            detail::art_policy<Key, Value, PolicyTag>::full_key_in_inode_path ||
+            detail::art_policy<Key, Value, PolicyTag>::has_heap,
+        "VIS requires full_key_in_inode_path or a TupleHeap for key recovery");
 
     /// unodb::db
     friend class db;
@@ -1134,17 +1137,18 @@ class db final {
   friend class detail::basic_db_leaf_deleter;
 
   /// detail::basic_art_policy
-  template <typename,                             // Key
-            typename,                             // Value
-            template <typename, typename, typename> class,  // Db
-            template <class> class,               // CriticalSectionPolicy
-            class,                                // Fake lock implementation
-            class,  // Fake read_critical_section implementation
-            class,  // NodePtr
-            template <typename, typename, typename> class,  // INodeDefs
-            template <typename, typename, class, typename> class,  // INodeReclamator
-            template <class> class,                      // LeafReclamator
-            typename>                                    // PolicyTag
+  template <
+      typename,                                       // Key
+      typename,                                       // Value
+      template <typename, typename, typename> class,  // Db
+      template <class> class,                         // CriticalSectionPolicy
+      class,  // Fake lock implementation
+      class,  // Fake read_critical_section implementation
+      class,  // NodePtr
+      template <typename, typename, typename> class,         // INodeDefs
+      template <typename, typename, class, typename> class,  // INodeReclamator
+      template <class> class,                                // LeafReclamator
+      typename>                                              // PolicyTag
   friend struct detail::basic_art_policy;
 
   /// detail::basic_db_inode_deleter
@@ -1186,8 +1190,8 @@ struct impl_helpers {
   template <typename Key, typename Value, typename PolicyTag, class INode>
   [[nodiscard]] static detail::node_ptr* add_or_choose_subtree(
       INode& inode, std::byte key_byte, basic_art_key<Key> k, Value v,
-      db<Key, Value, PolicyTag>& db_instance, tree_depth<basic_art_key<Key>> depth,
-      detail::node_ptr* node_in_parent);
+      db<Key, Value, PolicyTag>& db_instance,
+      tree_depth<basic_art_key<Key>> depth, detail::node_ptr* node_in_parent);
 
   UNODB_DETAIL_RESTORE_GCC_10_WARNINGS()
 
@@ -1210,7 +1214,8 @@ struct impl_helpers {
   template <typename Key, typename Value, typename PolicyTag, class INode>
   [[nodiscard]] static std::optional<detail::node_ptr*>
   remove_or_choose_subtree(INode& inode, std::byte key_byte,
-                           basic_art_key<Key> k, db<Key, Value, PolicyTag>& db_instance,
+                           basic_art_key<Key> k,
+                           db<Key, Value, PolicyTag>& db_instance,
                            detail::node_ptr* node_in_parent);
 
   /// Deleted constructor (static-only helper class).
@@ -1226,7 +1231,8 @@ using inode_4_parent = basic_inode_4<art_policy<Key, Value, PolicyTag>>;
 /// Smallest internal node type, used when a leaf needs to be split or when
 /// a larger node shrinks below minimum occupancy.
 template <typename Key, typename Value, typename PolicyTag>
-class [[nodiscard]] inode_4 final : public inode_4_parent<Key, Value, PolicyTag> {
+class [[nodiscard]] inode_4 final
+    : public inode_4_parent<Key, Value, PolicyTag> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
   using inode_4_parent<Key, Value, PolicyTag>::inode_4_parent;
@@ -1273,7 +1279,8 @@ using inode_16_parent = basic_inode_16<art_policy<Key, Value, PolicyTag>>;
 /// Used when inode_4 grows beyond capacity or when inode_48 shrinks below
 /// minimum occupancy.
 template <typename Key, typename Value, typename PolicyTag>
-class [[nodiscard]] inode_16 final : public inode_16_parent<Key, Value, PolicyTag> {
+class [[nodiscard]] inode_16 final
+    : public inode_16_parent<Key, Value, PolicyTag> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
   using inode_16_parent<Key, Value, PolicyTag>::inode_16_parent;
@@ -1312,7 +1319,8 @@ using inode_48_parent = basic_inode_48<art_policy<Key, Value, PolicyTag>>;
 /// Used when inode_16 grows beyond capacity or when inode_256 shrinks below
 /// minimum occupancy.
 template <typename Key, typename Value, typename PolicyTag>
-class [[nodiscard]] inode_48 final : public inode_48_parent<Key, Value, PolicyTag> {
+class [[nodiscard]] inode_48 final
+    : public inode_48_parent<Key, Value, PolicyTag> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
   using inode_48_parent<Key, Value, PolicyTag>::inode_48_parent;
@@ -1357,7 +1365,8 @@ using inode_256_parent = basic_inode_256<art_policy<Key, Value, PolicyTag>>;
 /// Largest internal node type, used when inode_48 grows beyond capacity.
 /// Has direct mapping from byte values to children.
 template <typename Key, typename Value, typename PolicyTag>
-class [[nodiscard]] inode_256 final : public inode_256_parent<Key, Value, PolicyTag> {
+class [[nodiscard]] inode_256 final
+    : public inode_256_parent<Key, Value, PolicyTag> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
   using inode_256_parent<Key, Value, PolicyTag>::inode_256_parent;
@@ -1409,8 +1418,8 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 template <typename Key, typename Value, typename PolicyTag, class INode>
 detail::node_ptr* impl_helpers::add_or_choose_subtree(
     INode& inode, std::byte key_byte, basic_art_key<Key> k, Value v,
-    db<Key, Value, PolicyTag>& db_instance, tree_depth<basic_art_key<Key>> depth,
-    detail::node_ptr* node_in_parent) {
+    db<Key, Value, PolicyTag>& db_instance,
+    tree_depth<basic_art_key<Key>> depth, detail::node_ptr* node_in_parent) {
   auto* const child =
       unwrap_fake_critical_section(inode.find_child(key_byte).second);
 
@@ -1423,14 +1432,15 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
 
     if constexpr (!std::is_same_v<INode, inode_256<Key, Value, PolicyTag>>) {
       if (UNODB_DETAIL_UNLIKELY(children_count == INode::capacity)) {
-        if constexpr (art_policy<Key, Value, PolicyTag>::full_key_in_inode_path) {
+        if constexpr (art_policy<Key, Value,
+                                 PolicyTag>::full_key_in_inode_path) {
           const auto chain_start =
               static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
           if (chain_start < k.size()) {
             // OOM safety: build chain BEFORE creating the larger node.
             auto chain_top = db_instance.build_chain(k, packed, chain_start);
-            typename art_policy<Key, Value, PolicyTag>::subtree_guard chain_guard{
-                chain_top, db_instance};
+            typename art_policy<Key, Value, PolicyTag>::subtree_guard
+                chain_guard{chain_top, db_instance};
             auto larger_node{INode::larger_derived_type::create(
                 db_instance, inode, chain_top, depth, key_byte)};
             *node_in_parent = node_ptr{larger_node.release(),
@@ -1483,12 +1493,14 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
     return child;
   } else {
     // Leaf-based: allocate leaf as before.
-    auto leaf = art_policy<Key, Value, PolicyTag>::make_db_leaf_ptr(k, v, db_instance);
+    auto leaf =
+        art_policy<Key, Value, PolicyTag>::make_db_leaf_ptr(k, v, db_instance);
     const auto children_count = inode.get_children_count();
 
     if constexpr (!std::is_same_v<INode, inode_256<Key, Value, PolicyTag>>) {
       if (UNODB_DETAIL_UNLIKELY(children_count == INode::capacity)) {
-        if constexpr (art_policy<Key, Value, PolicyTag>::full_key_in_inode_path) {
+        if constexpr (art_policy<Key, Value,
+                                 PolicyTag>::full_key_in_inode_path) {
           const auto chain_start =
               static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
           if (chain_start < k.size()) {
@@ -1496,8 +1508,8 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
             const auto leaf_ptr =
                 detail::node_ptr{leaf.release(), node_type::LEAF};
             auto chain_top = db_instance.build_chain(k, leaf_ptr, chain_start);
-            typename art_policy<Key, Value, PolicyTag>::subtree_guard chain_guard{
-                chain_top, db_instance};
+            typename art_policy<Key, Value, PolicyTag>::subtree_guard
+                chain_guard{chain_top, db_instance};
             auto larger_node{INode::larger_derived_type::create(
                 db_instance, inode, chain_top, depth, key_byte)};
             *node_in_parent = node_ptr{larger_node.release(),
@@ -1564,15 +1576,17 @@ std::optional<detail::node_ptr*> impl_helpers::remove_or_choose_subtree(
       return unwrap_fake_critical_section(child_ptr);
 
     const auto* const leaf{
-        child_ptr_val.template ptr<typename db<Key, Value, PolicyTag>::leaf_type*>()};
+        child_ptr_val
+            .template ptr<typename db<Key, Value, PolicyTag>::leaf_type*>()};
     if (!leaf->matches(k)) return {};
   }
 
   if (UNODB_DETAIL_UNLIKELY(inode.is_min_size())) {
     if constexpr (std::is_same_v<INode, inode_4<Key, Value, PolicyTag>>) {
       if (UNODB_DETAIL_LIKELY(inode.can_collapse(child_i))) {
-        auto current_node{art_policy<Key, Value, PolicyTag>::make_db_inode_unique_ptr(
-            &inode, db_instance)};
+        auto current_node{
+            art_policy<Key, Value, PolicyTag>::make_db_inode_unique_ptr(
+                &inode, db_instance)};
         *node_in_parent = current_node->leave_last_child(child_i, db_instance);
 #ifdef UNODB_DETAIL_WITH_STATS
         db_instance.template account_shrinking_inode<INode::type>();
@@ -1606,8 +1620,8 @@ db<Key, Value, PolicyTag>::~db() noexcept {
 }
 
 template <typename Key, typename Value, typename PolicyTag>
-typename db<Key, Value, PolicyTag>::get_result db<Key, Value, PolicyTag>::get_internal(
-    art_key_type k) const noexcept {
+typename db<Key, Value, PolicyTag>::get_result
+db<Key, Value, PolicyTag>::get_internal(art_key_type k) const noexcept {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return {};
   if constexpr (std::is_same_v<Key, key_view>) {
     if (UNODB_DETAIL_UNLIKELY(k.size() == 0)) return {};
@@ -1659,7 +1673,8 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26430)
 // and the raw pointer's validity is independent of the temporary unique_ptr.
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
 template <typename Key, typename Value, typename PolicyTag>
-bool db<Key, Value, PolicyTag>::insert_internal(art_key_type insert_key, value_type v) {
+bool db<Key, Value, PolicyTag>::insert_internal(art_key_type insert_key,
+                                                value_type v) {
   if constexpr (std::is_same_v<Key, key_view>) {
     if (UNODB_DETAIL_UNLIKELY(insert_key.size() == 0)) {
       throw std::length_error("Key must not be empty");
@@ -1701,7 +1716,7 @@ template <typename Key, typename Value, typename PolicyTag>
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
 // cppcheck-suppress missingReturn
 bool db<Key, Value, PolicyTag>::insert_internal_fixed(art_key_type insert_key,
-                                           value_type v) {
+                                                      value_type v) {
   if constexpr (std::is_same_v<Key, key_view>) {
     // LCOV_EXCL_START — dead: caller dispatches key_view to
     // insert_internal_key_view.
@@ -1777,9 +1792,8 @@ bool db<Key, Value, PolicyTag>::insert_internal_fixed(art_key_type insert_key,
 }
 
 template <typename Key, typename Value, typename PolicyTag>
-detail::node_ptr db<Key, Value, PolicyTag>::build_chain(art_key_type k,
-                                             detail::node_ptr child,
-                                             tree_depth_type start_depth) {
+detail::node_ptr db<Key, Value, PolicyTag>::build_chain(
+    art_key_type k, detail::node_ptr child, tree_depth_type start_depth) {
   return detail::bulk_build_chain<art_policy>(*this, k, child, start_depth);
 }
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
@@ -1788,8 +1802,8 @@ UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 template <typename Key, typename Value, typename PolicyTag>
-bool db<Key, Value, PolicyTag>::insert_internal_key_view(art_key_type insert_key,
-                                              value_type v) {
+bool db<Key, Value, PolicyTag>::insert_internal_key_view(
+    art_key_type insert_key, value_type v) {
   auto* node = &root;
   tree_depth_type depth{};
   auto remaining_key{insert_key};
@@ -2138,7 +2152,9 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
       } else if (ptype == node_type::I16 &&
                  pcount == detail::basic_inode_16<art_policy>::min_size) {
         auto new_node{inode_4::create(
-            *this, *parent_val.template ptr<detail::inode_16<Key, Value, PolicyTag>*>(),
+            *this,
+            *parent_val
+                 .template ptr<detail::inode_16<Key, Value, PolicyTag>*>(),
             entry.child_i)};
         *entry.slot = detail::node_ptr{new_node.release(), node_type::I4};
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -2147,7 +2163,9 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
       } else if (ptype == node_type::I48 &&
                  pcount == detail::basic_inode_48<art_policy>::min_size) {
         auto new_node{detail::inode_16<Key, Value, PolicyTag>::create(
-            *this, *parent_val.template ptr<detail::inode_48<Key, Value, PolicyTag>*>(),
+            *this,
+            *parent_val
+                 .template ptr<detail::inode_48<Key, Value, PolicyTag>*>(),
             entry.child_i)};
         *entry.slot = detail::node_ptr{new_node.release(), node_type::I16};
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -2156,7 +2174,9 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
       } else if (ptype == node_type::I256 &&
                  pcount == detail::basic_inode_256<art_policy>::min_size) {
         auto new_node{detail::inode_48<Key, Value, PolicyTag>::create(
-            *this, *parent_val.template ptr<detail::inode_256<Key, Value, PolicyTag>*>(),
+            *this,
+            *parent_val
+                 .template ptr<detail::inode_256<Key, Value, PolicyTag>*>(),
             entry.child_i)};
         *entry.slot = detail::node_ptr{new_node.release(), node_type::I48};
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -2183,7 +2203,8 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 // left_most_traversal, right_most_traversal are identical except for a couple
 // lines. Extract helper methods templatized on the differences.
 template <typename Key, typename Value, typename PolicyTag>
-typename db<Key, Value, PolicyTag>::iterator& db<Key, Value, PolicyTag>::iterator::first() {
+typename db<Key, Value, PolicyTag>::iterator&
+db<Key, Value, PolicyTag>::iterator::first() {
   invalidate();  // clear the stack
   if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // empty tree.
   const auto node{db_.root};
@@ -2191,7 +2212,8 @@ typename db<Key, Value, PolicyTag>::iterator& db<Key, Value, PolicyTag>::iterato
 }
 
 template <typename Key, typename Value, typename PolicyTag>
-typename db<Key, Value, PolicyTag>::iterator& db<Key, Value, PolicyTag>::iterator::last() {
+typename db<Key, Value, PolicyTag>::iterator&
+db<Key, Value, PolicyTag>::iterator::last() {
   invalidate();  // clear the stack
   if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // empty tree.
   const auto node{db_.root};
@@ -2199,7 +2221,8 @@ typename db<Key, Value, PolicyTag>::iterator& db<Key, Value, PolicyTag>::iterato
 }
 
 template <typename Key, typename Value, typename PolicyTag>
-typename db<Key, Value, PolicyTag>::iterator& db<Key, Value, PolicyTag>::iterator::next() {
+typename db<Key, Value, PolicyTag>::iterator&
+db<Key, Value, PolicyTag>::iterator::next() {
   while (!empty()) {
     const auto& e = top();
     const auto node{e.node};
@@ -2235,7 +2258,8 @@ typename db<Key, Value, PolicyTag>::iterator& db<Key, Value, PolicyTag>::iterato
 }
 
 template <typename Key, typename Value, typename PolicyTag>
-typename db<Key, Value, PolicyTag>::iterator& db<Key, Value, PolicyTag>::iterator::prior() {
+typename db<Key, Value, PolicyTag>::iterator&
+db<Key, Value, PolicyTag>::iterator::prior() {
   while (!empty()) {
     const auto& e = top();
     const auto node{e.node};
@@ -2272,7 +2296,8 @@ typename db<Key, Value, PolicyTag>::iterator& db<Key, Value, PolicyTag>::iterato
 
 template <typename Key, typename Value, typename PolicyTag>
 typename db<Key, Value, PolicyTag>::iterator&
-db<Key, Value, PolicyTag>::iterator::left_most_traversal(detail::node_ptr node) {
+db<Key, Value, PolicyTag>::iterator::left_most_traversal(
+    detail::node_ptr node) {
   while (true) {
     UNODB_DETAIL_ASSERT(node != nullptr);
     const auto node_type = node.type();
@@ -2299,7 +2324,8 @@ db<Key, Value, PolicyTag>::iterator::left_most_traversal(detail::node_ptr node) 
 
 template <typename Key, typename Value, typename PolicyTag>
 typename db<Key, Value, PolicyTag>::iterator&
-db<Key, Value, PolicyTag>::iterator::right_most_traversal(detail::node_ptr node) {
+db<Key, Value, PolicyTag>::iterator::right_most_traversal(
+    detail::node_ptr node) {
   while (true) {
     UNODB_DETAIL_ASSERT(node != nullptr);
     const auto node_type = node.type();
@@ -2325,8 +2351,9 @@ db<Key, Value, PolicyTag>::iterator::right_most_traversal(detail::node_ptr node)
 }
 
 template <typename Key, typename Value, typename PolicyTag>
-typename db<Key, Value, PolicyTag>::iterator& db<Key, Value, PolicyTag>::iterator::seek(
-    art_key_type search_key, bool& match, bool fwd) {
+typename db<Key, Value, PolicyTag>::iterator&
+db<Key, Value, PolicyTag>::iterator::seek(art_key_type search_key, bool& match,
+                                          bool fwd) {
   invalidate();   // invalidate the iterator (clear the stack).
   match = false;  // unless we wind up with an exact match.
   if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // aka end
@@ -2539,8 +2566,8 @@ db<Key, Value, PolicyTag>::iterator::get_key() noexcept {
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
 template <typename Key, typename Value, typename PolicyTag>
-typename db<Key, Value, PolicyTag>::value_type db<Key, Value, PolicyTag>::iterator::get_val()
-    const noexcept {
+typename db<Key, Value, PolicyTag>::value_type
+db<Key, Value, PolicyTag>::iterator::get_val() const noexcept {
   UNODB_DETAIL_ASSERT(valid());  // by contract
   const auto& e = stack_.top();
   const auto& node = e.node;
@@ -2848,7 +2875,7 @@ bool db<Key, Value, PolicyTag>::upsert(Key k, value_type v, FN fn) {
 template <typename Key, typename Value, typename PolicyTag>
 template <typename Fork, typename RandomIt>
 void db<Key, Value, PolicyTag>::bulk_load(Fork&& fork, std::size_t max_tasks,
-                               RandomIt first, RandomIt last) {
+                                          RandomIt first, RandomIt last) {
   if (!empty()) {
     throw std::invalid_argument("bulk_load requires empty tree");
   }
