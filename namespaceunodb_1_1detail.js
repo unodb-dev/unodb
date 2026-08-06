@@ -92,7 +92,6 @@ var namespaceunodb_1_1detail =
     [ "decode_floating_point", "namespaceunodb_1_1detail.html#a75f7fa26a657bd2a5640cf369c639d17", null ],
     [ "default_alloc", "namespaceunodb_1_1detail.html#ab8fed6046804221200399128e04fa0cc", null ],
     [ "default_dealloc", "namespaceunodb_1_1detail.html#ac9014018c219c856912fbca96c6365f7", null ],
-    [ "default_defer_dealloc", "namespaceunodb_1_1detail.html#ad0a46e22ed0f76739ffcfa42c8da349d", null ],
     [ "default_destroy", "namespaceunodb_1_1detail.html#aa2440335830743ed9fb666230b01c621", null ],
     [ "dump_byte", "namespaceunodb_1_1detail.html#a0ea0a7a9ae7c67e2636bae1ca01e11fe", null ],
     [ "dump_key", "namespaceunodb_1_1detail.html#a0ef7220cb1655f8cd8f759659bf99ab7", null ],

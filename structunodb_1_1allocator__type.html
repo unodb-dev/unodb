@@ -128,8 +128,8 @@ void *&#160;</td><td class="memItemRight" valign="bottom"><b>ctx</b></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Pluggable allocator for ART trees. </p>
-<p>All three function pointers must be non-null. <em>ctx</em> is forwarded to every callback and may be nullptr.</p>
-<p><em>defer_dealloc</em> is called when a node is removed and cannot be freed immediately (concurrent readers may hold pointers). For single-threaded trees the default calls <em>destroy_callback</em> immediately. OLC trees replace this with QSBR-based deferred reclamation. </p>
+<p><em>alloc</em> and <em>dealloc</em> must be non-null. <em>defer_dealloc</em> must be non-null when deferred deallocation is used and may otherwise be null. <em>ctx</em> is forwarded to every callback and may be nullptr.</p>
+<p><em>defer_dealloc</em> schedules <em>destroy_callback</em> for an allocation that cannot be reclaimed immediately. </p>
 </div><h2 class="groupheader">Member Data Documentation</h2>
 <a id="aca85f87179167bfee95d760461ec6a94" name="aca85f87179167bfee95d760461ec6a94"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aca85f87179167bfee95d760461ec6a94">&#9670;&#160;</a></span>defer_dealloc</h2>
