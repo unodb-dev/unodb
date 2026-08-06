@@ -1,3 +1,4 @@
+// Copyright 2026 UnoDB contributors
 /// \file test_art_heap.cpp
 /// \brief Tests for the TupleHeap secondary index variant of olc_db.
 ///
@@ -5,7 +6,8 @@
 /// This exercises the full heap-mode code path: insert with divergence,
 /// get with key verification, remove with key verification, and scan.
 
-#include <algorithm>
+#include "global.hpp"  // NOLINT(misc-include-cleaner)
+
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -60,6 +62,7 @@ static_assert(unodb::TupleHeap<TestHeap, std::uint64_t>);
 using heap_db = unodb::olc_db<unodb::key_view, std::uint64_t, TestHeap>;
 
 /// Test fixture providing QSBR context.
+// NOLINTNEXTLINE(cppcoreguidelines-virtual-class-destructor)
 class HeapArtTest : public ::testing::Test {
  protected:
   HeapArtTest() noexcept { unodb::test::expect_idle_qsbr(); }
@@ -71,8 +74,8 @@ class HeapArtTest : public ::testing::Test {
 };
 
 TEST_F(HeapArtTest, ConstructDestruct) {
-  TestHeap heap;
-  heap_db db{heap};
+  const TestHeap heap;
+  const heap_db db{heap};
   EXPECT_TRUE(db.empty());
 }
 
@@ -88,7 +91,8 @@ TEST_F(HeapArtTest, InsertGetSingle) {
 
   const auto result = db.get(key);
   ASSERT_TRUE(result.has_value());
-  EXPECT_EQ(*result, 1U);
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+  EXPECT_EQ(result.value(), 1U);
 }
 
 TEST_F(HeapArtTest, InsertDuplicate) {
@@ -141,19 +145,21 @@ TEST_F(HeapArtTest, InsertDivergence) {
   ASSERT_TRUE(db.insert(kv_a, 10));
   ASSERT_TRUE(db.insert(kv_b, 20));
 
-  auto r_a = db.get(kv_a);
+  const auto r_a = db.get(kv_a);
   ASSERT_TRUE(r_a.has_value());
-  EXPECT_EQ(*r_a, 10U);
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+  EXPECT_EQ(r_a.value(), 10U);
 
-  auto r_b = db.get(kv_b);
+  const auto r_b = db.get(kv_b);
   ASSERT_TRUE(r_b.has_value());
-  EXPECT_EQ(*r_b, 20U);
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+  EXPECT_EQ(r_b.value(), 20U);
 }
 
 TEST_F(HeapArtTest, ScanOrder) {
   TestHeap heap;
   // Insert keys in random order, scan should yield them in sorted order.
-  std::vector<std::uint64_t> values{5, 2, 8, 1, 9, 3, 7, 4, 6, 0};
+  const std::vector<std::uint64_t> values{5, 2, 8, 1, 9, 3, 7, 4, 6, 0};
   std::vector<std::array<std::byte, 8>> key_store;
   key_store.reserve(values.size());
 
@@ -173,7 +179,7 @@ TEST_F(HeapArtTest, ScanOrder) {
   });
 
   // Should be in ascending key order (big-endian encoding preserves order).
-  std::vector<std::uint64_t> expected{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  const std::vector<std::uint64_t> expected{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   EXPECT_EQ(scan_results, expected);
 }
 
@@ -195,9 +201,10 @@ TEST_F(HeapArtTest, ManyInserts) {
   // Verify all retrievable.
   for (std::uint64_t i = 0; i < count; ++i) {
     const unodb::key_view kv{key_store[i].data(), key_store[i].size()};
-    auto result = db.get(kv);
+    const auto result = db.get(kv);
     ASSERT_TRUE(result.has_value()) << "Missing key for i=" << i;
-    EXPECT_EQ(*result, i);
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+    EXPECT_EQ(result.value(), i);
   }
 
   // Remove all.
@@ -240,9 +247,10 @@ TEST_F(HeapArtTest, ConcurrentInsertGet) {
     // Get phase — verify own keys are present.
     for (std::uint64_t i = start; i < end; ++i) {
       const unodb::key_view kv{key_store[i].data(), key_store[i].size()};
-      auto result = db.get(kv);
+      const auto result = db.get(kv);
       if (result.has_value()) {
-        EXPECT_EQ(*result, i);
+        // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+        EXPECT_EQ(result.value(), i);
       }
       // Key might be missing if another thread hasn't finished; that's ok
       // for this stress test. We just verify no crashes.
@@ -263,9 +271,11 @@ TEST_F(HeapArtTest, ConcurrentInsertGet) {
   // Final verification: all keys should be present.
   for (std::uint64_t i = 0; i < total_keys; ++i) {
     const unodb::key_view kv{key_store[i].data(), key_store[i].size()};
-    auto result = db.get(kv);
-    ASSERT_TRUE(result.has_value()) << "Missing key after concurrent test i=" << i;
-    EXPECT_EQ(*result, i);
+    const auto result = db.get(kv);
+    ASSERT_TRUE(result.has_value())
+        << "Missing key after concurrent test i=" << i;
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+    EXPECT_EQ(result.value(), i);
   }
 }
 

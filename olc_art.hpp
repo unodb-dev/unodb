@@ -109,8 +109,7 @@ class olc_inode_256;
 
 template <typename Key, typename Value, typename PolicyTag = void>
 using olc_inode_defs =
-    basic_inode_def<olc_inode<Key, Value>,
-                    olc_inode_4<Key, Value, PolicyTag>,
+    basic_inode_def<olc_inode<Key, Value>, olc_inode_4<Key, Value, PolicyTag>,
                     olc_inode_16<Key, Value, PolicyTag>,
                     olc_inode_48<Key, Value, PolicyTag>,
                     olc_inode_256<Key, Value, PolicyTag>>;
@@ -139,11 +138,12 @@ class db_leaf_qsbr_deleter;  // IWYU pragma: keep
 struct olc_impl_helpers;
 
 template <typename Key, typename Value, typename PolicyTag = void>
-using olc_art_policy = basic_art_policy<
-    Key, Value, unodb::olc_db, unodb::in_critical_section,
-    unodb::optimistic_lock, unodb::optimistic_lock::read_critical_section,
-    olc_node_ptr, olc_inode_defs, db_inode_qsbr_deleter, db_leaf_qsbr_deleter,
-    PolicyTag>;
+using olc_art_policy =
+    basic_art_policy<Key, Value, unodb::olc_db, unodb::in_critical_section,
+                     unodb::optimistic_lock,
+                     unodb::optimistic_lock::read_critical_section,
+                     olc_node_ptr, olc_inode_defs, db_inode_qsbr_deleter,
+                     db_leaf_qsbr_deleter, PolicyTag>;
 
 template <typename Key, typename Value>
 using olc_db_leaf_unique_ptr =
@@ -203,10 +203,10 @@ template <typename Key, typename Value, typename PolicyTag>
 class olc_db final {
   static_assert(detail::heap_key_check_v<Key, PolicyTag>,
                 "TupleHeap requires Key = key_view");
+
  public:
   /// Whether a TupleHeap is configured for key recovery.
-  static constexpr bool has_heap =
-      detail::is_heap_v<PolicyTag, Value>;
+  static constexpr bool has_heap = detail::is_heap_v<PolicyTag, Value>;
 
   /// The type of the keys in the index.
   using key_type = Key;
@@ -245,17 +245,19 @@ class olc_db final {
 
   /// Construct empty OLC ART index with default allocator.
   /// Construct empty OLC ART index with default allocator.
-  olc_db() noexcept requires(!has_heap) = default;
+  olc_db() noexcept
+    requires(!has_heap)
+  = default;
 
   /// Construct empty OLC ART index backed by a tuple heap for key recovery.
-  template <typename H = PolicyTag,
-            typename = std::enable_if_t<has_heap && std::is_same_v<H, PolicyTag>>>
-  constexpr explicit olc_db(const H& heap) noexcept
-      : heap_{heap} {}
+  template <
+      typename H = PolicyTag,
+      typename = std::enable_if_t<has_heap && std::is_same_v<H, PolicyTag>>>
+  constexpr explicit olc_db(const H& heap) noexcept : heap_{heap} {}
 
   /// Construct empty OLC ART index with a custom allocator.
   constexpr explicit olc_db(const allocator_type& alloc) noexcept
-      requires(!has_heap)
+    requires(!has_heap)
       : allocator_{alloc} {
     UNODB_DETAIL_ASSERT(allocator_.alloc != nullptr);
     UNODB_DETAIL_ASSERT(allocator_.dealloc != nullptr);
@@ -263,8 +265,9 @@ class olc_db final {
   }
 
   /// Construct heap-backed OLC ART index with a custom allocator.
-  template <typename H = PolicyTag,
-            typename = std::enable_if_t<has_heap && std::is_same_v<H, PolicyTag>>>
+  template <
+      typename H = PolicyTag,
+      typename = std::enable_if_t<has_heap && std::is_same_v<H, PolicyTag>>>
   constexpr olc_db(const H& heap, const allocator_type& alloc) noexcept
       : heap_{heap}, allocator_{alloc} {
     UNODB_DETAIL_ASSERT(allocator_.alloc != nullptr);
@@ -407,7 +410,8 @@ class olc_db final {
   class iterator {
     static_assert(
         !detail::olc_art_policy<Key, Value, PolicyTag>::can_eliminate_leaf ||
-            detail::olc_art_policy<Key, Value, PolicyTag>::full_key_in_inode_path ||
+            detail::olc_art_policy<Key, Value,
+                                   PolicyTag>::full_key_in_inode_path ||
             detail::olc_art_policy<Key, Value, PolicyTag>::has_heap,
         "VIS requires full_key_in_inode_path or a TupleHeap for key recovery");
 
@@ -943,7 +947,8 @@ class olc_db final {
  private:
   using visitor_type = visitor<db_type::iterator>;
   using olc_db_leaf_unique_ptr_type =
-      typename detail::olc_art_policy<Key, Value, PolicyTag>::db_leaf_unique_ptr;
+      typename detail::olc_art_policy<Key, Value,
+                                      PolicyTag>::db_leaf_unique_ptr;
 
   // If get_result is not present, the search was interrupted. Yes, this
   // resolves to std::optional<std::optional<value_view>>, but IMHO both
@@ -1147,17 +1152,18 @@ class olc_db final {
   template <typename, typename, class, typename>
   friend class detail::db_inode_qsbr_deleter;
 
-  template <typename,                             // Key
-            typename,                             // Value
-            template <typename, typename, typename> class,  // Db
-            template <class> class,               // CriticalSectionPolicy
-            class,                                // LockPolicy
-            class,                                // ReadCriticalSection
-            class,                                // NodePtr
-            template <typename, typename, typename> class,  // INodeDefs
-            template <typename, typename, class, typename> class,  // INodeReclamator
-            template <class> class,                      // LeafReclamator
-            typename>                                    // PolicyTag
+  template <
+      typename,                                       // Key
+      typename,                                       // Value
+      template <typename, typename, typename> class,  // Db
+      template <class> class,                         // CriticalSectionPolicy
+      class,                                          // LockPolicy
+      class,                                          // ReadCriticalSection
+      class,                                          // NodePtr
+      template <typename, typename, typename> class,  // INodeDefs
+      template <typename, typename, class, typename> class,  // INodeReclamator
+      template <class> class,                                // LeafReclamator
+      typename>                                              // PolicyTag
   friend struct detail::basic_art_policy;
 
   template <class, class>
@@ -1335,7 +1341,8 @@ template <typename Key, typename Value, typename PolicyTag>
 using olc_inode_4_parent = basic_inode_4<olc_art_policy<Key, Value, PolicyTag>>;
 
 template <typename Key, typename Value, typename PolicyTag>
-class [[nodiscard]] olc_inode_4 final : public olc_inode_4_parent<Key, Value, PolicyTag> {
+class [[nodiscard]] olc_inode_4 final
+    : public olc_inode_4_parent<Key, Value, PolicyTag> {
   using parent_class = olc_inode_4_parent<Key, Value, PolicyTag>;
 
  public:
@@ -1430,7 +1437,8 @@ static_assert(sizeof(olc_inode_4_test_type) == 56 + 24);
 #endif  // #ifndef _MSC_VER
 
 template <typename Key, typename Value, typename PolicyTag>
-using olc_inode_16_parent = basic_inode_16<olc_art_policy<Key, Value, PolicyTag>>;
+using olc_inode_16_parent =
+    basic_inode_16<olc_art_policy<Key, Value, PolicyTag>>;
 
 template <typename Key, typename Value, typename PolicyTag>
 class [[nodiscard]] olc_inode_16 final
@@ -1559,7 +1567,8 @@ void olc_inode_4<Key, Value, PolicyTag>::init(
 }
 
 template <typename Key, typename Value, typename PolicyTag>
-using olc_inode_48_parent = basic_inode_48<olc_art_policy<Key, Value, PolicyTag>>;
+using olc_inode_48_parent =
+    basic_inode_48<olc_art_policy<Key, Value, PolicyTag>>;
 
 template <typename Key, typename Value, typename PolicyTag>
 class [[nodiscard]] olc_inode_48 final
@@ -1680,7 +1689,8 @@ void olc_inode_16<Key, Value, PolicyTag>::init(
 }
 
 template <typename Key, typename Value, typename PolicyTag>
-using olc_inode_256_parent = basic_inode_256<olc_art_policy<Key, Value, PolicyTag>>;
+using olc_inode_256_parent =
+    basic_inode_256<olc_art_policy<Key, Value, PolicyTag>>;
 
 template <typename Key, typename Value, typename PolicyTag>
 class [[nodiscard]] olc_inode_256 final
@@ -1788,9 +1798,11 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26411)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26415)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26460)
 template <typename Key, typename Value, typename PolicyTag>
-void create_leaf_if_needed(typename olc_art_policy<Key, Value, PolicyTag>::db_leaf_unique_ptr& cached_leaf,
-                           basic_art_key<Key> k, Value v,
-                           unodb::olc_db<Key, Value, PolicyTag>& db_instance) {
+void create_leaf_if_needed(
+    typename olc_art_policy<Key, Value, PolicyTag>::db_leaf_unique_ptr&
+        cached_leaf,
+    basic_art_key<Key> k, Value v,
+    unodb::olc_db<Key, Value, PolicyTag>& db_instance) {
   if constexpr (olc_art_policy<Key, Value, PolicyTag>::can_eliminate_leaf) {
     // No leaf allocation needed — values are packed in inode slots.
   } else {
@@ -1798,10 +1810,9 @@ void create_leaf_if_needed(typename olc_art_policy<Key, Value, PolicyTag>::db_le
       UNODB_DETAIL_ASSERT(&cached_leaf.get_deleter().get_db() == &db_instance);
       // Do not assign because we do not need to assign the deleter
       // NOLINTNEXTLINE(misc-uniqueptr-reset-release)
-      cached_leaf.reset(
-          olc_art_policy<Key, Value, PolicyTag>::make_db_leaf_ptr(k, v,
-                                                                  db_instance)
-              .release());
+      cached_leaf.reset(olc_art_policy<Key, Value, PolicyTag>::make_db_leaf_ptr(
+                            k, v, db_instance)
+                            .release());
     }
   }
 }
@@ -1820,7 +1831,8 @@ olc_impl_helpers::add_or_choose_subtree(
     optimistic_lock::read_critical_section& node_critical_section,
     in_critical_section<olc_node_ptr>* node_in_parent,
     optimistic_lock::read_critical_section& parent_critical_section,
-    typename olc_art_policy<Key, Value, PolicyTag>::db_leaf_unique_ptr& cached_leaf) {
+    typename olc_art_policy<Key, Value, PolicyTag>::db_leaf_unique_ptr&
+        cached_leaf) {
   auto* const child_in_parent = inode.find_child(key_byte).second;
 
   if (child_in_parent == nullptr) {
@@ -1828,19 +1840,21 @@ olc_impl_helpers::add_or_choose_subtree(
 
     const auto children_count = inode.get_children_count();
 
-    if constexpr (!std::is_same_v<INode, olc_inode_256<Key, Value, PolicyTag>>) {
+    if constexpr (!std::is_same_v<INode,
+                                  olc_inode_256<Key, Value, PolicyTag>>) {
       if (UNODB_DETAIL_UNLIKELY(children_count == INode::capacity)) {
-        if constexpr (detail::olc_art_policy<Key, Value,
-                                             PolicyTag>::full_key_in_inode_path) {
+        if constexpr (detail::olc_art_policy<
+                          Key, Value, PolicyTag>::full_key_in_inode_path) {
           const auto chain_start =
               static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
           if (chain_start < k.size()) {
             // OOM safety: build chain BEFORE acquiring write guards.
             detail::olc_node_ptr chain_top{};
-            if constexpr (detail::olc_art_policy<Key, Value,
-                                                 PolicyTag>::can_eliminate_leaf) {
+            if constexpr (detail::olc_art_policy<
+                              Key, Value, PolicyTag>::can_eliminate_leaf) {
               chain_top = db_instance.build_chain(
-                  k, detail::olc_art_policy<Key, Value, PolicyTag>::pack_value(v),
+                  k,
+                  detail::olc_art_policy<Key, Value, PolicyTag>::pack_value(v),
                   chain_start);
             } else {
               create_leaf_if_needed(cached_leaf, k, v, db_instance);
@@ -1850,8 +1864,9 @@ olc_impl_helpers::add_or_choose_subtree(
               UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
               chain_top = db_instance.build_chain(k, leaf_ptr, chain_start);
             }
-            typename detail::olc_art_policy<Key, Value, PolicyTag>::subtree_guard
-                chain_guard{chain_top, db_instance};
+            typename detail::olc_art_policy<
+                Key, Value, PolicyTag>::subtree_guard chain_guard{chain_top,
+                                                                  db_instance};
             auto larger_node{
                 INode::larger_derived_type::create(db_instance, inode)};
             chain_guard.release();
@@ -1860,16 +1875,16 @@ olc_impl_helpers::add_or_choose_subtree(
               const optimistic_lock::write_guard write_unlock_on_exit{
                   std::move(parent_critical_section)};
               if (UNODB_DETAIL_UNLIKELY(write_unlock_on_exit.must_restart())) {
-                detail::olc_art_policy<Key, Value, PolicyTag>::delete_subtree(chain_top,
-                                                                   db_instance);
+                detail::olc_art_policy<Key, Value, PolicyTag>::delete_subtree(
+                    chain_top, db_instance);
                 return {};
               }
 
               optimistic_lock::write_guard node_write_guard{
                   std::move(node_critical_section)};
               if (UNODB_DETAIL_UNLIKELY(node_write_guard.must_restart())) {
-                detail::olc_art_policy<Key, Value, PolicyTag>::delete_subtree(chain_top,
-                                                                   db_instance);
+                detail::olc_art_policy<Key, Value, PolicyTag>::delete_subtree(
+                    chain_top, db_instance);
                 return {};
               }
 
@@ -1905,8 +1920,9 @@ olc_impl_helpers::add_or_choose_subtree(
             auto chain_top = db_instance.build_chain(
                 k, detail::olc_art_policy<Key, Value, PolicyTag>::pack_value(v),
                 chain_start);
-            typename detail::olc_art_policy<Key, Value, PolicyTag>::subtree_guard
-                chain_guard{chain_top, db_instance};
+            typename detail::olc_art_policy<
+                Key, Value, PolicyTag>::subtree_guard chain_guard{chain_top,
+                                                                  db_instance};
             auto larger_node{
                 INode::larger_derived_type::create(db_instance, inode)};
             chain_guard.release();
@@ -1928,8 +1944,8 @@ olc_impl_helpers::add_or_choose_subtree(
                 return {};
               }
 
-              larger_node->init(db_instance, inode, node_write_guard,
-                                chain_top, depth, key_byte);
+              larger_node->init(db_instance, inode, node_write_guard, chain_top,
+                                depth, key_byte);
               *node_in_parent = detail::olc_node_ptr{
                   larger_node.release(), INode::larger_derived_type::type};
 
@@ -1964,9 +1980,10 @@ olc_impl_helpers::add_or_choose_subtree(
 
           if constexpr (detail::olc_art_policy<Key, Value,
                                                PolicyTag>::can_eliminate_leaf) {
-            larger_node->init(db_instance, inode, node_write_guard,
-                              detail::olc_art_policy<Key, Value, PolicyTag>::pack_value(v),
-                              depth, key_byte);
+            larger_node->init(
+                db_instance, inode, node_write_guard,
+                detail::olc_art_policy<Key, Value, PolicyTag>::pack_value(v),
+                depth, key_byte);
           } else {
             larger_node->init(db_instance, inode, node_write_guard,
                               std::move(cached_leaf), depth, key_byte);
@@ -1986,13 +2003,15 @@ olc_impl_helpers::add_or_choose_subtree(
       }
     }
 
-    if constexpr (detail::olc_art_policy<Key, Value, PolicyTag>::full_key_in_inode_path) {
+    if constexpr (detail::olc_art_policy<Key, Value,
+                                         PolicyTag>::full_key_in_inode_path) {
       const auto chain_start =
           static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
       if (chain_start < k.size()) {
         // OOM safety: build chain BEFORE acquiring write guard.
         detail::olc_node_ptr chain_top{};
-        if constexpr (detail::olc_art_policy<Key, Value, PolicyTag>::can_eliminate_leaf) {
+        if constexpr (detail::olc_art_policy<Key, Value,
+                                             PolicyTag>::can_eliminate_leaf) {
           chain_top = db_instance.build_chain(
               k, detail::olc_art_policy<Key, Value, PolicyTag>::pack_value(v),
               chain_start);
@@ -2009,23 +2028,24 @@ olc_impl_helpers::add_or_choose_subtree(
         const optimistic_lock::write_guard write_unlock_on_exit{
             std::move(node_critical_section)};
         if (UNODB_DETAIL_UNLIKELY(write_unlock_on_exit.must_restart())) {
-          detail::olc_art_policy<Key, Value, PolicyTag>::delete_subtree(chain_top,
-                                                             db_instance);
+          detail::olc_art_policy<Key, Value, PolicyTag>::delete_subtree(
+              chain_top, db_instance);
           return {};  // LCOV_EXCL_LINE
         }
 
         if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock())) {
-          detail::olc_art_policy<Key, Value, PolicyTag>::delete_subtree(chain_top,
-                                                             db_instance);
+          detail::olc_art_policy<Key, Value, PolicyTag>::delete_subtree(
+              chain_top, db_instance);
           return {};  // LCOV_EXCL_LINE
         }
 
-        if constexpr (detail::olc_art_policy<Key, Value, PolicyTag>::can_eliminate_leaf) {
+        if constexpr (detail::olc_art_policy<Key, Value,
+                                             PolicyTag>::can_eliminate_leaf) {
           // Insert packed value first (sets value bit), then overwrite
           // with chain_top and clear value bit.
           inode.add_to_nonfull(
-              detail::olc_art_policy<Key, Value, PolicyTag>::pack_value(v), depth,
-              key_byte, children_count);
+              detail::olc_art_policy<Key, Value, PolicyTag>::pack_value(v),
+              depth, key_byte, children_count);
           std::atomic_signal_fence(std::memory_order_acq_rel);
           auto [ci_nf, slot_nf] = inode.find_child(key_byte);
           UNODB_DETAIL_ASSERT(slot_nf != nullptr);
@@ -2059,8 +2079,7 @@ olc_impl_helpers::add_or_choose_subtree(
           return {};
         }
 
-        if (UNODB_DETAIL_UNLIKELY(
-                !parent_critical_section.try_read_unlock())) {
+        if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock())) {
           detail::olc_art_policy<Key, Value, PolicyTag>::delete_subtree(
               chain_top, db_instance);
           return {};
@@ -2090,7 +2109,8 @@ olc_impl_helpers::add_or_choose_subtree(
 
     inode.add_to_nonfull(
         [&]() noexcept -> auto {
-          if constexpr (detail::olc_art_policy<Key, Value, PolicyTag>::can_eliminate_leaf)
+          if constexpr (detail::olc_art_policy<Key, Value,
+                                               PolicyTag>::can_eliminate_leaf)
             return detail::olc_art_policy<Key, Value, PolicyTag>::pack_value(v);
           else
             return std::move(cached_leaf);
@@ -2149,7 +2169,8 @@ template <typename Key, typename Value, typename PolicyTag, class INode>
             std::move(node_critical_section)};
         if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
         inode.remove(child_i, db_instance);
-      } else if constexpr (std::is_same_v<INode, olc_inode_4<Key, Value, PolicyTag>>) {
+      } else if constexpr (std::is_same_v<INode,
+                                          olc_inode_4<Key, Value, PolicyTag>>) {
         // Min-size I4 with packed value — don't collapse for now (D3).
         // Just remove the child, leaving I4 with 1 child.
         if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
@@ -2386,8 +2407,8 @@ void olc_db<Key, Value, PolicyTag>::clear() noexcept {
 }
 
 template <typename Key, typename Value, typename PolicyTag>
-typename olc_db<Key, Value, PolicyTag>::get_result olc_db<Key, Value, PolicyTag>::get_internal(
-    art_key_type k) const noexcept {
+typename olc_db<Key, Value, PolicyTag>::get_result
+olc_db<Key, Value, PolicyTag>::get_internal(art_key_type k) const noexcept {
   if constexpr (std::is_same_v<Key, key_view>) {
     if (UNODB_DETAIL_UNLIKELY(k.size() == 0)) return {};
   }
@@ -2404,8 +2425,8 @@ typename olc_db<Key, Value, PolicyTag>::get_result olc_db<Key, Value, PolicyTag>
 }
 
 template <typename Key, typename Value, typename PolicyTag>
-typename olc_db<Key, Value, PolicyTag>::try_get_result_type olc_db<Key, Value, PolicyTag>::try_get(
-    art_key_type k) const noexcept {
+typename olc_db<Key, Value, PolicyTag>::try_get_result_type
+olc_db<Key, Value, PolicyTag>::try_get(art_key_type k) const noexcept {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
   if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) {
     // LCOV_EXCL_START
@@ -2521,7 +2542,7 @@ typename olc_db<Key, Value, PolicyTag>::try_get_result_type olc_db<Key, Value, P
 
 template <typename Key, typename Value, typename PolicyTag>
 bool olc_db<Key, Value, PolicyTag>::insert_internal(art_key_type insert_key,
-                                         value_type v) {
+                                                    value_type v) {
   if constexpr (std::is_same_v<Key, key_view>) {
     if (UNODB_DETAIL_UNLIKELY(insert_key.size() == 0)) {
       throw std::length_error("Key must not be empty");
@@ -2535,7 +2556,8 @@ bool olc_db<Key, Value, PolicyTag>::insert_internal(art_key_type insert_key,
 
   try_update_result_type result;
   olc_db_leaf_unique_ptr_type cached_leaf{
-      nullptr, detail::basic_db_leaf_deleter<olc_db<Key, Value, PolicyTag>>{*this}};
+      nullptr,
+      detail::basic_db_leaf_deleter<olc_db<Key, Value, PolicyTag>>{*this}};
 
   while (true) {
     result = try_insert(insert_key, v, cached_leaf);
@@ -2553,8 +2575,8 @@ detail::olc_node_ptr olc_db<Key, Value, PolicyTag>::build_chain(
 
 template <typename Key, typename Value, typename PolicyTag>
 typename olc_db<Key, Value, PolicyTag>::try_update_result_type
-olc_db<Key, Value, PolicyTag>::try_insert(art_key_type k, value_type v,
-                               olc_db_leaf_unique_ptr_type& cached_leaf) {
+olc_db<Key, Value, PolicyTag>::try_insert(
+    art_key_type k, value_type v, olc_db_leaf_unique_ptr_type& cached_leaf) {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
   if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) {
     // LCOV_EXCL_START
@@ -2921,7 +2943,8 @@ bool olc_db<Key, Value, PolicyTag>::upsert(Key k, value_type v, FN fn) {
   }
 
   olc_db_leaf_unique_ptr_type cached_leaf{
-      nullptr, detail::basic_db_leaf_deleter<olc_db<Key, Value, PolicyTag>>{*this}};
+      nullptr,
+      detail::basic_db_leaf_deleter<olc_db<Key, Value, PolicyTag>>{*this}};
 
   // Unbounded spin — standard OLC practice (Leis et al.
   // 2016). Liveness via OS scheduler + O(1) critical sections.
@@ -2935,8 +2958,9 @@ bool olc_db<Key, Value, PolicyTag>::upsert(Key k, value_type v, FN fn) {
 template <typename Key, typename Value, typename PolicyTag>
 template <typename FN>
 typename olc_db<Key, Value, PolicyTag>::try_update_result_type
-olc_db<Key, Value, PolicyTag>::try_upsert(art_key_type k, value_type v, FN fn,
-                               olc_db_leaf_unique_ptr_type& cached_leaf) {
+olc_db<Key, Value, PolicyTag>::try_upsert(
+    art_key_type k, value_type v, FN fn,
+    olc_db_leaf_unique_ptr_type& cached_leaf) {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
   if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) {
     // LCOV_EXCL_START
@@ -3407,7 +3431,7 @@ olc_db<Key, Value, PolicyTag>::try_upsert(art_key_type k, value_type v, FN fn,
 template <typename Key, typename Value, typename PolicyTag>
 typename olc_db<Key, Value, PolicyTag>::try_update_result_type
 olc_db<Key, Value, PolicyTag>::try_upsert_erase(art_key_type k,
-                                     version_tag_type captured_ver) {
+                                                version_tag_type captured_ver) {
   // Version-validated erase.  Traverses top-down to find the target node,
   // validates that its version matches captured_ver (ensuring the value
   // the lambda observed hasn't been modified), then performs the removal.
@@ -3659,8 +3683,8 @@ bool olc_db<Key, Value, PolicyTag>::remove_internal(art_key_type remove_key) {
 
 template <typename Key, typename Value, typename PolicyTag>
 typename olc_db<Key, Value, PolicyTag>::try_update_result_type
-UNODB_DETAIL_DISABLE_MSVC_WARNING(26440) olc_db<Key, Value, PolicyTag>::try_remove(
-    art_key_type k) {
+UNODB_DETAIL_DISABLE_MSVC_WARNING(
+    26440) olc_db<Key, Value, PolicyTag>::try_remove(art_key_type k) {
   if constexpr (std::is_same_v<Key, key_view>) {
     return try_remove_key_view(k);
   } else {
@@ -4036,7 +4060,8 @@ olc_db<Key, Value, PolicyTag>::try_remove_fixed_width_key(art_key_type k) {
 ///
 
 template <typename Key, typename Value, typename PolicyTag>
-typename olc_db<Key, Value, PolicyTag>::iterator& olc_db<Key, Value, PolicyTag>::iterator::first() {
+typename olc_db<Key, Value, PolicyTag>::iterator&
+olc_db<Key, Value, PolicyTag>::iterator::first() {
   while (!try_first()) {
     unodb::spin_wait_loop_body();
   }
@@ -4060,7 +4085,8 @@ bool olc_db<Key, Value, PolicyTag>::iterator::try_first() {
 }
 
 template <typename Key, typename Value, typename PolicyTag>
-typename olc_db<Key, Value, PolicyTag>::iterator& olc_db<Key, Value, PolicyTag>::iterator::last() {
+typename olc_db<Key, Value, PolicyTag>::iterator&
+olc_db<Key, Value, PolicyTag>::iterator::last() {
   while (!try_last()) {
     unodb::spin_wait_loop_body();
   }
@@ -4084,7 +4110,8 @@ bool olc_db<Key, Value, PolicyTag>::iterator::try_last() {
 }
 
 template <typename Key, typename Value, typename PolicyTag>
-typename olc_db<Key, Value, PolicyTag>::iterator& olc_db<Key, Value, PolicyTag>::iterator::next() {
+typename olc_db<Key, Value, PolicyTag>::iterator&
+olc_db<Key, Value, PolicyTag>::iterator::next() {
   const auto node = current_node();
   if (node != nullptr ||
       (art_policy::can_eliminate_leaf && !empty() && top().packed_leaf)) {
@@ -4183,7 +4210,8 @@ bool olc_db<Key, Value, PolicyTag>::iterator::try_next() {
 }
 
 template <typename Key, typename Value, typename PolicyTag>
-typename olc_db<Key, Value, PolicyTag>::iterator& olc_db<Key, Value, PolicyTag>::iterator::prior() {
+typename olc_db<Key, Value, PolicyTag>::iterator&
+olc_db<Key, Value, PolicyTag>::iterator::prior() {
   const auto node = current_node();
   if (node != nullptr ||
       (art_policy::can_eliminate_leaf && !empty() && top().packed_leaf)) {
@@ -4277,8 +4305,9 @@ bool olc_db<Key, Value, PolicyTag>::iterator::try_prior() {
 }
 
 template <typename Key, typename Value, typename PolicyTag>
-typename olc_db<Key, Value, PolicyTag>::iterator& olc_db<Key, Value, PolicyTag>::iterator::seek(
-    art_key_type search_key, bool& match, bool fwd) {
+typename olc_db<Key, Value, PolicyTag>::iterator&
+olc_db<Key, Value, PolicyTag>::iterator::seek(art_key_type search_key,
+                                              bool& match, bool fwd) {
   while (!try_seek(search_key, match, fwd)) {
     unodb::spin_wait_loop_body();  // LCOV_EXCL_LINE
   }
@@ -4312,7 +4341,7 @@ typename olc_db<Key, Value, PolicyTag>::iterator& olc_db<Key, Value, PolicyTag>:
 // complexity would be definitely increased.
 template <typename Key, typename Value, typename PolicyTag>
 bool olc_db<Key, Value, PolicyTag>::iterator::try_seek(art_key_type search_key,
-                                            bool& match, bool fwd) {
+                                                       bool& match, bool fwd) {
   invalidate();   // invalidate the iterator (clear the stack).
   match = false;  // unless we wind up with an exact match.
   auto parent_critical_section = db_.root_pointer_lock.try_read_lock();
@@ -4820,7 +4849,8 @@ auto olc_db<Key, Value, PolicyTag>::iterator::get_val() const noexcept
 }
 
 template <typename Key, typename Value, typename PolicyTag>
-int olc_db<Key, Value, PolicyTag>::iterator::cmp(const art_key_type& akey) const noexcept {
+int olc_db<Key, Value, PolicyTag>::iterator::cmp(
+    const art_key_type& akey) const noexcept {
   UNODB_DETAIL_ASSERT(!stack_.empty());
   if constexpr (art_policy::full_key_in_inode_path) {
     return unodb::detail::compare(keybuf_.get_key_view(), akey.get_key_view());
@@ -4841,7 +4871,8 @@ int olc_db<Key, Value, PolicyTag>::iterator::cmp(const art_key_type& akey) const
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
 
 template <typename Key, typename Value, typename PolicyTag>
-void olc_db<Key, Value, PolicyTag>::increase_memory_use(std::size_t delta) noexcept {
+void olc_db<Key, Value, PolicyTag>::increase_memory_use(
+    std::size_t delta) noexcept {
   UNODB_DETAIL_ASSERT(delta > 0);
 
   current_memory_use.fetch_add(delta, std::memory_order_relaxed);
@@ -4850,7 +4881,8 @@ void olc_db<Key, Value, PolicyTag>::increase_memory_use(std::size_t delta) noexc
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
 template <typename Key, typename Value, typename PolicyTag>
-void olc_db<Key, Value, PolicyTag>::decrease_memory_use(std::size_t delta) noexcept {
+void olc_db<Key, Value, PolicyTag>::decrease_memory_use(
+    std::size_t delta) noexcept {
   UNODB_DETAIL_ASSERT(delta > 0);
   UNODB_DETAIL_ASSERT(delta <=
                       current_memory_use.load(std::memory_order_relaxed));
@@ -4861,7 +4893,8 @@ void olc_db<Key, Value, PolicyTag>::decrease_memory_use(std::size_t delta) noexc
 template <typename Key, typename Value, typename PolicyTag>
 template <class INode>
 constexpr void olc_db<Key, Value, PolicyTag>::increment_inode_count() noexcept {
-  static_assert(detail::olc_inode_defs<Key, Value, PolicyTag>::template is_inode<INode>());
+  static_assert(detail::olc_inode_defs<Key, Value,
+                                       PolicyTag>::template is_inode<INode>());
 
   node_counts[as_i<INode::type>].fetch_add(1, std::memory_order_relaxed);
   increase_memory_use(sizeof(INode));
@@ -4870,7 +4903,8 @@ constexpr void olc_db<Key, Value, PolicyTag>::increment_inode_count() noexcept {
 template <typename Key, typename Value, typename PolicyTag>
 template <class INode>
 constexpr void olc_db<Key, Value, PolicyTag>::decrement_inode_count() noexcept {
-  static_assert(detail::olc_inode_defs<Key, Value, PolicyTag>::template is_inode<INode>());
+  static_assert(detail::olc_inode_defs<Key, Value,
+                                       PolicyTag>::template is_inode<INode>());
 
   const auto old_inode_count UNODB_DETAIL_USED_IN_DEBUG =
       node_counts[as_i<INode::type>].fetch_sub(1, std::memory_order_relaxed);
@@ -4891,7 +4925,8 @@ constexpr void olc_db<Key, Value, PolicyTag>::account_growing_inode() noexcept {
 
 template <typename Key, typename Value, typename PolicyTag>
 template <node_type NodeType>
-constexpr void olc_db<Key, Value, PolicyTag>::account_shrinking_inode() noexcept {
+constexpr void
+olc_db<Key, Value, PolicyTag>::account_shrinking_inode() noexcept {
   static_assert(NodeType != node_type::LEAF);
 
   shrinking_inode_counts[internal_as_i<NodeType>].fetch_add(
@@ -5216,8 +5251,9 @@ namespace unodb {
 
 template <typename Key, typename Value, typename PolicyTag>
 template <typename Fork, typename RandomIt>
-void olc_db<Key, Value, PolicyTag>::bulk_load(Fork&& fork, std::size_t max_tasks,
-                                   RandomIt first, RandomIt last) {
+void olc_db<Key, Value, PolicyTag>::bulk_load(Fork&& fork,
+                                              std::size_t max_tasks,
+                                              RandomIt first, RandomIt last) {
   UNODB_DETAIL_QSBR_ASSERT(
       qsbr_state::single_thread_mode(qsbr::instance().get_state()));
 
