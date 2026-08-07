@@ -49,7 +49,8 @@ class TestHeap {
 static_assert(unodb::TupleHeap<TestHeap, std::uint64_t>);
 
 /// Helper: encode a uint64 key into a byte array (big-endian for ordering).
-[[nodiscard]] std::array<std::byte, 8> encode_u64(std::uint64_t v) noexcept {
+[[nodiscard]] constexpr std::array<std::byte, 8> encode_u64(
+    std::uint64_t v) noexcept {
   std::array<std::byte, 8> buf{};
   for (unsigned i = 0; i < 8; ++i) {
     buf[7U - i] = static_cast<std::byte>(v & 0xFFU);
