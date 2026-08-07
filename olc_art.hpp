@@ -1918,7 +1918,7 @@ olc_impl_helpers::add_or_choose_subtree(
               static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
           if (chain_start < k.size()) {
             // Heap mode: build chain before growing.
-            auto chain_top = db_instance.build_chain(
+            const auto chain_top = db_instance.build_chain(
                 k, detail::olc_art_policy<Key, Value, PolicyTag>::pack_value(v),
                 chain_start);
             typename detail::olc_art_policy<
@@ -2067,7 +2067,7 @@ olc_impl_helpers::add_or_choose_subtree(
           static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
       if (chain_start < k.size()) {
         // Heap mode: remaining key has more than 1 byte — build a chain.
-        auto chain_top = db_instance.build_chain(
+        const auto chain_top = db_instance.build_chain(
             k, detail::olc_art_policy<Key, Value, PolicyTag>::pack_value(v),
             chain_start);
 
@@ -2800,7 +2800,7 @@ olc_db<Key, Value, PolicyTag>::try_insert(
             static_cast<tree_depth_type>(depth + shared_prefix_length + 1);
         if (chain_start < k.size()) {
           // Heap mode: build a chain for the remaining key bytes.
-          auto chain_top =
+          const auto chain_top =
               build_chain(k, art_policy::pack_value(v), chain_start);
           typename art_policy::subtree_guard chain_guard{chain_top, *this};
           auto new_node{inode_4::create(*this, node, shared_prefix_length)};
