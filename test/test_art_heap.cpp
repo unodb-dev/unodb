@@ -8,6 +8,10 @@
 
 #include "global.hpp"  // NOLINT(misc-include-cleaner)
 
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26432)
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26436)
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
+
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -281,3 +285,5 @@ TEST_F(HeapArtTest, ConcurrentInsertGet) {
 }
 
 }  // namespace
+
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
