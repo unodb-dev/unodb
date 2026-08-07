@@ -8,15 +8,20 @@
 
 #include "global.hpp"  // NOLINT(misc-include-cleaner)
 
+UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26409)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26426)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26432)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26436)
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26818)
 
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <span>
+#include <tuple>
 #include <vector>
 
 #include "art_common.hpp"
@@ -246,7 +251,7 @@ TEST_F(HeapArtTest, ConcurrentInsertGet) {
     // Insert phase.
     for (std::uint64_t i = start; i < end; ++i) {
       const unodb::key_view kv{key_store[i].data(), key_store[i].size()};
-      (void)db.insert(kv, i);  // May race; ignore result.
+      std::ignore = db.insert(kv, i);  // May race; ignore result.
       unodb::this_thread().quiescent();
     }
 
@@ -287,6 +292,10 @@ TEST_F(HeapArtTest, ConcurrentInsertGet) {
 
 }  // namespace
 
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
