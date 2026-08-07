@@ -1090,7 +1090,8 @@ class db final {
   allocator_type allocator_{detail::default_allocator};
 
   /// Heap reference (zero-size when no heap is configured via PolicyTag).
-  [[no_unique_address]] detail::heap_holder_t<PolicyTag, Value> heap_{};
+  UNODB_DETAIL_NO_UNIQUE_ADDRESS detail::heap_holder_t<PolicyTag, Value>
+      heap_{};
 
 #ifdef UNODB_DETAIL_WITH_STATS
 

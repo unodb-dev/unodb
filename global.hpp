@@ -432,6 +432,14 @@
 /// Compile-time feature selection macros
 /// \{
 
+/// Portable `[[no_unique_address]]` — MSVC/clang-cl require the
+/// `[[msvc::no_unique_address]]` spelling.
+#ifdef _MSC_VER
+#define UNODB_DETAIL_NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
+#else
+#define UNODB_DETAIL_NO_UNIQUE_ADDRESS [[no_unique_address]]
+#endif
+
 /// Spin lock wait loops use x86_64 PAUSE instruction or its closest equivalent
 /// on other architectures.
 #define UNODB_DETAIL_SPINLOCK_LOOP_PAUSE 1
