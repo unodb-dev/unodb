@@ -708,6 +708,14 @@ class olc_db final {
     /// iterator stack and popped off of this buffer when we pop
     /// something off of the iterator stack.
     detail::key_buffer keybuf_{};
+
+    /// Buffer for get_key() in heap mode — the returned key_view must remain
+    /// valid until the next get_key() call or iterator movement.
+    struct empty_key_buf {};
+    UNODB_DETAIL_NO_UNIQUE_ADDRESS
+    std::conditional_t<detail::olc_art_policy<Key, Value, PolicyTag>::has_heap,
+                       key_encoder, empty_key_buf>
+        get_key_buf_{};
   };  // class iterator
 
   //
@@ -4814,6 +4822,12 @@ olc_db<Key, Value, PolicyTag>::iterator::get_key() noexcept {
   UNODB_DETAIL_ASSERT(valid());  // by contract
   if constexpr (art_policy::full_key_in_inode_path) {
     return transient_key_view{keybuf_.get_key_view()};
+  } else if constexpr (art_policy::has_heap) {
+    // Heap mode: recover full key from the heap.
+    const auto& node = stack_.top().node;
+    const auto value_id = art_policy::unpack_value(node);
+    const auto kv = db_.heap_.heap.extract_key(value_id, get_key_buf_);
+    return transient_key_view{kv};
   } else {
     const auto& e = stack_.top();
     const auto& node = e.node;
@@ -4855,6 +4869,13 @@ int olc_db<Key, Value, PolicyTag>::iterator::cmp(
   UNODB_DETAIL_ASSERT(!stack_.empty());
   if constexpr (art_policy::full_key_in_inode_path) {
     return unodb::detail::compare(keybuf_.get_key_view(), akey.get_key_view());
+  } else if constexpr (art_policy::has_heap) {
+    // Heap mode: recover full key from the heap for comparison.
+    const auto& node = stack_.top().node;
+    const auto value_id = art_policy::unpack_value(node);
+    key_encoder key_buf;
+    const auto kv = db_.heap_.heap.extract_key(value_id, key_buf);
+    return unodb::detail::compare(kv, akey.get_key_view());
   } else {
     auto& node = stack_.top().node;
     UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
