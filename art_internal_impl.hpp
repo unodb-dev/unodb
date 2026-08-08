@@ -2117,6 +2117,13 @@ class basic_inode_impl : public ArtPolicy::header_type {
   /// Iterator result value at the end of iteration.
   static constexpr iter_result_opt end_result{};
 
+  /// Returned by `begin()` and `last()` when all child slots are observed
+  /// empty, which is only possible during a torn read under OLC. The fields
+  /// are never acted on: the caller's `read_critical_section::check()` fails
+  /// first. See basic_inode_48::get_child() for the full race rationale.
+  static constexpr iter_result torn_read_result{node_ptr(), std::byte{0}, 0,
+                                                key_prefix_snapshot{0}};
+
   friend class unodb::db<key_type, value_type>;
   friend class unodb::olc_db<key_type, value_type>;
   friend struct olc_inode_immediate_deleter;
@@ -4294,7 +4301,8 @@ class basic_inode_48
   ///
   /// Scans child_indexes[256] for first mapped entry (smallest key).
   ///
-  /// \return Iterator result pointing to first child
+  /// \return Iterator result pointing to first child, or torn_read_result if
+  /// no mapped entry was observed (OLC torn read)
   [[nodiscard, gnu::pure]] constexpr typename basic_inode_48::iter_result
   begin() noexcept {
     for (std::uint64_t i = 0; i < 256; i++) {
@@ -4306,15 +4314,16 @@ class basic_inode_48
                 this->get_key_prefix().get_snapshot()};
       }
     }
-    // because we always have at least 17 keys.
-    UNODB_DETAIL_CANNOT_HAPPEN();  // LCOV_EXCL_LINE
+    // Torn read under OLC: all slots observed empty.
+    return parent_class::torn_read_result;  // LCOV_EXCL_LINE
   }
 
   /// Get iterator result for last child.
   ///
   /// Scans child_indexes[256] in reverse for last mapped entry (greatest key).
   ///
-  /// \return Iterator result pointing to last child
+  /// \return Iterator result pointing to last child, or torn_read_result if
+  /// no mapped entry was observed (OLC torn read)
   [[nodiscard, gnu::pure]] constexpr typename basic_inode_48::iter_result
   last() noexcept {
     for (std::int64_t i = 255; i >= 0; i--) {
@@ -4325,8 +4334,8 @@ class basic_inode_48
                 this->get_key_prefix().get_snapshot()};
       }
     }
-    // because we always have at least 17 keys.
-    UNODB_DETAIL_CANNOT_HAPPEN();  // LCOV_EXCL_LINE
+    // Torn read under OLC: all slots observed empty.
+    return parent_class::torn_read_result;  // LCOV_EXCL_LINE
   }
 
   /// Get iterator result for next child after given index.
@@ -4925,7 +4934,8 @@ class basic_inode_256
   ///
   /// Scans children array for first non-null entry (smallest key).
   ///
-  /// \return Iterator result pointing to first child
+  /// \return Iterator result pointing to first child, or torn_read_result if
+  /// no non-null entry was observed (OLC torn read)
   [[nodiscard, gnu::pure]] constexpr typename basic_inode_256::iter_result
   begin() noexcept {
     for (std::uint64_t i = 0; i < basic_inode_256::capacity; i++) {
@@ -4938,15 +4948,16 @@ class basic_inode_256
                 this->get_key_prefix().get_snapshot()};
       }
     }
-    // because we always have at least 49 keys.
-    UNODB_DETAIL_CANNOT_HAPPEN();  // LCOV_EXCL_LINE
+    // Torn read under OLC: all slots observed empty.
+    return parent_class::torn_read_result;  // LCOV_EXCL_LINE
   }
 
   /// Get iterator result for last child.
   ///
   /// Scans children array in reverse for last non-null entry (greatest key).
   ///
-  /// \return Iterator result pointing to last child
+  /// \return Iterator result pointing to last child, or torn_read_result if
+  /// no non-null entry was observed (OLC torn read)
   [[nodiscard, gnu::pure]] constexpr typename basic_inode_256::iter_result
   last() noexcept {
     for (std::int64_t i = basic_inode_256::capacity - 1; i >= 0; i--) {
@@ -4958,8 +4969,8 @@ class basic_inode_256
                 this->get_key_prefix().get_snapshot()};
       }
     }
-    // because we always have at least 49 keys.
-    UNODB_DETAIL_CANNOT_HAPPEN();  // LCOV_EXCL_LINE
+    // Torn read under OLC: all slots observed empty.
+    return parent_class::torn_read_result;  // LCOV_EXCL_LINE
   }
 
   /// Get iterator result for next child after given index.
