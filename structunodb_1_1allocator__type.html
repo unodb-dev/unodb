@@ -114,11 +114,11 @@ Public Attributes</h2></td></tr>
 void *(*&#160;</td><td class="memItemRight" valign="bottom"><b>alloc</b> )(std::size_t size, std::size_t alignment, void *<a class="el" href="structunodb_1_1allocator__type.html#ae1a82b732e4aaaaaa5b518e6391a25b6">ctx</a>)</td></tr>
 <tr class="memdesc:a094e7805afe7a30b791d1f95742ecf3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate <code>size</code> bytes with the given <code>alignment</code>. May throw on failure. <br /></td></tr>
 <tr class="separator:a094e7805afe7a30b791d1f95742ecf3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a30968dbcf9679a2075411b52f83b14d8" id="r_a30968dbcf9679a2075411b52f83b14d8"><td class="memItemLeft" align="right" valign="top"><a id="a30968dbcf9679a2075411b52f83b14d8" name="a30968dbcf9679a2075411b52f83b14d8"></a>
-void(*&#160;</td><td class="memItemRight" valign="bottom"><b>dealloc</b> )(void *ptr, std::size_t size, void *<a class="el" href="structunodb_1_1allocator__type.html#ae1a82b732e4aaaaaa5b518e6391a25b6">ctx</a>)</td></tr>
-<tr class="memdesc:a30968dbcf9679a2075411b52f83b14d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free a previously allocated block of <code>size</code> bytes at <code>ptr</code>. <br /></td></tr>
-<tr class="separator:a30968dbcf9679a2075411b52f83b14d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aca85f87179167bfee95d760461ec6a94" id="r_aca85f87179167bfee95d760461ec6a94"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1allocator__type.html#aca85f87179167bfee95d760461ec6a94">defer_dealloc</a> )(void *ptr, std::size_t size, <a class="el" href="namespaceunodb.html#a55d88f88f90b55aa4831120f7faf353b">destroy_callback_type</a> destroy_callback, void *<a class="el" href="structunodb_1_1allocator__type.html#ae1a82b732e4aaaaaa5b518e6391a25b6">ctx</a>)</td></tr>
+<tr class="memitem:a465cfa9461027f0e0707a0596dbb3dce" id="r_a465cfa9461027f0e0707a0596dbb3dce"><td class="memItemLeft" align="right" valign="top"><a id="a465cfa9461027f0e0707a0596dbb3dce" name="a465cfa9461027f0e0707a0596dbb3dce"></a>
+void(*&#160;</td><td class="memItemRight" valign="bottom"><b>dealloc</b> )(void *ptr, std::size_t size, void *<a class="el" href="structunodb_1_1allocator__type.html#ae1a82b732e4aaaaaa5b518e6391a25b6">ctx</a>) noexcept</td></tr>
+<tr class="memdesc:a465cfa9461027f0e0707a0596dbb3dce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free a previously allocated block of <code>size</code> bytes at <code>ptr</code> without throwing. <br /></td></tr>
+<tr class="separator:a465cfa9461027f0e0707a0596dbb3dce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca85f87179167bfee95d760461ec6a94" id="r_aca85f87179167bfee95d760461ec6a94"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1allocator__type.html#aca85f87179167bfee95d760461ec6a94">defer_dealloc</a> )(void *ptr, std::size_t size, <a class="el" href="namespaceunodb.html#a793515d74258955e30df0151f3ad9896">destroy_callback_type</a> destroy_callback, void *<a class="el" href="structunodb_1_1allocator__type.html#ae1a82b732e4aaaaaa5b518e6391a25b6">ctx</a>)</td></tr>
 <tr class="memdesc:aca85f87179167bfee95d760461ec6a94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schedule deferred deallocation of <code>ptr</code> (<code>size</code> bytes).  <br /></td></tr>
 <tr class="separator:aca85f87179167bfee95d760461ec6a94"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae1a82b732e4aaaaaa5b518e6391a25b6" id="r_ae1a82b732e4aaaaaa5b518e6391a25b6"><td class="memItemLeft" align="right" valign="top"><a id="ae1a82b732e4aaaaaa5b518e6391a25b6" name="ae1a82b732e4aaaaaa5b518e6391a25b6"></a>
@@ -138,13 +138,13 @@ void *&#160;</td><td class="memItemRight" valign="bottom"><b>ctx</b></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void(* unodb::allocator_type::defer_dealloc) (void *ptr, std::size_t size, <a class="el" href="namespaceunodb.html#a55d88f88f90b55aa4831120f7faf353b">destroy_callback_type</a> destroy_callback, void *<a class="el" href="structunodb_1_1allocator__type.html#ae1a82b732e4aaaaaa5b518e6391a25b6">ctx</a>)</td>
+          <td class="memname">void(* unodb::allocator_type::defer_dealloc) (void *ptr, std::size_t size, <a class="el" href="namespaceunodb.html#a793515d74258955e30df0151f3ad9896">destroy_callback_type</a> destroy_callback, void *<a class="el" href="structunodb_1_1allocator__type.html#ae1a82b732e4aaaaaa5b518e6391a25b6">ctx</a>)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Schedule deferred deallocation of <code>ptr</code> (<code>size</code> bytes). </p>
-<p>Calls <code>destroy_callback</code> when reclamation is safe. </p>
+<p>Calls <code>destroy_callback</code> when reclamation is safe. <code>destroy_callback</code> is <em>dealloc</em>, so the allocation is reclaimed through the same allocator; it may run on another thread and after the deferring one has exited, so <em>dealloc</em> and <em>ctx</em> must outlive all pending deferrals. </p>
 
 </div>
 </div>

@@ -28,6 +28,7 @@ var hierarchy =
     [ "unodb::benchmark::concurrent_benchmark< unodb::benchmark::olc_db, unodb::qsbr_thread >", "classunodb_1_1benchmark_1_1concurrent__benchmark.html", [
       [ "anonymous_namespace{micro_benchmark_olc.cpp}::concurrent_benchmark_olc", "classanonymous__namespace_02micro__benchmark__olc_8cpp_03_1_1concurrent__benchmark__olc.html", null ]
     ] ],
+    [ "anonymous_namespace{test_art_allocator.cpp}::counting_arena", "structanonymous__namespace_02test__art__allocator_8cpp_03_1_1counting__arena.html", null ],
     [ "unodb::db< Key, Value >", "classunodb_1_1db.html", null ],
     [ "unodb::detail::db_leaf_qsbr_deleter< Db >", "classunodb_1_1detail_1_1db__leaf__qsbr__deleter.html", null ],
     [ "unodb::detail::dealloc_vector_list_node", "structunodb_1_1detail_1_1dealloc__vector__list__node.html", null ],

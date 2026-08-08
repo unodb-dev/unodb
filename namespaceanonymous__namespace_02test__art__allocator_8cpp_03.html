@@ -97,11 +97,18 @@ $(document).ready(function(){initNavTree('namespaceanonymous__namespace_02test__
 
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">anonymous_namespace{test_art_allocator.cpp} Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structanonymous__namespace_02test__art__allocator_8cpp_03_1_1counting__arena.html">counting_arena</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Counts allocator callbacks for one test allocator.  <a href="structanonymous__namespace_02test__art__allocator_8cpp_03_1_1counting__arena.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a736abff3efc99ae7cc3d658089b044ec" id="r_a736abff3efc99ae7cc3d658089b044ec"><td class="memItemLeft" align="right" valign="top"><a id="a736abff3efc99ae7cc3d658089b044ec" name="a736abff3efc99ae7cc3d658089b044ec"></a>
@@ -113,6 +120,21 @@ Functions</h2></td></tr>
 <tr class="memitem:a9fc92a00644dd94fba97d22e8799b436" id="r_a9fc92a00644dd94fba97d22e8799b436"><td class="memItemLeft" align="right" valign="top"><a id="a9fc92a00644dd94fba97d22e8799b436" name="a9fc92a00644dd94fba97d22e8799b436"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TEST</b> (ArtAllocator, OlcDbDefaultAllocatorInsertRemove)</td></tr>
 <tr class="separator:a9fc92a00644dd94fba97d22e8799b436"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ffb52356a5e6832a430edeb20466c18" id="r_a1ffb52356a5e6832a430edeb20466c18"><td class="memItemLeft" align="right" valign="top"><a id="a1ffb52356a5e6832a430edeb20466c18" name="a1ffb52356a5e6832a430edeb20466c18"></a>
+void *&#160;</td><td class="memItemRight" valign="bottom"><b>counting_alloc</b> (std::size_t size, std::size_t alignment, void *ctx)</td></tr>
+<tr class="memdesc:a1ffb52356a5e6832a430edeb20466c18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate through the counting allocator. <br /></td></tr>
+<tr class="separator:a1ffb52356a5e6832a430edeb20466c18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae84d188e4056ae156db1cc7c74da3f40" id="r_ae84d188e4056ae156db1cc7c74da3f40"><td class="memItemLeft" align="right" valign="top"><a id="ae84d188e4056ae156db1cc7c74da3f40" name="ae84d188e4056ae156db1cc7c74da3f40"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>counting_dealloc</b> (void *ptr, std::size_t, void *ctx) noexcept</td></tr>
+<tr class="memdesc:ae84d188e4056ae156db1cc7c74da3f40"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate through the counting allocator. <br /></td></tr>
+<tr class="separator:ae84d188e4056ae156db1cc7c74da3f40"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a210381879fd658b0a864187c55c5acce" id="r_a210381879fd658b0a864187c55c5acce"><td class="memItemLeft" align="right" valign="top"><a id="a210381879fd658b0a864187c55c5acce" name="a210381879fd658b0a864187c55c5acce"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>immediate_defer</b> (void *ptr, std::size_t size, <a class="el" href="namespaceunodb.html#a793515d74258955e30df0151f3ad9896">unodb::destroy_callback_type</a> destroy_callback, void *ctx) noexcept</td></tr>
+<tr class="memdesc:a210381879fd658b0a864187c55c5acce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Execute a deferred deallocation immediately. <br /></td></tr>
+<tr class="separator:a210381879fd658b0a864187c55c5acce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab183fc1a86217a4cf25baa3739c9f7fd" id="r_ab183fc1a86217a4cf25baa3739c9f7fd"><td class="memItemLeft" align="right" valign="top"><a id="ab183fc1a86217a4cf25baa3739c9f7fd" name="ab183fc1a86217a4cf25baa3739c9f7fd"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TEST</b> (ArtAllocator, OlcDbDeferredFreeUsesAllocatorDealloc)</td></tr>
+<tr class="separator:ab183fc1a86217a4cf25baa3739c9f7fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->

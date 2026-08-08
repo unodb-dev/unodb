@@ -417,9 +417,9 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
 <tr class="memitem:a2ef6e7104112ec675df54cac9eeece1c" id="r_a2ef6e7104112ec675df54cac9eeece1c"><td class="memItemLeft" align="right" valign="top"><a id="a2ef6e7104112ec675df54cac9eeece1c" name="a2ef6e7104112ec675df54cac9eeece1c"></a>
 <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">using</a>&#160;</td><td class="memItemRight" valign="bottom"><b>olc_inode_256_test_type</b> = <a class="el" href="classunodb_1_1detail_1_1olc__inode__256.html">olc_inode_256</a>&lt; std::uint64_t, <a class="el" href="namespaceunodb.html#ae25127f715f2aac269da8a3616284c0b">unodb::value_view</a> &gt;</td></tr>
 <tr class="separator:a2ef6e7104112ec675df54cac9eeece1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a22bcecdbe2a6176ad1956f2fbaddce06" id="r_a22bcecdbe2a6176ad1956f2fbaddce06"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">using</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a22bcecdbe2a6176ad1956f2fbaddce06">destroy_callback_type</a> = <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>(*)(<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a> *ptr, std::size_t size, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a> *ctx)</td></tr>
-<tr class="memdesc:a22bcecdbe2a6176ad1956f2fbaddce06"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function type for destroy callbacks invoked when deferred deallocation is safe.  <br /></td></tr>
-<tr class="separator:a22bcecdbe2a6176ad1956f2fbaddce06"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc02716540da0f7700d2d016acd54e1d" id="r_abc02716540da0f7700d2d016acd54e1d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">using</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#abc02716540da0f7700d2d016acd54e1d">destroy_callback_type</a> = <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>(*)(<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a> *ptr, std::size_t size, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a> *ctx) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
+<tr class="memdesc:abc02716540da0f7700d2d016acd54e1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function type for destroy callbacks invoked when deferred deallocation is safe.  <br /></td></tr>
+<tr class="separator:abc02716540da0f7700d2d016acd54e1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3c98952bb0651c3bd50ab5de879cfeff" id="r_a3c98952bb0651c3bd50ab5de879cfeff"><td class="memItemLeft" align="right" valign="top"><a id="a3c98952bb0651c3bd50ab5de879cfeff" name="a3c98952bb0651c3bd50ab5de879cfeff"></a>
 <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">using</a>&#160;</td><td class="memItemRight" valign="bottom"><b>dealloc_request_vector</b> = std::vector&lt; <a class="el" href="classunodb_1_1detail_1_1deallocation__request.html">deallocation_request</a> &gt;</td></tr>
 <tr class="memdesc:a3c98952bb0651c3bd50ab5de879cfeff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vector of deallocation requests. <br /></td></tr>
@@ -443,9 +443,6 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
 <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>default_dealloc</b> (<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a> *ptr, std::size_t, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a> *) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
 <tr class="memdesc:ac9014018c219c856912fbca96c6365f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default dealloc: delegates to free_aligned (<a class="el" href="heap_8hpp.html" title="Aligned heap memory allocation.">heap.hpp</a>). <br /></td></tr>
 <tr class="separator:ac9014018c219c856912fbca96c6365f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa2440335830743ed9fb666230b01c621" id="r_aa2440335830743ed9fb666230b01c621"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#aa2440335830743ed9fb666230b01c621">default_destroy</a> (<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a> *ptr, std::size_t size, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a> *ctx) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
-<tr class="memdesc:aa2440335830743ed9fb666230b01c621"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default destroy callback: frees via default_dealloc.  <br /></td></tr>
-<tr class="separator:aa2440335830743ed9fb666230b01c621"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0ea0a7a9ae7c67e2636bae1ca01e11fe" id="r_a0ea0a7a9ae7c67e2636bae1ca01e11fe"><td class="memItemLeft" align="right" valign="top"><a id="a0ea0a7a9ae7c67e2636bae1ca01e11fe" name="a0ea0a7a9ae7c67e2636bae1ca01e11fe"></a>
 <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>dump_byte</b> (std::ostream &amp;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">os</a>, std::byte <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">byte</a>)</td></tr>
 <tr class="memdesc:a0ea0a7a9ae7c67e2636bae1ca01e11fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dump <em>byte</em> to <em>os</em> stream as a hexadecimal number. <br /></td></tr>
@@ -699,8 +696,8 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
 
 </div>
 </div>
-<a id="a22bcecdbe2a6176ad1956f2fbaddce06" name="a22bcecdbe2a6176ad1956f2fbaddce06"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a22bcecdbe2a6176ad1956f2fbaddce06">&#9670;&#160;</a></span>destroy_callback_type</h2>
+<a id="abc02716540da0f7700d2d016acd54e1d" name="abc02716540da0f7700d2d016acd54e1d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abc02716540da0f7700d2d016acd54e1d">&#9670;&#160;</a></span>destroy_callback_type</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -709,7 +706,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">using</a> <a class="el" href="namespaceunodb_1_1detail.html#a22bcecdbe2a6176ad1956f2fbaddce06">unodb::detail::destroy_callback_type</a> = <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">typedef</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a> (*)(<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>* ptr, std::size_t size, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>* ctx)</td>
+          <td class="memname"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">using</a> <a class="el" href="namespaceunodb_1_1detail.html#abc02716540da0f7700d2d016acd54e1d">unodb::detail::destroy_callback_type</a> = <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">typedef</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a> (*)(<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>* ptr, std::size_t size, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>* ctx) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td>
         </tr>
       </table>
   </td>
@@ -1326,51 +1323,6 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
 
 </div>
 </div>
-<a id="aa2440335830743ed9fb666230b01c621" name="aa2440335830743ed9fb666230b01c621"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa2440335830743ed9fb666230b01c621">&#9670;&#160;</a></span>default_destroy()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a> unodb::detail::default_destroy </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a> *&#160;</td>
-          <td class="paramname"><em>ptr</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">std::size_t&#160;</td>
-          <td class="paramname"><em>size</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a> *&#160;</td>
-          <td class="paramname"><em>ctx</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Default destroy callback: frees via default_dealloc. </p>
-<p>Passed as the destroy_callback argument to defer_dealloc. </p>
-
-</div>
-</div>
 <a id="a3f442e3027e04156cef43a9b865a0c16" name="a3f442e3027e04156cef43a9b865a0c16"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3f442e3027e04156cef43a9b865a0c16">&#9670;&#160;</a></span>dump_key()</h2>
 
@@ -1765,8 +1717,8 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">{</div>
 <div class="line">    &amp;<a class="code hl_function" href="namespaceunodb_1_1detail.html#ab8fed6046804221200399128e04fa0cc">default_alloc</a>, &amp;<a class="code hl_function" href="namespaceunodb_1_1detail.html#ac9014018c219c856912fbca96c6365f7">default_dealloc</a>, <span class="keyword">nullptr</span>, <span class="keyword">nullptr</span>}</div>
-<div class="ttc" id="anamespaceunodb_1_1detail_html_ab8fed6046804221200399128e04fa0cc"><div class="ttname"><a href="namespaceunodb_1_1detail.html#ab8fed6046804221200399128e04fa0cc">unodb::detail::default_alloc</a></div><div class="ttdeci">void * default_alloc(std::size_t size, std::size_t alignment, void *)</div><div class="ttdoc">Default alloc: delegates to allocate_aligned (heap.hpp).</div><div class="ttdef"><b>Definition</b> art_allocator.hpp:50</div></div>
-<div class="ttc" id="anamespaceunodb_1_1detail_html_ac9014018c219c856912fbca96c6365f7"><div class="ttname"><a href="namespaceunodb_1_1detail.html#ac9014018c219c856912fbca96c6365f7">unodb::detail::default_dealloc</a></div><div class="ttdeci">void default_dealloc(void *ptr, std::size_t, void *) noexcept</div><div class="ttdoc">Default dealloc: delegates to free_aligned (heap.hpp).</div><div class="ttdef"><b>Definition</b> art_allocator.hpp:56</div></div>
+<div class="ttc" id="anamespaceunodb_1_1detail_html_ab8fed6046804221200399128e04fa0cc"><div class="ttname"><a href="namespaceunodb_1_1detail.html#ab8fed6046804221200399128e04fa0cc">unodb::detail::default_alloc</a></div><div class="ttdeci">void * default_alloc(std::size_t size, std::size_t alignment, void *)</div><div class="ttdoc">Default alloc: delegates to allocate_aligned (heap.hpp).</div><div class="ttdef"><b>Definition</b> art_allocator.hpp:55</div></div>
+<div class="ttc" id="anamespaceunodb_1_1detail_html_ac9014018c219c856912fbca96c6365f7"><div class="ttname"><a href="namespaceunodb_1_1detail.html#ac9014018c219c856912fbca96c6365f7">unodb::detail::default_dealloc</a></div><div class="ttdeci">void default_dealloc(void *ptr, std::size_t, void *) noexcept</div><div class="ttdoc">Default dealloc: delegates to free_aligned (heap.hpp).</div><div class="ttdef"><b>Definition</b> art_allocator.hpp:61</div></div>
 </div><!-- fragment -->
 <p>The default allocator instance without deferred deallocation. </p>
 
