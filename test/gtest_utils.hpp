@@ -74,7 +74,9 @@
 /// Wrapper for Google Test `TYPED_TEST` macro.
 #define UNODB_TYPED_TEST(Suite, Test)      \
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26426) \
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26440) \
   TYPED_TEST(Suite, Test)                  \
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()     \
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 /// Wrapper for Google Test `ASSERT_EQ` macro.

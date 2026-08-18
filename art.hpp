@@ -632,6 +632,7 @@ class db final {
     ///
     /// \return -1, 0, or 1 if this key is LT, EQ, or GT the other
     /// key.
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
     [[nodiscard]] int cmp(art_key_type akey) noexcept {
       UNODB_DETAIL_ASSERT(!stack_.empty());
       if constexpr (art_policy::full_key_in_inode_path) {
@@ -652,6 +653,7 @@ class db final {
                                       akey.get_key_view());
       }
     }
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
     /// \name Stack access methods
     /// \{
