@@ -646,7 +646,7 @@ class db final {
         const auto kv = db_.heap_.heap.extract_key(value_id, get_key_buf_);
         return unodb::detail::compare(kv, akey.get_key_view());
       } else {
-        auto& node = stack_.top().node;
+        const auto& node = stack_.top().node;
         UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
         const auto* const leaf{node.template ptr<leaf_type*>()};
         return unodb::detail::compare(leaf->get_key_view(),

@@ -2304,7 +2304,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, GetValOnVISChild) {
     if constexpr (!unodb::test::is_heap_db_v<TypeParam>) {
       UNODB_EXPECT_EQ(visitor.get_value(), val);
     } else {
-      (void)visitor.get_value();  // Just verify it doesn't crash.
+      std::ignore = visitor.get_value();  // Just verify it doesn't crash.
     }
     ++count;
     return false;
