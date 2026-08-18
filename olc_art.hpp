@@ -2093,9 +2093,10 @@ olc_impl_helpers::add_or_choose_subtree(
         }
 
         if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock())) {
-          detail::olc_art_policy<Key, Value, PolicyTag>::delete_subtree(
+          detail::olc_art_policy<Key, Value,
+                                 PolicyTag>::delete_subtree(  // LCOV_EXCL_LINE
               chain_top, db_instance);
-          return {};
+          return {};  // LCOV_EXCL_LINE
         }
 
         // Insert packed value first (sets value bit), then overwrite
