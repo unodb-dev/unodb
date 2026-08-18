@@ -19,7 +19,7 @@ namespace unodb {
 /// global lock and hold it for the duration of the operation.
 ///
 /// \sa unodb::olc_art for a highly concurrent thread-safe ART implementation.
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename PolicyTag = void>
 class mutex_db final {
  public:
   /// The type of the keys in the index.
@@ -27,11 +27,14 @@ class mutex_db final {
   /// The type of the value associated with the keys in the index.
   using value_type = Value;
 
+  /// Whether a TupleHeap is configured for key recovery.
+  static constexpr bool has_heap = detail::is_heap_v<PolicyTag, Value>;
+
   /// If the search key was found, that is, the first pair member has a value,
   /// then the second member is a locked tree mutex which must be released ASAP
   /// after reading the first pair member. Otherwise, the second member is
   /// undefined.
-  using get_result = std::pair<typename db<Key, Value>::get_result,
+  using get_result = std::pair<typename db<Key, Value, PolicyTag>::get_result,
                                std::unique_lock<std::mutex>>;
 
  private:
@@ -67,10 +70,19 @@ class mutex_db final {
   // Creation and destruction
 
   /// Construct empty mutex-protected ART index with default allocator.
-  mutex_db() noexcept = default;
+  mutex_db() noexcept
+    requires(!has_heap)
+  = default;
+
+  /// Construct empty mutex-protected ART index with a TupleHeap reference.
+  template <
+      typename H = PolicyTag,
+      typename = std::enable_if_t<has_heap && std::is_same_v<H, PolicyTag>>>
+  constexpr explicit mutex_db(const H& heap) noexcept : db_{heap} {}
 
   /// Construct empty mutex-protected ART index with a custom allocator.
   constexpr explicit mutex_db(const allocator_type& alloc) noexcept
+    requires(!has_heap)
       : db_{alloc} {}
 
   /// Return the allocator used by this tree.
@@ -172,7 +184,7 @@ class mutex_db final {
   // scan API.
   //
 
-  using iterator = typename unodb::db<Key, Value>::iterator;
+  using iterator = typename unodb::db<Key, Value, PolicyTag>::iterator;
 
   /// Scan the tree, applying the caller's lambda to each visited leaf.  The
   /// tree remains locked for the duration of the scan.
@@ -306,7 +318,7 @@ class mutex_db final {
   }
 
  private:
-  db<Key, Value> db_;
+  db<Key, Value, PolicyTag> db_;
   mutable std::mutex mutex;
 };
 

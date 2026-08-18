@@ -19,6 +19,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <optional>
 #include <sstream>
 #include <thread>
 #include <tuple>
@@ -39,6 +40,7 @@
 #include "olc_art.hpp"
 #include "qsbr.hpp"
 #include "test_heap.hpp"
+#include "test_tuple_heap.hpp"
 
 extern template class unodb::db<std::uint64_t, unodb::value_view>;
 extern template class unodb::mutex_db<std::uint64_t, unodb::value_view>;
@@ -279,13 +281,26 @@ class [[nodiscard]] tree_verifier final {
   // NOLINTBEGIN(modernize-use-constraints)
   template <class Db2 = Db>
   std::enable_if_t<!is_olc_db<Db2>, void> do_insert(key_type k, value_type v) {
-    UNODB_ASSERT_TRUE(test_db.insert(k, v));
+    if constexpr (unodb::test::is_heap_db_v<Db>) {
+      const auto tid = next_tuple_id_++;
+      heap_.add_tuple(tid, std::span<const std::byte>{k.data(), k.size()});
+      UNODB_ASSERT_TRUE((*test_db_).insert(k, tid));
+    } else {
+      UNODB_ASSERT_TRUE((*test_db_).insert(k, v));
+    }
   }
 
   template <class Db2 = Db>
   std::enable_if_t<is_olc_db<Db2>, void> do_insert(key_type k, value_type v) {
-    const quiescent_state_on_scope_exit qsbr_after_get{};
-    UNODB_ASSERT_TRUE(test_db.insert(k, v));
+    if constexpr (unodb::test::is_heap_db_v<Db>) {
+      const auto tid = next_tuple_id_++;
+      heap_.add_tuple(tid, std::span<const std::byte>{k.data(), k.size()});
+      const quiescent_state_on_scope_exit qsbr_after_get{};
+      UNODB_ASSERT_TRUE((*test_db_).insert(k, tid));
+    } else {
+      const quiescent_state_on_scope_exit qsbr_after_get{};
+      UNODB_ASSERT_TRUE((*test_db_).insert(k, v));
+    }
   }
   // NOLINTEND(modernize-use-constraints)
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
@@ -297,38 +312,39 @@ class [[nodiscard]] tree_verifier final {
     }
 
 #ifdef UNODB_DETAIL_WITH_STATS
-    const auto node_counts_before = test_db.get_node_counts();
-    const auto mem_use_before = test_db.get_current_memory_use();
+    const auto node_counts_before = (*test_db_).get_node_counts();
+    const auto mem_use_before = (*test_db_).get_current_memory_use();
     UNODB_ASSERT_GT(mem_use_before, 0);
     if constexpr (std::is_same_v<value_type, unodb::value_view>) {
       UNODB_ASSERT_GT(node_counts_before[as_i<unodb::node_type::LEAF>], 0);
     }
-    const auto growing_inodes_before = test_db.get_growing_inode_counts();
-    const auto shrinking_inodes_before = test_db.get_shrinking_inode_counts();
-    const auto key_prefix_splits_before = test_db.get_key_prefix_splits();
+    const auto growing_inodes_before = (*test_db_).get_growing_inode_counts();
+    const auto shrinking_inodes_before =
+        (*test_db_).get_shrinking_inode_counts();
+    const auto key_prefix_splits_before = (*test_db_).get_key_prefix_splits();
 #endif  // UNODB_DETAIL_WITH_STATS
 
     try {
-      if (!test_db.remove(k)) {
+      if (!(*test_db_).remove(k)) {
         // LCOV_EXCL_START
         std::cerr << "test_db.remove failed for ";
         unodb::detail::dump_key(std::cerr, k);
         std::cerr << '\n';
-        test_db.dump(std::cerr);
+        (*test_db_).dump(std::cerr);
         FAIL();
         // LCOV_EXCL_STOP
       }
     } catch (...) {
 #ifdef UNODB_DETAIL_WITH_STATS
       if (!parallel_test) {
-        UNODB_ASSERT_EQ(mem_use_before, test_db.get_current_memory_use());
-        UNODB_ASSERT_THAT(test_db.get_node_counts(),
+        UNODB_ASSERT_EQ(mem_use_before, (*test_db_).get_current_memory_use());
+        UNODB_ASSERT_THAT((*test_db_).get_node_counts(),
                           ::testing::ElementsAreArray(node_counts_before));
-        UNODB_ASSERT_THAT(test_db.get_growing_inode_counts(),
+        UNODB_ASSERT_THAT((*test_db_).get_growing_inode_counts(),
                           ::testing::ElementsAreArray(growing_inodes_before));
-        UNODB_ASSERT_THAT(test_db.get_shrinking_inode_counts(),
+        UNODB_ASSERT_THAT((*test_db_).get_shrinking_inode_counts(),
                           ::testing::ElementsAreArray(shrinking_inodes_before));
-        UNODB_ASSERT_EQ(test_db.get_key_prefix_splits(),
+        UNODB_ASSERT_EQ((*test_db_).get_key_prefix_splits(),
                         key_prefix_splits_before);
       }
 #endif  // UNODB_DETAIL_WITH_STATS
@@ -337,12 +353,12 @@ class [[nodiscard]] tree_verifier final {
 
 #ifdef UNODB_DETAIL_WITH_STATS
     if (!parallel_test) {
-      const auto mem_use_after = test_db.get_current_memory_use();
+      const auto mem_use_after = (*test_db_).get_current_memory_use();
       if constexpr (std::is_same_v<value_type, unodb::value_view>)
         UNODB_ASSERT_LT(mem_use_after, mem_use_before);
 
       const auto leaf_count_after =
-          test_db.template get_node_count<::unodb::node_type::LEAF>();
+          (*test_db_).template get_node_count<::unodb::node_type::LEAF>();
       if constexpr (std::is_same_v<value_type, unodb::value_view>) {
         UNODB_ASSERT_EQ(leaf_count_after,
                         node_counts_before[as_i<unodb::node_type::LEAF>] - 1);
@@ -360,61 +376,62 @@ class [[nodiscard]] tree_verifier final {
   template <class Db2 = Db, typename T>
   std::enable_if_t<!is_olc_db<Db2>, void> do_try_remove_missing_key(
       T absent_key) {
-    UNODB_ASSERT_FALSE(test_db.remove(coerce_key(absent_key)));
+    UNODB_ASSERT_FALSE((*test_db_).remove(coerce_key(absent_key)));
   }
 
   template <class Db2 = Db, typename T>
   std::enable_if_t<is_olc_db<Db2>, void> do_try_remove_missing_key(
       T absent_key) {
     const quiescent_state_on_scope_exit qsbr_after_get{};
-    UNODB_ASSERT_FALSE(test_db.remove(coerce_key(absent_key)));
+    UNODB_ASSERT_FALSE((*test_db_).remove(coerce_key(absent_key)));
   }
   // NOLINTEND(modernize-use-constraints)
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   // cppcheck-suppress passedByValue
   void insert_internal(key_type k, value_type v, bool bypass_verifier = false) {
-    const auto empty_before = test_db.empty();
+    const auto empty_before = (*test_db_).empty();
 #ifdef UNODB_DETAIL_WITH_STATS
     const auto mem_use_before =
-        parallel_test ? 0 : test_db.get_current_memory_use();
-    const auto node_counts_before = test_db.get_node_counts();
-    const auto growing_inodes_before = test_db.get_growing_inode_counts();
-    const auto shrinking_inodes_before = test_db.get_shrinking_inode_counts();
-    const auto key_prefix_splits_before = test_db.get_key_prefix_splits();
+        parallel_test ? 0 : (*test_db_).get_current_memory_use();
+    const auto node_counts_before = (*test_db_).get_node_counts();
+    const auto growing_inodes_before = (*test_db_).get_growing_inode_counts();
+    const auto shrinking_inodes_before =
+        (*test_db_).get_shrinking_inode_counts();
+    const auto key_prefix_splits_before = (*test_db_).get_key_prefix_splits();
 #endif  // UNODB_DETAIL_WITH_STATS
 
     try {
       do_insert(k, v);
     } catch (...) {
       if (!parallel_test) {
-        UNODB_ASSERT_EQ(empty_before, test_db.empty());
+        UNODB_ASSERT_EQ(empty_before, (*test_db_).empty());
 #ifdef UNODB_DETAIL_WITH_STATS
-        UNODB_ASSERT_EQ(mem_use_before, test_db.get_current_memory_use());
-        UNODB_ASSERT_THAT(test_db.get_node_counts(),
+        UNODB_ASSERT_EQ(mem_use_before, (*test_db_).get_current_memory_use());
+        UNODB_ASSERT_THAT((*test_db_).get_node_counts(),
                           ::testing::ElementsAreArray(node_counts_before));
-        UNODB_ASSERT_THAT(test_db.get_growing_inode_counts(),
+        UNODB_ASSERT_THAT((*test_db_).get_growing_inode_counts(),
                           ::testing::ElementsAreArray(growing_inodes_before));
-        UNODB_ASSERT_THAT(test_db.get_shrinking_inode_counts(),
+        UNODB_ASSERT_THAT((*test_db_).get_shrinking_inode_counts(),
                           ::testing::ElementsAreArray(shrinking_inodes_before));
-        UNODB_ASSERT_EQ(test_db.get_key_prefix_splits(),
+        UNODB_ASSERT_EQ((*test_db_).get_key_prefix_splits(),
                         key_prefix_splits_before);
 #endif  // UNODB_DETAIL_WITH_STATS
       }
       throw;
     }
 
-    UNODB_ASSERT_FALSE(test_db.empty());
+    UNODB_ASSERT_FALSE((*test_db_).empty());
 
 #ifdef UNODB_DETAIL_WITH_STATS
-    const auto mem_use_after = test_db.get_current_memory_use();
+    const auto mem_use_after = (*test_db_).get_current_memory_use();
     if (parallel_test)
       UNODB_ASSERT_GT(mem_use_after, 0);
     else if constexpr (std::is_same_v<value_type, unodb::value_view>)
       UNODB_ASSERT_LT(mem_use_before, mem_use_after);
 
     const auto leaf_count_after =
-        test_db.template get_node_count<unodb::node_type::LEAF>();
+        (*test_db_).template get_node_count<unodb::node_type::LEAF>();
     if constexpr (std::is_same_v<value_type, unodb::value_view>) {
       if (parallel_test)
         UNODB_ASSERT_GT(leaf_count_after, 0);
@@ -456,6 +473,11 @@ class [[nodiscard]] tree_verifier final {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26455)
   explicit tree_verifier(bool parallel_test_ = false)
       : parallel_test{parallel_test_} {
+    if constexpr (unodb::test::is_heap_db_v<Db>) {
+      test_db_.emplace(heap_);
+    } else {
+      test_db_.emplace();
+    }
     key_views.reserve(64);
     assert_empty();
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -479,11 +501,31 @@ class [[nodiscard]] tree_verifier final {
 
   template <typename T>
   bool try_insert(T k, value_type v) {
+    const auto ck = coerce_key(k);
     if constexpr (is_olc_db<Db>) {
-      const quiescent_state_on_scope_exit qsbr_after_insert{};
-      return test_db.insert(coerce_key(k), v);
+      if constexpr (unodb::test::is_heap_db_v<Db>) {
+        const auto tid = next_tuple_id_++;
+        const quiescent_state_on_scope_exit qsbr_after_insert{};
+        const bool ok = (*test_db_).insert(ck, tid);
+        if (ok)
+          heap_.add_tuple(tid,
+                          std::span<const std::byte>{ck.data(), ck.size()});
+        return ok;
+      } else {
+        const quiescent_state_on_scope_exit qsbr_after_insert{};
+        return (*test_db_).insert(ck, v);
+      }
     } else {
-      return test_db.insert(coerce_key(k), v);
+      if constexpr (unodb::test::is_heap_db_v<Db>) {
+        const auto tid = next_tuple_id_++;
+        const bool ok = (*test_db_).insert(ck, tid);
+        if (ok)
+          heap_.add_tuple(tid,
+                          std::span<const std::byte>{ck.data(), ck.size()});
+        return ok;
+      } else {
+        return (*test_db_).insert(ck, v);
+      }
     }
   }
 
@@ -547,13 +589,13 @@ class [[nodiscard]] tree_verifier final {
 
   template <class Db2 = Db, typename T>
   std::enable_if_t<!is_olc_db<Db2>, void> try_remove(T k) {
-    std::ignore = test_db.remove(coerce_key(k));
+    std::ignore = (*test_db_).remove(coerce_key(k));
   }
 
   template <class Db2 = Db, typename T>
   std::enable_if_t<is_olc_db<Db2>, void> try_remove(T k) {
     const quiescent_state_on_scope_exit qsbr_after_get{};
-    std::ignore = test_db.remove(coerce_key(k));
+    std::ignore = (*test_db_).remove(coerce_key(k));
   }
   // NOLINTEND(modernize-use-constraints)
 
@@ -561,7 +603,7 @@ class [[nodiscard]] tree_verifier final {
   void attempt_remove_missing_keys(std::initializer_list<T> absent_keys) {
 #ifdef UNODB_DETAIL_WITH_STATS
     const auto mem_use_before =
-        parallel_test ? 0 : test_db.get_current_memory_use();
+        parallel_test ? 0 : (*test_db_).get_current_memory_use();
 #endif  // UNODB_DETAIL_WITH_STATS
 
     for (const auto absent_key : absent_keys) {
@@ -572,7 +614,7 @@ class [[nodiscard]] tree_verifier final {
       do_try_remove_missing_key(k);
 #ifdef UNODB_DETAIL_WITH_STATS
       if (!parallel_test) {
-        UNODB_ASSERT_EQ(mem_use_before, test_db.get_current_memory_use());
+        UNODB_ASSERT_EQ(mem_use_before, (*test_db_).get_current_memory_use());
       }
 #endif  // UNODB_DETAIL_WITH_STATS
     }
@@ -585,14 +627,14 @@ class [[nodiscard]] tree_verifier final {
   // NOLINTBEGIN(modernize-use-constraints)
   template <class Db2 = Db, typename T>
   std::enable_if_t<!is_olc_db<Db2>, void> try_get(T k) noexcept(
-      noexcept(coerce_key(k)) && noexcept(this->test_db.get(coerce_key(k)))) {
-    std::ignore = test_db.get(coerce_key(k));
+      noexcept(coerce_key(k)) && noexcept((*test_db_).get(coerce_key(k)))) {
+    std::ignore = (*test_db_).get(coerce_key(k));
   }
 
   template <class Db2 = Db, typename T>
   std::enable_if_t<is_olc_db<Db2>, void> try_get(T k) {
     const quiescent_state_on_scope_exit qsbr_after_get{};
-    std::ignore = test_db.get(coerce_key(k));
+    std::ignore = (*test_db_).get(coerce_key(k));
   }
   // NOLINTEND(modernize-use-constraints)
 
@@ -605,19 +647,22 @@ class [[nodiscard]] tree_verifier final {
   /// encoding needs to be reversible, which it is not in the general case).
   void check_present_values() const {
     // Probe the test_db for each key, verifying the expected value is found
-    // under that key.
-    UNODB_DETAIL_DISABLE_MSVC_WARNING(26445)
-    for (const auto& [key, value] : values) {
-      if constexpr (std::is_same_v<typename Db::key_type, unodb::key_view>) {
-        ASSERT_VALUE_FOR_KEY(Db, test_db, *key, value);
-      } else {
-        ASSERT_VALUE_FOR_KEY(Db, test_db, key, value);
+    // under that key.  Skip for heap types since stored values are tuple_ids,
+    // not the original test values.
+    if constexpr (!unodb::test::is_heap_db_v<Db>) {
+      UNODB_DETAIL_DISABLE_MSVC_WARNING(26445)
+      for (const auto& [key, value] : values) {
+        if constexpr (std::is_same_v<typename Db::key_type, unodb::key_view>) {
+          ASSERT_VALUE_FOR_KEY(Db, *test_db_, *key, value);
+        } else {
+          ASSERT_VALUE_FOR_KEY(Db, *test_db_, key, value);
+        }
       }
+      UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
     }
-    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-    // Scan the test_db.  For each (key,val) visited, verify (a) that each key
-    // is visited in lexicographic order; and (b) that each (key,val) pair also
-    // appears in the ground truth collection.
+    // Scan the (*test_db_).  For each (key,val) visited, verify (a) that each
+    // key is visited in lexicographic order; and (b) that each (key,val) pair
+    // also appears in the ground truth collection.
     //
     // Note: This depends on the ability to decode the key. Therefore, the
     // caller SHOULD disable this scan when the keys do not support 100%
@@ -643,7 +688,7 @@ class [[nodiscard]] tree_verifier final {
       n++;
       return false;
     };
-    const_cast<Db&>(test_db).scan(fn);
+    const_cast<Db&>(*test_db_).scan(fn);
     // TODO(thompsonbry) variable length keys - enable this assert (#8).
     // 3 OOM tests are failing (for each Db type) when this is enabled
     // (off by one).  What is going on there?
@@ -675,27 +720,27 @@ class [[nodiscard]] tree_verifier final {
 
   template <typename FN, typename T>
   void scan(FN fn, bool fwd = true) {
-    test_db.scan_from(fn, fwd);
+    (*test_db_).scan_from(fn, fwd);
   }
 
   template <typename FN, typename T>
   void scan_from(T from_key, FN fn, bool fwd = true) {
     const auto fk{coerce_key(from_key)};
-    test_db.scan_from(fk, fn, fwd);
+    (*test_db_).scan_from(fk, fn, fwd);
   }
 
   template <typename FN, typename T>
   void scan_range(T from_key, T to_key, FN fn) {
     const auto fk{coerce_key(from_key)};
     const auto tk{coerce_key(to_key)};
-    test_db.scan_range(fk, tk, fn);
+    (*test_db_).scan_range(fk, tk, fn);
   }
 
   void assert_empty() const {
-    UNODB_ASSERT_TRUE(test_db.empty());
+    UNODB_ASSERT_TRUE((*test_db_).empty());
 
 #ifdef UNODB_DETAIL_WITH_STATS
-    UNODB_ASSERT_EQ(test_db.get_current_memory_use(), 0);
+    UNODB_ASSERT_EQ((*test_db_).get_current_memory_use(), 0);
 
     assert_node_counts({0, 0, 0, 0, 0});
 #endif  // UNODB_DETAIL_WITH_STATS
@@ -710,10 +755,10 @@ class [[nodiscard]] tree_verifier final {
     // that dumping does not crash.
     {
       std::stringstream dump_sink;
-      test_db.dump(dump_sink);
+      (*test_db_).dump(dump_sink);
     }
 
-    const auto actual_node_counts = test_db.get_node_counts();
+    const auto actual_node_counts = (*test_db_).get_node_counts();
     UNODB_ASSERT_THAT(actual_node_counts,
                       ::testing::ElementsAreArray(expected_node_counts));
   }
@@ -722,7 +767,8 @@ class [[nodiscard]] tree_verifier final {
   constexpr void assert_growing_inodes(
       const inode_type_counter_array& expected_growing_inode_counts)
       const noexcept {
-    const auto actual_growing_inode_counts = test_db.get_growing_inode_counts();
+    const auto actual_growing_inode_counts =
+        (*test_db_).get_growing_inode_counts();
     UNODB_ASSERT_THAT(
         actual_growing_inode_counts,
         ::testing::ElementsAreArray(expected_growing_inode_counts));
@@ -731,20 +777,20 @@ class [[nodiscard]] tree_verifier final {
   constexpr void assert_shrinking_inodes(
       const inode_type_counter_array& expected_shrinking_inode_counts) {
     const auto actual_shrinking_inode_counts =
-        test_db.get_shrinking_inode_counts();
+        (*test_db_).get_shrinking_inode_counts();
     UNODB_ASSERT_THAT(
         actual_shrinking_inode_counts,
         ::testing::ElementsAreArray(expected_shrinking_inode_counts));
   }
 
   constexpr void assert_key_prefix_splits(std::uint64_t splits) const noexcept {
-    UNODB_ASSERT_EQ(test_db.get_key_prefix_splits(), splits);
+    UNODB_ASSERT_EQ((*test_db_).get_key_prefix_splits(), splits);
   }
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
   void clear() {
-    test_db.clear();
+    (*test_db_).clear();
 #ifndef NDEBUG
     allocation_failure_injector::reset();
 #endif
@@ -753,7 +799,7 @@ class [[nodiscard]] tree_verifier final {
     values.clear();
   }
 
-  [[nodiscard, gnu::pure]] constexpr Db& get_db() noexcept { return test_db; }
+  [[nodiscard, gnu::pure]] constexpr Db& get_db() noexcept { return *test_db_; }
 
   tree_verifier(const tree_verifier&) = delete;
   tree_verifier& operator=(const tree_verifier&) = delete;
@@ -777,8 +823,20 @@ class [[nodiscard]] tree_verifier final {
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   };
 
-  /// The tree under test.
-  Db test_db{};
+  /// Heap instance for heap-backed types (zero-size empty struct otherwise).
+  struct empty_heap_tag {};
+  UNODB_DETAIL_NO_UNIQUE_ADDRESS
+  std::conditional_t<unodb::test::is_heap_db_v<Db>, unodb::test::TestHeap,
+                     empty_heap_tag>
+      heap_{};
+
+  /// Auto-incrementing tuple_id for heap mode inserts.
+  std::uint64_t next_tuple_id_{0};
+
+  /// The tree under test — uses std::optional to support non-movable types
+  /// that require constructor arguments (heap ref).  Initialized in
+  /// constructor body via emplace().
+  std::optional<Db> test_db_;
 
   /// Ground truth (key,val) pairs.
   ///
@@ -806,6 +864,18 @@ using key_view_u64val_mutex_db =
     unodb::mutex_db<unodb::key_view, std::uint64_t>;
 using key_view_u64val_olc_db = unodb::olc_db<unodb::key_view, std::uint64_t>;
 
+// Heap-backed types (key_view + uint64_t value + TestHeap policy).
+using heap_db = unodb::db<unodb::key_view, std::uint64_t, TestHeap>;
+using heap_mutex_db = unodb::mutex_db<unodb::key_view, std::uint64_t, TestHeap>;
+using heap_olc_db = unodb::olc_db<unodb::key_view, std::uint64_t, TestHeap>;
+
+template <>
+inline constexpr bool is_heap_db_v<heap_db> = true;
+template <>
+inline constexpr bool is_heap_db_v<heap_mutex_db> = true;
+template <>
+inline constexpr bool is_heap_db_v<heap_olc_db> = true;
+
 extern template class tree_verifier<u64_db>;
 extern template class tree_verifier<u64_mutex_db>;
 extern template class tree_verifier<u64_olc_db>;
@@ -817,6 +887,11 @@ extern template class tree_verifier<key_view_olc_db>;
 extern template class tree_verifier<key_view_u64val_db>;
 extern template class tree_verifier<key_view_u64val_mutex_db>;
 extern template class tree_verifier<key_view_u64val_olc_db>;
+
+// Heap-backed types (olc_db has full support; db/mutex_db via delegation).
+// extern template class tree_verifier<heap_db>;  // TODO: db shrink path
+// extern template class tree_verifier<heap_mutex_db>;  // TODO: db shrink path
+extern template class tree_verifier<heap_olc_db>;
 
 }  // namespace unodb::test
 

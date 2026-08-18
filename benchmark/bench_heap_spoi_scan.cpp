@@ -351,6 +351,33 @@ void BM_range_scan(benchmark::State& state) {
                           static_cast<std::int64_t>(scan_limit));
 }
 
+// Range scan using scan_range (with internal upper bound check).
+template <class Db>
+void BM_scan_range_bounded(benchmark::State& state) {
+  auto& ds = get_dataset();
+  const auto n =
+      std::min(static_cast<std::size_t>(state.range(0)), ds.heap->count());
+
+  auto db = tree_builder<Db>::build(ds, n);
+
+  // Scan 20% of the tree using scan_range [start, end).
+  const auto start_idx = n * 4 / 10;
+  const auto end_idx = n * 6 / 10;
+
+  for (const auto _ : state) {
+    std::size_t count = 0;
+    db->scan_range(ds.prefixes.prefix(start_idx), ds.prefixes.prefix(end_idx),
+                   [&count](auto /*v*/) noexcept {
+                     ++count;
+                     return false;
+                   });
+    benchmark::DoNotOptimize(count);
+  }
+
+  state.SetItemsProcessed(state.iterations() *
+                          static_cast<std::int64_t>(end_idx - start_idx));
+}
+
 // Insert benchmark (tree build time).
 template <class Db>
 void BM_insert(benchmark::State& state) {
@@ -385,6 +412,10 @@ BENCHMARK(BM_range_scan<existing_db_t>)
     ->Apply(spoi_sizes)
     ->Unit(benchmark::kMillisecond)
     ->Name("RangeScan20pct/existing");
+BENCHMARK(BM_scan_range_bounded<existing_db_t>)
+    ->Apply(spoi_sizes)
+    ->Unit(benchmark::kMillisecond)
+    ->Name("ScanRange20pct/existing");
 BENCHMARK(BM_insert<existing_db_t>)
     ->Apply(spoi_sizes)
     ->Unit(benchmark::kMillisecond)
@@ -403,6 +434,10 @@ BENCHMARK(BM_range_scan<heap_db_t>)
     ->Apply(spoi_sizes)
     ->Unit(benchmark::kMillisecond)
     ->Name("RangeScan20pct/heap");
+BENCHMARK(BM_scan_range_bounded<heap_db_t>)
+    ->Apply(spoi_sizes)
+    ->Unit(benchmark::kMillisecond)
+    ->Name("ScanRange20pct/heap");
 BENCHMARK(BM_insert<heap_db_t>)
     ->Apply(spoi_sizes)
     ->Unit(benchmark::kMillisecond)

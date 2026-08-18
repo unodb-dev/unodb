@@ -567,7 +567,7 @@ class olc_db final {
     /// internal buffer.
     ///
     /// \return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
-    [[nodiscard, gnu::pure]] int cmp(const art_key_type& akey) const noexcept;
+    [[nodiscard, gnu::pure]] int cmp(const art_key_type& akey) noexcept;
 
     //
     // stack access methods.
@@ -4865,16 +4865,16 @@ auto olc_db<Key, Value, PolicyTag>::iterator::get_val() const noexcept
 
 template <typename Key, typename Value, typename PolicyTag>
 int olc_db<Key, Value, PolicyTag>::iterator::cmp(
-    const art_key_type& akey) const noexcept {
+    const art_key_type& akey) noexcept {
   UNODB_DETAIL_ASSERT(!stack_.empty());
   if constexpr (art_policy::full_key_in_inode_path) {
     return unodb::detail::compare(keybuf_.get_key_view(), akey.get_key_view());
   } else if constexpr (art_policy::has_heap) {
-    // Heap mode: recover full key from the heap for comparison.
+    // Heap mode: recover full key into get_key_buf_ so get_key() can
+    // reuse it without a redundant extract_key call.
     const auto& node = stack_.top().node;
     const auto value_id = art_policy::unpack_value(node);
-    key_encoder key_buf;
-    const auto kv = db_.heap_.heap.extract_key(value_id, key_buf);
+    const auto kv = db_.heap_.heap.extract_key(value_id, get_key_buf_);
     return unodb::detail::compare(kv, akey.get_key_view());
   } else {
     auto& node = stack_.top().node;

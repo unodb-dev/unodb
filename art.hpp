@@ -139,7 +139,7 @@ struct bulk_load_helpers;
 
 }  // namespace detail
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename PolicyTag>
 class mutex_db;
 
 /// A non-thread-safe implementation of the Adaptive Radix Tree (ART).
@@ -148,7 +148,7 @@ class mutex_db;
 template <typename Key, typename Value, typename PolicyTag>
 class db final {
   /// Allow mutex_db to access private members for thread-safe wrapper.
-  friend class mutex_db<Key, Value>;
+  friend class mutex_db<Key, Value, PolicyTag>;
 
  public:
   /// Whether a TupleHeap is configured for key recovery.
@@ -632,11 +632,18 @@ class db final {
     ///
     /// \return -1, 0, or 1 if this key is LT, EQ, or GT the other
     /// key.
-    [[nodiscard]] int cmp(art_key_type akey) const noexcept {
+    [[nodiscard]] int cmp(art_key_type akey) noexcept {
       UNODB_DETAIL_ASSERT(!stack_.empty());
       if constexpr (art_policy::full_key_in_inode_path) {
         return unodb::detail::compare(keybuf_.get_key_view(),
                                       akey.get_key_view());
+      } else if constexpr (art_policy::has_heap) {
+        // Heap mode: recover full key into get_key_buf_ so get_key() can
+        // reuse it without a redundant extract_key call.
+        const auto& node = stack_.top().node;
+        const auto value_id = art_policy::unpack_value(node);
+        const auto kv = db_.heap_.heap.extract_key(value_id, get_key_buf_);
+        return unodb::detail::compare(kv, akey.get_key_view());
       } else {
         auto& node = stack_.top().node;
         UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
@@ -789,6 +796,14 @@ class db final {
     /// buffer when we push something onto the iterator stack and popped off of
     /// this buffer when we pop something off of the iterator stack.
     detail::key_buffer keybuf_{};
+
+    /// Buffer for get_key()/cmp() in heap mode — the returned key_view must
+    /// remain valid until the next get_key()/cmp() call or iterator movement.
+    struct empty_key_buf {};
+    UNODB_DETAIL_NO_UNIQUE_ADDRESS
+    std::conditional_t<detail::art_policy<Key, Value, PolicyTag>::has_heap,
+                       key_encoder, empty_key_buf>
+        get_key_buf_{};
   };  // class iterator
 
   /// \name Public scan API
@@ -2556,6 +2571,14 @@ db<Key, Value, PolicyTag>::iterator::get_key() noexcept {
   UNODB_DETAIL_ASSERT(valid());  // by contract
   if constexpr (art_policy::full_key_in_inode_path) {
     return transient_key_view{keybuf_.get_key_view()};
+  } else if constexpr (art_policy::has_heap) {
+    // Heap mode: recover full key from the heap. If cmp() already
+    // populated get_key_buf_ for this position, extract_key is a no-op
+    // or near-no-op (same tuple_id → same result).
+    const auto& node = stack_.top().node;
+    const auto value_id = art_policy::unpack_value(node);
+    const auto kv = db_.heap_.heap.extract_key(value_id, get_key_buf_);
+    return transient_key_view{kv};
   } else {
     const auto& e = stack_.top();
     const auto& node = e.node;
