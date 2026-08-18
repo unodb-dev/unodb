@@ -1940,17 +1940,19 @@ olc_impl_helpers::add_or_choose_subtree(
               const optimistic_lock::write_guard write_unlock_on_exit{
                   std::move(parent_critical_section)};
               if (UNODB_DETAIL_UNLIKELY(write_unlock_on_exit.must_restart())) {
-                detail::olc_art_policy<Key, Value, PolicyTag>::delete_subtree(
+                detail::olc_art_policy<
+                    Key, Value, PolicyTag>::delete_subtree(  // LCOV_EXCL_LINE
                     chain_top, db_instance);
-                return {};
+                return {};  // LCOV_EXCL_LINE
               }
 
               optimistic_lock::write_guard node_write_guard{
                   std::move(node_critical_section)};
               if (UNODB_DETAIL_UNLIKELY(node_write_guard.must_restart())) {
-                detail::olc_art_policy<Key, Value, PolicyTag>::delete_subtree(
+                detail::olc_art_policy<
+                    Key, Value, PolicyTag>::delete_subtree(  // LCOV_EXCL_LINE
                     chain_top, db_instance);
-                return {};
+                return {};  // LCOV_EXCL_LINE
               }
 
               larger_node->init(db_instance, inode, node_write_guard, chain_top,
@@ -2043,7 +2045,8 @@ olc_impl_helpers::add_or_choose_subtree(
         }
 
         if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock())) {
-          detail::olc_art_policy<Key, Value, PolicyTag>::delete_subtree(
+          detail::olc_art_policy<Key, Value,
+                                 PolicyTag>::delete_subtree(  // LCOV_EXCL_LINE
               chain_top, db_instance);
           return {};  // LCOV_EXCL_LINE
         }
@@ -2083,9 +2086,10 @@ olc_impl_helpers::add_or_choose_subtree(
         const optimistic_lock::write_guard write_unlock_on_exit{
             std::move(node_critical_section)};
         if (UNODB_DETAIL_UNLIKELY(write_unlock_on_exit.must_restart())) {
-          detail::olc_art_policy<Key, Value, PolicyTag>::delete_subtree(
+          detail::olc_art_policy<Key, Value,
+                                 PolicyTag>::delete_subtree(  // LCOV_EXCL_LINE
               chain_top, db_instance);
-          return {};
+          return {};  // LCOV_EXCL_LINE
         }
 
         if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock())) {
@@ -4406,12 +4410,13 @@ bool olc_db<Key, Value, PolicyTag>::iterator::try_seek(art_key_type search_key,
       if constexpr (art_policy::full_key_in_inode_path) {
         cmp_ = unodb::detail::compare(keybuf_.get_key_view(), k.get_key_view());
       } else if constexpr (art_policy::has_heap) {
-        // Heap mode has no leaf nodes — this branch is unreachable at
-        // runtime but must compile.  Extract key from heap for comparison.
+        // LCOV_EXCL_START — Heap mode has no leaf nodes; this branch is
+        // unreachable at runtime but must compile for type correctness.
         const auto value_id = art_policy::unpack_value(node);
         key_encoder key_buf;
         const auto kv = db_.heap_.heap.extract_key(value_id, key_buf);
         cmp_ = unodb::detail::compare(kv, k.get_key_view());
+        // LCOV_EXCL_STOP
       } else {
         cmp_ = leaf->cmp(k);
       }
