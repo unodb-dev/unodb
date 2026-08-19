@@ -627,7 +627,8 @@ class [[nodiscard]] tree_verifier final {
   // NOLINTBEGIN(modernize-use-constraints)
   template <class Db2 = Db, typename T>
   std::enable_if_t<!is_olc_db<Db2>, void> try_get(T k) noexcept(
-      noexcept(coerce_key(k)) && noexcept((*test_db_).get(coerce_key(k)))) {
+      noexcept(coerce_key(k)) &&
+      noexcept((*this->test_db_).get(coerce_key(k)))) {
     std::ignore = (*test_db_).get(coerce_key(k));
   }
 

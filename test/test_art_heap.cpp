@@ -20,7 +20,6 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26818)
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <cstring>
 #include <span>
 #include <tuple>
 #include <vector>
