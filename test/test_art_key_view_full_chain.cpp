@@ -115,7 +115,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, TwoKeyMinimalRepro) {
   } else {
     db_opt.emplace();
   }
-  auto& db = *db_opt;
+  auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
   unodb::key_encoder enc;
 
   const auto k1 = enc.reset().encode_text("").get_key_view();
@@ -1671,7 +1671,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureTwoChainKeys) {
     } else {
       db_opt.emplace();
     }
-    auto& db = *db_opt;
+    auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
     unodb::key_encoder enc;
     constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
@@ -1702,7 +1702,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureWideNode) {
     } else {
       db_opt.emplace();
     }
-    auto& db = *db_opt;
+    auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
     unodb::key_encoder enc;
     constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
@@ -1734,7 +1734,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureSecondInsertChain) {
     } else {
       db_opt.emplace();
     }
-    auto& db = *db_opt;
+    auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
     unodb::key_encoder enc;
     constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
@@ -1763,16 +1763,9 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureFullScan) {
     } else {
       db_opt.emplace();
     }
-    };
-    auto make = [&](std::uint8_t tag, std::uint64_t v) {
-      kh h;
-      const auto k = make_key(enc, tag, v);
-      std::ignore = std::ranges::copy(k, h.buf.begin());
-      h.len = k.size();
-      UNODB_DETAIL_DISABLE_CLANG_21_WARNING("-Wnrvo")
-      return h;
-      UNODB_DETAIL_RESTORE_CLANG_21_WARNINGS()
-    };
+    auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
+    unodb::key_encoder enc;
+    constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
     struct kh {
       std::array<std::byte, 18> buf{};
@@ -1834,7 +1827,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, EmptyKeyRejected) {
   } else {
     db_opt.emplace();
   }
-  auto& db = *db_opt;
+  auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
   const std::byte empty_buf{};
   const unodb::key_view empty_key{&empty_buf, 0};
   UNODB_ASSERT_THROW(
@@ -1968,7 +1961,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanKeyReconstructionFF) {
   } else {
     db_opt.emplace();
   }
-  auto& db = *db_opt;
+  auto& db = *db_opt;     // NOLINT(bugprone-unchecked-optional-access)
   constexpr int N = 321;  // enough to span the c1->c2 encoded-float boundary
   constexpr float step = 100.0F / 1000.0F;
 
@@ -2154,7 +2147,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromBacktracking) {
   } else {
     db_opt.emplace();
   }
-  auto& db = *db_opt;
+  auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
@@ -2226,7 +2219,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanMixedVISAndChainChildren) {
   } else {
     db_opt.emplace();
   }
-  auto& db = *db_opt;
+  auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
@@ -2291,7 +2284,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, GetValOnVISChild) {
   } else {
     db_opt.emplace();
   }
-  auto& db = *db_opt;
+  auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
@@ -2345,7 +2338,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromBacktrackToVIS) {
   } else {
     db_opt.emplace();
   }
-  auto& db = *db_opt;
+  auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
@@ -2543,7 +2536,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromKeyIsPrefixOfStored) {
   } else {
     db_opt.emplace();
   }
-  auto& db = *db_opt;
+  auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
@@ -2666,7 +2659,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromDeepAscent) {
   } else {
     db_opt.emplace();
   }
-  auto& db = *db_opt;
+  auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
@@ -2720,7 +2713,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromEmptyKeyReverse) {
   } else {
     db_opt.emplace();
   }
-  auto& db = *db_opt;
+  auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
@@ -2754,7 +2747,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, GetRejectsStrictSupersetOfVISKey) {
   } else {
     db_opt.emplace();
   }
-  auto& db = *db_opt;
+  auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
