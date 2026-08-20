@@ -1853,7 +1853,8 @@ olc_impl_helpers::add_or_choose_subtree(
                                   olc_inode_256<Key, Value, PolicyTag>>) {
       if (UNODB_DETAIL_UNLIKELY(children_count == INode::capacity)) {
         if constexpr (detail::olc_art_policy<
-                          Key, Value, PolicyTag>::full_key_in_inode_path) {
+                          Key, Value, PolicyTag>::full_key_in_inode_path ||
+                      detail::olc_art_policy<Key, Value, PolicyTag>::has_heap) {
           const auto chain_start =
               static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
           if (chain_start < k.size()) {
@@ -1919,64 +1920,6 @@ olc_impl_helpers::add_or_choose_subtree(
             return child_in_parent;
           }
         }
-        // No chain needed: short key or !full_key_in_inode_path — unless
-        // this is a heap tree with remaining key bytes.
-        if constexpr (detail::olc_art_policy<Key, Value, PolicyTag>::has_heap) {
-          const auto chain_start =
-              static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
-          if (chain_start < k.size()) {
-            // Heap mode: build chain before growing.
-            const auto chain_top = db_instance.build_chain(
-                k, detail::olc_art_policy<Key, Value, PolicyTag>::pack_value(v),
-                chain_start);
-            typename detail::olc_art_policy<
-                Key, Value, PolicyTag>::subtree_guard chain_guard{chain_top,
-                                                                  db_instance};
-            auto larger_node{
-                INode::larger_derived_type::create(db_instance, inode)};
-            chain_guard.release();
-            detail::sync(detail::sync_before_insert_grow_guard);
-            {
-              const optimistic_lock::write_guard write_unlock_on_exit{
-                  std::move(parent_critical_section)};
-              if (UNODB_DETAIL_UNLIKELY(write_unlock_on_exit.must_restart())) {
-                detail::olc_art_policy<
-                    Key, Value, PolicyTag>::delete_subtree(  // LCOV_EXCL_LINE
-                    chain_top, db_instance);
-                return {};  // LCOV_EXCL_LINE
-              }
-
-              optimistic_lock::write_guard node_write_guard{
-                  std::move(node_critical_section)};
-              if (UNODB_DETAIL_UNLIKELY(node_write_guard.must_restart())) {
-                detail::olc_art_policy<
-                    Key, Value, PolicyTag>::delete_subtree(  // LCOV_EXCL_LINE
-                    chain_top, db_instance);
-                return {};  // LCOV_EXCL_LINE
-              }
-
-              larger_node->init(db_instance, inode, node_write_guard, chain_top,
-                                depth, key_byte);
-              *node_in_parent = detail::olc_node_ptr{
-                  larger_node.release(), INode::larger_derived_type::type};
-
-              auto& new_inode =
-                  *node_in_parent->load()
-                       .template ptr<typename INode::larger_derived_type*>();
-              auto [ci_g, slot_g] = new_inode.find_child(key_byte);
-              new_inode.clear_value_bit(ci_g);
-
-              UNODB_DETAIL_ASSERT(!node_write_guard.active());
-            }
-
-#ifdef UNODB_DETAIL_WITH_STATS
-            db_instance.template account_growing_inode<
-                INode::larger_derived_type::type>();
-#endif  // UNODB_DETAIL_WITH_STATS
-
-            return child_in_parent;
-          }
-        }
         auto larger_node{
             INode::larger_derived_type::create(db_instance, inode)};
         {
@@ -2015,7 +1958,8 @@ olc_impl_helpers::add_or_choose_subtree(
     }
 
     if constexpr (detail::olc_art_policy<Key, Value,
-                                         PolicyTag>::full_key_in_inode_path) {
+                                         PolicyTag>::full_key_in_inode_path ||
+                  detail::olc_art_policy<Key, Value, PolicyTag>::has_heap) {
       const auto chain_start =
           static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
       if (chain_start < k.size()) {
@@ -2068,47 +2012,6 @@ olc_impl_helpers::add_or_choose_subtree(
           // can_eliminate_leaf is false.
           inode.add_to_nonfull(chain_top, depth, key_byte, children_count);
         }
-
-        return child_in_parent;
-      }
-    }
-
-    if constexpr (detail::olc_art_policy<Key, Value, PolicyTag>::has_heap) {
-      const auto chain_start =
-          static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
-      if (chain_start < k.size()) {
-        // Heap mode: remaining key has more than 1 byte — build a chain.
-        const auto chain_top = db_instance.build_chain(
-            k, detail::olc_art_policy<Key, Value, PolicyTag>::pack_value(v),
-            chain_start);
-
-        detail::sync(detail::sync_before_nonfull_chain_guard);
-        const optimistic_lock::write_guard write_unlock_on_exit{
-            std::move(node_critical_section)};
-        if (UNODB_DETAIL_UNLIKELY(write_unlock_on_exit.must_restart())) {
-          detail::olc_art_policy<Key, Value,
-                                 PolicyTag>::delete_subtree(  // LCOV_EXCL_LINE
-              chain_top, db_instance);
-          return {};  // LCOV_EXCL_LINE
-        }
-
-        if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock())) {
-          detail::olc_art_policy<Key, Value,
-                                 PolicyTag>::delete_subtree(  // LCOV_EXCL_LINE
-              chain_top, db_instance);
-          return {};  // LCOV_EXCL_LINE
-        }
-
-        // Insert packed value first (sets value bit), then overwrite
-        // with chain_top and clear value bit.
-        inode.add_to_nonfull(
-            detail::olc_art_policy<Key, Value, PolicyTag>::pack_value(v), depth,
-            key_byte, children_count);
-        std::atomic_signal_fence(std::memory_order_acq_rel);
-        auto [ci_nf, slot_nf] = inode.find_child(key_byte);
-        UNODB_DETAIL_ASSERT(slot_nf != nullptr);
-        *slot_nf = chain_top;
-        inode.clear_value_bit(ci_nf);
 
         return child_in_parent;
       }
@@ -2749,7 +2652,8 @@ olc_db<Key, Value, PolicyTag>::try_insert(
         key_prefix.get_shared_length(remaining_key)};
 
     if (shared_prefix_length < key_prefix_length) {
-      if constexpr (art_policy::full_key_in_inode_path) {
+      if constexpr (art_policy::full_key_in_inode_path ||
+                    art_policy::has_heap) {
         const auto chain_start =
             static_cast<tree_depth_type>(depth + shared_prefix_length + 1);
         if (chain_start < k.size()) {
@@ -2796,55 +2700,6 @@ olc_db<Key, Value, PolicyTag>::try_insert(
                   node_type::I4, remaining_key[shared_prefix_length]);
               new_i4->clear_value_bit(node_type::I4, ci_new);
             }
-          }
-
-#ifdef UNODB_DETAIL_WITH_STATS
-          account_growing_inode<node_type::I4>();
-          key_prefix_splits.fetch_add(1, std::memory_order_relaxed);
-#endif  // UNODB_DETAIL_WITH_STATS
-
-          return true;
-        }
-      }
-      // No chain needed (short key or !full_key_in_inode_path) — unless
-      // this is a heap tree with remaining key bytes after the split.
-      if constexpr (art_policy::has_heap) {
-        const auto chain_start =
-            static_cast<tree_depth_type>(depth + shared_prefix_length + 1);
-        if (chain_start < k.size()) {
-          // Heap mode: build a chain for the remaining key bytes.
-          const auto chain_top =
-              build_chain(k, art_policy::pack_value(v), chain_start);
-          typename art_policy::subtree_guard chain_guard{chain_top, *this};
-          auto new_node{inode_4::create(*this, node, shared_prefix_length)};
-          chain_guard.release();
-
-          {
-            const optimistic_lock::write_guard parent_guard{
-                std::move(parent_critical_section)};
-            if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) {
-              art_policy::delete_subtree(chain_top, *this);
-              return {};
-            }
-
-            const optimistic_lock::write_guard node_guard{
-                std::move(node_critical_section)};
-            if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) {
-              art_policy::delete_subtree(chain_top, *this);
-              return {};
-            }
-
-            new_node->init(node, shared_prefix_length, depth, chain_top,
-                           remaining_key[shared_prefix_length]);
-            *node_in_parent =
-                detail::olc_node_ptr{new_node.release(), node_type::I4};
-
-            // Clear value bit — chain_top is an inode, not a packed value.
-            auto* const new_i4 =
-                node_in_parent->load().template ptr<inode_type*>();
-            auto [ci_new, slot_new] = new_i4->find_child(
-                node_type::I4, remaining_key[shared_prefix_length]);
-            new_i4->clear_value_bit(node_type::I4, ci_new);
           }
 
 #ifdef UNODB_DETAIL_WITH_STATS
