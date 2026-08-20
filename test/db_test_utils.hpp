@@ -626,9 +626,7 @@ class [[nodiscard]] tree_verifier final {
   // mangled names.
   // NOLINTBEGIN(modernize-use-constraints)
   template <class Db2 = Db, typename T>
-  std::enable_if_t<!is_olc_db<Db2>, void> try_get(T k) noexcept(
-      noexcept(coerce_key(k)) &&
-      noexcept((*this->test_db_).get(coerce_key(k)))) {
+  std::enable_if_t<!is_olc_db<Db2>, void> try_get(T k) noexcept {
     std::ignore = (*test_db_).get(coerce_key(k));
   }
 
@@ -699,8 +697,7 @@ class [[nodiscard]] tree_verifier final {
   }
 
   template <typename T>
-  void check_absent_keys(std::initializer_list<T> absent_keys) noexcept(
-      noexcept(this->try_get(coerce_key(*absent_keys.begin())))) {
+  void check_absent_keys(std::initializer_list<T> absent_keys) noexcept {
     for (const auto absent_key : absent_keys) {
       const auto k{coerce_key(absent_key)};
       UNODB_ASSERT_EQ(values.find(to_ikey(k)), values.cend());
