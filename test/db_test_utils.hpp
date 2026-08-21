@@ -340,11 +340,13 @@ class [[nodiscard]] tree_verifier final {
         UNODB_ASSERT_EQ(mem_use_before, (*test_db_).get_current_memory_use());
         UNODB_ASSERT_THAT((*test_db_).get_node_counts(),
                           ::testing::ElementsAreArray(node_counts_before));
-        UNODB_ASSERT_THAT((*test_db_).get_growing_inode_counts(),
-                          ::testing::ElementsAreArray(growing_inodes_before));
-        UNODB_ASSERT_THAT((*test_db_).get_shrinking_inode_counts(),
-                          ::testing::ElementsAreArray(shrinking_inodes_before));
-        UNODB_ASSERT_EQ((*test_db_).get_key_prefix_splits(),
+        UNODB_ASSERT_THAT(
+            (*test_db_).get_growing_inode_counts(),  // LCOV_EXCL_LINE
+            ::testing::ElementsAreArray(growing_inodes_before));
+        UNODB_ASSERT_THAT(
+            (*test_db_).get_shrinking_inode_counts(),  // LCOV_EXCL_LINE
+            ::testing::ElementsAreArray(shrinking_inodes_before));
+        UNODB_ASSERT_EQ((*test_db_).get_key_prefix_splits(),  // LCOV_EXCL_LINE
                         key_prefix_splits_before);
       }
 #endif  // UNODB_DETAIL_WITH_STATS
@@ -410,11 +412,13 @@ class [[nodiscard]] tree_verifier final {
         UNODB_ASSERT_EQ(mem_use_before, (*test_db_).get_current_memory_use());
         UNODB_ASSERT_THAT((*test_db_).get_node_counts(),
                           ::testing::ElementsAreArray(node_counts_before));
-        UNODB_ASSERT_THAT((*test_db_).get_growing_inode_counts(),
-                          ::testing::ElementsAreArray(growing_inodes_before));
-        UNODB_ASSERT_THAT((*test_db_).get_shrinking_inode_counts(),
-                          ::testing::ElementsAreArray(shrinking_inodes_before));
-        UNODB_ASSERT_EQ((*test_db_).get_key_prefix_splits(),
+        UNODB_ASSERT_THAT(
+            (*test_db_).get_growing_inode_counts(),  // LCOV_EXCL_LINE
+            ::testing::ElementsAreArray(growing_inodes_before));
+        UNODB_ASSERT_THAT(
+            (*test_db_).get_shrinking_inode_counts(),  // LCOV_EXCL_LINE
+            ::testing::ElementsAreArray(shrinking_inodes_before));
+        UNODB_ASSERT_EQ((*test_db_).get_key_prefix_splits(),  // LCOV_EXCL_LINE
                         key_prefix_splits_before);
 #endif  // UNODB_DETAIL_WITH_STATS
       }
