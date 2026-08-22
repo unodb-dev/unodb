@@ -618,7 +618,7 @@ $(document).ready(function(){initNavTree('art__common_8hpp_source.html',''); ini
 <div class="line"><a id="l00698" name="l00698"></a><span class="lineno">  698</span>  UNODB_DETAIL_DISABLE_MSVC_WARNING(26490)</div>
 <div class="line"><a id="l00699" name="l00699"></a><span class="lineno">  699</span> </div>
 <div class="foldopen" id="foldopen00702" data-start="{" data-end="}">
-<div class="line"><a id="l00702" name="l00702"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#a9fe5435bd2cbbd1d3a433d8b8bb64e5c">  702</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a>&amp; <a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(std::uint8_t&amp; v) noexcept {</div>
+<div class="line"><a id="l00702" name="l00702"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#a9fe5435bd2cbbd1d3a433d8b8bb64e5c">  702</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a>&amp; decode(std::uint8_t&amp; v) noexcept {</div>
 <div class="line"><a id="l00703" name="l00703"></a><span class="lineno">  703</span>    v = <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>std::uint8_t&amp;<span class="keyword">&gt;</span>(<a class="code hl_variable" href="classunodb_1_1key__decoder.html#af01b7da0e057e25d8a0e30b0285ee2de">buf</a>[<a class="code hl_variable" href="classunodb_1_1key__decoder.html#a5ec1f8082194487f053da1c876b71fd4">off</a>++]);</div>
 <div class="line"><a id="l00704" name="l00704"></a><span class="lineno">  704</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
 <div class="line"><a id="l00705" name="l00705"></a><span class="lineno">  705</span>  }</div>
@@ -628,7 +628,7 @@ $(document).ready(function(){initNavTree('art__common_8hpp_source.html',''); ini
 <div class="line"><a id="l00708" name="l00708"></a><span class="lineno">  708</span> </div>
 <div class="line"><a id="l00709" name="l00709"></a><span class="lineno">  709</span>  </div>
 <div class="foldopen" id="foldopen00711" data-start="{" data-end="}">
-<div class="line"><a id="l00711" name="l00711"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#ad13a6047ade13656b937c6f671ee5e05">  711</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a>&amp; <a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(std::uint16_t&amp; v) noexcept {</div>
+<div class="line"><a id="l00711" name="l00711"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#ad13a6047ade13656b937c6f671ee5e05">  711</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a>&amp; decode(std::uint16_t&amp; v) noexcept {</div>
 <div class="line"><a id="l00712" name="l00712"></a><span class="lineno">  712</span>    std::uint16_t u;</div>
 <div class="line"><a id="l00713" name="l00713"></a><span class="lineno">  713</span>    std::memcpy(&amp;u, <a class="code hl_variable" href="classunodb_1_1key__decoder.html#af01b7da0e057e25d8a0e30b0285ee2de">buf</a> + <a class="code hl_variable" href="classunodb_1_1key__decoder.html#a5ec1f8082194487f053da1c876b71fd4">off</a>, <span class="keyword">sizeof</span>(u));</div>
 <div class="line"><a id="l00714" name="l00714"></a><span class="lineno">  714</span>    v = <a class="code hl_function" href="classunodb_1_1key__decoder.html#a04978b1c34e5222c55d007617aac6e3d">decode_binary_comparable_integral</a>(u);</div>
@@ -664,7 +664,7 @@ $(document).ready(function(){initNavTree('art__common_8hpp_source.html',''); ini
 <div class="line"><a id="l00743" name="l00743"></a><span class="lineno">  743</span>  </div>
 <div class="line"><a id="l00745" name="l00745"></a><span class="lineno">  745</span> </div>
 <div class="foldopen" id="foldopen00755" data-start="{" data-end="}">
-<div class="line"><a id="l00755" name="l00755"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#a7a80732e7f6a8ed812b1673382ed3f1e">  755</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a>&amp; <a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(<span class="keywordtype">float</span>&amp; v) noexcept {</div>
+<div class="line"><a id="l00755" name="l00755"></a><span class="lineno"><a class="line" href="classunodb_1_1key__decoder.html#a7a80732e7f6a8ed812b1673382ed3f1e">  755</a></span>  <a class="code hl_class" href="classunodb_1_1key__decoder.html">key_decoder</a>&amp; decode(<span class="keywordtype">float</span>&amp; v) noexcept {</div>
 <div class="line"><a id="l00756" name="l00756"></a><span class="lineno">  756</span>    std::uint32_t u;</div>
 <div class="line"><a id="l00757" name="l00757"></a><span class="lineno">  757</span>    <a class="code hl_function" href="classunodb_1_1key__decoder.html#abb8a2f90b802aae7a0414f49bce3270b">decode</a>(u);</div>
 <div class="line"><a id="l00758" name="l00758"></a><span class="lineno">  758</span>    v = <a class="code hl_typedef" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">unodb::detail::decode_floating_point&lt;float&gt;</a>(u);</div>
