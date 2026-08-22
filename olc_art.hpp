@@ -253,6 +253,8 @@ class olc_db final {
   template <
       typename H = PolicyTag,
       typename = std::enable_if_t<has_heap && std::is_same_v<H, PolicyTag>>>
+  // cppcheck-suppress uninitMemberVar  // false positive: try_collapse_i4 is
+  //   a member function, not a variable.
   constexpr explicit olc_db(const H& heap) noexcept : heap_{heap} {}
 
   /// Construct empty OLC ART index with a custom allocator.
