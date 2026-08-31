@@ -198,18 +198,17 @@ Protected Member Functions</h2></td></tr>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>empty</b> () const noexcept</td></tr>
 <tr class="memdesc:ace012d208ac5040e5d7c819f96da8eeb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true iff the stack is empty. <br /></td></tr>
 <tr class="separator:ace012d208ac5040e5d7c819f96da8eeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3c05aa0884e6a4284b7fc88098743693" id="r_a3c05aa0884e6a4284b7fc88098743693"><td class="memItemLeft" align="right" valign="top"><a id="a3c05aa0884e6a4284b7fc88098743693" name="a3c05aa0884e6a4284b7fc88098743693"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>try_push</b> (detail::olc_node_ptr node, std::byte key_byte, std::uint8_t child_index, detail::key_prefix_snapshot prefix, const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a> &amp;rcs)</td></tr>
-<tr class="memdesc:a3c05aa0884e6a4284b7fc88098743693"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push an entry onto the stack. <br /></td></tr>
-<tr class="separator:a3c05aa0884e6a4284b7fc88098743693"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae7f71ebac47a8ba3a3ae8aee7cf5bde3" id="r_ae7f71ebac47a8ba3a3ae8aee7cf5bde3"><td class="memItemLeft" align="right" valign="top"><a id="ae7f71ebac47a8ba3a3ae8aee7cf5bde3" name="ae7f71ebac47a8ba3a3ae8aee7cf5bde3"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>try_push_leaf</b> (detail::olc_node_ptr aleaf, const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a> &amp;rcs)</td></tr>
-<tr class="memdesc:ae7f71ebac47a8ba3a3ae8aee7cf5bde3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push a leaf onto the stack. <br /></td></tr>
-<tr class="separator:ae7f71ebac47a8ba3a3ae8aee7cf5bde3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0cf7a5560794a704705557ca1b2c9c59" id="r_a0cf7a5560794a704705557ca1b2c9c59"><td class="memItemLeft" align="right" valign="top"><a id="a0cf7a5560794a704705557ca1b2c9c59" name="a0cf7a5560794a704705557ca1b2c9c59"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>try_push</b> (const typename inode_base::iter_result &amp;e, const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a> &amp;rcs)</td></tr>
-<tr class="memdesc:a0cf7a5560794a704705557ca1b2c9c59"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push an entry onto the stack. <br /></td></tr>
-<tr class="separator:a0cf7a5560794a704705557ca1b2c9c59"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a51adcc1e74f7617f30e520af899548a4" id="r_a51adcc1e74f7617f30e520af899548a4"><td class="memItemLeft" align="right" valign="top"><a id="a51adcc1e74f7617f30e520af899548a4" name="a51adcc1e74f7617f30e520af899548a4"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>push</b> (detail::olc_node_ptr node, std::byte key_byte, std::uint8_t child_index, detail::key_prefix_snapshot prefix, const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a> &amp;rcs)</td></tr>
+<tr class="memdesc:a51adcc1e74f7617f30e520af899548a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push an entry onto the stack. <br /></td></tr>
+<tr class="separator:a51adcc1e74f7617f30e520af899548a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f5c384220d01271b31442c51806841c" id="r_a5f5c384220d01271b31442c51806841c"><td class="memItemLeft" align="right" valign="top"><a id="a5f5c384220d01271b31442c51806841c" name="a5f5c384220d01271b31442c51806841c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>push_leaf</b> (detail::olc_node_ptr aleaf, const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a> &amp;rcs)</td></tr>
+<tr class="memdesc:a5f5c384220d01271b31442c51806841c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push a leaf onto the stack. <br /></td></tr>
+<tr class="separator:a5f5c384220d01271b31442c51806841c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a977a90be038703dbd6a29f279dd6942b" id="r_a977a90be038703dbd6a29f279dd6942b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a977a90be038703dbd6a29f279dd6942b">push</a> (const typename inode_base::iter_result &amp;e, const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a> &amp;rcs)</td></tr>
+<tr class="memdesc:a977a90be038703dbd6a29f279dd6942b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push an entry <em>e</em> onto the stack.  <br /></td></tr>
+<tr class="separator:a977a90be038703dbd6a29f279dd6942b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aea10a031ed5fb490d601047ee5dde45f" id="r_aea10a031ed5fb490d601047ee5dde45f"><td class="memItemLeft" align="right" valign="top"><a id="aea10a031ed5fb490d601047ee5dde45f" name="aea10a031ed5fb490d601047ee5dde45f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>pop</b> () noexcept</td></tr>
 <tr class="memdesc:aea10a031ed5fb490d601047ee5dde45f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pop an entry from the stack and the corresponding bytes from the key_buffer. <br /></td></tr>
@@ -218,9 +217,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>pop</b> () noexcept</
 const <a class="el" href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html">stack_entry</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>top</b> () const noexcept</td></tr>
 <tr class="memdesc:a5deaa353ea432657e2982beaabb9c9fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the entry on the top of the stack. <br /></td></tr>
 <tr class="separator:a5deaa353ea432657e2982beaabb9c9fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6984a97719773aa83c331fe51fa06045" id="r_a6984a97719773aa83c331fe51fa06045"><td class="memItemLeft" align="right" valign="top"><a id="a6984a97719773aa83c331fe51fa06045" name="a6984a97719773aa83c331fe51fa06045"></a>
-detail::olc_node_ptr&#160;</td><td class="memItemRight" valign="bottom"><b>current_node</b> () const noexcept</td></tr>
-<tr class="memdesc:a6984a97719773aa83c331fe51fa06045"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the node on the top of the stack and nullptr if the stack is empty (similar to <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a5deaa353ea432657e2982beaabb9c9fd" title="Return the entry on the top of the stack.">top()</a>, but handles an empty stack). <br /></td></tr>
+<tr class="memitem:a6984a97719773aa83c331fe51fa06045" id="r_a6984a97719773aa83c331fe51fa06045"><td class="memItemLeft" align="right" valign="top">detail::olc_node_ptr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a6984a97719773aa83c331fe51fa06045">current_node</a> () const noexcept</td></tr>
+<tr class="memdesc:a6984a97719773aa83c331fe51fa06045"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the node on the top of the stack and nullptr if the stack is empty (similar to <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a5deaa353ea432657e2982beaabb9c9fd" title="Return the entry on the top of the stack.">top()</a>, but handles an empty stack).  <br /></td></tr>
 <tr class="separator:a6984a97719773aa83c331fe51fa06045"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
@@ -313,6 +311,36 @@ template&lt;typename Key , typename Value &gt; </div>
 
 <p>Compare the given key (e.g., the to_key) to the current key in the internal buffer. </p>
 <dl class="section return"><dt>Returns</dt><dd>-1, 0, or 1 if this key is LT, EQ, or GT the other key. </dd></dl>
+
+</div>
+</div>
+<a id="a6984a97719773aa83c331fe51fa06045" name="a6984a97719773aa83c331fe51fa06045"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6984a97719773aa83c331fe51fa06045">&#9670;&#160;</a></span>current_node()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">detail::olc_node_ptr <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value &gt;::iterator::current_node </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">protected</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return the node on the top of the stack and nullptr if the stack is empty (similar to <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a5deaa353ea432657e2982beaabb9c9fd" title="Return the entry on the top of the stack.">top()</a>, but handles an empty stack). </p>
+<p>A <code>nullptr</code> return does <em>not</em> imply an empty stack: in value-in-slot mode a packed zero value is bit-identical to a null node pointer, so callers must additionally test <code>!empty() &amp;&amp; <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a5deaa353ea432657e2982beaabb9c9fd" title="Return the entry on the top of the stack.">top()</a>.packed_leaf</code>, as try_next() and try_prior() do. </p>
 
 </div>
 </div>
@@ -426,6 +454,48 @@ template&lt;typename Key , typename Value &gt; </div>
 
 <p>Invalidate the iterator (pops everything off of the stack). </p>
 <p>post-condition: The iterator is !valid(). </p>
+
+</div>
+</div>
+<a id="a977a90be038703dbd6a29f279dd6942b" name="a977a90be038703dbd6a29f279dd6942b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a977a90be038703dbd6a29f279dd6942b">&#9670;&#160;</a></span>push()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value &gt;::iterator::push </td>
+          <td>(</td>
+          <td class="paramtype">const typename inode_base::iter_result &amp;&#160;</td>
+          <td class="paramname"><em>e</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a> &amp;&#160;</td>
+          <td class="paramname"><em>rcs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Push an entry <em>e</em> onto the stack. </p>
+<dl class="section pre"><dt>Precondition</dt><dd><em>e.node</em> is non-null. Every caller check()s the read that produced <em>e</em> before pushing it, and a successful check() means the producing scan was consistent, so a null here means a missed version bump, not a torn read.</dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a71635c68333ed8b5a98b4beca50d0dba" title="Returned by begin() and last() when every child slot was observed empty.">detail::basic_inode_impl::torn_read_result</a> for why the assert lives here rather than at the callers </dd></dl>
 
 </div>
 </div>

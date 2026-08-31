@@ -39,5 +39,6 @@ var art__internal__impl_8hpp =
     [ "_mm_cmple_epu8", "art__internal__impl_8hpp.html#a25eb4ea7710810f49fcc23353dad6c8f", null ],
     [ "bulk_build_chain", "art__internal__impl_8hpp.html#a86ed9effe700c174446c05691bcbaeca", null ],
     [ "make_db_leaf_ptr", "art__internal__impl_8hpp.html#ad8b0a57c80c986238878f28a2b214632", null ],
-    [ "key_prefix_capacity", "art__internal__impl_8hpp.html#a6affb48b09460b87dbcb8ab404f26263", null ]
+    [ "key_prefix_capacity", "art__internal__impl_8hpp.html#a6affb48b09460b87dbcb8ab404f26263", null ],
+    [ "sync_in_inode_scan", "art__internal__impl_8hpp.html#a3686e9e681f8c25982d0a576839afb97", null ]
 ];

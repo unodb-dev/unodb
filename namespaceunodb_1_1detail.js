@@ -105,7 +105,7 @@ var namespaceunodb_1_1detail =
     [ "msb", "namespaceunodb_1_1detail.html#aa11dfd956f06126308971d516d631d85", null ],
     [ "msg_stacktrace_abort", "namespaceunodb_1_1detail.html#aa70778153d340954b6f2718fd7f018a2", null ],
     [ "node_ptr_lock", "namespaceunodb_1_1detail.html#a13ca7f940a88b617002ae98db439ff94", null ],
-    [ "sync", "namespaceunodb_1_1detail.html#a03878a8c54206e8babeb1cedd9c69a18", null ],
+    [ "sync", "namespaceunodb_1_1detail.html#a7bf28df832c285adf829796f831670e7", null ],
     [ "unwrap_fake_critical_section", "namespaceunodb_1_1detail.html#a315446f662ab93a69546e61c3c72a492", null ],
     [ "can_eliminate_key_in_leaf_v", "namespaceunodb_1_1detail.html#ad6143a3f0577dce38a7470201e05e067", null ],
     [ "default_allocator", "namespaceunodb_1_1detail.html#a01f210386e7451c963e3039b9a397f3c", null ],
@@ -121,6 +121,7 @@ var namespaceunodb_1_1detail =
     [ "sync_before_insert_grow_guard", "namespaceunodb_1_1detail.html#a91070248f026b90cbc1a13cae9c654f4", null ],
     [ "sync_before_remove_write_guard", "namespaceunodb_1_1detail.html#ab39d0da261fb0203d1afaa9cf2a1749a", null ],
     [ "sync_between_chain_locks", "namespaceunodb_1_1detail.html#af901b0308c5439f03f4c38539f2b946d", null ],
+    [ "sync_in_inode_scan", "namespaceunodb_1_1detail.html#a3686e9e681f8c25982d0a576839afb97", null ],
     [ "thread_syncs", "namespaceunodb_1_1detail.html#a04a041b47bebde8ed0f3bd97327e450c", null ],
     [ "tls_bulk_load_stats", "namespaceunodb_1_1detail.html#ac07048f94a0dadccc609dfdacb0ebf9c", null ]
 ];

@@ -119,18 +119,18 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"classunodb_1_1db.html#a848cf66194a579bf563c24dd207644f7",
-"classunodb_1_1detail_1_1basic__inode__16.html#a6b9e1b69aa24dbf5f403bbac5eba11ff",
-"classunodb_1_1detail_1_1basic__inode__48.html#a73a699cde3007a2680f5c5a96b2f5d19",
-"classunodb_1_1detail_1_1deallocation__request.html#a0625f115fb1ff05f1d5c2294b13b492f",
-"classunodb_1_1in__critical__section.html#af7268c9424f0844c880389d60ad4e830",
-"classunodb_1_1olc__db.html#ad7843ad77c6324c2e6ac429640077951",
-"classunodb_1_1qsbr.html#aa5df0239dc4d55eb2367743c06b7a9eb",
-"classunodb_1_1test_1_1tree__verifier.html",
-"micro__benchmark__utils_8hpp_source.html",
-"namespaceunodb_1_1detail.html#ad39f8ebe46749af5895e69f8b49ef1b0",
-"structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html#a02fbc12be46dfadf276baa5867dc2458",
-"test__art__key__view__full__chain_8cpp.html#a88ba90fd0d7293fe75cd1e0f8476a216"
+"classunodb_1_1db.html#a792923c1d17a8abac900b216a35d074e",
+"classunodb_1_1detail_1_1basic__inode__16.html#a43cf30b2626ed340ac428b0b900b98cd",
+"classunodb_1_1detail_1_1basic__inode__48.html#a6077573eac740bb164b55ca3b48c3139",
+"classunodb_1_1detail_1_1db__inode__qsbr__deleter.html",
+"classunodb_1_1in__critical__section.html#a8b104f8061125989911a501cadeef3ec",
+"classunodb_1_1olc__db.html#ac07ab4b1afbbb2b903a5161780836654",
+"classunodb_1_1qsbr.html#a9c6b2fa62d6e56955c0bbd6ae716cdd0",
+"classunodb_1_1test_1_1allocation__failure__injector.html#aa2a7ef67aa270a2a8a50782040b5c90d",
+"md_CONTRIBUTING.html#autotoc_md23",
+"namespaceunodb_1_1detail.html#a815292cf4ea423f309805739554301b5",
+"structunodb_1_1detail_1_1basic__art__policy.html#aaa520bf3d24747d4775919b3d0b2de23",
+"structunodb_1_1test_1_1sync__point__guard.html#a4a56744398f77ca7b31af92b772d799c"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

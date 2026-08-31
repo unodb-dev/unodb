@@ -102,6 +102,9 @@ $(document).ready(function(){initNavTree('classanonymous__namespace_02test__art_
   <div class="headertitle"><div class="title">anonymous_namespace{test_art_concurrency.cpp}::ARTChainConcurrencyTest&lt; Db &gt; Class Template Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Chain concurrency tests reuse <a class="el" href="classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTConcurrencyTest.html">ARTConcurrencyTest</a> for QSBR setup and parallel_test.  
+ <a href="classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTChainConcurrencyTest.html#details">More...</a></p>
 <div class="dynheader">
 Inheritance diagram for anonymous_namespace{test_art_concurrency.cpp}::ARTChainConcurrencyTest&lt; Db &gt;:</div>
 <div class="dyncontent">
@@ -116,12 +119,15 @@ Inheritance diagram for anonymous_namespace{test_art_concurrency.cpp}::ARTChainC
 Static Protected Member Functions</h2></td></tr>
 <tr class="memitem:a7a766e9e722c0406b46e3d33022b85bb" id="r_a7a766e9e722c0406b46e3d33022b85bb"><td class="memItemLeft" align="right" valign="top"><a id="a7a766e9e722c0406b46e3d33022b85bb" name="a7a766e9e722c0406b46e3d33022b85bb"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>chain_insert_remove_thread</b> (<a class="el" href="classunodb_1_1test_1_1tree__verifier.html">unodb::test::tree_verifier</a>&lt; Db &gt; *tv, std::size_t thread_i, std::size_t ops_per_thread)</td></tr>
+<tr class="memdesc:a7a766e9e722c0406b46e3d33022b85bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Thread function: insert/remove chain keys with a fixed tag. <br /></td></tr>
 <tr class="separator:a7a766e9e722c0406b46e3d33022b85bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa84d298707b379cc8564087675ab6ad3" id="r_aa84d298707b379cc8564087675ab6ad3"><td class="memItemLeft" align="right" valign="top"><a id="aa84d298707b379cc8564087675ab6ad3" name="aa84d298707b379cc8564087675ab6ad3"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>chain_random_ops_thread</b> (<a class="el" href="classunodb_1_1test_1_1tree__verifier.html">unodb::test::tree_verifier</a>&lt; Db &gt; *tv, std::size_t thread_i, std::size_t ops_per_thread)</td></tr>
+<tr class="memdesc:aa84d298707b379cc8564087675ab6ad3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Thread function: random insert/remove/get on chain keys. <br /></td></tr>
 <tr class="separator:aa84d298707b379cc8564087675ab6ad3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f3bd0c1fecf88bd302bcc29aaedacb4" id="r_a6f3bd0c1fecf88bd302bcc29aaedacb4"><td class="memItemLeft" align="right" valign="top"><a id="a6f3bd0c1fecf88bd302bcc29aaedacb4" name="a6f3bd0c1fecf88bd302bcc29aaedacb4"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>chain_multi_tag_thread</b> (<a class="el" href="classunodb_1_1test_1_1tree__verifier.html">unodb::test::tree_verifier</a>&lt; Db &gt; *tv, std::size_t thread_i, std::size_t ops_per_thread)</td></tr>
+<tr class="memdesc:a6f3bd0c1fecf88bd302bcc29aaedacb4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Thread function: multi-tag random ops. <br /></td></tr>
 <tr class="separator:a6f3bd0c1fecf88bd302bcc29aaedacb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_static_methods_classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTConcurrencyTest"><td colspan="2" onclick="javascript:toggleInherit('pro_static_methods_classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTConcurrencyTest')"><img src="closed.png" alt="-"/>&#160;Static Protected Member Functions inherited from <a class="el" href="classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTConcurrencyTest.html">anonymous_namespace{test_art_concurrency.cpp}::ARTConcurrencyTest&lt; Db &gt;</a></td></tr>
 <tr class="memitem:ac12815031fef24ce912bb9c91245d384 inherit pro_static_methods_classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTConcurrencyTest" id="r_ac12815031fef24ce912bb9c91245d384"><td class="memItemLeft" align="right" valign="top">
@@ -169,7 +175,11 @@ template&lt;unsigned PreinsertLimit, std::size_t ThreadCount, std::size_t OpsPer
 <a class="el" href="classunodb_1_1test_1_1tree__verifier.html">unodb::test::tree_verifier</a>&lt; Db &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>verifier</b> {true}</td></tr>
 <tr class="separator:adb2fc5b925436237fda77f56b2f4c164 inherit pro_attribs_classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTConcurrencyTest"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this class was generated from the following file:<ul>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><div class="compoundTemplParams">template&lt;class Db&gt;<br />
+class anonymous_namespace{test_art_concurrency.cpp}::ARTChainConcurrencyTest&lt; Db &gt;</div><p>Chain concurrency tests reuse <a class="el" href="classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTConcurrencyTest.html">ARTConcurrencyTest</a> for QSBR setup and parallel_test. </p>
+<p>Thread functions access the db via verifier-&gt;get_db(). </p>
+</div><hr/>The documentation for this class was generated from the following file:<ul>
 <li>test/<b>test_art_concurrency.cpp</b></li>
 </ul>
 </div><!-- contents -->

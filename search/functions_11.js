@@ -17,6 +17,6 @@ var searchData=
   ['size_5fbytes_14',['size_bytes',['../classunodb_1_1key__encoder.html#a073ecee2db9797158b058ce56b2c8a3b',1,'unodb::key_encoder::size_bytes()'],['../classunodb_1_1detail_1_1key__buffer.html#a802f979bb3d3afe56a901e57bf1aa590',1,'unodb::detail::key_buffer::size_bytes()']]],
   ['spin_5fwait_5floop_5fbody_15',['spin_wait_loop_body',['../namespaceunodb.html#adf5c8f3a365ce28271526c3ef0ca4237',1,'unodb']]],
   ['store_16',['store',['../classunodb_1_1in__critical__section.html#ad57cdf663ee959fae3d4ea595f046556',1,'unodb::in_critical_section']]],
-  ['sync_17',['sync',['../namespaceunodb_1_1detail.html#a03878a8c54206e8babeb1cedd9c69a18',1,'unodb::detail']]],
+  ['sync_17',['sync',['../namespaceunodb_1_1detail.html#a7bf28df832c285adf829796f831670e7',1,'unodb::detail']]],
   ['sync_5fpoint_5fguard_18',['sync_point_guard',['../structunodb_1_1test_1_1sync__point__guard.html#adac0f917c82d6cab396986ea3da7f188',1,'unodb::test::sync_point_guard']]]
 ];

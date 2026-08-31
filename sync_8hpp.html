@@ -108,6 +108,7 @@ $(document).ready(function(){initNavTree('sync_8hpp.html',''); initResizable(); 
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="global_8hpp_source.html">global.hpp</a>&quot;</code><br />
 <code>#include &lt;functional&gt;</code><br />
+<code>#include &lt;type_traits&gt;</code><br />
 </div>
 <p><a href="sync_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -128,10 +129,9 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a03878a8c54206e8babeb1cedd9c69a18" id="r_a03878a8c54206e8babeb1cedd9c69a18"><td class="memItemLeft" align="right" valign="top"><a id="a03878a8c54206e8babeb1cedd9c69a18" name="a03878a8c54206e8babeb1cedd9c69a18"></a>
-<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>unodb::detail::sync</b> (<a class="el" href="structunodb_1_1detail_1_1sync__point.html">sync_point</a> &amp;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">pt</a>)</td></tr>
-<tr class="memdesc:a03878a8c54206e8babeb1cedd9c69a18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fire a sync point (calls hook if armed). <br /></td></tr>
-<tr class="separator:a03878a8c54206e8babeb1cedd9c69a18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7bf28df832c285adf829796f831670e7" id="r_a7bf28df832c285adf829796f831670e7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">constexpr</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb_1_1detail.html#a7bf28df832c285adf829796f831670e7">unodb::detail::sync</a> (<a class="el" href="structunodb_1_1detail_1_1sync__point.html">sync_point</a> &amp;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">pt</a>) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
+<tr class="memdesc:a7bf28df832c285adf829796f831670e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fire a sync point (calls hook if armed).  <br /></td></tr>
+<tr class="separator:a7bf28df832c285adf829796f831670e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Debug-only synchronization points for concurrent algorithm testing. </p>

@@ -231,6 +231,9 @@ Static Protected Attributes</h2></td></tr>
 <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">static</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a2030306d16106e373eb2a38d17d3815c">iter_result_opt</a>&#160;</td><td class="memItemRight" valign="bottom"><b>end_result</b> {}</td></tr>
 <tr class="memdesc:a309951d14c3d09aff0f0fc8be224a6e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Iterator result value at the end of iteration. <br /></td></tr>
 <tr class="separator:a309951d14c3d09aff0f0fc8be224a6e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a71635c68333ed8b5a98b4beca50d0dba" id="r_a71635c68333ed8b5a98b4beca50d0dba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">static</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a5e989cf901f1b719e9b482fd2f61e9a6">iter_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a71635c68333ed8b5a98b4beca50d0dba">torn_read_result</a></td></tr>
+<tr class="memdesc:a71635c68333ed8b5a98b4beca50d0dba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returned by <code><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a83a284df0726f2d5166a16fa77a6ff7e" title="Return iterator result for first valid child.">begin()</a></code> and <code><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a0b089ac9ab0ce19f7f9814120e87825f" title="Return iterator result for last valid child.">last()</a></code> when every child slot was observed empty.  <br /></td></tr>
+<tr class="separator:a71635c68333ed8b5a98b4beca50d0dba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
@@ -664,7 +667,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structunodb_1_1detail_1_1iter__result.html" title="Iterator traversal result representing tree path element.">iter_result</a> for first child </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structunodb_1_1detail_1_1iter__result.html" title="Iterator traversal result representing tree path element.">iter_result</a> for first child, or torn_read_result if no valid child was observed; act on the result only after a successful read_critical_section::check() </dd></dl>
 
 </div>
 </div>
@@ -760,8 +763,8 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Child node pointer</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>For <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html" title="Internal node with 17-48 children (N48).">basic_inode_48</a>, child_index is index into child_indices[]. For other types, it is direct index into children[]. This method hides this distinction. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Child node pointer, or nullptr if an empty slot was observed (OLC torn read); act on the result only after a successful read_critical_section::check(), and use <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a06464f8d513d03bb2fd4a96a241e1775" title="Check if child at index holds a packed value, dispatching by type.">is_value_in_slot()</a> to distinguish a legitimately packed zero value, which shares the nullptr representation in value-in-slot mode, from an empty slot.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>For <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html" title="Internal node with 17-48 children (N48).">basic_inode_48</a>, child_index is index into basic_inode_48::child_indexes[]. For other types, it is direct index into children[]. This method hides this distinction. </dd></dl>
 
 </div>
 </div>
@@ -877,7 +880,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structunodb_1_1detail_1_1iter__result.html" title="Iterator traversal result representing tree path element.">iter_result</a> for last child </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structunodb_1_1detail_1_1iter__result.html" title="Iterator traversal result representing tree path element.">iter_result</a> for last child, or torn_read_result if no valid child was observed; act on the result only after a successful read_critical_section::check() </dd></dl>
 
 </div>
 </div>
@@ -1168,6 +1171,45 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Result from concrete node's remove_or_choose_subtree </dd></dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a71635c68333ed8b5a98b4beca50d0dba" name="a71635c68333ed8b5a98b4beca50d0dba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a71635c68333ed8b5a98b4beca50d0dba">&#9670;&#160;</a></span>torn_read_result</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">class</a> ArtPolicy &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a5e989cf901f1b719e9b482fd2f61e9a6">iter_result</a> <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html">unodb::detail::basic_inode_impl</a>&lt; ArtPolicy &gt;::torn_read_result</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">constexpr</span><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">{<a class="code hl_typedef" href="classunodb_1_1detail_1_1basic__inode__impl.html#af470045f63b1888c85166604c3d8a6be">node_ptr</a>{<span class="keyword">nullptr</span>}, std::byte{0},</div>
+<div class="line">                                                0, <a class="code hl_union" href="unionunodb_1_1detail_1_1key__prefix__snapshot.html">key_prefix_snapshot</a>{0}}</div>
+<div class="ttc" id="aclassunodb_1_1detail_1_1basic__inode__impl_html_af470045f63b1888c85166604c3d8a6be"><div class="ttname"><a href="classunodb_1_1detail_1_1basic__inode__impl.html#af470045f63b1888c85166604c3d8a6be">unodb::detail::basic_inode_impl::node_ptr</a></div><div class="ttdeci">typename ArtPolicy::node_ptr node_ptr</div><div class="ttdoc">Node pointer type.</div><div class="ttdef"><b>Definition</b> art_internal_impl.hpp:1616</div></div>
+<div class="ttc" id="aunionunodb_1_1detail_1_1key__prefix__snapshot_html"><div class="ttname"><a href="unionunodb_1_1detail_1_1key__prefix__snapshot.html">unodb::detail::key_prefix_snapshot</a></div><div class="ttdoc">Key prefix snapshot for iterator use.</div><div class="ttdef"><b>Definition</b> art_internal_impl.hpp:1238</div></div>
+</div><!-- fragment -->
+<p>Returned by <code><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a83a284df0726f2d5166a16fa77a6ff7e" title="Return iterator result for first valid child.">begin()</a></code> and <code><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a0b089ac9ab0ce19f7f9814120e87825f" title="Return iterator result for last valid child.">last()</a></code> when every child slot was observed empty. </p>
+<p>A live <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html" title="Internal node with 17-48 children (N48).">basic_inode_48</a> always maps at least 17 key bytes and a live <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html" title="Internal node with 49-256 children (N256).">basic_inode_256</a> at least 49, so this cannot happen single-threaded.</p>
+<p>Distinct from end_result, which marks a legitimate end of scan that callers act on by popping the stack. This value must instead be discarded, so the two are deliberately not the same iter_result_opt nullopt: <code>!e</code> would conflate an ordinary end of iteration with an observation that corresponds to no state of the tree.</p>
+<p>Under OLC the 256-slot scan is not atomic with respect to the node: concurrent insert and remove change which key bytes are occupied while the scan is in progress. An occupancy set that migrates from slots the scan has not reached to slots it has already passed leaves every slot observed empty even though the node was never empty. With 17 children at key bytes 100-116, a reader scans 0..99, a writer inserts at 0..16 and then erases 100..116, and the reader scans 100..255. The insert must precede the erase, as dropping below 17 children would shrink the node.</p>
+<p>No individual load tears: each is one relaxed atomic load of a critical_section_policy field. It is the composite of the scan's loads, taken at different times, that corresponds to no state the node ever held: inconsistent, not stale. "Torn read" here means such an inconsistent optimistic read rather than a non-atomic read of a single object.</p>
+<p>The fields are never acted on. Every write that produces this observation bumps the node version, so the OLC caller's <code>read_critical_section::check()</code> fails before the result is used. The single-threaded db traversals take no critical section at all and cannot observe this value. Both <a class="el" href="classunodb_1_1db_1_1iterator.html#a25149b069bf9338b8d04117fa8f9d0cd" title="Push internal node entry onto iterator stack.">db::iterator::push()</a> and <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a51adcc1e74f7617f30e520af899548a4" title="Push an entry onto the stack.">olc_db::iterator::push()</a> assert the node is non-null, keeping a tripwire on each side: structural corruption for db, a missed version bump for <a class="el" href="classunodb_1_1olc__db.html" title="A thread-safe Adaptive Radix Tree that is synchronized using optimistic lock coupling.">olc_db</a>. Asserting in the dispatcher rather than at each caller covers every producer and names the fault. The 4- and 5-argument push() they forward to would reject a null as well, since a null node_ptr reports <a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350" title="Leaf node for a single value.">node_type::LEAF</a>, but only as a generic type violation.</p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a019ffed4db192a8d88a7d5d8e921dc72" title="Return child node at specified child index.">get_child(node_type, std::uint8_t)</a>, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb" title="Base class for all internal nodes in non-thread-safe ART.">which</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb" title="Base class for all internal nodes in non-thread-safe ART.">returns</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb" title="Base class for all internal nodes in non-thread-safe ART.">nullptr</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb" title="Base class for all internal nodes in non-thread-safe ART.">on</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb" title="Base class for all internal nodes in non-thread-safe ART.">the</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb" title="Base class for all internal nodes in non-thread-safe ART.">same</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb" title="Base class for all internal nodes in non-thread-safe ART.">torn</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb" title="Base class for all internal nodes in non-thread-safe ART.">read</a> </dd>
+<dd>
+<a class="el" href="namespaceunodb_1_1detail.html#a3686e9e681f8c25982d0a576839afb97" title="Sync point: fires on each slot of the basic_inode_48 / basic_inode_256 begin()/last() scans,...">sync_in_inode_scan</a>, <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb" title="Base class for all internal nodes in non-thread-safe ART.">the</a> <a class="el" href="namespaceunodb_1_1detail.html#a7bf28df832c285adf829796f831670e7" title="Fire a sync point (calls hook if armed).">sync</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb" title="Base class for all internal nodes in non-thread-safe ART.">point</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb" title="Base class for all internal nodes in non-thread-safe ART.">that</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb" title="Base class for all internal nodes in non-thread-safe ART.">makes</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb" title="Base class for all internal nodes in non-thread-safe ART.">this</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb" title="Base class for all internal nodes in non-thread-safe ART.">path</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb" title="Base class for all internal nodes in non-thread-safe ART.">testable</a> </dd></dl>
 
 </div>
 </div>

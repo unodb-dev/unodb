@@ -298,6 +298,9 @@ Macros</h2></td></tr>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_DETAIL_RELEASE_EXPLICIT</b></td></tr>
 <tr class="memdesc:gafd4e412d2f7204ec7887d6d20cb7f53b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expands to <code>explicit</code> in release builds, empty in debug builds. <br /></td></tr>
 <tr class="separator:gafd4e412d2f7204ec7887d6d20cb7f53b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa9e5bc3273f52fbb896519bc64ca2f60" id="r_gaa9e5bc3273f52fbb896519bc64ca2f60"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__internal.html#gaa9e5bc3273f52fbb896519bc64ca2f60">UNODB_DETAIL_RELEASE_PURE</a></td></tr>
+<tr class="memdesc:gaa9e5bc3273f52fbb896519bc64ca2f60"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expands to <code>[[gnu::pure]]</code> in release builds, empty in debug builds.  <br /></td></tr>
+<tr class="separator:gaa9e5bc3273f52fbb896519bc64ca2f60"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga635640d5d3b202d11b61c3730f6c2988" id="r_ga635640d5d3b202d11b61c3730f6c2988"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__internal.html#ga635640d5d3b202d11b61c3730f6c2988">UNODB_DETAIL_USED_IN_DEBUG</a></td></tr>
 <tr class="memdesc:ga635640d5d3b202d11b61c3730f6c2988"><td class="mdescLeft">&#160;</td><td class="mdescRight">Marks a declaration as intentionally unused in release builds, but used in debug ones.  <br /></td></tr>
 <tr class="separator:ga635640d5d3b202d11b61c3730f6c2988"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -564,6 +567,23 @@ Macros</h2></td></tr>
 
 <p>Hint the compiler that the <em>condition</em> is likely true. </p>
 <dl class="section note"><dt>Note</dt><dd>Once clang 12 is the minimum supported version, most uses should be migrated to C++20 <code>[[likely]]</code>. </dd></dl>
+
+</div>
+</div>
+<a id="gaa9e5bc3273f52fbb896519bc64ca2f60" name="gaa9e5bc3273f52fbb896519bc64ca2f60"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa9e5bc3273f52fbb896519bc64ca2f60">&#9670;&#160;</a></span>UNODB_DETAIL_RELEASE_PURE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNODB_DETAIL_RELEASE_PURE</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Expands to <code>[[gnu::pure]]</code> in release builds, empty in debug builds. </p>
+<p>For functions whose only side effects come from debug-only instrumentation. </p>
 
 </div>
 </div>

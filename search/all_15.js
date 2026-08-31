@@ -38,16 +38,17 @@ var searchData=
   ['submodules_35',['Optional vendored dependencies, bundled as Git submodules',['../index.html#autotoc_md41',1,'']]],
   ['subtree_5fguard_36',['subtree_guard',['../structunodb_1_1detail_1_1basic__art__policy_1_1subtree__guard.html',1,'unodb::detail::basic_art_policy']]],
   ['support_20code_37',['Test Support Code',['../group__test-internals.html',1,'']]],
-  ['sync_38',['sync',['../namespaceunodb_1_1detail.html#a03878a8c54206e8babeb1cedd9c69a18',1,'unodb::detail::sync()'],['../classunodb_1_1detail_1_1thread__sync.html#a0dc94898628d374e92b659126181290a',1,'unodb::detail::thread_sync::sync']]],
+  ['sync_38',['sync',['../namespaceunodb_1_1detail.html#a7bf28df832c285adf829796f831670e7',1,'unodb::detail::sync()'],['../classunodb_1_1detail_1_1thread__sync.html#a0dc94898628d374e92b659126181290a',1,'unodb::detail::thread_sync::sync']]],
   ['sync_2ehpp_39',['sync.hpp',['../sync_8hpp.html',1,'']]],
   ['sync_5fafter_5fchain_5flocked_40',['sync_after_chain_locked',['../namespaceunodb_1_1detail.html#a4a4f19f630d67a625c508f7309e4baf1',1,'unodb::detail']]],
   ['sync_5fafter_5fupsert_5fdup_5ffound_41',['sync_after_upsert_dup_found',['../namespaceunodb_1_1detail.html#a1cc41b2c725d11c732404ebf131cccf2',1,'unodb::detail']]],
   ['sync_5fbefore_5finsert_5fgrow_5fguard_42',['sync_before_insert_grow_guard',['../namespaceunodb_1_1detail.html#a91070248f026b90cbc1a13cae9c654f4',1,'unodb::detail']]],
   ['sync_5fbefore_5fremove_5fwrite_5fguard_43',['sync_before_remove_write_guard',['../namespaceunodb_1_1detail.html#ab39d0da261fb0203d1afaa9cf2a1749a',1,'unodb::detail']]],
   ['sync_5fbetween_5fchain_5flocks_44',['sync_between_chain_locks',['../namespaceunodb_1_1detail.html#af901b0308c5439f03f4c38539f2b946d',1,'unodb::detail']]],
-  ['sync_5fmutex_45',['sync_mutex',['../classunodb_1_1detail_1_1thread__sync.html#a04c33dad94dfb05725467da4a2013eba',1,'unodb::detail::thread_sync']]],
-  ['sync_5fpoint_46',['sync_point',['../structunodb_1_1detail_1_1sync__point.html',1,'unodb::detail']]],
-  ['sync_5fpoint_5fguard_47',['sync_point_guard',['../structunodb_1_1test_1_1sync__point__guard.html#adac0f917c82d6cab396986ea3da7f188',1,'unodb::test::sync_point_guard::sync_point_guard()'],['../structunodb_1_1test_1_1sync__point__guard.html',1,'unodb::test::sync_point_guard']]],
-  ['sync_5fpoint_5ftest_5futils_2ehpp_48',['sync_point_test_utils.hpp',['../sync__point__test__utils_8hpp.html',1,'']]],
-  ['sync_5fto_5fnotify_49',['sync_to_notify',['../classanonymous__namespace_02test__qsbr_8cpp_03_1_1notify__thread__on__scope__exit.html#a49b99e580632ab3632591bc84f995f17',1,'anonymous_namespace{test_qsbr.cpp}::notify_thread_on_scope_exit']]]
+  ['sync_5fin_5finode_5fscan_45',['sync_in_inode_scan',['../namespaceunodb_1_1detail.html#a3686e9e681f8c25982d0a576839afb97',1,'unodb::detail']]],
+  ['sync_5fmutex_46',['sync_mutex',['../classunodb_1_1detail_1_1thread__sync.html#a04c33dad94dfb05725467da4a2013eba',1,'unodb::detail::thread_sync']]],
+  ['sync_5fpoint_47',['sync_point',['../structunodb_1_1detail_1_1sync__point.html',1,'unodb::detail']]],
+  ['sync_5fpoint_5fguard_48',['sync_point_guard',['../structunodb_1_1test_1_1sync__point__guard.html#adac0f917c82d6cab396986ea3da7f188',1,'unodb::test::sync_point_guard::sync_point_guard()'],['../structunodb_1_1test_1_1sync__point__guard.html',1,'unodb::test::sync_point_guard']]],
+  ['sync_5fpoint_5ftest_5futils_2ehpp_49',['sync_point_test_utils.hpp',['../sync__point__test__utils_8hpp.html',1,'']]],
+  ['sync_5fto_5fnotify_50',['sync_to_notify',['../classanonymous__namespace_02test__qsbr_8cpp_03_1_1notify__thread__on__scope__exit.html#a49b99e580632ab3632591bc84f995f17',1,'anonymous_namespace{test_qsbr.cpp}::notify_thread_on_scope_exit']]]
 ];

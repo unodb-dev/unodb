@@ -99,7 +99,8 @@ $(document).ready(function(){initNavTree('namespaceanonymous__namespace_02test__
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">anonymous_namespace{test_art_concurrency.cpp} Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -107,6 +108,7 @@ $(document).ready(function(){initNavTree('namespaceanonymous__namespace_02test__
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTChainConcurrencyTest.html">ARTChainConcurrencyTest</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Chain concurrency tests reuse <a class="el" href="classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTConcurrencyTest.html">ARTConcurrencyTest</a> for QSBR setup and parallel_test.  <a href="classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTChainConcurrencyTest.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTConcurrencyTest.html">ARTConcurrencyTest</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -118,7 +120,13 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>ConcurrentARTTypes</
 <tr class="separator:a15301ddcad098b8292f2cca9b1bbb380"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5da520291946dcec57e73dbe6e2a64ff" id="r_a5da520291946dcec57e73dbe6e2a64ff"><td class="memItemLeft" align="right" valign="top"><a id="a5da520291946dcec57e73dbe6e2a64ff" name="a5da520291946dcec57e73dbe6e2a64ff"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>ChainConcurrentTypes</b> = ::testing::Types&lt; <a class="el" href="classunodb_1_1mutex__db.html">unodb::test::key_view_mutex_db</a>, <a class="el" href="classunodb_1_1olc__db.html">unodb::test::key_view_olc_db</a> &gt;</td></tr>
+<tr class="memdesc:a5da520291946dcec57e73dbe6e2a64ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">The database types the chain concurrency tests run against. <br /></td></tr>
 <tr class="separator:a5da520291946dcec57e73dbe6e2a64ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5d1845f0ac0a9dc3616cf42b021a4df" id="r_af5d1845f0ac0a9dc3616cf42b021a4df"><td class="memTemplParams" colspan="2"><a id="af5d1845f0ac0a9dc3616cf42b021a4df" name="af5d1845f0ac0a9dc3616cf42b021a4df"></a>
+template&lt;<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">unodb::node_type</a> ExpectedType&gt; </td></tr>
+<tr class="memitem:af5d1845f0ac0a9dc3616cf42b021a4df"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><b>torn_read_inode_type</b> = std::conditional_t&lt; ExpectedType==<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a62e917add11d7e69f1356f76800cd084">unodb::node_type::I48</a>, <a class="el" href="classunodb_1_1detail_1_1olc__inode__48.html">unodb::detail::olc_inode_48</a>&lt; <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a>, std::uint64_t &gt;, <a class="el" href="classunodb_1_1detail_1_1olc__inode__256.html">unodb::detail::olc_inode_256</a>&lt; <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a>, std::uint64_t &gt; &gt;</td></tr>
+<tr class="memdesc:af5d1845f0ac0a9dc3616cf42b021a4df"><td class="mdescLeft">&#160;</td><td class="mdescRight">The inode type a scenario exercises, selected by node type rather than by a bare child count at the call site. <br /></td></tr>
+<tr class="separator:af5d1845f0ac0a9dc3616cf42b021a4df"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -158,8 +166,8 @@ constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><b>odd</b> (st
 <tr class="memitem:a23047439d66aa549425563eace45efbe" id="r_a23047439d66aa549425563eace45efbe"><td class="memItemLeft" align="right" valign="top"><a id="a23047439d66aa549425563eace45efbe" name="a23047439d66aa549425563eace45efbe"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTConcurrencyTest.html">ARTConcurrencyTest</a>, DISABLED_ParallelRandomInsertDeleteGetScanStressTest)</td></tr>
 <tr class="separator:a23047439d66aa549425563eace45efbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ace8ca40d17a6e4f544fd455020bfa7be" id="r_ace8ca40d17a6e4f544fd455020bfa7be"><td class="memItemLeft" align="right" valign="top"><a id="ace8ca40d17a6e4f544fd455020bfa7be" name="ace8ca40d17a6e4f544fd455020bfa7be"></a>
-<a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a>&#160;</td><td class="memItemRight" valign="bottom"><b>make_chain_key</b> (<a class="el" href="classunodb_1_1key__encoder.html">unodb::key_encoder</a> &amp;enc, std::uint8_t tag, std::uint64_t v, std::array&lt; std::byte, 9 &gt; &amp;buf)</td></tr>
+<tr class="memitem:ace8ca40d17a6e4f544fd455020bfa7be" id="r_ace8ca40d17a6e4f544fd455020bfa7be"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02test__art__concurrency_8cpp_03.html#ace8ca40d17a6e4f544fd455020bfa7be">make_chain_key</a> (<a class="el" href="classunodb_1_1key__encoder.html">unodb::key_encoder</a> &amp;enc, std::uint8_t tag, std::uint64_t v, std::array&lt; std::byte, 9 &gt; &amp;buf)</td></tr>
+<tr class="memdesc:ace8ca40d17a6e4f544fd455020bfa7be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper: encode a 9-byte chain-triggering key into a caller-owned buffer.  <br /></td></tr>
 <tr class="separator:ace8ca40d17a6e4f544fd455020bfa7be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a597dc1e80bc501b34c67f289c3fa6cb2" id="r_a597dc1e80bc501b34c67f289c3fa6cb2"><td class="memItemLeft" align="right" valign="top"><a id="a597dc1e80bc501b34c67f289c3fa6cb2" name="a597dc1e80bc501b34c67f289c3fa6cb2"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTChainConcurrencyTest.html">ARTChainConcurrencyTest</a>, ChainInsertRemove)</td></tr>
@@ -222,7 +230,276 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>deep_chain_stress</b>
 <tr class="memitem:a9c7274cc98673a65f570a5f197f8badd" id="r_a9c7274cc98673a65f570a5f197f8badd"><td class="memItemLeft" align="right" valign="top"><a id="a9c7274cc98673a65f570a5f197f8badd" name="a9c7274cc98673a65f570a5f197f8badd"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>UNODB_TEST</b> (OLCNonfullChainRestart, ConcurrentRemoveDuringChainInsert)</td></tr>
 <tr class="separator:a9c7274cc98673a65f570a5f197f8badd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac6c592cec9b4d4527d5fe30792072071" id="r_ac6c592cec9b4d4527d5fe30792072071"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">unodb::node_type</a> ExpectedType, bool Forward&gt; </td></tr>
+<tr class="memitem:ac6c592cec9b4d4527d5fe30792072071"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02test__art__concurrency_8cpp_03.html#ac6c592cec9b4d4527d5fe30792072071">run_torn_read_scan_test</a> ()</td></tr>
+<tr class="memdesc:ac6c592cec9b4d4527d5fe30792072071"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run one torn-read scan scenario on <em>ExpectedType</em>.  <br /></td></tr>
+<tr class="separator:ac6c592cec9b4d4527d5fe30792072071"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a178ced6911fd8810eddb81488a21f87c" id="r_a178ced6911fd8810eddb81488a21f87c"><td class="memTemplParams" colspan="2"><a id="a178ced6911fd8810eddb81488a21f87c" name="a178ced6911fd8810eddb81488a21f87c"></a>
+template&lt;<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">unodb::node_type</a> ExpectedType&gt; </td></tr>
+<tr class="memitem:a178ced6911fd8810eddb81488a21f87c"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>run_torn_read_begin_test</b> ()</td></tr>
+<tr class="memdesc:a178ced6911fd8810eddb81488a21f87c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run the begin() (forward traversal) torn-read scenario on <em>ExpectedType</em>. <br /></td></tr>
+<tr class="separator:a178ced6911fd8810eddb81488a21f87c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad08f839310b70525f80104c2249b4c5b" id="r_ad08f839310b70525f80104c2249b4c5b"><td class="memTemplParams" colspan="2"><a id="ad08f839310b70525f80104c2249b4c5b" name="ad08f839310b70525f80104c2249b4c5b"></a>
+template&lt;<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">unodb::node_type</a> ExpectedType&gt; </td></tr>
+<tr class="memitem:ad08f839310b70525f80104c2249b4c5b"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>run_torn_read_last_test</b> ()</td></tr>
+<tr class="memdesc:ad08f839310b70525f80104c2249b4c5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run the last() (backward traversal) torn-read scenario on <em>ExpectedType</em>. <br /></td></tr>
+<tr class="separator:ad08f839310b70525f80104c2249b4c5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a72debfe12d6703f1a98333640492258b" id="r_a72debfe12d6703f1a98333640492258b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02test__art__concurrency_8cpp_03.html#a72debfe12d6703f1a98333640492258b">UNODB_TEST</a> (OLCIteratorTornRead, I48BeginObservesAllSlotsEmpty)</td></tr>
+<tr class="memdesc:a72debfe12d6703f1a98333640492258b"><td class="mdescLeft">&#160;</td><td class="mdescRight">TR1: root I48 (17 children, basic_inode_48's min_size) at key bytes 100-116.  <br /></td></tr>
+<tr class="separator:a72debfe12d6703f1a98333640492258b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0377afaecfa55cb310293daff3006b8c" id="r_a0377afaecfa55cb310293daff3006b8c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02test__art__concurrency_8cpp_03.html#a0377afaecfa55cb310293daff3006b8c">UNODB_TEST</a> (OLCIteratorTornRead, I48LastObservesAllSlotsEmpty)</td></tr>
+<tr class="memdesc:a0377afaecfa55cb310293daff3006b8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">TR2: mirror of TR1 for last(), which scans 255 -&gt; 0.  <br /></td></tr>
+<tr class="separator:a0377afaecfa55cb310293daff3006b8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad1ae970123bffe12e8db5677a3e422d5" id="r_ad1ae970123bffe12e8db5677a3e422d5"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02test__art__concurrency_8cpp_03.html#ad1ae970123bffe12e8db5677a3e422d5">UNODB_TEST</a> (OLCIteratorTornRead, I256BeginObservesAllSlotsEmpty)</td></tr>
+<tr class="memdesc:ad1ae970123bffe12e8db5677a3e422d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">TR3: root I256 (49 children, basic_inode_256's min_size) at key bytes 100-148.  <br /></td></tr>
+<tr class="separator:ad1ae970123bffe12e8db5677a3e422d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a3e77eacb00d1e29c0b54a25407e119" id="r_a4a3e77eacb00d1e29c0b54a25407e119"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02test__art__concurrency_8cpp_03.html#a4a3e77eacb00d1e29c0b54a25407e119">UNODB_TEST</a> (OLCIteratorTornRead, I256LastObservesAllSlotsEmpty)</td></tr>
+<tr class="memdesc:a4a3e77eacb00d1e29c0b54a25407e119"><td class="mdescLeft">&#160;</td><td class="mdescRight">TR4: mirror of TR3 for last().  <br /></td></tr>
+<tr class="separator:a4a3e77eacb00d1e29c0b54a25407e119"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a807e85d4d44d3bc1b4c7c826aaa6b1d1" id="r_a807e85d4d44d3bc1b4c7c826aaa6b1d1"><td class="memItemLeft" align="right" valign="top">constexpr unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02test__art__concurrency_8cpp_03.html#a807e85d4d44d3bc1b4c7c826aaa6b1d1">torn_read_park_hit</a> = 51</td></tr>
+<tr class="memdesc:a807e85d4d44d3bc1b4c7c826aaa6b1d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Which scan iteration parks the reader.  <br /></td></tr>
+<tr class="separator:a807e85d4d44d3bc1b4c7c826aaa6b1d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b592a95943f43b666c314ecc1864b73" id="r_a8b592a95943f43b666c314ecc1864b73"><td class="memItemLeft" align="right" valign="top"><a id="a8b592a95943f43b666c314ecc1864b73" name="a8b592a95943f43b666c314ecc1864b73"></a>
+constexpr unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>torn_read_park_slot_fwd</b> = <a class="el" href="namespaceanonymous__namespace_02test__art__concurrency_8cpp_03.html#a807e85d4d44d3bc1b4c7c826aaa6b1d1">torn_read_park_hit</a> - 1</td></tr>
+<tr class="memdesc:a8b592a95943f43b666c314ecc1864b73"><td class="mdescLeft">&#160;</td><td class="mdescRight">The slot the parked forward scan stops before: 50. <br /></td></tr>
+<tr class="separator:a8b592a95943f43b666c314ecc1864b73"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae56f0e95da740824a9c39ac1b71b5c4c" id="r_ae56f0e95da740824a9c39ac1b71b5c4c"><td class="memItemLeft" align="right" valign="top"><a id="ae56f0e95da740824a9c39ac1b71b5c4c" name="ae56f0e95da740824a9c39ac1b71b5c4c"></a>
+constexpr unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>torn_read_park_slot_bwd</b> = 256 - <a class="el" href="namespaceanonymous__namespace_02test__art__concurrency_8cpp_03.html#a807e85d4d44d3bc1b4c7c826aaa6b1d1">torn_read_park_hit</a></td></tr>
+<tr class="memdesc:ae56f0e95da740824a9c39ac1b71b5c4c"><td class="mdescLeft">&#160;</td><td class="mdescRight">The slot the parked backward scan stops before: 205. <br /></td></tr>
+<tr class="separator:ae56f0e95da740824a9c39ac1b71b5c4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8cdf8f18657ca4cefdca03d40ef3db89" id="r_a8cdf8f18657ca4cefdca03d40ef3db89"><td class="memItemLeft" align="right" valign="top"><a id="a8cdf8f18657ca4cefdca03d40ef3db89" name="a8cdf8f18657ca4cefdca03d40ef3db89"></a>
+constexpr std::uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>torn_read_seed_lo</b> = 100</td></tr>
+<tr class="memdesc:a8cdf8f18657ca4cefdca03d40ef3db89"><td class="mdescLeft">&#160;</td><td class="mdescRight">Where the seeded children go. One value serves every scenario. <br /></td></tr>
+<tr class="separator:a8cdf8f18657ca4cefdca03d40ef3db89"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="ace8ca40d17a6e4f544fd455020bfa7be" name="ace8ca40d17a6e4f544fd455020bfa7be"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ace8ca40d17a6e4f544fd455020bfa7be">&#9670;&#160;</a></span>make_chain_key()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a> anonymous_namespace{test_art_concurrency.cpp}::make_chain_key </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classunodb_1_1key__encoder.html">unodb::key_encoder</a> &amp;&#160;</td>
+          <td class="paramname"><em>enc</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::uint8_t&#160;</td>
+          <td class="paramname"><em>tag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::uint64_t&#160;</td>
+          <td class="paramname"><em>v</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::array&lt; std::byte, 9 &gt; &amp;&#160;</td>
+          <td class="paramname"><em>buf</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Helper: encode a 9-byte chain-triggering key into a caller-owned buffer. </p>
+<p>The returned key_view is valid for the lifetime of <em>buf</em>. </p>
+
+</div>
+</div>
+<a id="ac6c592cec9b4d4527d5fe30792072071" name="ac6c592cec9b4d4527d5fe30792072071"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac6c592cec9b4d4527d5fe30792072071">&#9670;&#160;</a></span>run_torn_read_scan_test()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">unodb::node_type</a> ExpectedType, bool Forward&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void anonymous_namespace{test_art_concurrency.cpp}::run_torn_read_scan_test </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Run one torn-read scan scenario on <em>ExpectedType</em>. </p>
+<p>Seeds that node type's min_size children at key bytes [torn_read_seed_lo, torn_read_seed_lo + count), which is what makes the root that type. Parks the scanning thread mid-scan, then has a writer fill an equally sized run of key bytes the parked reader has already passed and erase the seeded ones, which it has not yet reached. Neither step changes the node type.</p>
+<p>The resumed scan therefore finds every slot empty, check() fails, and the traversal must restart rather than abort, landing on the extreme filled key byte. Every layout value is derived here, so a call site cannot perturb the invariants the static_asserts below pin. </p>
+
+</div>
+</div>
+<a id="ad1ae970123bffe12e8db5677a3e422d5" name="ad1ae970123bffe12e8db5677a3e422d5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad1ae970123bffe12e8db5677a3e422d5">&#9670;&#160;</a></span>UNODB_TEST() <span class="overload">[1/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous_namespace{test_art_concurrency.cpp}::UNODB_TEST </td>
+          <td>(</td>
+          <td class="paramtype">OLCIteratorTornRead&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">I256BeginObservesAllSlotsEmpty&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>TR3: root I256 (49 children, basic_inode_256's min_size) at key bytes 100-148. </p>
+<p>Reader parks at slot 50 having passed 0-48; writer fills 0-48 (98 children) and erases 100-148. </p>
+
+</div>
+</div>
+<a id="a4a3e77eacb00d1e29c0b54a25407e119" name="a4a3e77eacb00d1e29c0b54a25407e119"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4a3e77eacb00d1e29c0b54a25407e119">&#9670;&#160;</a></span>UNODB_TEST() <span class="overload">[2/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous_namespace{test_art_concurrency.cpp}::UNODB_TEST </td>
+          <td>(</td>
+          <td class="paramtype">OLCIteratorTornRead&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">I256LastObservesAllSlotsEmpty&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>TR4: mirror of TR3 for last(). </p>
+<p>Reader parks at slot 205 having passed 255-207; writer fills 207-255 and erases 100-148. </p>
+
+</div>
+</div>
+<a id="a72debfe12d6703f1a98333640492258b" name="a72debfe12d6703f1a98333640492258b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a72debfe12d6703f1a98333640492258b">&#9670;&#160;</a></span>UNODB_TEST() <span class="overload">[3/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous_namespace{test_art_concurrency.cpp}::UNODB_TEST </td>
+          <td>(</td>
+          <td class="paramtype">OLCIteratorTornRead&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">I48BeginObservesAllSlotsEmpty&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>TR1: root I48 (17 children, basic_inode_48's min_size) at key bytes 100-116. </p>
+<p>Reader parks at slot 50 having passed 0-16; writer fills 0-16 (34 children, under the 48 grow threshold) and erases 100-116. The resumed scan finds nothing; first() restarts onto key byte 0. </p>
+
+</div>
+</div>
+<a id="a0377afaecfa55cb310293daff3006b8c" name="a0377afaecfa55cb310293daff3006b8c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0377afaecfa55cb310293daff3006b8c">&#9670;&#160;</a></span>UNODB_TEST() <span class="overload">[4/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous_namespace{test_art_concurrency.cpp}::UNODB_TEST </td>
+          <td>(</td>
+          <td class="paramtype">OLCIteratorTornRead&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">I48LastObservesAllSlotsEmpty&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>TR2: mirror of TR1 for last(), which scans 255 -&gt; 0. </p>
+<p>Reader parks at slot 205 having passed 255-239; writer fills 239-255 and erases 100-116. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="a807e85d4d44d3bc1b4c7c826aaa6b1d1" name="a807e85d4d44d3bc1b4c7c826aaa6b1d1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a807e85d4d44d3bc1b4c7c826aaa6b1d1">&#9670;&#160;</a></span>torn_read_park_hit</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr unsigned anonymous_namespace{test_art_concurrency.cpp}::torn_read_park_hit = 51</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Which scan iteration parks the reader. </p>
+<p>The layout derived below places the concurrently filled key bytes strictly on the already-scanned side of the park slot and the seeded ones strictly on the not-yet-scanned side. </p>
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

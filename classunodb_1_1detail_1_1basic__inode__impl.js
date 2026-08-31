@@ -49,5 +49,6 @@ var classunodb_1_1detail_1_1basic__inode__impl =
     [ "child_not_found_i", "classunodb_1_1detail_1_1basic__inode__impl.html#adc6e07b0120630ba8a01da34cde094a0", null ],
     [ "children_count", "classunodb_1_1detail_1_1basic__inode__impl.html#add5af43ee6411c23ba06198ec3f1895f", null ],
     [ "end_result", "classunodb_1_1detail_1_1basic__inode__impl.html#a309951d14c3d09aff0f0fc8be224a6e9", null ],
-    [ "k_prefix", "classunodb_1_1detail_1_1basic__inode__impl.html#a59aa4411ef3ed6d783e8a3d44efb9c43", null ]
+    [ "k_prefix", "classunodb_1_1detail_1_1basic__inode__impl.html#a59aa4411ef3ed6d783e8a3d44efb9c43", null ],
+    [ "torn_read_result", "classunodb_1_1detail_1_1basic__inode__impl.html#a71635c68333ed8b5a98b4beca50d0dba", null ]
 ];

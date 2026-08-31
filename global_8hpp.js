@@ -30,6 +30,7 @@ var global_8hpp =
     [ "UNODB_DETAIL_RELEASE_CONST", "group__internal.html#ga64906efb65be8598a955afeb9ec61eae", null ],
     [ "UNODB_DETAIL_RELEASE_CONSTEXPR", "group__internal.html#gaa8aeacc5131f05ad1100686b1d5cbf1d", null ],
     [ "UNODB_DETAIL_RELEASE_EXPLICIT", "group__internal.html#gafd4e412d2f7204ec7887d6d20cb7f53b", null ],
+    [ "UNODB_DETAIL_RELEASE_PURE", "group__internal.html#gaa9e5bc3273f52fbb896519bc64ca2f60", null ],
     [ "UNODB_DETAIL_RESTORE_CLANG_21_WARNINGS", "group__internal.html#ga32c5e5a25a3572a610ba6d59abfdb59b", null ],
     [ "UNODB_DETAIL_RESTORE_CLANG_WARNINGS", "group__internal.html#ga0fd98e261e52f4d94aaa37c5a136b8c5", null ],
     [ "UNODB_DETAIL_RESTORE_GCC_10_WARNINGS", "group__internal.html#ga50f878c38ba0aa019be7d90feb15a093", null ],

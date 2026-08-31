@@ -13,7 +13,7 @@ var annotated_dup =
       [ "counting_arena", "structanonymous__namespace_02test__art__allocator_8cpp_03_1_1counting__arena.html", "structanonymous__namespace_02test__art__allocator_8cpp_03_1_1counting__arena" ]
     ] ],
     [ "anonymous_namespace{test_art_concurrency.cpp}", "namespaceanonymous__namespace_02test__art__concurrency_8cpp_03.html", [
-      [ "ARTChainConcurrencyTest", "classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTChainConcurrencyTest.html", null ],
+      [ "ARTChainConcurrencyTest", "classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTChainConcurrencyTest.html", "classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTChainConcurrencyTest" ],
       [ "ARTConcurrencyTest", "classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTConcurrencyTest.html", null ]
     ] ],
     [ "anonymous_namespace{test_art_iter.cpp}", "namespaceanonymous__namespace_02test__art__iter_8cpp_03.html", [
