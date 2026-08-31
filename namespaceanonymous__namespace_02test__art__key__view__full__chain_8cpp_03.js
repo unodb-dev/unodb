@@ -22,6 +22,8 @@ var namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03 =
     [ "UNODB_TYPED_TEST", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#a42bd2618bc87f96af06dceaf3b475df6", null ],
     [ "UNODB_TYPED_TEST", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#a0afda8a89100a79ab008cb318181eb30", null ],
     [ "UNODB_TYPED_TEST", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#aeb1a81158f86584e6119104ee86acd2c", null ],
+    [ "UNODB_TYPED_TEST", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#a3563c7cd94a2ceca31fa4c41529f05ad", null ],
+    [ "UNODB_TYPED_TEST", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#a4fcd8391d0aa17d911513bc5718d8fa1", null ],
     [ "UNODB_TYPED_TEST", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#af71e0daad9029bd75131df9d851a48d5", null ],
     [ "UNODB_TYPED_TEST", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#a589ea0094ec0e1acf62dc12378d170ff", null ],
     [ "UNODB_TYPED_TEST", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#a5477182da46fad3dcd497f39834e2603", null ],
