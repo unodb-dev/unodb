@@ -17,57 +17,18 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26818)
 
-#include <array>
-#include <cstddef>
-#include <cstdint>
-#include <span>
 #include <tuple>
-#include <vector>
 
-#include "art_common.hpp"
 #include "gtest/gtest.h"
 #include "olc_art.hpp"
 #include "qsbr.hpp"
 #include "qsbr_test_utils.hpp"
+#include "test_tuple_heap.hpp"
 
 namespace {
 
-/// A trivial tuple heap for testing.  Stores pre-encoded keys in a flat
-/// vector indexed by tuple_id.  Thread-safe for concurrent reads (vector
-/// is immutable after construction in tests).
-class TestHeap {
- public:
-  /// Register a key for a tuple_id.  Must be called before the tree uses it.
-  void add_tuple(std::uint64_t id, std::span<const std::byte> key) {
-    if (id >= keys_.size()) keys_.resize(id + 1);
-    keys_[id].assign(key.begin(), key.end());
-  }
-
-  /// Satisfy the TupleHeap concept: extract_key(id, buf) -> key_view.
-  [[nodiscard]] unodb::key_view extract_key(
-      std::uint64_t id, unodb::key_encoder& /*buf*/) const noexcept {
-    // Zero-copy: return a view directly into our stored key.
-    const auto& k = keys_[id];
-    return unodb::key_view{k.data(), k.size()};
-  }
-
- private:
-  std::vector<std::vector<std::byte>> keys_;
-};
-
-// Verify the concept is satisfied.
-static_assert(unodb::TupleHeap<TestHeap, std::uint64_t>);
-
-/// Helper: encode a uint64 key into a byte array (big-endian for ordering).
-[[nodiscard]] constexpr std::array<std::byte, 8> encode_u64(
-    std::uint64_t v) noexcept {
-  std::array<std::byte, 8> buf{};
-  for (unsigned i = 0; i < 8; ++i) {
-    buf[7U - i] = static_cast<std::byte>(v & 0xFFU);
-    v >>= 8U;
-  }
-  return buf;
-}
+using unodb::test::encode_u64;
+using unodb::test::TestHeap;
 
 /// Alias for the heap-backed tree type.
 using heap_db = unodb::olc_db<unodb::key_view, std::uint64_t, TestHeap>;

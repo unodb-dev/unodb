@@ -651,7 +651,8 @@ class [[nodiscard]] tree_verifier final {
   void check_present_values() const {
     // Probe the test_db for each key, verifying the expected value is found
     // under that key.  Skip for heap types since stored values are tuple_ids,
-    // not the original test values.
+    // not the original test values.  For heap types, verify the round-trip:
+    // get(key) returns a tuple_id whose extract_key() reconstructs the key.
     if constexpr (!unodb::test::is_heap_db_v<Db>) {
       UNODB_DETAIL_DISABLE_MSVC_WARNING(26445)
       for (const auto& [key, value] : values) {
@@ -662,6 +663,27 @@ class [[nodiscard]] tree_verifier final {
         }
       }
       UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+    } else {
+      // Heap round-trip: get(key) → tuple_id → extract_key(tid) == key.
+      unodb::key_encoder kbuf;
+      for (const auto& [key, value] : values) {
+        std::ignore = value;
+        typename Db::get_result result;
+        if constexpr (is_olc_db<Db>) {
+          const quiescent_state_on_scope_exit qsbr_after_get{};
+          result = (*test_db_).get(*key);
+        } else {
+          result = (*test_db_).get(*key);
+        }
+        UNODB_ASSERT_TRUE(result.has_value());
+        // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+        const auto tid = *result;
+        kbuf.reset();
+        const auto recovered = heap_.extract_key(tid, kbuf);
+        UNODB_ASSERT_EQ(recovered.size(), key->size());
+        UNODB_ASSERT_TRUE(
+            std::equal(recovered.begin(), recovered.end(), key->begin()));
+      }
     }
     // Scan the (*test_db_).  For each (key,val) visited, verify (a) that each
     // key is visited in lexicographic order; and (b) that each (key,val) pair
