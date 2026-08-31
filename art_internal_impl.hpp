@@ -5244,12 +5244,15 @@ class basic_inode_256
   }
 
  public:
+  /// Check if child at index holds a packed value (not a pointer).
   [[nodiscard]] constexpr bool is_value_in_slot(std::uint8_t i) const noexcept {
     return bitmask_base::test(i);
   }
+  /// Mark child at index as holding a packed value.
   constexpr void set_value_bit(std::uint8_t i) noexcept {
     bitmask_base::set(i);
   }
+  /// Mark child at index as holding a pointer (clear value bit).
   constexpr void clear_value_bit(std::uint8_t i) noexcept {
     bitmask_base::clear(i);
   }
