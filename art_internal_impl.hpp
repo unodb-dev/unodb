@@ -5027,6 +5027,7 @@ class basic_inode_256
   /// \param child_index Key byte index of child
   ///
   /// \return Child node pointer, or nullptr if the slot was observed empty
+  /// (OLC torn read) or holds a legitimately packed zero value
   ///
   /// \sa get_child(node_type, std::uint8_t) for the full nullptr contract
   [[nodiscard, gnu::pure]] constexpr node_ptr get_child(
