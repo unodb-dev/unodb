@@ -1886,9 +1886,9 @@ class basic_inode_impl : public ArtPolicy::header_type {
   /// distinguish a legitimately packed zero value, which shares the nullptr
   /// representation in value-in-slot mode, from an empty slot.
   ///
-  /// \note For basic_inode_48, child_index is index into child_indices[]. For
-  /// other types, it is direct index into children[]. This method hides this
-  /// distinction.
+  /// \note For basic_inode_48, child_index is index into
+  /// basic_inode_48::child_indexes[]. For other types, it is direct index into
+  /// children[]. This method hides this distinction.
   [[nodiscard, gnu::pure]] constexpr node_ptr get_child(
       node_type type, std::uint8_t child_index) noexcept {
     UNODB_DETAIL_ASSERT(type != node_type::LEAF);
