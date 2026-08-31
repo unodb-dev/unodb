@@ -4809,6 +4809,11 @@ using basic_inode_256_parent =
 /// No separate keys array is needed. This is the largest internal node
 /// type and cannot grow further.
 ///
+/// A slot is occupied if it holds a non-null child pointer or its
+/// value-in-slot bit is set: in value-in-slot mode a packed zero value is
+/// bit-identical to nullptr, so the pointer test alone does not decide
+/// occupancy.
+///
 /// \tparam ArtPolicy Policy class defining types and operations
 /// \sa basic_inode for inherited template parameters
 template <class ArtPolicy>
@@ -5041,7 +5046,7 @@ class basic_inode_256
 
   /// Get iterator result for first child.
   ///
-  /// Scans children array for first non-null entry (smallest key).
+  /// Scans children array for the first occupied slot (smallest key).
   ///
   /// \return Iterator result pointing to first child, or torn_read_result if
   /// every child slot was observed empty (OLC torn read)
@@ -5065,7 +5070,8 @@ class basic_inode_256
 
   /// Get iterator result for last child.
   ///
-  /// Scans children array in reverse for last non-null entry (greatest key).
+  /// Scans children array in reverse for the last occupied slot (greatest
+  /// key).
   ///
   /// \return Iterator result pointing to last child, or torn_read_result if
   /// every child slot was observed empty (OLC torn read)
@@ -5172,7 +5178,14 @@ class basic_inode_256
   /// Iterate over all children with callback function.
   ///
   /// \tparam Function Callable type accepting (unsigned index, node_ptr child)
-  /// \param func Callback to invoke for each non-null child
+  /// \param func Callback to invoke for each occupied child slot
+  ///
+  /// \note The callback's second argument is the raw slot word. In
+  /// value-in-slot mode an occupied slot may hold a packed value rather than
+  /// a node pointer: bit-identical to nullptr when that value is zero, and an
+  /// arbitrarily-tagged non-null word otherwise. Test is_value_in_slot() on
+  /// the slot index before treating it as a pointer, as delete_subtree() and
+  /// dump() do.
   // TODO(laurynas) Lifting this out might help with iterator and
   // lambda patterns.
   template <typename Function>
