@@ -676,8 +676,9 @@ class [[nodiscard]] tree_verifier final {
           result = (*test_db_).get(*key);
         }
         UNODB_ASSERT_TRUE(result.has_value());
-        // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+        UNODB_DETAIL_DISABLE_MSVC_WARNING(26830)
         const auto tid = *result;
+        UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
         kbuf.reset();
         const auto recovered = heap_.extract_key(tid, kbuf);
         UNODB_ASSERT_EQ(recovered.size(), key->size());

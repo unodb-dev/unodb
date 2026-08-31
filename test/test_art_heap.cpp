@@ -17,8 +17,14 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26818)
 
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <span>
 #include <tuple>
+#include <vector>
 
+#include "art_common.hpp"
 #include "gtest/gtest.h"
 #include "olc_art.hpp"
 #include "qsbr.hpp"

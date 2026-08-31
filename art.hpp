@@ -515,7 +515,7 @@ class db final {
     /// returns a key_view into the leaf (stable for the leaf's lifetime).
     ///
     /// \pre The iterator MUST be valid().
-    [[nodiscard]] get_key_result get_key() noexcept;
+    [[nodiscard]] get_key_result get_key() noexcept(!art_policy::has_heap);
 
     /// Return the value_view associated with the current position of
     /// the iterator.
@@ -633,7 +633,7 @@ class db final {
     /// \return -1, 0, or 1 if this key is LT, EQ, or GT the other
     /// key.
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
-    [[nodiscard]] int cmp(art_key_type akey) noexcept {
+    [[nodiscard]] int cmp(art_key_type akey) noexcept(!art_policy::has_heap) {
       UNODB_DETAIL_ASSERT(!stack_.empty());
       if constexpr (art_policy::full_key_in_inode_path) {
         return unodb::detail::compare(keybuf_.get_key_view(),
@@ -2569,7 +2569,7 @@ db<Key, Value, PolicyTag>::iterator::seek(art_key_type search_key, bool& match,
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
 template <typename Key, typename Value, typename PolicyTag>
 typename db<Key, Value, PolicyTag>::iterator::get_key_result
-db<Key, Value, PolicyTag>::iterator::get_key() noexcept {
+db<Key, Value, PolicyTag>::iterator::get_key() noexcept(!art_policy::has_heap) {
   UNODB_DETAIL_ASSERT(valid());  // by contract
   if constexpr (art_policy::full_key_in_inode_path) {
     return transient_key_view{keybuf_.get_key_view()};

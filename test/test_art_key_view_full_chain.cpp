@@ -2439,43 +2439,43 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, SeekClimbToVISSibling) {
   if constexpr (unodb::test::is_heap_db_v<TypeParam>) {
     GTEST_SKIP() << "Direct-insert test; heap needs tuple registration";
   } else {
-  TypeParam db;
-  unodb::key_encoder enc;
-  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
+    TypeParam db;
+    unodb::key_encoder enc;
+    constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
-  // VIS at 0x10, chain at 0x20 (last key bytes 1 and 2), VIS at 0x30.
-  UNODB_ASSERT_TRUE(db.insert(make_short_key(enc, 0x10), val));
-  UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x20, 1), val));
-  UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x20, 2), val));
-  UNODB_ASSERT_TRUE(db.insert(make_short_key(enc, 0x30), val));
+    // VIS at 0x10, chain at 0x20 (last key bytes 1 and 2), VIS at 0x30.
+    UNODB_ASSERT_TRUE(db.insert(make_short_key(enc, 0x10), val));
+    UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x20, 1), val));
+    UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x20, 2), val));
+    UNODB_ASSERT_TRUE(db.insert(make_short_key(enc, 0x30), val));
 
-  // Forward: [0x20, 200] is above the chain's key-byte range; the climb
-  // lands on the VIS child 0x30.
-  {
-    int count = 0;
-    db.scan_from(
-        make_key(enc, 0x20, 200),
-        [&count](const auto& /*v*/) {
-          ++count;
-          return false;
-        },
-        /*fwd=*/true);
-    UNODB_EXPECT_EQ(count, 1);  // 0x30
-  }
+    // Forward: [0x20, 200] is above the chain's key-byte range; the climb
+    // lands on the VIS child 0x30.
+    {
+      int count = 0;
+      db.scan_from(
+          make_key(enc, 0x20, 200),
+          [&count](const auto& /*v*/) {
+            ++count;
+            return false;
+          },
+          /*fwd=*/true);
+      UNODB_EXPECT_EQ(count, 1);  // 0x30
+    }
 
-  // Reverse: [0x20, 0] is below the chain's key-byte range; the climb
-  // lands on the VIS child 0x10.
-  {
-    int count = 0;
-    db.scan_from(
-        make_key(enc, 0x20, 0),
-        [&count](const auto& /*v*/) {
-          ++count;
-          return false;
-        },
-        /*fwd=*/false);
-    UNODB_EXPECT_EQ(count, 1);  // 0x10
-  }
+    // Reverse: [0x20, 0] is below the chain's key-byte range; the climb
+    // lands on the VIS child 0x10.
+    {
+      int count = 0;
+      db.scan_from(
+          make_key(enc, 0x20, 0),
+          [&count](const auto& /*v*/) {
+            ++count;
+            return false;
+          },
+          /*fwd=*/false);
+      UNODB_EXPECT_EQ(count, 1);  // 0x10
+    }
   }  // !is_heap_db_v
 }
 
@@ -2487,43 +2487,43 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, SeekClimbToChainSibling) {
   if constexpr (unodb::test::is_heap_db_v<TypeParam>) {
     GTEST_SKIP() << "Direct-insert test; heap needs tuple registration";
   } else {
-  TypeParam db;
-  unodb::key_encoder enc;
-  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
+    TypeParam db;
+    unodb::key_encoder enc;
+    constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
-  // Chains at 0x10 and 0x20, two keys each.
-  UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x10, 1), val));
-  UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x10, 2), val));
-  UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x20, 1), val));
-  UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x20, 2), val));
+    // Chains at 0x10 and 0x20, two keys each.
+    UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x10, 1), val));
+    UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x10, 2), val));
+    UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x20, 1), val));
+    UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x20, 2), val));
 
-  // Reverse: [0x20, 0] fails in the 0x20 chain; the climb does a
-  // right-most descent under 0x10, landing on [0x10, 2].
-  {
-    int count = 0;
-    db.scan_from(
-        make_key(enc, 0x20, 0),
-        [&count](const auto& /*v*/) {
-          ++count;
-          return false;
-        },
-        /*fwd=*/false);
-    UNODB_EXPECT_EQ(count, 2);  // [0x10, 2], [0x10, 1]
-  }
+    // Reverse: [0x20, 0] fails in the 0x20 chain; the climb does a
+    // right-most descent under 0x10, landing on [0x10, 2].
+    {
+      int count = 0;
+      db.scan_from(
+          make_key(enc, 0x20, 0),
+          [&count](const auto& /*v*/) {
+            ++count;
+            return false;
+          },
+          /*fwd=*/false);
+      UNODB_EXPECT_EQ(count, 2);  // [0x10, 2], [0x10, 1]
+    }
 
-  // Forward: [0x10, 200] fails in the 0x10 chain; the climb does a
-  // left-most descent under 0x20, landing on [0x20, 1].
-  {
-    int count = 0;
-    db.scan_from(
-        make_key(enc, 0x10, 200),
-        [&count](const auto& /*v*/) {
-          ++count;
-          return false;
-        },
-        /*fwd=*/true);
-    UNODB_EXPECT_EQ(count, 2);  // [0x20, 1], [0x20, 2]
-  }
+    // Forward: [0x10, 200] fails in the 0x10 chain; the climb does a
+    // left-most descent under 0x20, landing on [0x20, 1].
+    {
+      int count = 0;
+      db.scan_from(
+          make_key(enc, 0x10, 200),
+          [&count](const auto& /*v*/) {
+            ++count;
+            return false;
+          },
+          /*fwd=*/true);
+      UNODB_EXPECT_EQ(count, 2);  // [0x20, 1], [0x20, 2]
+    }
   }  // !is_heap_db_v
 }
 
