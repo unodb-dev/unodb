@@ -66,7 +66,7 @@ var searchData=
   ['current_5finterval_5frequests_5fempty_63',['current_interval_requests_empty',['../classunodb_1_1qsbr__per__thread.html#a0ab7b36cb099cf5a58d031301742ecb5',1,'unodb::qsbr_per_thread']]],
   ['current_5finterval_5ftotal_5fdealloc_5fsize_64',['current_interval_total_dealloc_size',['../classunodb_1_1qsbr__per__thread.html#ae651fad1c94f8ddec93282ea769d0d3f',1,'unodb::qsbr_per_thread']]],
   ['current_5fmemory_5fuse_65',['current_memory_use',['../classunodb_1_1db.html#a8d5d69b544ebdb7201f95ce4182f8756',1,'unodb::db']]],
-  ['current_5fnode_66',['current_node',['../classunodb_1_1olc__db_1_1iterator.html#a6984a97719773aa83c331fe51fa06045',1,'unodb::olc_db::iterator']]],
+  ['current_5fnode_66',['current_node',['../classunodb_1_1olc__db_1_1iterator.html#a6984a97719773aa83c331fe51fa06045',1,'unodb::olc_db::iterator::current_node()'],['../classunodb_1_1db_1_1iterator.html#ac0f79ce27b9b1c5efb409ffb5454b161',1,'unodb::db::iterator::current_node()']]],
   ['current_5fthread_5finstance_67',['current_thread_instance',['../classunodb_1_1qsbr__per__thread.html#a6e459784b1c15eedee7aace0729d4d4c',1,'unodb::qsbr_per_thread']]],
   ['cut_68',['cut',['../unionunodb_1_1detail_1_1key__prefix.html#af56bc91de90f16ff7fc53d4e44163ca4',1,'unodb::detail::key_prefix']]]
 ];

@@ -8,6 +8,7 @@ var classunodb_1_1db_1_1iterator =
     [ "iterator", "classunodb_1_1db_1_1iterator.html#a3b8a7300df10e9957750ed2bfe029ef0", null ],
     [ "iterator", "classunodb_1_1db_1_1iterator.html#a183fbec499bd2aee9b4f67275fcf4099", null ],
     [ "cmp", "classunodb_1_1db_1_1iterator.html#a8f6d2107b7184fa1126dc174cc0ec270", null ],
+    [ "current_node", "classunodb_1_1db_1_1iterator.html#ac0f79ce27b9b1c5efb409ffb5454b161", null ],
     [ "descend_left", "classunodb_1_1db_1_1iterator.html#a73704c7f6bfa26afa25125b4e881d4ca", null ],
     [ "descend_right", "classunodb_1_1db_1_1iterator.html#a5484e61287906625180559cab770e60f", null ],
     [ "dump", "classunodb_1_1db_1_1iterator.html#aa6a6776f254ab54fc4ef405abd1eadf9", null ],

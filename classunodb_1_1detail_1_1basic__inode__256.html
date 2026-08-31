@@ -704,7 +704,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
 </div><div class="memdoc">
 
 <p>Get iterator result for first child. </p>
-<p>Scans children array for the first occupied slot (smallest key). A slot is occupied if it holds a non-null child pointer or its value-in-slot bit is set; a packed zero value is bit-identical to nullptr.</p>
+<p>Scans children array for first non-null entry (smallest key).</p>
 <dl class="section return"><dt>Returns</dt><dd>Iterator result pointing to first child, or torn_read_result if every child slot was observed empty (OLC torn read) </dd></dl>
 
 </div>
@@ -933,7 +933,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
 </dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">func</td><td>Callback to invoke for each occupied child slot </td></tr>
+    <tr><td class="paramname">func</td><td>Callback to invoke for each non-null child </td></tr>
   </table>
   </dd>
 </dl>
@@ -973,8 +973,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Child node pointer, or nullptr if the slot was observed empty</dd></dl>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a019ffed4db192a8d88a7d5d8e921dc72" title="Return child node at specified child index.">get_child(node_type, std::uint8_t)</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb" title="Base class for all internal nodes in non-thread-safe ART.">for</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb" title="Base class for all internal nodes in non-thread-safe ART.">the</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb" title="Base class for all internal nodes in non-thread-safe ART.">full</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb" title="Base class for all internal nodes in non-thread-safe ART.">nullptr</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb" title="Base class for all internal nodes in non-thread-safe ART.">contract</a> </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Child node pointer </dd></dl>
 
 </div>
 </div>
@@ -1108,7 +1107,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
 </div><div class="memdoc">
 
 <p>Get iterator result for last child. </p>
-<p>Scans children array in reverse for the last occupied slot (greatest key). A slot is occupied if it holds a non-null child pointer or its value-in-slot bit is set; a packed zero value is bit-identical to nullptr.</p>
+<p>Scans children array in reverse for last non-null entry (greatest key).</p>
 <dl class="section return"><dt>Returns</dt><dd>Iterator result pointing to last child, or torn_read_result if every child slot was observed empty (OLC torn read) </dd></dl>
 
 </div>

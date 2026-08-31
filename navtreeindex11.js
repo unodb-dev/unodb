@@ -1,5 +1,7 @@
 var NAVTREEINDEX11 =
 {
+"structunodb_1_1detail_1_1basic__art__policy.html#aa249160507ae5df97ba1dc4e40fa5596":[5,0,29,1,2,23],
+"structunodb_1_1detail_1_1basic__art__policy.html#aa249160507ae5df97ba1dc4e40fa5596":[6,0,14,1,1,23],
 "structunodb_1_1detail_1_1basic__art__policy.html#aaa520bf3d24747d4775919b3d0b2de23":[5,0,29,1,2,20],
 "structunodb_1_1detail_1_1basic__art__policy.html#aaa520bf3d24747d4775919b3d0b2de23":[6,0,14,1,1,20],
 "structunodb_1_1detail_1_1basic__art__policy.html#ab4954ee37fa9d67b75558e7dfa00676a":[5,0,29,1,2,38],
@@ -247,7 +249,5 @@ var NAVTREEINDEX11 =
 "structunodb_1_1test_1_1pause__heap__faults.html#af02e2ec271e40aab0e6fb702ac67535f":[5,0,29,2,2,3],
 "structunodb_1_1test_1_1pause__heap__faults.html#af02e2ec271e40aab0e6fb702ac67535f":[6,0,14,2,2,3],
 "structunodb_1_1test_1_1sync__point__guard.html":[5,0,29,2,4],
-"structunodb_1_1test_1_1sync__point__guard.html":[6,0,14,2,4],
-"structunodb_1_1test_1_1sync__point__guard.html#a3600572c96cc78bc9b9acda558e9ab93":[6,0,14,2,4,2],
-"structunodb_1_1test_1_1sync__point__guard.html#a3600572c96cc78bc9b9acda558e9ab93":[5,0,29,2,4,2]
+"structunodb_1_1test_1_1sync__point__guard.html":[6,0,14,2,4]
 };
