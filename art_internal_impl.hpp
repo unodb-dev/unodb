@@ -4604,7 +4604,7 @@ class basic_inode_48
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  /// Sentinel value for empty child slot.
+  /// Sentinel `child_indexes` value marking unmapped key byte.
   static constexpr std::uint8_t empty_child = 0xFF;
 
  public:
