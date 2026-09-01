@@ -387,11 +387,14 @@ class olc_db final {
     template <class>
     friend class visitor;
 
-    /// Alias for the elements on the stack.
+    /// Element of the iterator stack.
+    ///
+    /// A `detail::iter_result` extended with the version tag that must still
+    /// be valid for the data read from the node.
     struct stack_entry : public inode_base::iter_result {
       /// The version tag invariant for the node.  This contains the version
       /// information that must be valid to use data read from the node.  The
-      /// version tag is cached when when those data are read from the node.
+      /// version tag is cached when those data are read from the node.
       ///
       /// \note This is just the data for the version tag and not the
       /// unodb::read_critical_section (RCS).  Moving the RCS onto the stack
