@@ -715,20 +715,22 @@ class db final {
     /// and the iterator will report ! valid(). The iterator for an empty tree
     /// is an empty stack.
     ///
-    /// The stack is made up of `(node_ptr, key, child_index)` entries.
+    /// The stack is made up of `detail::iter_result` entries; the parts that
+    /// matter here are `node`, `key_byte`, `child_index`, and
+    /// `is_packed_value`.
     ///
-    /// The `node_ptr` is the node for that step in the path from the
-    /// root. For the bottom of the stack, `node_ptr` is the root. For the top
-    /// of the stack it is the current leaf or, in value-in-slot mode, the
-    /// packed value, the latter marked by `is_packed_value`. In the degenerate
-    /// case where the
+    /// The `detail::iter_result::node` is the node for that step in
+    /// the path from the root. For the bottom of the stack, `node` is the root.
+    /// For the top of the stack it is the current leaf or, in value-in-slot
+    /// mode, the packed value, the latter marked by
+    /// `detail::iter_result::is_packed_value`. In the degenerate case where the
     /// tree is a single root leaf, the stack contains just that leaf;
     /// value-in-slot mode has no leaf nodes, so that case does not arise there.
     ///
-    /// The `node_ptr` is never `nullptr` except for a `is_packed_value` entry
+    /// The `node` is never `nullptr` except for a `is_packed_value` entry
     /// holding the value zero: detail::basic_art_policy::pack_value() writes
     /// the raw value over the whole word, so a packed zero is bit-identical to
-    /// a null `node_ptr` (and, since node_type::LEAF is 0, reports
+    /// a null `detail::node_ptr` (and, since node_type::LEAF is 0, reports
     /// node_type::LEAF). The pointer test alone therefore cannot decide slot
     /// occupancy — a null-reading slot may hold a packed zero — so
     /// detail::basic_inode_impl::is_value_in_slot() must supplement the
@@ -736,27 +738,30 @@ class db final {
     /// value-in-slot `is_packed_value` entry rather than asserting plain
     /// non-nullness.
     ///
-    /// The `key` is the `std::byte` along which the path descends from that
-    /// `node_ptr`. The `key` has no meaning for a leaf. The key byte may be
-    /// used to reconstruct the full key (along with any prefix bytes in the
-    /// nodes along the path). The key byte is tracked to avoid having to search
-    /// the keys of some node types (detail::inode_48) when the `child_index`
-    /// does not directly imply the key byte.
+    /// The `detail::iter_result::key_byte` is the `std::byte` along which the
+    /// path descends from that `node`. The `key_byte` has no meaning for a
+    /// leaf. The key byte may be used to reconstruct the full key (along with
+    /// any prefix bytes in the nodes along the path). The key byte is tracked
+    /// to avoid having to search the keys of some node types
+    /// (detail::inode_48) when the `child_index` does not directly imply the
+    /// key byte.
     ///
-    /// The `child_index` is the `std::uint8_t` index position in the parent at
-    /// which the `child_ptr` was found. The `child_index` has no meaning for a
-    /// leaf. In the special case of detail::inode_48, the `child_index` is the
-    /// index into the `child_indexes[]`. For all other internal node types, the
-    /// `child_index` is a direct index into the `children[]`. When finding the
-    /// successor (or predecessor) the `child_index` needs to be interpreted
-    /// according to the node type. For detail::inode_4 and detail::inode_16,
-    /// you just look at the next slot in the `children[]` to find the
-    /// successor. For detail::inode_256, you look at the next occupied slot in
-    /// the `children[]`; see detail::basic_inode_256 for what makes a slot
-    /// occupied. detail::inode_48 is the oddest of the node
-    /// types. For it, you have to look at the `child_indexes[]`, find the next
+    /// The `detail::iter_result::child_index` is the `std::uint8_t` index
+    /// position in the parent at which the child pointer was found. The
+    /// `child_index` has no meaning for a leaf. In the special case of
+    /// detail::inode_48, the `child_index` is the index into the
+    /// `detail::basic_inode_48::child_indexes[]`. For all other internal node
+    /// types, the `child_index` is a direct index into the `children[]`. When
+    /// finding the successor (or predecessor) the `child_index` needs to be
+    /// interpreted according to the node type. For detail::inode_4 and
+    /// detail::inode_16, you just look at the next slot in the `children[]` to
+    /// find the successor. For detail::inode_256, you look at the next occupied
+    /// slot in the `detail::basic_inode_256::children[]`; see
+    /// detail::basic_inode_256 for what makes a slot occupied.
+    /// detail::inode_48 is the oddest of the node types. For it, you have to
+    /// look at the `detail::basic_inode_48::child_indexes[]`, find the next
     /// mapped key value greater than the current one, and then look at its
-    /// entry in the `children[]`.
+    /// entry in `detail::basic_inode_48::children_union::pointer_array`.
     std::stack<stack_entry> stack_{};
 
     /// A buffer into which visited encoded (binary comparable) keys are
