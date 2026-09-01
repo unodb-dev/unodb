@@ -2017,7 +2017,12 @@ class basic_inode_impl : public ArtPolicy::header_type {
   ///
   /// \param type Current node type
   /// \param child_index Current position within node
-  /// \return Optional iter_result for next child if one exists
+  /// \return Optional iter_result for next child, or empty if at end or if an
+  /// OLC torn read observed no mapped entry over the scanned range; act on the
+  /// result only after a successful version validation
+  /// (read_critical_section::check(), or
+  /// `optimistic_lock::read_critical_section::try_read_unlock()` in
+  /// `olc_db::iterator::try_seek()`)
   [[nodiscard, gnu::pure]] constexpr iter_result_opt next(
       node_type type, std::uint8_t child_index) noexcept {
     UNODB_DETAIL_ASSERT(type != node_type::LEAF);
@@ -2042,7 +2047,12 @@ class basic_inode_impl : public ArtPolicy::header_type {
   ///
   /// \param type Current node type
   /// \param child_index Current position within node
-  /// \return Optional iter_result for previous child if one exists
+  /// \return Optional iter_result for previous child, or empty if at start or
+  /// if an OLC torn read observed no mapped entry over the scanned range; act
+  /// on the result only after a successful version validation
+  /// (read_critical_section::check(), or
+  /// `optimistic_lock::read_critical_section::try_read_unlock()` in
+  /// `olc_db::iterator::try_seek()`)
   [[nodiscard, gnu::pure]] constexpr iter_result_opt prior(
       node_type type, std::uint8_t child_index) noexcept {
     UNODB_DETAIL_ASSERT(type != node_type::LEAF);
@@ -2069,7 +2079,12 @@ class basic_inode_impl : public ArtPolicy::header_type {
   ///
   /// \param type Current node type
   /// \param key_byte Key byte to compare
-  /// \return Optional iter_result for matching or lesser child
+  /// \return Optional iter_result for matching or lesser child, or empty if
+  /// none was found or if an OLC torn read observed no mapped entry over the
+  /// scanned range; act on the result only after a successful version
+  /// validation (read_critical_section::check(), or
+  /// `optimistic_lock::read_critical_section::try_read_unlock()` in
+  /// `olc_db::iterator::try_seek()`)
   [[nodiscard, gnu::pure]] constexpr iter_result_opt lte_key_byte(
       node_type type, std::byte key_byte) noexcept {
     UNODB_DETAIL_ASSERT(type != node_type::LEAF);
@@ -2096,7 +2111,12 @@ class basic_inode_impl : public ArtPolicy::header_type {
   ///
   /// \param type Node type
   /// \param key_byte Key byte to compare
-  /// \return Optional iter_result for matching or greater child
+  /// \return Optional iter_result for matching or greater child, or empty if
+  /// none was found or if an OLC torn read observed no mapped entry over the
+  /// scanned range; act on the result only after a successful version
+  /// validation (read_critical_section::check(), or
+  /// `optimistic_lock::read_critical_section::try_read_unlock()` in
+  /// `olc_db::iterator::try_seek()`)
   [[nodiscard, gnu::pure]] constexpr iter_result_opt gte_key_byte(
       node_type type, std::byte key_byte) noexcept {
     UNODB_DETAIL_ASSERT(type != node_type::LEAF);
@@ -2189,16 +2209,25 @@ class basic_inode_impl : public ArtPolicy::header_type {
   static constexpr find_result child_not_found{child_not_found_i, nullptr};
 
   /// Iterator result value at the end of iteration.
+  ///
+  /// \sa torn_read_result for what a whole-array scan returns instead when it
+  /// observes no mapped entry
   static constexpr iter_result_opt end_result{};
 
   /// Returned by `begin()` and `last()` when every child slot was observed
   /// empty. A live basic_inode_48 always maps at least 17 key bytes and a live
   /// basic_inode_256 at least 49, so this cannot happen single-threaded.
   ///
-  /// Distinct from end_result, which marks a legitimate end of scan that
-  /// callers act on by popping the stack. This value must instead be
-  /// discarded, so the two are deliberately not the same iter_result_opt
-  /// nullopt: `!e` would conflate an ordinary end of iteration with an
+  /// Distinct from `end_result` by what the caller does with it: `end_result`
+  /// is popped, this value must be discarded. That is the whole of the
+  /// difference, and not a claim that `end_result` always marks a genuine end
+  /// — a sub-range scan (next(), prior(), lte_key_byte(), gte_key_byte())
+  /// yields `end_result` under a torn read too, and is safe only because a
+  /// version validation runs before the empty result is acted on. What is
+  /// unique to this value is that it corresponds to no state the node ever
+  /// held under any policy, which is why it gets a representation the callers
+  /// can tell apart: the two are deliberately not the same iter_result_opt
+  /// nullopt, since `!e` would conflate an ordinary end of iteration with an
   /// observation that corresponds to no state of the tree.
   ///
   /// Under OLC the 256-slot scan is not atomic with respect to the node:
