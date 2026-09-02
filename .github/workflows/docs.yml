@@ -18,9 +18,35 @@ jobs:
       - name: Install Doxygen
         run: sudo apt-get install doxygen
       - name: Generate docs
-        run: doxygen Doxyfile
+        run: |
+          set +e
+          doxygen Doxyfile 2>doxygen-warnings.log
+          status=$?
+          cat doxygen-warnings.log >&2
+          exit "${status}"
       - name: Deploy docs
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/html/
+      - name: Summarize Doxygen warnings
+        if: always()
+        run: |
+          count=0
+          if [ -f doxygen-warnings.log ]; then
+            count=$(grep -Ec '(^|: )warning:' doxygen-warnings.log || true)
+          fi
+          {
+            echo "### Doxygen warnings: ${count}"
+            echo
+            echo "Advisory only: WARN_AS_ERROR is NO, so this gates nothing."
+            echo "An undocumented entity is not a link target, so references"
+            echo "to it render as plain text with no warning of their own."
+          } >>"${GITHUB_STEP_SUMMARY}"
+      - name: Upload Doxygen warning log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: doxygen-warnings
+          path: doxygen-warnings.log
+          if-no-files-found: warn
