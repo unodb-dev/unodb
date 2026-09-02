@@ -4634,6 +4634,33 @@ class basic_inode_48
   // single byte per iteration. memset is likely an UB, and atomic_ref is not
   // available in C++17, and I don't like using it anyway, because this variable
   // *is* atomic.
+  /// Key byte to `children` array index map.
+  /// \hideinitializer
+  ///
+  /// A mapped entry holds a `children` array index — a
+  /// `children_union::pointer_array` slot — so it is always in `[0, 48)`; a
+  /// writer claims only a slot that no entry maps to, so, between writer
+  /// updates, that slot is the key byte's alone: it holds that key byte's
+  /// child, and no other mapped entry names it. That is what lets
+  /// `remove_child_entry()` null the slot its entry names. When
+  /// `ArtPolicy::can_eliminate_leaf`, that index is also the slot's bit
+  /// position in the value-in-slot bitmask, which is 48 bits wide for exactly
+  /// that reason; `is_value_in_slot_by_ci()` tests that bit for a `children`
+  /// array index, while `is_value_in_slot()` takes a key byte and resolves it
+  /// through this map first.
+  ///
+  /// All 256 entries start as `empty_child`, which marks an unmapped key byte.
+  /// Every writer maps the entry of each child it adds, unmaps the entry of
+  /// each child it removes, and touches no others, so, between writer updates,
+  /// an entry holds `empty_child` exactly when the node has no child at that
+  /// key byte.
+  ///
+  /// Both claims qualified above hold of the array as stored at a single
+  /// instant; a lock-free scan composes loads taken at different instants, so
+  /// what it observes need not be any one such state.
+  ///
+  /// \sa detail::basic_inode_impl::torn_read_result for what `begin()` and
+  /// `last()` return when no mapped entry is observed anywhere in the array
   std::array<critical_section_policy<std::uint8_t>, 256> child_indexes{
       empty_child, empty_child, empty_child, empty_child, empty_child,
       empty_child, empty_child, empty_child, empty_child, empty_child,
