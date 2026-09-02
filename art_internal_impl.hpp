@@ -4731,11 +4731,11 @@ class basic_inode_48
   constexpr void set_value_bit_by_ci(std::uint8_t ci) noexcept {
     bitmask_base::set(ci);
   }
-  // The only way I found to initialize this array so that everyone is happy and
-  // efficient. In the case of OLC, a std::fill compiles to a loop doing a
-  // single byte per iteration. memset is likely an UB, and atomic_ref is not
-  // available in C++17, and I don't like using it anyway, because this variable
-  // *is* atomic.
+  // The only way I found to initialize child_indexes below so that everyone is
+  // happy and efficient. In the case of OLC, a std::fill compiles to a loop
+  // doing a single byte per iteration. memset is likely an UB, and atomic_ref
+  // is not available in C++17, and I don't like using it anyway, because this
+  // variable *is* atomic.
   /// Key byte to `children` array index map.
   /// \hideinitializer
   ///
