@@ -193,6 +193,12 @@ UnoDB contributors` as the first line.
   comment block will be interpreted as the brief description. It should use a
   headline-like style without articles.
 - Markdown markup is preferred, i.e. `` `foo` `` instead of `\c foo`.
+- A parenthetical dash is written as a literal `—`. Doxygen substitutes a bare
+  `--` into an en dash and `---` into an em dash, so an ASCII dash renders as a
+  different glyph from the em dashes used everywhere else. This covers the
+  tracked Markdown files, which `Doxyfile` takes as input alongside the headers.
+  Code spans and fenced blocks are not substituted, and the `3:1--3:8` page
+  ranges in `README.md`'s bibliography want the en dash they get.
 - Private class members should be documented too.
 - Backticking a name never costs its autolink, and usually creates one.
   Measured against this project's `Doxyfile`: Doxygen resolves a documented
