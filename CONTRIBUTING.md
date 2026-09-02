@@ -130,10 +130,13 @@ UnoDB contributors` as the first line.
   selects has a non-empty value, so that one configuration's value is not
   presented as the declaration's only value. Otherwise it is a judgement call:
   tag when the rendered value would only restate the brief, and leave it
-  untagged when the value tells the reader something the brief does not. Where
-  the selected definition is empty (no replacement text, so Doxygen renders no
-  initializer) there is nothing to hide; `((void)0)` renders one and counts as
-  non-empty.
+  untagged when the value tells the reader something the brief does not. An
+  initializer already longer than `MAX_INITIALIZER_LINES` may still carry the
+  tag: the judgement is about the value, not about the current threshold, and
+  tagging states the suppression in the source rather than resting it on a
+  global setting that nothing in the declaration mentions. Where the selected
+  definition is empty (no replacement text, so Doxygen renders no initializer)
+  there is nothing to hide; `((void)0)` renders one and counts as non-empty.
 - Which definition Doxygen selects is fixed by the documentation build's own
   configuration, not by the compiler you build with. Its inputs are
   `Doxyfile`'s `PREDEFINED` list together with the
