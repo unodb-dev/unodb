@@ -4661,6 +4661,8 @@ class basic_inode_48
   /// instant; a lock-free scan composes loads taken at different instants, so
   /// what it observes need not be any one such state.
   ///
+  /// \sa get_child(std::uint8_t) for what an observed entry yields: an
+  /// unvalidated read confirms neither of these claims
   /// \sa detail::basic_inode_impl::torn_read_result for what `begin()` and
   /// `last()` return when no mapped entry is observed anywhere in the array
   std::array<critical_section_policy<std::uint8_t>, 256> child_indexes{
