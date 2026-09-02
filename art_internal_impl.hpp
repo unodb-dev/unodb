@@ -123,17 +123,20 @@ struct value_bitmask_field<Enabled, std::array<T, N>, CritSec> {
   std::array<CritSec<T>, N> bits{};
 
   [[nodiscard]] bool test(std::uint8_t i) const noexcept {
+    UNODB_DETAIL_ASSERT(i < N * 8);
     const T byte_val = bits[static_cast<std::size_t>(i) / 8].load();
     return (static_cast<unsigned>(byte_val) >>
             (static_cast<unsigned>(i) % 8U)) &
            1U;
   }
   void set(std::uint8_t i) noexcept {
+    UNODB_DETAIL_ASSERT(i < N * 8);
     const auto idx = static_cast<std::size_t>(i) / 8;
     bits[idx] = static_cast<T>(bits[idx].load() |
                                (T{1} << (static_cast<unsigned>(i) % 8U)));
   }
   void clear(std::uint8_t i) noexcept {
+    UNODB_DETAIL_ASSERT(i < N * 8);
     const auto idx = static_cast<std::size_t>(i) / 8;
     bits[idx] = static_cast<T>(bits[idx].load() &
                                ~(T{1} << (static_cast<unsigned>(i) % 8U)));
@@ -4713,8 +4716,7 @@ class basic_inode_48
   }
   /// Check by children array index (for internal iteration).
   ///
-  /// \pre ci in [0, capacity), never `empty_child`: the bitmask is sized to
-  /// capacity and does no range check
+  /// \pre ci in [0, capacity), never `empty_child`
   [[nodiscard]] constexpr bool is_value_in_slot_by_ci(
       std::uint8_t ci) const noexcept {
     return bitmask_base::test(ci);
@@ -4725,8 +4727,7 @@ class basic_inode_48
   /// mapped-key-byte assert, unlike `set_value_bit()`. Pairs with
   /// `is_value_in_slot_by_ci()`.
   ///
-  /// \pre ci in [0, capacity), never `empty_child`: the bitmask is sized to
-  /// capacity and does no range check
+  /// \pre ci in [0, capacity), never `empty_child`
   constexpr void set_value_bit_by_ci(std::uint8_t ci) noexcept {
     bitmask_base::set(ci);
   }
