@@ -4340,30 +4340,32 @@ class basic_inode_48
 
   /// Get child pointer at given key byte index.
   ///
-  /// Indirects through child_indexes array to find actual child pointer.
-  /// Returns `nullptr` if index is empty.
+  /// Indirects through the `child_indexes[]` entry to reach the
+  /// `children_union::pointer_array` slot. Under OLC both are relaxed atomics
+  /// read without a lock, so the caller's earlier resolution of `child_index`
+  /// and the two loads are not one atomic snapshot of the node. The entry is
+  /// observed empty when a removal ran after `child_index` was resolved. The
+  /// slot is observed null for either of two reasons: a removal nulls the
+  /// slot before it clears the entry, so an entry loaded before that clear
+  /// can name a slot already nulled, whether or not that removal has since
+  /// finished; and an insert publishes the entry before the pointer, so an
+  /// entry loaded from an insert still in flight names a slot not yet
+  /// written. Either level can therefore be observed empty.
   ///
   /// \param child_index Key byte index of child
   ///
-  /// \return Child node pointer, or nullptr if empty slot
+  /// \return Child node pointer, or nullptr if either level was observed empty
+  /// (OLC torn read), or if the slot holds a legitimately packed zero value
   ///
   /// \sa get_child(node_type, std::uint8_t) for the full nullptr contract
-  // N48: This is the case where we need to indirect through child_indices.
   [[nodiscard, gnu::pure]] constexpr node_ptr get_child(
       std::uint8_t child_index) noexcept {
     const auto child_i = child_indexes[child_index].load();
-    // In a data race, the child_indices[] can be concurrently
-    // modified, which will cause the OLC version tag to get
-    // bumped. However, we are in the middle of reading and acting on
-    // the data while that happens.  This can cause the value stored
-    // in child_indices[] at our desired child_index to be empty_child
-    // (0xFF).  In this circumstance, the caller will correctly detect
-    // a problem when they do read_critical_section::check(), but we
-    // will have still indirected beyond the end of the allocation and
-    // ASAN can fail us.  To prevent that and read only the data that
-    // is legally allocated to the node, we return nullptr in this
-    // case and rely on the caller to detect a problem when they call
-    // read_critical_section::check().
+    // A concurrent modification of child_indexes[] bumps the OLC version tag,
+    // so the caller's read_critical_section::check() will catch the race, but
+    // only after we would have indirected past the end of the 48-entry
+    // children.pointer_array — empty_child is 0xFF, so the load lands far
+    // outside the node's allocation; return nullptr instead.
     return UNODB_DETAIL_UNLIKELY(child_i == empty_child)
                ? node_ptr()  // aka nullptr
                : children.pointer_array[child_i].load();
