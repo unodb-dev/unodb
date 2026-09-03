@@ -126,7 +126,7 @@ Public Attributes</h2></td></tr>
 <tr class="memdesc:af629f13328e6b7ebd271a9939d7559a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Key byte consumed at this level when stepping down to the child node.  <br /></td></tr>
 <tr class="separator:af629f13328e6b7ebd271a9939d7559a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a985b95e52360b47cc69e53c0ab48946e" id="r_a985b95e52360b47cc69e53c0ab48946e"><td class="memItemLeft" align="right" valign="top">std::uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1iter__result.html#a985b95e52360b47cc69e53c0ab48946e">child_index</a> {}</td></tr>
-<tr class="memdesc:a985b95e52360b47cc69e53c0ab48946e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Child index within parent node (except for <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html" title="Internal node with 17-48 children (N48).">basic_inode_48</a>, where it indexes into basic_inode_48::child_indexes and equals key_byte).  <br /></td></tr>
+<tr class="memdesc:a985b95e52360b47cc69e53c0ab48946e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Child index within parent node (except for <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html" title="Internal node with 17-48 children (N48).">basic_inode_48</a>, where it indexes into <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#a733c51620437f23e6b970454c975d192" title="Key byte to children array index map.">basic_inode_48::child_indexes</a> and equals key_byte).  <br /></td></tr>
 <tr class="separator:a985b95e52360b47cc69e53c0ab48946e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a567edf1377659f0138ac433674cf6091" id="r_a567edf1377659f0138ac433674cf6091"><td class="memItemLeft" align="right" valign="top"><a id="a567edf1377659f0138ac433674cf6091" name="a567edf1377659f0138ac433674cf6091"></a>
 <a class="el" href="unionunodb_1_1detail_1_1key__prefix__snapshot.html">key_prefix_snapshot</a>&#160;</td><td class="memItemRight" valign="bottom"><b>prefix</b></td></tr>
@@ -161,7 +161,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
       </table>
 </div><div class="memdoc">
 
-<p>Child index within parent node (except for <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html" title="Internal node with 17-48 children (N48).">basic_inode_48</a>, where it indexes into basic_inode_48::child_indexes and equals key_byte). </p>
+<p>Child index within parent node (except for <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html" title="Internal node with 17-48 children (N48).">basic_inode_48</a>, where it indexes into <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#a733c51620437f23e6b970454c975d192" title="Key byte to children array index map.">basic_inode_48::child_indexes</a> and equals key_byte). </p>
 <p>Overflow for child_index can occur for <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html" title="Internal node with 17-48 children (N48).">basic_inode_48</a> and <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html" title="Internal node with 49-256 children (N256).">basic_inode_256</a>. When overflow happens, the <a class="el" href="structunodb_1_1detail_1_1iter__result.html" title="Iterator traversal result representing tree path element.">iter_result</a> is undefined and the wrapping std::optional returns false. </p>
 
 </div>

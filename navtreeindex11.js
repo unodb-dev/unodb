@@ -1,5 +1,7 @@
 var NAVTREEINDEX11 =
 {
+"structunodb_1_1detail_1_1basic__art__policy.html#a9c691c79b784bc0913c713da6265a5ec":[6,0,14,1,1,27],
+"structunodb_1_1detail_1_1basic__art__policy.html#a9c691c79b784bc0913c713da6265a5ec":[5,0,29,1,2,27],
 "structunodb_1_1detail_1_1basic__art__policy.html#a9d255e112fd7768f211b57a161931528":[5,0,29,1,2,37],
 "structunodb_1_1detail_1_1basic__art__policy.html#a9d255e112fd7768f211b57a161931528":[6,0,14,1,1,37],
 "structunodb_1_1detail_1_1basic__art__policy.html#aa249160507ae5df97ba1dc4e40fa5596":[6,0,14,1,1,23],
@@ -247,7 +249,5 @@ var NAVTREEINDEX11 =
 "structunodb_1_1test_1_1pause__heap__faults.html#abf2e09545d5a1a80657c673cefc5a9b8":[5,0,29,2,2,5],
 "structunodb_1_1test_1_1pause__heap__faults.html#abf2e09545d5a1a80657c673cefc5a9b8":[6,0,14,2,2,5],
 "structunodb_1_1test_1_1pause__heap__faults.html#ae5e31eea4d28fd784679aa4ad79f6dd2":[6,0,14,2,2,0],
-"structunodb_1_1test_1_1pause__heap__faults.html#ae5e31eea4d28fd784679aa4ad79f6dd2":[5,0,29,2,2,0],
-"structunodb_1_1test_1_1pause__heap__faults.html#af02e2ec271e40aab0e6fb702ac67535f":[5,0,29,2,2,3],
-"structunodb_1_1test_1_1pause__heap__faults.html#af02e2ec271e40aab0e6fb702ac67535f":[6,0,14,2,2,3]
+"structunodb_1_1test_1_1pause__heap__faults.html#ae5e31eea4d28fd784679aa4ad79f6dd2":[5,0,29,2,2,0]
 };

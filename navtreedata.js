@@ -122,15 +122,15 @@ var NAVTREEINDEX =
 "classunodb_1_1db.html#a792923c1d17a8abac900b216a35d074e",
 "classunodb_1_1detail_1_1basic__inode__16.html#a3c59d7eb8cdce1721bd77974c7b37e47",
 "classunodb_1_1detail_1_1basic__inode__48.html#a5746647717698cb39c280e100b8cea2e",
-"classunodb_1_1detail_1_1basic__node__ptr.html#af901e36ea6cdd43da01546cc890270e4",
-"classunodb_1_1in__critical__section.html#a80a6d90c03b91b9ae49461e32542e90a",
-"classunodb_1_1olc__db.html#ab810d784833a2982820120136c8622b6",
-"classunodb_1_1qsbr.html#a93dbb67ce2cbf1f2d0fd6100f97244b9",
-"classunodb_1_1test_1_1allocation__failure__injector.html#a5c0aab1629c36621d45dee5f272b2b82",
-"md_CONTRIBUTING.html#autotoc_md21",
-"namespaceunodb_1_1detail.html#a75f7fa26a657bd2a5640cf369c639d17",
-"structunodb_1_1detail_1_1basic__art__policy.html#a9d255e112fd7768f211b57a161931528",
-"structunodb_1_1test_1_1sync__point__guard.html"
+"classunodb_1_1detail_1_1basic__node__ptr.html#af06c0752e44ac167f4e111b79d30f19c",
+"classunodb_1_1in__critical__section.html#a7b3e9ea64b614801d119993760eb4878",
+"classunodb_1_1olc__db.html#aad25013026e02d563e4e4ea0efe2d31c",
+"classunodb_1_1qsbr.html#a9243c6362e24ebe71f84af937872dd45",
+"classunodb_1_1test_1_1allocation__failure__injector.html#a229f390699b118f4f2a35d7bfdfc617f",
+"md_CONTRIBUTING.html#autotoc_md19",
+"namespaceunodb_1_1detail.html#a749463245ed07a65e2df960ac1beb847",
+"structunodb_1_1detail_1_1basic__art__policy.html#a9c691c79b784bc0913c713da6265a5ec",
+"structunodb_1_1test_1_1pause__heap__faults.html#af02e2ec271e40aab0e6fb702ac67535f"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
