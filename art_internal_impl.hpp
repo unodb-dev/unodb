@@ -4359,14 +4359,15 @@ class basic_inode_48
                                 [[maybe_unused]] tree_depth_type depth,
                                 std::byte key_byte,
                                 std::uint8_t children_count_) noexcept {
-    // Reuse the leaf overload by wrapping the packed value in a
-    // temporary unique_ptr that immediately releases.  This avoids
-    // duplicating the SIMD slot-finding logic.
-    // TODO(#707): refactor to share slot-finding code without this hack.
     std::ignore = children_count_;
     UNODB_DETAIL_ASSERT(child_indexes[static_cast<std::uint8_t>(key_byte)] ==
                         empty_child);
-    // Find first empty slot (not occupied by pointer or VIS value).
+    // Scan for the first slot holding neither a live pointer nor a packed
+    // value. The leaf overload's vector scan is unusable here for the reason
+    // children_union documents; when !ArtPolicy::can_eliminate_leaf the
+    // bitmask test folds to a constant false, leaving a plain null scan.
+    // TODO(#707): share the search with the leaf overload so the
+    // value-in-slot configuration also gets the vectorized scan.
     unsigned slot = 0;
     while (children.pointer_array[slot] != nullptr ||
            is_value_in_slot_by_ci(static_cast<std::uint8_t>(slot))) {
