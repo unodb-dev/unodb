@@ -203,17 +203,24 @@ UnoDB contributors` as the first line.
 - Backticking a name never costs its autolink, and usually creates one.
   Measured against this project's `Doxyfile`: Doxygen resolves a documented
   entity inside a backtick code span, single- or multi-word, but it resolves
-  every name relative to the scope the comment is written in and the scopes
-  enclosing it. That scope-relativity governs the function rule below as well.
-  Over-qualifying costs nothing, so spell `unodb::detail` entities
-  `detail::class::member` throughout: `detail::basic_inode_48::child_indexes`
-  links from comments in `unodb` and in `unodb::detail` alike, while the
-  shorter `basic_inode_48::child_indexes` links only from inside
-  `unodb::detail` and renders as plain text in, say, `unodb::db::iterator`'s
-  documentation. Within one comment block, qualify the mention that introduces
-  an entity and every mention where one specific class is meant; an established
-  repeat, or a mention that generalizes over several node types, may go bare,
-  at the price of its link.
+  every name relative to the scope of the entity the block documents and the
+  scopes enclosing that, never a scope nested inside it. That scope-relativity
+  governs the function rule below as well. The documented entity's scope is
+  what counts, not where the comment sits in the file: a backticked bare
+  `pointer_array` stays plain text in `basic_inode_48`'s own blocks, yet links
+  both from the block attached to `children_union`, although that block is
+  written at `basic_inode_48` scope, and from blocks inside the union body. A
+  dotted member expression never resolves, because `.` is not a Doxygen scope
+  separator, so spell such a member `children_union::pointer_array` and never
+  `children.pointer_array`. Over-qualifying costs nothing, so spell
+  `unodb::detail` entities `detail::class::member` throughout:
+  `detail::basic_inode_48::child_indexes` links from comments in `unodb` and in
+  `unodb::detail` alike, while the shorter `basic_inode_48::child_indexes`
+  links only from inside `unodb::detail` and renders as plain text in, say,
+  `unodb::db::iterator`'s documentation. Within one comment block, qualify the
+  mention that introduces an entity and every mention where one specific class
+  is meant; an established repeat, or a mention that generalizes over several
+  node types, may go bare, at the price of its link.
 - A name rooted at a template parameter never resolves, backticks and
   qualification notwithstanding: `ArtPolicy` is a template parameter, not a
   scope Doxygen resolves members through. Measured in the same run,
