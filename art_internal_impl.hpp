@@ -2770,6 +2770,9 @@ class basic_inode_4
 
   /// Add child to node that has available capacity.
   ///
+  /// \pre `!ArtPolicy::can_eliminate_leaf`. When leaves are eliminated,
+  /// terminal values occupy child slots and the policy disables leaf
+  /// allocation; insertion uses the `node_ptr` overload.
   /// \param child Leaf child to add
   /// \param depth Current tree depth
   /// \param children_count_ Current children count
@@ -2781,6 +2784,9 @@ class basic_inode_4
                                 [[maybe_unused]] tree_depth_type depth,
                                 std::byte key_byte,
                                 std::uint8_t children_count_) noexcept {
+    static_assert(!ArtPolicy::can_eliminate_leaf,
+                  "leaf add_to_nonfull must not be called when leaves are "
+                  "eliminated");
     UNODB_DETAIL_ASSERT(children_count_ == this->children_count);
     UNODB_DETAIL_ASSERT(children_count_ < parent_class::capacity);
     UNODB_DETAIL_ASSERT(std::is_sorted(
@@ -2806,12 +2812,6 @@ class basic_inode_4
     }
     keys.byte_array[insert_pos_index] = key_byte;
     children[insert_pos_index] = node_ptr{child.release(), node_type::LEAF};
-
-    // Shift value bitmask to match shifted children array.
-    // The new entry is a leaf (not a packed value), so no bit is set for it.
-    if constexpr (ArtPolicy::can_eliminate_leaf) {
-      bitmask_base::insert_at(static_cast<std::uint8_t>(insert_pos_index));
-    }
 
     ++children_count_;
     this->children_count = children_count_;
@@ -3577,6 +3577,9 @@ class basic_inode_16
 
   /// Add child to node that has available capacity.
   ///
+  /// \pre `!ArtPolicy::can_eliminate_leaf`. When leaves are eliminated,
+  /// terminal values occupy child slots and the policy disables leaf
+  /// allocation; insertion uses the `node_ptr` overload.
   /// \param child Leaf child to add
   /// \param depth Current tree depth
   /// \param children_count_ Current children count
@@ -3587,6 +3590,9 @@ class basic_inode_16
                                 [[maybe_unused]] tree_depth_type depth,
                                 std::byte key_byte,
                                 std::uint8_t children_count_) noexcept {
+    static_assert(!ArtPolicy::can_eliminate_leaf,
+                  "leaf add_to_nonfull must not be called when leaves are "
+                  "eliminated");
     UNODB_DETAIL_ASSERT(children_count_ == this->children_count);
     UNODB_DETAIL_ASSERT(children_count_ < parent_class::capacity);
     UNODB_DETAIL_ASSERT(std::is_sorted(
@@ -3609,10 +3615,6 @@ class basic_inode_16
 
     keys.byte_array[insert_pos_index] = key_byte;
     children[insert_pos_index] = node_ptr{child.release(), node_type::LEAF};
-    // Shift value bitmask to match shifted children array.
-    if constexpr (ArtPolicy::can_eliminate_leaf) {
-      bitmask_base::insert_at(static_cast<std::uint8_t>(insert_pos_index));
-    }
     ++children_count_;
     this->children_count = children_count_;
 
@@ -4221,6 +4223,10 @@ class basic_inode_48
 
   /// Add child to non-full node.
   ///
+  /// \pre `!ArtPolicy::can_eliminate_leaf`. The free-slot scan below finds a
+  /// slot by comparing against zero, which `children_union` documents a
+  /// packed zero value aliases, so it can only run where packed values cannot
+  /// occur.
   /// \param child Child leaf to add
   /// \param depth Current tree depth
   /// \param children_count_ Current child count
@@ -4231,6 +4237,9 @@ class basic_inode_48
                                 [[maybe_unused]] tree_depth_type depth,
                                 std::byte key_byte,
                                 std::uint8_t children_count_) noexcept {
+    static_assert(!ArtPolicy::can_eliminate_leaf,
+                  "leaf add_to_nonfull must not be called when leaves are "
+                  "eliminated");
     UNODB_DETAIL_ASSERT(this->children_count == children_count_);
     UNODB_DETAIL_ASSERT(children_count_ >= parent_class::min_size);
     UNODB_DETAIL_ASSERT(children_count_ < parent_class::capacity);
@@ -5082,6 +5091,9 @@ class basic_inode_256
 
   /// Add child to non-full node.
   ///
+  /// \pre `!ArtPolicy::can_eliminate_leaf`. When leaves are eliminated,
+  /// terminal values occupy child slots and the policy disables leaf
+  /// allocation; insertion uses the `node_ptr` overload.
   /// \param child Child leaf to add
   /// \param depth Current tree depth
   /// \param children_count_ Current child count
@@ -5092,6 +5104,9 @@ class basic_inode_256
                                 [[maybe_unused]] tree_depth_type depth,
                                 std::byte key_byte,
                                 std::uint8_t children_count_) noexcept {
+    static_assert(!ArtPolicy::can_eliminate_leaf,
+                  "leaf add_to_nonfull must not be called when leaves are "
+                  "eliminated");
     UNODB_DETAIL_ASSERT(this->children_count == children_count_);
     UNODB_DETAIL_ASSERT(children_count_ < parent_class::capacity);
 
