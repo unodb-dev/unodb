@@ -42,16 +42,16 @@ namespace detail {
 template <typename Key, typename Value>
 class inode;
 
-template <typename Key, typename Value, typename PolicyTag = void>
+template <typename Key, typename Value, typename HeapTag = void>
 class inode_4;
 
-template <typename Key, typename Value, typename PolicyTag = void>
+template <typename Key, typename Value, typename HeapTag = void>
 class inode_16;
 
-template <typename Key, typename Value, typename PolicyTag = void>
+template <typename Key, typename Value, typename HeapTag = void>
 class inode_48;
 
-template <typename Key, typename Value, typename PolicyTag = void>
+template <typename Key, typename Value, typename HeapTag = void>
 class inode_256;
 
 /// Node header type for non-thread-safe ART implementation.
@@ -84,30 +84,30 @@ struct impl_helpers;
 ///
 /// Packages inode, inode_4, inode_16, inode_48, and inode_256 for use by the
 /// ART policy configuration.
-template <typename Key, typename Value, typename PolicyTag = void>
+template <typename Key, typename Value, typename HeapTag = void>
 using inode_defs =
-    basic_inode_def<inode<Key, Value>, inode_4<Key, Value, PolicyTag>,
-                    inode_16<Key, Value, PolicyTag>,
-                    inode_48<Key, Value, PolicyTag>,
-                    inode_256<Key, Value, PolicyTag>>;
+    basic_inode_def<inode<Key, Value>, inode_4<Key, Value, HeapTag>,
+                    inode_16<Key, Value, HeapTag>,
+                    inode_48<Key, Value, HeapTag>,
+                    inode_256<Key, Value, HeapTag>>;
 
 /// Custom deleter for internal nodes in non-thread-safe ART.
 ///
 /// Manages cleanup of internal nodes when they are removed from the tree.
-template <typename Key, typename Value, class INode, typename PolicyTag>
+template <typename Key, typename Value, class INode, typename HeapTag>
 using db_inode_deleter =
-    basic_db_inode_deleter<INode, unodb::db<Key, Value, PolicyTag>>;
+    basic_db_inode_deleter<INode, unodb::db<Key, Value, HeapTag>>;
 
 /// Policy configuration for non-thread-safe ART implementation.
 ///
 /// Bundles type definitions and synchronization primitives (fake locks for
 /// single-threaded access) used throughout the ART implementation.
-template <typename Key, typename Value, typename PolicyTag = void>
+template <typename Key, typename Value, typename HeapTag = void>
 using art_policy =
     basic_art_policy<Key, Value, unodb::db, unodb::in_fake_critical_section,
                      unodb::fake_lock, unodb::fake_read_critical_section,
                      node_ptr, inode_defs, db_inode_deleter,
-                     basic_db_leaf_deleter, PolicyTag>;
+                     basic_db_leaf_deleter, HeapTag>;
 
 /// Base class for all internal nodes in non-thread-safe ART.
 ///
@@ -139,20 +139,20 @@ struct bulk_load_helpers;
 
 }  // namespace detail
 
-template <typename Key, typename Value, typename PolicyTag>
+template <typename Key, typename Value, typename HeapTag>
 class mutex_db;
 
 /// A non-thread-safe implementation of the Adaptive Radix Tree (ART).
 ///
 /// \sa unodb::olc_db for a highly concurrent thread-safe ART implementation.
-template <typename Key, typename Value, typename PolicyTag>
+template <typename Key, typename Value, typename HeapTag>
 class db final {
   /// Allow mutex_db to access private members for thread-safe wrapper.
-  friend class mutex_db<Key, Value, PolicyTag>;
+  friend class mutex_db<Key, Value, HeapTag>;
 
  public:
-  /// Whether a TupleHeap is configured for key recovery.
-  static constexpr bool has_heap = detail::is_heap_v<PolicyTag, Value>;
+  /// Whether a TupleHeap is configured for key retrieval.
+  static constexpr bool has_heap = detail::is_heap_v<HeapTag, Value>;
 
   /// The type of the keys in the index.
   using key_type = Key;
@@ -176,7 +176,7 @@ class db final {
   using leaf_type = detail::leaf_type<Key, Value>;
 
   /// Database type (self-reference for template instantiation).
-  using db_type = db<Key, Value, PolicyTag>;
+  using db_type = db<Key, Value, HeapTag>;
 
   /// Query for a value associated with an encoded \a search_key.
   [[nodiscard, gnu::pure]] get_result get_internal(
@@ -259,15 +259,13 @@ class db final {
   // Creation and destruction
 
   /// Construct empty ART index with default allocator.
-  /// Construct empty ART index with default allocator.
   db() noexcept
     requires(!has_heap)
   = default;
 
-  /// Construct empty ART index backed by a tuple heap for key recovery.
-  template <
-      typename H = PolicyTag,
-      typename = std::enable_if_t<has_heap && std::is_same_v<H, PolicyTag>>>
+  /// Construct empty ART index backed by a tuple heap for key retrieval.
+  template <typename H = HeapTag>
+    requires(has_heap && std::is_same_v<H, HeapTag>)
   constexpr explicit db(const H& heap) noexcept : heap_{heap} {}
 
   /// Construct empty ART index with a custom allocator.
@@ -279,9 +277,8 @@ class db final {
   }
 
   /// Construct heap-backed ART index with a custom allocator.
-  template <
-      typename H = PolicyTag,
-      typename = std::enable_if_t<has_heap && std::is_same_v<H, PolicyTag>>>
+  template <typename H = HeapTag>
+    requires(has_heap && std::is_same_v<H, HeapTag>)
   constexpr db(const H& heap, const allocator_type& alloc) noexcept
       : heap_{heap}, allocator_{alloc} {
     UNODB_DETAIL_ASSERT(allocator_.alloc != nullptr);
@@ -414,10 +411,10 @@ class db final {
     // the iterator methods accessing the stack can not be declared as
     // [[noexcept]].
     static_assert(
-        !detail::art_policy<Key, Value, PolicyTag>::can_eliminate_leaf ||
-            detail::art_policy<Key, Value, PolicyTag>::full_key_in_inode_path ||
-            detail::art_policy<Key, Value, PolicyTag>::has_heap,
-        "VIS requires full_key_in_inode_path or a TupleHeap for key recovery");
+        !detail::art_policy<Key, Value, HeapTag>::can_eliminate_leaf ||
+            detail::art_policy<Key, Value, HeapTag>::full_key_in_inode_path ||
+            detail::art_policy<Key, Value, HeapTag>::has_heap,
+        "VIS requires full_key_in_inode_path or a TupleHeap for key retrieval");
 
     /// unodb::db
     friend class db;
@@ -803,7 +800,7 @@ class db final {
     /// remain valid until the next get_key()/cmp() call or iterator movement.
     struct empty_key_buf {};
     UNODB_DETAIL_NO_UNIQUE_ADDRESS
-    std::conditional_t<detail::art_policy<Key, Value, PolicyTag>::has_heap,
+    std::conditional_t<detail::art_policy<Key, Value, HeapTag>::has_heap,
                        key_encoder, empty_key_buf>
         get_key_buf_{};
   };  // class iterator
@@ -990,7 +987,7 @@ class db final {
 
  private:
   /// Policy type for ART implementation.
-  using art_policy = detail::art_policy<Key, Value, PolicyTag>;
+  using art_policy = detail::art_policy<Key, Value, HeapTag>;
 
   /// Node header type.
   using header_type = typename art_policy::header_type;
@@ -999,22 +996,22 @@ class db final {
   using inode_type = detail::inode<Key, Value>;
 
   /// Node type with 4 children.
-  using inode_4 = detail::inode_4<Key, Value, PolicyTag>;
+  using inode_4 = detail::inode_4<Key, Value, HeapTag>;
 
   /// Node type with 16 children.
-  using inode_16 = detail::inode_16<Key, Value, PolicyTag>;
+  using inode_16 = detail::inode_16<Key, Value, HeapTag>;
 
   /// Node type with 48 children.
-  using inode_48 = detail::inode_48<Key, Value, PolicyTag>;
+  using inode_48 = detail::inode_48<Key, Value, HeapTag>;
 
   /// Node type with 256 children.
-  using inode_256 = detail::inode_256<Key, Value, PolicyTag>;
+  using inode_256 = detail::inode_256<Key, Value, HeapTag>;
 
   /// Visitor type for scan operations.
   using visitor_type = visitor<db_type::iterator>;
 
   /// Internal node definitions bundle.
-  using inode_defs_type = detail::inode_defs<Key, Value, PolicyTag>;
+  using inode_defs_type = detail::inode_defs<Key, Value, HeapTag>;
 
   /// Delete entire tree starting from root.
   void delete_root_subtree() noexcept;
@@ -1106,9 +1103,8 @@ class db final {
   /// Allocator for tree nodes.
   allocator_type allocator_{detail::default_allocator};
 
-  /// Heap reference (zero-size when no heap is configured via PolicyTag).
-  UNODB_DETAIL_NO_UNIQUE_ADDRESS detail::heap_holder_t<PolicyTag, Value>
-      heap_{};
+  /// Heap reference (zero-size when no heap is configured via HeapTag).
+  UNODB_DETAIL_NO_UNIQUE_ADDRESS detail::heap_holder_t<HeapTag, Value> heap_{};
 
 #ifdef UNODB_DETAIL_WITH_STATS
 
@@ -1166,7 +1162,7 @@ class db final {
       template <typename, typename, typename> class,         // INodeDefs
       template <typename, typename, class, typename> class,  // INodeReclamator
       template <class> class,                                // LeafReclamator
-      typename>                                              // PolicyTag
+      typename>                                              // HeapTag
   friend struct detail::basic_art_policy;
 
   /// detail::basic_db_inode_deleter
@@ -1205,10 +1201,10 @@ struct impl_helpers {
   /// \param node_in_parent Pointer to this node in parent's children array
   ///
   /// \return Pointer to location for further descent or insertion
-  template <typename Key, typename Value, typename PolicyTag, class INode>
+  template <typename Key, typename Value, typename HeapTag, class INode>
   [[nodiscard]] static detail::node_ptr* add_or_choose_subtree(
       INode& inode, std::byte key_byte, basic_art_key<Key> k, Value v,
-      db<Key, Value, PolicyTag>& db_instance,
+      db<Key, Value, HeapTag>& db_instance,
       tree_depth<basic_art_key<Key>> depth, detail::node_ptr* node_in_parent);
 
   UNODB_DETAIL_RESTORE_GCC_10_WARNINGS()
@@ -1229,11 +1225,11 @@ struct impl_helpers {
   ///
   /// \return Optional pointer to location for further descent, or empty if key
   /// not found
-  template <typename Key, typename Value, typename PolicyTag, class INode>
+  template <typename Key, typename Value, typename HeapTag, class INode>
   [[nodiscard]] static std::optional<detail::node_ptr*>
   remove_or_choose_subtree(INode& inode, std::byte key_byte,
                            basic_art_key<Key> k,
-                           db<Key, Value, PolicyTag>& db_instance,
+                           db<Key, Value, HeapTag>& db_instance,
                            detail::node_ptr* node_in_parent);
 
   /// Deleted constructor (static-only helper class).
@@ -1241,19 +1237,18 @@ struct impl_helpers {
 };
 
 /// Base class for inode_4
-template <typename Key, typename Value, typename PolicyTag>
-using inode_4_parent = basic_inode_4<art_policy<Key, Value, PolicyTag>>;
+template <typename Key, typename Value, typename HeapTag>
+using inode_4_parent = basic_inode_4<art_policy<Key, Value, HeapTag>>;
 
 /// Internal node with 4 children for non-thread-safe ART.
 ///
 /// Smallest internal node type, used when a leaf needs to be split or when
 /// a larger node shrinks below minimum occupancy.
-template <typename Key, typename Value, typename PolicyTag>
-class [[nodiscard]] inode_4 final
-    : public inode_4_parent<Key, Value, PolicyTag> {
+template <typename Key, typename Value, typename HeapTag>
+class [[nodiscard]] inode_4 final : public inode_4_parent<Key, Value, HeapTag> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
-  using inode_4_parent<Key, Value, PolicyTag>::inode_4_parent;
+  using inode_4_parent<Key, Value, HeapTag>::inode_4_parent;
 
   /// Add child or choose subtree for insertion.
   ///
@@ -1289,19 +1284,19 @@ static_assert(sizeof(inode_4_test_type) == 56);
 #endif
 
 /// Base class for inode_16
-template <typename Key, typename Value, typename PolicyTag>
-using inode_16_parent = basic_inode_16<art_policy<Key, Value, PolicyTag>>;
+template <typename Key, typename Value, typename HeapTag>
+using inode_16_parent = basic_inode_16<art_policy<Key, Value, HeapTag>>;
 
 /// Internal node with 16 children for non-thread-safe ART.
 ///
 /// Used when inode_4 grows beyond capacity or when inode_48 shrinks below
 /// minimum occupancy.
-template <typename Key, typename Value, typename PolicyTag>
+template <typename Key, typename Value, typename HeapTag>
 class [[nodiscard]] inode_16 final
-    : public inode_16_parent<Key, Value, PolicyTag> {
+    : public inode_16_parent<Key, Value, HeapTag> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
-  using inode_16_parent<Key, Value, PolicyTag>::inode_16_parent;
+  using inode_16_parent<Key, Value, HeapTag>::inode_16_parent;
 
   /// Add child or choose subtree for insertion.
   ///
@@ -1329,19 +1324,19 @@ class [[nodiscard]] inode_16 final
 static_assert(sizeof(inode_16<std::uint64_t, unodb ::value_view>) == 160);
 
 /// Base class for inode_48
-template <typename Key, typename Value, typename PolicyTag>
-using inode_48_parent = basic_inode_48<art_policy<Key, Value, PolicyTag>>;
+template <typename Key, typename Value, typename HeapTag>
+using inode_48_parent = basic_inode_48<art_policy<Key, Value, HeapTag>>;
 
 /// Internal node with 48 children for non-thread-safe ART.
 ///
 /// Used when inode_16 grows beyond capacity or when inode_256 shrinks below
 /// minimum occupancy.
-template <typename Key, typename Value, typename PolicyTag>
+template <typename Key, typename Value, typename HeapTag>
 class [[nodiscard]] inode_48 final
-    : public inode_48_parent<Key, Value, PolicyTag> {
+    : public inode_48_parent<Key, Value, HeapTag> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
-  using inode_48_parent<Key, Value, PolicyTag>::inode_48_parent;
+  using inode_48_parent<Key, Value, HeapTag>::inode_48_parent;
 
   /// Add child or choose subtree for insertion.
   ///
@@ -1375,19 +1370,19 @@ static_assert(sizeof(inode_48_test_type) == 656);
 #endif
 
 /// Base class for inode_256
-template <typename Key, typename Value, typename PolicyTag>
-using inode_256_parent = basic_inode_256<art_policy<Key, Value, PolicyTag>>;
+template <typename Key, typename Value, typename HeapTag>
+using inode_256_parent = basic_inode_256<art_policy<Key, Value, HeapTag>>;
 
 /// Internal node with 256 children for non-thread-safe ART.
 ///
 /// Largest internal node type, used when inode_48 grows beyond capacity.
 /// Has direct mapping from byte values to children.
-template <typename Key, typename Value, typename PolicyTag>
+template <typename Key, typename Value, typename HeapTag>
 class [[nodiscard]] inode_256 final
-    : public inode_256_parent<Key, Value, PolicyTag> {
+    : public inode_256_parent<Key, Value, HeapTag> {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
-  using inode_256_parent<Key, Value, PolicyTag>::inode_256_parent;
+  using inode_256_parent<Key, Value, HeapTag>::inode_256_parent;
 
   /// Add child or choose subtree for insertion.
   ///
@@ -1433,32 +1428,31 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 /// Return the correct child node for insertion operation (i.e. having the
 /// matching next key byte value). If there is no child node for the next key
 /// byte, create the leaf and insert it in the current node.
-template <typename Key, typename Value, typename PolicyTag, class INode>
+template <typename Key, typename Value, typename HeapTag, class INode>
 detail::node_ptr* impl_helpers::add_or_choose_subtree(
     INode& inode, std::byte key_byte, basic_art_key<Key> k, Value v,
-    db<Key, Value, PolicyTag>& db_instance,
-    tree_depth<basic_art_key<Key>> depth, detail::node_ptr* node_in_parent) {
+    db<Key, Value, HeapTag>& db_instance, tree_depth<basic_art_key<Key>> depth,
+    detail::node_ptr* node_in_parent) {
   auto* const child =
       unwrap_fake_critical_section(inode.find_child(key_byte).second);
 
   if (child != nullptr) return child;
 
-  if constexpr (art_policy<Key, Value, PolicyTag>::can_eliminate_leaf) {
+  if constexpr (art_policy<Key, Value, HeapTag>::can_eliminate_leaf) {
     // Value-in-slot: pack value directly, no leaf allocation.
-    const auto packed = art_policy<Key, Value, PolicyTag>::pack_value(v);
+    const auto packed = art_policy<Key, Value, HeapTag>::pack_value(v);
     const auto children_count = inode.get_children_count();
 
-    if constexpr (!std::is_same_v<INode, inode_256<Key, Value, PolicyTag>>) {
+    if constexpr (!std::is_same_v<INode, inode_256<Key, Value, HeapTag>>) {
       if (UNODB_DETAIL_UNLIKELY(children_count == INode::capacity)) {
-        if constexpr (art_policy<Key, Value,
-                                 PolicyTag>::full_key_in_inode_path) {
+        if constexpr (art_policy<Key, Value, HeapTag>::full_key_in_inode_path) {
           const auto chain_start =
               static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
           if (chain_start < k.size()) {
             // OOM safety: build chain BEFORE creating the larger node.
             auto chain_top = db_instance.build_chain(k, packed, chain_start);
-            typename art_policy<Key, Value, PolicyTag>::subtree_guard
-                chain_guard{chain_top, db_instance};
+            typename art_policy<Key, Value, HeapTag>::subtree_guard chain_guard{
+                chain_top, db_instance};
             auto larger_node{INode::larger_derived_type::create(
                 db_instance, inode, chain_top, depth, key_byte)};
             *node_in_parent = node_ptr{larger_node.release(),
@@ -1488,7 +1482,7 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
         return child;
       }
     }
-    if constexpr (art_policy<Key, Value, PolicyTag>::full_key_in_inode_path) {
+    if constexpr (art_policy<Key, Value, HeapTag>::full_key_in_inode_path) {
       const auto chain_start =
           static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
       if (chain_start < k.size()) {
@@ -1512,13 +1506,12 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
   } else {
     // Leaf-based: allocate leaf as before.
     auto leaf =
-        art_policy<Key, Value, PolicyTag>::make_db_leaf_ptr(k, v, db_instance);
+        art_policy<Key, Value, HeapTag>::make_db_leaf_ptr(k, v, db_instance);
     const auto children_count = inode.get_children_count();
 
-    if constexpr (!std::is_same_v<INode, inode_256<Key, Value, PolicyTag>>) {
+    if constexpr (!std::is_same_v<INode, inode_256<Key, Value, HeapTag>>) {
       if (UNODB_DETAIL_UNLIKELY(children_count == INode::capacity)) {
-        if constexpr (art_policy<Key, Value,
-                                 PolicyTag>::full_key_in_inode_path) {
+        if constexpr (art_policy<Key, Value, HeapTag>::full_key_in_inode_path) {
           const auto chain_start =
               static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
           if (chain_start < k.size()) {
@@ -1526,8 +1519,8 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
             const auto leaf_ptr =
                 detail::node_ptr{leaf.release(), node_type::LEAF};
             auto chain_top = db_instance.build_chain(k, leaf_ptr, chain_start);
-            typename art_policy<Key, Value, PolicyTag>::subtree_guard
-                chain_guard{chain_top, db_instance};
+            typename art_policy<Key, Value, HeapTag>::subtree_guard chain_guard{
+                chain_top, db_instance};
             auto larger_node{INode::larger_derived_type::create(
                 db_instance, inode, chain_top, depth, key_byte)};
             *node_in_parent = node_ptr{larger_node.release(),
@@ -1551,7 +1544,7 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
         return child;
       }
     }
-    if constexpr (art_policy<Key, Value, PolicyTag>::full_key_in_inode_path) {
+    if constexpr (art_policy<Key, Value, HeapTag>::full_key_in_inode_path) {
       const auto chain_start =
           static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
       if (chain_start < k.size()) {
@@ -1575,17 +1568,17 @@ detail::node_ptr* impl_helpers::add_or_choose_subtree(
 // on db param, but release() transfers ownership and the raw pointer's validity
 // is independent of the temporary unique_ptr.
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
-template <typename Key, typename Value, typename PolicyTag, class INode>
+template <typename Key, typename Value, typename HeapTag, class INode>
 std::optional<detail::node_ptr*> impl_helpers::remove_or_choose_subtree(
     INode& inode, std::byte key_byte, basic_art_key<Key> k,
-    db<Key, Value, PolicyTag>& db_instance, detail::node_ptr* node_in_parent) {
+    db<Key, Value, HeapTag>& db_instance, detail::node_ptr* node_in_parent) {
   const auto [child_i, child_ptr]{inode.find_child(key_byte)};
 
   if (child_ptr == nullptr) return {};
 
   const auto child_ptr_val{child_ptr->load()};
 
-  if constexpr (art_policy<Key, Value, PolicyTag>::can_eliminate_leaf) {
+  if constexpr (art_policy<Key, Value, HeapTag>::can_eliminate_leaf) {
     if (!inode.is_value_in_slot(child_i)) {
       return unwrap_fake_critical_section(child_ptr);
     }
@@ -1595,15 +1588,15 @@ std::optional<detail::node_ptr*> impl_helpers::remove_or_choose_subtree(
 
     const auto* const leaf{
         child_ptr_val
-            .template ptr<typename db<Key, Value, PolicyTag>::leaf_type*>()};
+            .template ptr<typename db<Key, Value, HeapTag>::leaf_type*>()};
     if (!leaf->matches(k)) return {};
   }
 
   if (UNODB_DETAIL_UNLIKELY(inode.is_min_size())) {
-    if constexpr (std::is_same_v<INode, inode_4<Key, Value, PolicyTag>>) {
+    if constexpr (std::is_same_v<INode, inode_4<Key, Value, HeapTag>>) {
       if (UNODB_DETAIL_LIKELY(inode.can_collapse(child_i))) {
         auto current_node{
-            art_policy<Key, Value, PolicyTag>::make_db_inode_unique_ptr(
+            art_policy<Key, Value, HeapTag>::make_db_inode_unique_ptr(
                 &inode, db_instance)};
         *node_in_parent = current_node->leave_last_child(child_i, db_instance);
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -1632,14 +1625,14 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 }  // namespace detail
 
-template <typename Key, typename Value, typename PolicyTag>
-db<Key, Value, PolicyTag>::~db() noexcept {
+template <typename Key, typename Value, typename HeapTag>
+db<Key, Value, HeapTag>::~db() noexcept {
   delete_root_subtree();
 }
 
-template <typename Key, typename Value, typename PolicyTag>
-typename db<Key, Value, PolicyTag>::get_result
-db<Key, Value, PolicyTag>::get_internal(art_key_type k) const noexcept {
+template <typename Key, typename Value, typename HeapTag>
+typename db<Key, Value, HeapTag>::get_result
+db<Key, Value, HeapTag>::get_internal(art_key_type k) const noexcept {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return {};
   if constexpr (std::is_same_v<Key, key_view>) {
     if (UNODB_DETAIL_UNLIKELY(k.size() == 0)) return {};
@@ -1690,9 +1683,9 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26430)
 // pointers with LIFETIMEBOUND on db param, but release() transfers ownership
 // and the raw pointer's validity is independent of the temporary unique_ptr.
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
-template <typename Key, typename Value, typename PolicyTag>
-bool db<Key, Value, PolicyTag>::insert_internal(art_key_type insert_key,
-                                                value_type v) {
+template <typename Key, typename Value, typename HeapTag>
+bool db<Key, Value, HeapTag>::insert_internal(art_key_type insert_key,
+                                              value_type v) {
   if constexpr (std::is_same_v<Key, key_view>) {
     if (UNODB_DETAIL_UNLIKELY(insert_key.size() == 0)) {
       throw std::length_error("Key must not be empty");
@@ -1730,11 +1723,11 @@ bool db<Key, Value, PolicyTag>::insert_internal(art_key_type insert_key,
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=noreturn")
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
-template <typename Key, typename Value, typename PolicyTag>
+template <typename Key, typename Value, typename HeapTag>
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
 // cppcheck-suppress missingReturn
-bool db<Key, Value, PolicyTag>::insert_internal_fixed(art_key_type insert_key,
-                                                      value_type v) {
+bool db<Key, Value, HeapTag>::insert_internal_fixed(art_key_type insert_key,
+                                                    value_type v) {
   if constexpr (std::is_same_v<Key, key_view>) {
     // LCOV_EXCL_START — dead: caller dispatches key_view to
     // insert_internal_key_view.
@@ -1809,8 +1802,8 @@ bool db<Key, Value, PolicyTag>::insert_internal_fixed(art_key_type insert_key,
   }  // else (non-key_view)
 }
 
-template <typename Key, typename Value, typename PolicyTag>
-detail::node_ptr db<Key, Value, PolicyTag>::build_chain(
+template <typename Key, typename Value, typename HeapTag>
+detail::node_ptr db<Key, Value, HeapTag>::build_chain(
     art_key_type k, detail::node_ptr child, tree_depth_type start_depth) {
   return detail::bulk_build_chain<art_policy>(*this, k, child, start_depth);
 }
@@ -1819,9 +1812,9 @@ UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-template <typename Key, typename Value, typename PolicyTag>
-bool db<Key, Value, PolicyTag>::insert_internal_key_view(
-    art_key_type insert_key, value_type v) {
+template <typename Key, typename Value, typename HeapTag>
+bool db<Key, Value, HeapTag>::insert_internal_key_view(art_key_type insert_key,
+                                                       value_type v) {
   auto* node = &root;
   tree_depth_type depth{};
   auto remaining_key{insert_key};
@@ -1977,8 +1970,8 @@ bool db<Key, Value, PolicyTag>::insert_internal_key_view(
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-template <typename Key, typename Value, typename PolicyTag>
-bool db<Key, Value, PolicyTag>::remove_internal(art_key_type remove_key) {
+template <typename Key, typename Value, typename HeapTag>
+bool db<Key, Value, HeapTag>::remove_internal(art_key_type remove_key) {
   if (UNODB_DETAIL_UNLIKELY(root == nullptr)) return false;
   if constexpr (std::is_same_v<Key, key_view>) {
     if (UNODB_DETAIL_UNLIKELY(remove_key.size() == 0)) return false;
@@ -2003,8 +1996,8 @@ bool db<Key, Value, PolicyTag>::remove_internal(art_key_type remove_key) {
   }
 }
 
-template <typename Key, typename Value, typename PolicyTag>
-bool db<Key, Value, PolicyTag>::remove_internal_fixed(art_key_type remove_key) {
+template <typename Key, typename Value, typename HeapTag>
+bool db<Key, Value, HeapTag>::remove_internal_fixed(art_key_type remove_key) {
   auto* node = &root;
   auto remaining_key{remove_key};
 
@@ -2034,10 +2027,10 @@ bool db<Key, Value, PolicyTag>::remove_internal_fixed(art_key_type remove_key) {
   }
 }
 
-template <typename Key, typename Value, typename PolicyTag>
+template <typename Key, typename Value, typename HeapTag>
 // MSVC C26815 false positive: ptr<>() on local node_ptr values
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
-    Key, Value, PolicyTag>::remove_internal_key_view(art_key_type remove_key) {
+    Key, Value, HeapTag>::remove_internal_key_view(art_key_type remove_key) {
   struct stack_entry {
     detail::node_ptr* slot;
     std::uint8_t child_i;
@@ -2171,8 +2164,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
                  pcount == detail::basic_inode_16<art_policy>::min_size) {
         auto new_node{inode_4::create(
             *this,
-            *parent_val
-                 .template ptr<detail::inode_16<Key, Value, PolicyTag>*>(),
+            *parent_val.template ptr<detail::inode_16<Key, Value, HeapTag>*>(),
             entry.child_i)};
         *entry.slot = detail::node_ptr{new_node.release(), node_type::I4};
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -2180,10 +2172,9 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
 #endif
       } else if (ptype == node_type::I48 &&
                  pcount == detail::basic_inode_48<art_policy>::min_size) {
-        auto new_node{detail::inode_16<Key, Value, PolicyTag>::create(
+        auto new_node{detail::inode_16<Key, Value, HeapTag>::create(
             *this,
-            *parent_val
-                 .template ptr<detail::inode_48<Key, Value, PolicyTag>*>(),
+            *parent_val.template ptr<detail::inode_48<Key, Value, HeapTag>*>(),
             entry.child_i)};
         *entry.slot = detail::node_ptr{new_node.release(), node_type::I16};
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -2191,10 +2182,9 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26815) bool db<
 #endif
       } else if (ptype == node_type::I256 &&
                  pcount == detail::basic_inode_256<art_policy>::min_size) {
-        auto new_node{detail::inode_48<Key, Value, PolicyTag>::create(
+        auto new_node{detail::inode_48<Key, Value, HeapTag>::create(
             *this,
-            *parent_val
-                 .template ptr<detail::inode_256<Key, Value, PolicyTag>*>(),
+            *parent_val.template ptr<detail::inode_256<Key, Value, HeapTag>*>(),
             entry.child_i)};
         *entry.slot = detail::node_ptr{new_node.release(), node_type::I48};
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -2220,27 +2210,27 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 // TODO(laurynas): the method pairs first, last; next, prior;
 // left_most_traversal, right_most_traversal are identical except for a couple
 // lines. Extract helper methods templatized on the differences.
-template <typename Key, typename Value, typename PolicyTag>
-typename db<Key, Value, PolicyTag>::iterator&
-db<Key, Value, PolicyTag>::iterator::first() {
+template <typename Key, typename Value, typename HeapTag>
+typename db<Key, Value, HeapTag>::iterator&
+db<Key, Value, HeapTag>::iterator::first() {
   invalidate();  // clear the stack
   if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // empty tree.
   const auto node{db_.root};
   return left_most_traversal(node);
 }
 
-template <typename Key, typename Value, typename PolicyTag>
-typename db<Key, Value, PolicyTag>::iterator&
-db<Key, Value, PolicyTag>::iterator::last() {
+template <typename Key, typename Value, typename HeapTag>
+typename db<Key, Value, HeapTag>::iterator&
+db<Key, Value, HeapTag>::iterator::last() {
   invalidate();  // clear the stack
   if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // empty tree.
   const auto node{db_.root};
   return right_most_traversal(node);
 }
 
-template <typename Key, typename Value, typename PolicyTag>
-typename db<Key, Value, PolicyTag>::iterator&
-db<Key, Value, PolicyTag>::iterator::next() {
+template <typename Key, typename Value, typename HeapTag>
+typename db<Key, Value, HeapTag>::iterator&
+db<Key, Value, HeapTag>::iterator::next() {
   while (!empty()) {
     const auto& e = top();
     const auto node{e.node};
@@ -2275,9 +2265,9 @@ db<Key, Value, PolicyTag>::iterator::next() {
   return *this;  // stack is empty, so iterator is at the end
 }
 
-template <typename Key, typename Value, typename PolicyTag>
-typename db<Key, Value, PolicyTag>::iterator&
-db<Key, Value, PolicyTag>::iterator::prior() {
+template <typename Key, typename Value, typename HeapTag>
+typename db<Key, Value, HeapTag>::iterator&
+db<Key, Value, HeapTag>::iterator::prior() {
   while (!empty()) {
     const auto& e = top();
     const auto node{e.node};
@@ -2312,10 +2302,9 @@ db<Key, Value, PolicyTag>::iterator::prior() {
   return *this;  // stack is empty, so iterator is at the end.
 }
 
-template <typename Key, typename Value, typename PolicyTag>
-typename db<Key, Value, PolicyTag>::iterator&
-db<Key, Value, PolicyTag>::iterator::left_most_traversal(
-    detail::node_ptr node) {
+template <typename Key, typename Value, typename HeapTag>
+typename db<Key, Value, HeapTag>::iterator&
+db<Key, Value, HeapTag>::iterator::left_most_traversal(detail::node_ptr node) {
   while (true) {
     UNODB_DETAIL_ASSERT(node != nullptr);
     const auto node_type = node.type();
@@ -2340,10 +2329,9 @@ db<Key, Value, PolicyTag>::iterator::left_most_traversal(
   UNODB_DETAIL_CANNOT_HAPPEN();
 }
 
-template <typename Key, typename Value, typename PolicyTag>
-typename db<Key, Value, PolicyTag>::iterator&
-db<Key, Value, PolicyTag>::iterator::right_most_traversal(
-    detail::node_ptr node) {
+template <typename Key, typename Value, typename HeapTag>
+typename db<Key, Value, HeapTag>::iterator&
+db<Key, Value, HeapTag>::iterator::right_most_traversal(detail::node_ptr node) {
   while (true) {
     UNODB_DETAIL_ASSERT(node != nullptr);
     const auto node_type = node.type();
@@ -2368,10 +2356,10 @@ db<Key, Value, PolicyTag>::iterator::right_most_traversal(
   UNODB_DETAIL_CANNOT_HAPPEN();
 }
 
-template <typename Key, typename Value, typename PolicyTag>
-typename db<Key, Value, PolicyTag>::iterator&
-db<Key, Value, PolicyTag>::iterator::seek(art_key_type search_key, bool& match,
-                                          bool fwd) {
+template <typename Key, typename Value, typename HeapTag>
+typename db<Key, Value, HeapTag>::iterator&
+db<Key, Value, HeapTag>::iterator::seek(art_key_type search_key, bool& match,
+                                        bool fwd) {
   invalidate();   // invalidate the iterator (clear the stack).
   match = false;  // unless we wind up with an exact match.
   if (UNODB_DETAIL_UNLIKELY(db_.root == nullptr)) return *this;  // aka end
@@ -2567,9 +2555,9 @@ db<Key, Value, PolicyTag>::iterator::seek(art_key_type search_key, bool& match,
 }
 
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
-template <typename Key, typename Value, typename PolicyTag>
-typename db<Key, Value, PolicyTag>::iterator::get_key_result
-db<Key, Value, PolicyTag>::iterator::get_key() noexcept(!art_policy::has_heap) {
+template <typename Key, typename Value, typename HeapTag>
+typename db<Key, Value, HeapTag>::iterator::get_key_result
+db<Key, Value, HeapTag>::iterator::get_key() noexcept(!art_policy::has_heap) {
   UNODB_DETAIL_ASSERT(valid());  // by contract
   if constexpr (art_policy::full_key_in_inode_path) {
     return transient_key_view{keybuf_.get_key_view()};
@@ -2591,9 +2579,9 @@ db<Key, Value, PolicyTag>::iterator::get_key() noexcept(!art_policy::has_heap) {
 }
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
-template <typename Key, typename Value, typename PolicyTag>
-typename db<Key, Value, PolicyTag>::value_type
-db<Key, Value, PolicyTag>::iterator::get_val() const noexcept {
+template <typename Key, typename Value, typename HeapTag>
+typename db<Key, Value, HeapTag>::value_type
+db<Key, Value, HeapTag>::iterator::get_val() const noexcept {
   UNODB_DETAIL_ASSERT(valid());  // by contract
   const auto& e = stack_.top();
   const auto& node = e.node;
@@ -2610,9 +2598,9 @@ db<Key, Value, PolicyTag>::iterator::get_val() const noexcept {
 // ART scan implementations.
 //
 
-template <typename Key, typename Value, typename PolicyTag>
+template <typename Key, typename Value, typename HeapTag>
 template <typename FN>
-void db<Key, Value, PolicyTag>::scan(FN fn, bool fwd) {
+void db<Key, Value, HeapTag>::scan(FN fn, bool fwd) {
   if (fwd) {
     iterator it(*this);
     it.first();
@@ -2632,9 +2620,9 @@ void db<Key, Value, PolicyTag>::scan(FN fn, bool fwd) {
   }
 }
 
-template <typename Key, typename Value, typename PolicyTag>
+template <typename Key, typename Value, typename HeapTag>
 template <typename FN>
-void db<Key, Value, PolicyTag>::scan_from(Key from_key, FN fn, bool fwd) {
+void db<Key, Value, HeapTag>::scan_from(Key from_key, FN fn, bool fwd) {
   const art_key_type from_key_{from_key};  // convert to internal key
   bool match{};
   if (fwd) {
@@ -2656,9 +2644,9 @@ void db<Key, Value, PolicyTag>::scan_from(Key from_key, FN fn, bool fwd) {
   }
 }
 
-template <typename Key, typename Value, typename PolicyTag>
+template <typename Key, typename Value, typename HeapTag>
 template <typename FN>
-void db<Key, Value, PolicyTag>::scan_range(Key from_key, Key to_key, FN fn) {
+void db<Key, Value, HeapTag>::scan_range(Key from_key, Key to_key, FN fn) {
   // TODO(thompsonbry) : variable length keys. Explore a cheaper way
   // to handle the exclusive bound case when developing variable
   // length key support based on the maintained key buffer.
@@ -2706,8 +2694,8 @@ void db<Key, Value, PolicyTag>::scan_range(Key from_key, Key to_key, FN fn) {
   }
 }
 
-template <typename Key, typename Value, typename PolicyTag>
-void db<Key, Value, PolicyTag>::delete_root_subtree() noexcept {
+template <typename Key, typename Value, typename HeapTag>
+void db<Key, Value, HeapTag>::delete_root_subtree() noexcept {
   if (root != nullptr) art_policy::delete_subtree(root, *this);
 
 #ifdef UNODB_DETAIL_WITH_STATS
@@ -2717,8 +2705,8 @@ void db<Key, Value, PolicyTag>::delete_root_subtree() noexcept {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-template <typename Key, typename Value, typename PolicyTag>
-void db<Key, Value, PolicyTag>::clear() noexcept {
+template <typename Key, typename Value, typename HeapTag>
+void db<Key, Value, HeapTag>::clear() noexcept {
   delete_root_subtree();
 
   root = nullptr;
@@ -2733,9 +2721,9 @@ void db<Key, Value, PolicyTag>::clear() noexcept {
 
 #ifdef UNODB_DETAIL_WITH_STATS
 
-template <typename Key, typename Value, typename PolicyTag>
+template <typename Key, typename Value, typename HeapTag>
 template <class INode>
-constexpr void db<Key, Value, PolicyTag>::increment_inode_count() noexcept {
+constexpr void db<Key, Value, HeapTag>::increment_inode_count() noexcept {
   static_assert(inode_defs_type::template is_inode<INode>());
 
   if (auto* const acc = detail::tls_bulk_load_stats; acc != nullptr) {
@@ -2747,9 +2735,9 @@ constexpr void db<Key, Value, PolicyTag>::increment_inode_count() noexcept {
   increase_memory_use(sizeof(INode));
 }
 
-template <typename Key, typename Value, typename PolicyTag>
+template <typename Key, typename Value, typename HeapTag>
 template <class INode>
-constexpr void db<Key, Value, PolicyTag>::decrement_inode_count() noexcept {
+constexpr void db<Key, Value, HeapTag>::decrement_inode_count() noexcept {
   static_assert(inode_defs_type::template is_inode<INode>());
   UNODB_DETAIL_ASSERT(node_counts[as_i<INode::type>] > 0);
 
@@ -2757,9 +2745,9 @@ constexpr void db<Key, Value, PolicyTag>::decrement_inode_count() noexcept {
   decrease_memory_use(sizeof(INode));
 }
 
-template <typename Key, typename Value, typename PolicyTag>
+template <typename Key, typename Value, typename HeapTag>
 template <node_type NodeType>
-constexpr void db<Key, Value, PolicyTag>::account_growing_inode() noexcept {
+constexpr void db<Key, Value, HeapTag>::account_growing_inode() noexcept {
   static_assert(NodeType != node_type::LEAF);
 
   if (auto* const acc = detail::tls_bulk_load_stats; acc != nullptr) {
@@ -2772,9 +2760,9 @@ constexpr void db<Key, Value, PolicyTag>::account_growing_inode() noexcept {
                       node_counts[as_i<NodeType>]);
 }
 
-template <typename Key, typename Value, typename PolicyTag>
+template <typename Key, typename Value, typename HeapTag>
 template <node_type NodeType>
-constexpr void db<Key, Value, PolicyTag>::account_shrinking_inode() noexcept {
+constexpr void db<Key, Value, HeapTag>::account_shrinking_inode() noexcept {
   static_assert(NodeType != node_type::LEAF);
 
   ++shrinking_inode_counts[internal_as_i<NodeType>];
@@ -2784,8 +2772,8 @@ constexpr void db<Key, Value, PolicyTag>::account_shrinking_inode() noexcept {
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
-template <typename Key, typename Value, typename PolicyTag>
-void db<Key, Value, PolicyTag>::dump(std::ostream& os) const {
+template <typename Key, typename Value, typename HeapTag>
+void db<Key, Value, HeapTag>::dump(std::ostream& os) const {
 #ifdef UNODB_DETAIL_WITH_STATS
   os << "db dump, current memory use = " << get_current_memory_use() << '\n';
 #else
@@ -2795,15 +2783,15 @@ void db<Key, Value, PolicyTag>::dump(std::ostream& os) const {
 }
 
 // LCOV_EXCL_START
-template <typename Key, typename Value, typename PolicyTag>
-void db<Key, Value, PolicyTag>::dump() const {
+template <typename Key, typename Value, typename HeapTag>
+void db<Key, Value, HeapTag>::dump() const {
   dump(std::cerr);
 }
 // LCOV_EXCL_STOP
 
-template <typename Key, typename Value, typename PolicyTag>
+template <typename Key, typename Value, typename HeapTag>
 template <typename FN>
-bool db<Key, Value, PolicyTag>::upsert(Key k, value_type v, FN fn) {
+bool db<Key, Value, HeapTag>::upsert(Key k, value_type v, FN fn) {
   static_assert(std::is_invocable_r_v<upsert_action, FN, value_type&>,
                 "upsert lambda must be callable as upsert_action(value_type&)");
 
@@ -2898,10 +2886,10 @@ bool db<Key, Value, PolicyTag>::upsert(Key k, value_type v, FN fn) {
   }
 }
 
-template <typename Key, typename Value, typename PolicyTag>
+template <typename Key, typename Value, typename HeapTag>
 template <typename Fork, typename RandomIt>
-void db<Key, Value, PolicyTag>::bulk_load(Fork&& fork, std::size_t max_tasks,
-                                          RandomIt first, RandomIt last) {
+void db<Key, Value, HeapTag>::bulk_load(Fork&& fork, std::size_t max_tasks,
+                                        RandomIt first, RandomIt last) {
   if (!empty()) {
     throw std::invalid_argument("bulk_load requires empty tree");
   }

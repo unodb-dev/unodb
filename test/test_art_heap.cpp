@@ -8,15 +8,6 @@
 
 #include "global.hpp"  // NOLINT(misc-include-cleaner)
 
-UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
-UNODB_DETAIL_DISABLE_MSVC_WARNING(26409)
-UNODB_DETAIL_DISABLE_MSVC_WARNING(26426)
-UNODB_DETAIL_DISABLE_MSVC_WARNING(26432)
-UNODB_DETAIL_DISABLE_MSVC_WARNING(26436)
-UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
-UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
-UNODB_DETAIL_DISABLE_MSVC_WARNING(26818)
-
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -24,8 +15,14 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26818)
 #include <tuple>
 #include <vector>
 
+#include <gtest/gtest.h>
+
+// MSVC SA C26440 (test body can be noexcept) fires on generated TestBody
+// methods.  UNODB_TEST_F does not suppress this.
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
+
 #include "art_common.hpp"
-#include "gtest/gtest.h"
+#include "gtest_utils.hpp"
 #include "olc_art.hpp"
 #include "qsbr.hpp"
 #include "qsbr_test_utils.hpp"
@@ -41,6 +38,9 @@ using heap_db = unodb::olc_db<unodb::key_view, std::uint64_t, TestHeap>;
 
 /// Test fixture providing QSBR context.
 // NOLINTNEXTLINE(cppcoreguidelines-virtual-class-destructor)
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26432)
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26436)
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
 class HeapArtTest : public ::testing::Test {
  protected:
   HeapArtTest() noexcept { unodb::test::expect_idle_qsbr(); }
@@ -50,30 +50,33 @@ class HeapArtTest : public ::testing::Test {
     unodb::test::expect_idle_qsbr();
   }
 };
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-TEST_F(HeapArtTest, ConstructDestruct) {
+UNODB_TEST_F(HeapArtTest, ConstructDestruct) {
   const TestHeap heap;
   const heap_db db{heap};
-  EXPECT_TRUE(db.empty());
+  UNODB_EXPECT_TRUE(db.empty());
 }
 
-TEST_F(HeapArtTest, InsertGetSingle) {
+UNODB_TEST_F(HeapArtTest, InsertGetSingle) {
   TestHeap heap;
   const auto key_bytes = encode_u64(42);
   const unodb::key_view key{key_bytes.data(), key_bytes.size()};
   heap.add_tuple(1, key);
 
   heap_db db{heap};
-  ASSERT_TRUE(db.insert(key, 1));
-  EXPECT_FALSE(db.empty());
+  UNODB_ASSERT_TRUE(db.insert(key, 1));
+  UNODB_EXPECT_FALSE(db.empty());
 
   const auto result = db.get(key);
-  ASSERT_TRUE(result.has_value());
+  UNODB_ASSERT_TRUE(result.has_value());
   // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
-  EXPECT_EQ(result.value(), 1U);
+  UNODB_EXPECT_EQ(result.value(), 1U);
 }
 
-TEST_F(HeapArtTest, InsertDuplicate) {
+UNODB_TEST_F(HeapArtTest, InsertDuplicate) {
   TestHeap heap;
   const auto key_bytes = encode_u64(100);
   const unodb::key_view key{key_bytes.data(), key_bytes.size()};
@@ -81,24 +84,24 @@ TEST_F(HeapArtTest, InsertDuplicate) {
   heap.add_tuple(2, key);
 
   heap_db db{heap};
-  ASSERT_TRUE(db.insert(key, 1));
-  EXPECT_FALSE(db.insert(key, 2));
+  UNODB_ASSERT_TRUE(db.insert(key, 1));
+  UNODB_EXPECT_FALSE(db.insert(key, 2));
 }
 
-TEST_F(HeapArtTest, InsertRemove) {
+UNODB_TEST_F(HeapArtTest, InsertRemove) {
   TestHeap heap;
   const auto key_bytes = encode_u64(7);
   const unodb::key_view key{key_bytes.data(), key_bytes.size()};
   heap.add_tuple(1, key);
 
   heap_db db{heap};
-  ASSERT_TRUE(db.insert(key, 1));
-  ASSERT_TRUE(db.remove(key));
-  EXPECT_TRUE(db.empty());
-  EXPECT_FALSE(db.get(key).has_value());
+  UNODB_ASSERT_TRUE(db.insert(key, 1));
+  UNODB_ASSERT_TRUE(db.remove(key));
+  UNODB_EXPECT_TRUE(db.empty());
+  UNODB_EXPECT_FALSE(db.get(key).has_value());
 }
 
-TEST_F(HeapArtTest, InsertDivergence) {
+UNODB_TEST_F(HeapArtTest, InsertDivergence) {
   // Two keys that share a 6-byte prefix but diverge at byte 7.
   TestHeap heap;
   std::array<std::byte, 8> key_a{};
@@ -120,21 +123,21 @@ TEST_F(HeapArtTest, InsertDivergence) {
   const unodb::key_view kv_a{key_a.data(), key_a.size()};
   const unodb::key_view kv_b{key_b.data(), key_b.size()};
 
-  ASSERT_TRUE(db.insert(kv_a, 10));
-  ASSERT_TRUE(db.insert(kv_b, 20));
+  UNODB_ASSERT_TRUE(db.insert(kv_a, 10));
+  UNODB_ASSERT_TRUE(db.insert(kv_b, 20));
 
   const auto r_a = db.get(kv_a);
-  ASSERT_TRUE(r_a.has_value());
+  UNODB_ASSERT_TRUE(r_a.has_value());
   // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
-  EXPECT_EQ(r_a.value(), 10U);
+  UNODB_EXPECT_EQ(r_a.value(), 10U);
 
   const auto r_b = db.get(kv_b);
-  ASSERT_TRUE(r_b.has_value());
+  UNODB_ASSERT_TRUE(r_b.has_value());
   // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
-  EXPECT_EQ(r_b.value(), 20U);
+  UNODB_EXPECT_EQ(r_b.value(), 20U);
 }
 
-TEST_F(HeapArtTest, ScanOrder) {
+UNODB_TEST_F(HeapArtTest, ScanOrder) {
   TestHeap heap;
   // Insert keys in random order, scan should yield them in sorted order.
   const std::vector<std::uint64_t> values{5, 2, 8, 1, 9, 3, 7, 4, 6, 0};
@@ -146,7 +149,7 @@ TEST_F(HeapArtTest, ScanOrder) {
     key_store.push_back(encode_u64(v));
     const unodb::key_view kv{key_store.back().data(), key_store.back().size()};
     heap.add_tuple(v, kv);
-    ASSERT_TRUE(db.insert(kv, v));
+    UNODB_ASSERT_TRUE(db.insert(kv, v));
   }
 
   // Scan and collect results.
@@ -158,10 +161,10 @@ TEST_F(HeapArtTest, ScanOrder) {
 
   // Should be in ascending key order (big-endian encoding preserves order).
   const std::vector<std::uint64_t> expected{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-  EXPECT_EQ(scan_results, expected);
+  UNODB_EXPECT_EQ(scan_results, expected);
 }
 
-TEST_F(HeapArtTest, ManyInserts) {
+UNODB_TEST_F(HeapArtTest, ManyInserts) {
   TestHeap heap;
   heap_db db{heap};
 
@@ -173,27 +176,27 @@ TEST_F(HeapArtTest, ManyInserts) {
     key_store.push_back(encode_u64(i));
     const unodb::key_view kv{key_store.back().data(), key_store.back().size()};
     heap.add_tuple(i, kv);
-    ASSERT_TRUE(db.insert(kv, i));
+    UNODB_ASSERT_TRUE(db.insert(kv, i));
   }
 
   // Verify all retrievable.
   for (std::uint64_t i = 0; i < count; ++i) {
     const unodb::key_view kv{key_store[i].data(), key_store[i].size()};
     const auto result = db.get(kv);
-    ASSERT_TRUE(result.has_value()) << "Missing key for i=" << i;
+    UNODB_ASSERT_TRUE(result.has_value());
     // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
-    EXPECT_EQ(result.value(), i);
+    UNODB_EXPECT_EQ(result.value(), i);
   }
 
   // Remove all.
   for (std::uint64_t i = 0; i < count; ++i) {
     const unodb::key_view kv{key_store[i].data(), key_store[i].size()};
-    ASSERT_TRUE(db.remove(kv)) << "Failed to remove i=" << i;
+    UNODB_ASSERT_TRUE(db.remove(kv));
   }
-  EXPECT_TRUE(db.empty());
+  UNODB_EXPECT_TRUE(db.empty());
 }
 
-TEST_F(HeapArtTest, ConcurrentInsertGet) {
+UNODB_TEST_F(HeapArtTest, ConcurrentInsertGet) {
   // Multiple threads insert and get concurrently on a heap-backed tree.
   TestHeap heap;
   heap_db db{heap};
@@ -226,12 +229,9 @@ TEST_F(HeapArtTest, ConcurrentInsertGet) {
     for (std::uint64_t i = start; i < end; ++i) {
       const unodb::key_view kv{key_store[i].data(), key_store[i].size()};
       const auto result = db.get(kv);
-      if (result.has_value()) {
-        // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
-        EXPECT_EQ(result.value(), i);
-      }
-      // Key might be missing if another thread hasn't finished; that's ok
-      // for this stress test. We just verify no crashes.
+      UNODB_ASSERT_TRUE(result.has_value());
+      // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+      UNODB_EXPECT_EQ(result.value(), i);
       unodb::this_thread().quiescent();
     }
   };
@@ -250,20 +250,12 @@ TEST_F(HeapArtTest, ConcurrentInsertGet) {
   for (std::uint64_t i = 0; i < total_keys; ++i) {
     const unodb::key_view kv{key_store[i].data(), key_store[i].size()};
     const auto result = db.get(kv);
-    ASSERT_TRUE(result.has_value())
-        << "Missing key after concurrent test i=" << i;
+    UNODB_ASSERT_TRUE(result.has_value());
     // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
-    EXPECT_EQ(result.value(), i);
+    UNODB_EXPECT_EQ(result.value(), i);
   }
 }
 
 }  // namespace
 
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()

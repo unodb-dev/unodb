@@ -369,10 +369,10 @@ class basic_db_leaf_deleter {
 /// \tparam Db Database template
 template <typename Key, typename Value, class Header,
           template <typename, typename, typename> class Db,
-          typename PolicyTag = void>
+          typename HeapTag = void>
 using basic_db_leaf_unique_ptr =
     std::unique_ptr<basic_leaf<leaf_key_type<Key, Value>, Header>,
-                    basic_db_leaf_deleter<Db<Key, Value, PolicyTag>>>;
+                    basic_db_leaf_deleter<Db<Key, Value, HeapTag>>>;
 
 // TODO(laurynas): extract a base class db_ref?
 

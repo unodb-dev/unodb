@@ -75,7 +75,7 @@ class ARTKeyViewFullChainTest : public ::testing::Test {
   /// caller's value) and registers the key with the heap.  For non-heap types,
   /// passes through unchanged.
   bool do_insert(Db& db, unodb::key_view k, typename Db::value_type v) {
-    if constexpr (unodb::test::is_heap_db_v<Db>) {
+    if constexpr (Db::has_heap) {
       const auto tid = next_tuple_id_++;
       heap_.add_tuple(tid, std::span<const std::byte>{k.data(), k.size()});
       return db.insert(k, tid);
@@ -110,7 +110,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, TooLongKey) {
 /// Minimal reproducer: two text keys into a keyless-leaf tree.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, TwoKeyMinimalRepro) {
   std::optional<TypeParam> db_opt;
-  if constexpr (unodb::test::is_heap_db_v<TypeParam>) {
+  if constexpr (TypeParam::has_heap) {
     db_opt.emplace(this->heap_);
   } else {
     db_opt.emplace();
@@ -1663,10 +1663,10 @@ void verify_stack(const typename Db::iterator& it,
 /// Two keys sharing a long prefix (chain structure).
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureTwoChainKeys) {
   // Stack inspection uses get_key().view() which is not available in heap mode
-  if constexpr (!unodb::test::is_heap_db_v<TypeParam>) {
+  if constexpr (!TypeParam::has_heap) {
     // (heap iterators recover keys via the heap, not from internal art_key).
     std::optional<TypeParam> db_opt;
-    if constexpr (unodb::test::is_heap_db_v<TypeParam>) {
+    if constexpr (TypeParam::has_heap) {
       db_opt.emplace(this->heap_);
     } else {
       db_opt.emplace();
@@ -1695,9 +1695,9 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureTwoChainKeys) {
 
 /// Three keys with different first bytes (wide I4, no chain).
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureWideNode) {
-  if constexpr (!unodb::test::is_heap_db_v<TypeParam>) {
+  if constexpr (!TypeParam::has_heap) {
     std::optional<TypeParam> db_opt;
-    if constexpr (unodb::test::is_heap_db_v<TypeParam>) {
+    if constexpr (TypeParam::has_heap) {
       db_opt.emplace(this->heap_);
     } else {
       db_opt.emplace();
@@ -1727,9 +1727,9 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureWideNode) {
 
 /// Second insert with different tag must also create a full chain.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureSecondInsertChain) {
-  if constexpr (!unodb::test::is_heap_db_v<TypeParam>) {
+  if constexpr (!TypeParam::has_heap) {
     std::optional<TypeParam> db_opt;
-    if constexpr (unodb::test::is_heap_db_v<TypeParam>) {
+    if constexpr (TypeParam::has_heap) {
       db_opt.emplace(this->heap_);
     } else {
       db_opt.emplace();
@@ -1756,9 +1756,9 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureSecondInsertChain) {
 
 /// Forward and reverse scan, verify stack at every position.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureFullScan) {
-  if constexpr (!unodb::test::is_heap_db_v<TypeParam>) {
+  if constexpr (!TypeParam::has_heap) {
     std::optional<TypeParam> db_opt;
-    if constexpr (unodb::test::is_heap_db_v<TypeParam>) {
+    if constexpr (TypeParam::has_heap) {
       db_opt.emplace(this->heap_);
     } else {
       db_opt.emplace();
@@ -1822,7 +1822,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureFullScan) {
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, EmptyKeyRejected) {
   std::optional<TypeParam> db_opt;
-  if constexpr (unodb::test::is_heap_db_v<TypeParam>) {
+  if constexpr (TypeParam::has_heap) {
     db_opt.emplace(this->heap_);
   } else {
     db_opt.emplace();
@@ -1956,7 +1956,7 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 // truncation and corrupt every subsequent reconstructed key.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanKeyReconstructionFF) {
   std::optional<TypeParam> db_opt;
-  if constexpr (unodb::test::is_heap_db_v<TypeParam>) {
+  if constexpr (TypeParam::has_heap) {
     db_opt.emplace(this->heap_);
   } else {
     db_opt.emplace();
@@ -2142,7 +2142,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CollapseBlockedByVISChild) {
 // This covers art.hpp descend_left/descend_right in scan_from.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromBacktracking) {
   std::optional<TypeParam> db_opt;
-  if constexpr (unodb::test::is_heap_db_v<TypeParam>) {
+  if constexpr (TypeParam::has_heap) {
     db_opt.emplace(this->heap_);
   } else {
     db_opt.emplace();
@@ -2214,7 +2214,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, PrefixSplitNoChain) {
 // sibling exercises descend_left/right.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanMixedVISAndChainChildren) {
   std::optional<TypeParam> db_opt;
-  if constexpr (unodb::test::is_heap_db_v<TypeParam>) {
+  if constexpr (TypeParam::has_heap) {
     db_opt.emplace(this->heap_);
   } else {
     db_opt.emplace();
@@ -2279,7 +2279,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanMixedVISAndChainChildren) {
 // Exercise get_val() on VIS children — unpack_value path.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, GetValOnVISChild) {
   std::optional<TypeParam> db_opt;
-  if constexpr (unodb::test::is_heap_db_v<TypeParam>) {
+  if constexpr (TypeParam::has_heap) {
     db_opt.emplace(this->heap_);
   } else {
     db_opt.emplace();
@@ -2294,7 +2294,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, GetValOnVISChild) {
   // Scan and read values — exercises unpack_value in get_val().
   int count = 0;
   db.scan([&](const auto& visitor) {
-    if constexpr (!unodb::test::is_heap_db_v<TypeParam>) {
+    if constexpr (!TypeParam::has_heap) {
       UNODB_EXPECT_EQ(visitor.get_value(), val);
     } else {
       std::ignore = visitor.get_value();  // Just verify it doesn't crash.
@@ -2333,7 +2333,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, DispatchByteCollision) {
 // descend_right with is_value_in_slot true.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromBacktrackToVIS) {
   std::optional<TypeParam> db_opt;
-  if constexpr (unodb::test::is_heap_db_v<TypeParam>) {
+  if constexpr (TypeParam::has_heap) {
     db_opt.emplace(this->heap_);
   } else {
     db_opt.emplace();
@@ -2436,7 +2436,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromBacktrackToVIS) {
 /// the seek direction is a value in a slot: the climb must take the
 /// push_leaf() path instead of descending under an inode sibling.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, SeekClimbToVISSibling) {
-  if constexpr (unodb::test::is_heap_db_v<TypeParam>) {
+  if constexpr (TypeParam::has_heap) {
     GTEST_SKIP() << "Direct-insert test; heap needs tuple registration";
   } else {
     TypeParam db;
@@ -2476,7 +2476,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, SeekClimbToVISSibling) {
           /*fwd=*/false);
       UNODB_EXPECT_EQ(count, 1);  // 0x10
     }
-  }  // !is_heap_db_v
+  }  // !has_heap
 }
 
 /// Seek climbing the stack to an inode sibling.  As SeekClimbToVISSibling,
@@ -2484,7 +2484,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, SeekClimbToVISSibling) {
 /// sibling and continues with a left-most (forward) or right-most (reverse)
 /// descent under it.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, SeekClimbToChainSibling) {
-  if constexpr (unodb::test::is_heap_db_v<TypeParam>) {
+  if constexpr (TypeParam::has_heap) {
     GTEST_SKIP() << "Direct-insert test; heap needs tuple registration";
   } else {
     TypeParam db;
@@ -2524,14 +2524,14 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, SeekClimbToChainSibling) {
           /*fwd=*/true);
       UNODB_EXPECT_EQ(count, 2);  // [0x20, 1], [0x20, 2]
     }
-  }  // !is_heap_db_v
+  }  // !has_heap
 }
 
 // scan_from where the search key is a proper prefix of all stored keys.
 // Exercises the remaining_key exhaustion guard after prefix matching.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromKeyIsPrefixOfStored) {
   std::optional<TypeParam> db_opt;
-  if constexpr (unodb::test::is_heap_db_v<TypeParam>) {
+  if constexpr (TypeParam::has_heap) {
     db_opt.emplace(this->heap_);
   } else {
     db_opt.emplace();
@@ -2654,7 +2654,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, PrefixOverflowBlocksCollapse) {
 /// Covers art.hpp forward ascent loop (lines ~2330-2340).
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromDeepAscent) {
   std::optional<TypeParam> db_opt;
-  if constexpr (unodb::test::is_heap_db_v<TypeParam>) {
+  if constexpr (TypeParam::has_heap) {
     db_opt.emplace(this->heap_);
   } else {
     db_opt.emplace();
@@ -2708,7 +2708,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromDeepAscent) {
 /// Covers olc_art.hpp empty-key reverse path (line ~3264).
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromEmptyKeyReverse) {
   std::optional<TypeParam> db_opt;
-  if constexpr (unodb::test::is_heap_db_v<TypeParam>) {
+  if constexpr (TypeParam::has_heap) {
     db_opt.emplace(this->heap_);
   } else {
     db_opt.emplace();
@@ -2742,7 +2742,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromEmptyKeyReverse) {
 /// that shares the same dispatch byte.  get() must return not-found.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, GetRejectsStrictSupersetOfVISKey) {
   std::optional<TypeParam> db_opt;
-  if constexpr (unodb::test::is_heap_db_v<TypeParam>) {
+  if constexpr (TypeParam::has_heap) {
     db_opt.emplace(this->heap_);
   } else {
     db_opt.emplace();

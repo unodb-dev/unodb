@@ -19,28 +19,40 @@
 #include <vector>
 
 #include "art_common.hpp"
+#include "assert.hpp"
 
 namespace unodb::test {
 
 /// A trivial tuple heap for testing.  Stores pre-encoded keys in a flat
 /// vector indexed by tuple_id.
+///
+/// \par Registration contract
+/// `add_tuple(id, key)` **must** be called for every (id, key) pair
+/// before the corresponding `tree.insert(key, id)`.  `extract_key` will
+/// assert in debug builds if the id has not been registered.  This
+/// precondition exists because the ART insert path may call extract_key
+/// during node splits to recover keys from existing leaves.
 class TestHeap {
  public:
   /// Register a key for a tuple_id.  Must be called before the tree uses it.
   void add_tuple(std::uint64_t id, std::span<const std::byte> key) {
     if (id >= keys_.size()) keys_.resize(id + 1);
     keys_[id].assign(key.begin(), key.end());
+    if (id >= registered_.size()) registered_.resize(id + 1, false);
+    registered_[id] = true;
   }
 
   /// Satisfy the TupleHeap concept: extract_key(id, buf) -> key_view.
   [[nodiscard]] unodb::key_view extract_key(
       std::uint64_t id, unodb::key_encoder& /*buf*/) const noexcept {
+    UNODB_DETAIL_ASSERT(id < registered_.size() && registered_[id]);
     const auto& k = keys_[id];
     return unodb::key_view{k.data(), k.size()};
   }
 
  private:
   std::vector<std::vector<std::byte>> keys_;
+  std::vector<bool> registered_;
 };
 
 static_assert(unodb::TupleHeap<TestHeap, std::uint64_t>);
@@ -55,10 +67,6 @@ static_assert(unodb::TupleHeap<TestHeap, std::uint64_t>);
   }
   return buf;
 }
-
-/// Type trait: is Db a heap-backed database type?
-template <typename Db>
-inline constexpr bool is_heap_db_v = false;
 
 }  // namespace unodb::test
 

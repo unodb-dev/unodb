@@ -281,7 +281,7 @@ class [[nodiscard]] tree_verifier final {
   // NOLINTBEGIN(modernize-use-constraints)
   template <class Db2 = Db>
   std::enable_if_t<!is_olc_db<Db2>, void> do_insert(key_type k, value_type v) {
-    if constexpr (unodb::test::is_heap_db_v<Db>) {
+    if constexpr (Db::has_heap) {
       const auto tid = next_tuple_id_++;
       heap_.add_tuple(tid, std::span<const std::byte>{k.data(), k.size()});
       UNODB_ASSERT_TRUE((*test_db_).insert(k, tid));
@@ -292,13 +292,12 @@ class [[nodiscard]] tree_verifier final {
 
   template <class Db2 = Db>
   std::enable_if_t<is_olc_db<Db2>, void> do_insert(key_type k, value_type v) {
-    if constexpr (unodb::test::is_heap_db_v<Db>) {
+    const quiescent_state_on_scope_exit qsbr_after_insert{};
+    if constexpr (Db::has_heap) {
       const auto tid = next_tuple_id_++;
       heap_.add_tuple(tid, std::span<const std::byte>{k.data(), k.size()});
-      const quiescent_state_on_scope_exit qsbr_after_get{};
       UNODB_ASSERT_TRUE((*test_db_).insert(k, tid));
     } else {
-      const quiescent_state_on_scope_exit qsbr_after_get{};
       UNODB_ASSERT_TRUE((*test_db_).insert(k, v));
     }
   }
@@ -477,7 +476,7 @@ class [[nodiscard]] tree_verifier final {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26455)
   explicit tree_verifier(bool parallel_test_ = false)
       : parallel_test{parallel_test_} {
-    if constexpr (unodb::test::is_heap_db_v<Db>) {
+    if constexpr (Db::has_heap) {
       test_db_.emplace(heap_);
     } else {
       test_db_.emplace();
@@ -507,7 +506,7 @@ class [[nodiscard]] tree_verifier final {
   bool try_insert(T k, value_type v) {
     const auto ck = coerce_key(k);
     if constexpr (is_olc_db<Db>) {
-      if constexpr (unodb::test::is_heap_db_v<Db>) {
+      if constexpr (Db::has_heap) {
         const auto tid = next_tuple_id_++;
         const quiescent_state_on_scope_exit qsbr_after_insert{};
         const bool ok = (*test_db_).insert(ck, tid);
@@ -520,7 +519,7 @@ class [[nodiscard]] tree_verifier final {
         return (*test_db_).insert(ck, v);
       }
     } else {
-      if constexpr (unodb::test::is_heap_db_v<Db>) {
+      if constexpr (Db::has_heap) {
         const auto tid = next_tuple_id_++;
         const bool ok = (*test_db_).insert(ck, tid);
         if (ok)
@@ -653,7 +652,7 @@ class [[nodiscard]] tree_verifier final {
     // under that key.  Skip for heap types since stored values are tuple_ids,
     // not the original test values.  For heap types, verify the round-trip:
     // get(key) returns a tuple_id whose extract_key() reconstructs the key.
-    if constexpr (!unodb::test::is_heap_db_v<Db>) {
+    if constexpr (!Db::has_heap) {
       UNODB_DETAIL_DISABLE_MSVC_WARNING(26445)
       for (const auto& [key, value] : values) {
         if constexpr (std::is_same_v<typename Db::key_type, unodb::key_view>) {
@@ -851,8 +850,7 @@ class [[nodiscard]] tree_verifier final {
   /// Heap instance for heap-backed types (zero-size empty struct otherwise).
   struct empty_heap_tag {};
   UNODB_DETAIL_NO_UNIQUE_ADDRESS
-  std::conditional_t<unodb::test::is_heap_db_v<Db>, unodb::test::TestHeap,
-                     empty_heap_tag>
+  std::conditional_t<Db::has_heap, unodb::test::TestHeap, empty_heap_tag>
       heap_{};
 
   /// Auto-incrementing tuple_id for heap mode inserts.
@@ -893,13 +891,6 @@ using key_view_u64val_olc_db = unodb::olc_db<unodb::key_view, std::uint64_t>;
 using heap_db = unodb::db<unodb::key_view, std::uint64_t, TestHeap>;
 using heap_mutex_db = unodb::mutex_db<unodb::key_view, std::uint64_t, TestHeap>;
 using heap_olc_db = unodb::olc_db<unodb::key_view, std::uint64_t, TestHeap>;
-
-template <>
-inline constexpr bool is_heap_db_v<heap_db> = true;
-template <>
-inline constexpr bool is_heap_db_v<heap_mutex_db> = true;
-template <>
-inline constexpr bool is_heap_db_v<heap_olc_db> = true;
 
 extern template class tree_verifier<u64_db>;
 extern template class tree_verifier<u64_mutex_db>;

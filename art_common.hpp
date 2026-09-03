@@ -30,10 +30,10 @@
 
 namespace unodb {
 
-template <typename Key, typename Value, typename PolicyTag = void>
+template <typename Key, typename Value, typename HeapTag = void>
 class db;
 
-template <typename Key, typename Value, typename PolicyTag = void>
+template <typename Key, typename Value, typename HeapTag = void>
 class olc_db;
 
 /// Type alias determining the maximum size in bytes of a key that may be stored
