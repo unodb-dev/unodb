@@ -309,7 +309,8 @@ suffix, such as `deepstate_lf_8h`, `deepstate_qsbr_lf_20m`,
 
 ## Commit messages
 
-- Keep the first line under 72 characters and don't finish it with a full stop.
+- Keep the first line to at most 72 characters and don't finish it with a full
+  stop. Nothing in CI checks this, so it is on the author.
 - The second line should be empty.
 - Use imperative mood ("Fix bug" not "fixes bug", nor "fixed bug").
 - Reference fixed issues, i.e. "fixes: #123"
