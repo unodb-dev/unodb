@@ -4333,12 +4333,12 @@ class basic_inode_48
       }
       i += 4;
     }
-#else   // #ifdef UNODB_DETAIL_X86_64
+#else   // #ifdef UNODB_DETAIL_SSE4_2
     while (children.pointer_array[i] != nullptr) {
       ++i;
       UNODB_DETAIL_ASSERT(i < parent_class::capacity);
     }
-#endif  // #ifdef UNODB_DETAIL_X86_64
+#endif  // #ifdef UNODB_DETAIL_SSE4_2
 
     UNODB_DETAIL_ASSUME(i < parent_class::capacity);
 
