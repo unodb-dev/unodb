@@ -4241,6 +4241,7 @@ class basic_inode_48
 #ifdef UNODB_DETAIL_SSE4_2
     const auto nullptr_vector = _mm_setzero_si128();
     while (true) {
+      UNODB_DETAIL_ASSERT(i < children_union::pointer_vector_size);
       const auto ptr_vec0 = _mm_load_si128(&children.pointer_vector[i]);
       const auto ptr_vec1 = _mm_load_si128(&children.pointer_vector[i + 1]);
       const auto ptr_vec2 = _mm_load_si128(&children.pointer_vector[i + 2]);
@@ -4266,6 +4267,7 @@ class basic_inode_48
 #elif defined(UNODB_DETAIL_AVX2)
     const auto nullptr_vector = _mm256_setzero_si256();
     while (true) {
+      UNODB_DETAIL_ASSERT(i < children_union::pointer_vector_size);
       const auto ptr_vec0 = _mm256_load_si256(&children.pointer_vector[i]);
       const auto ptr_vec1 = _mm256_load_si256(&children.pointer_vector[i + 1]);
       const auto ptr_vec2 = _mm256_load_si256(&children.pointer_vector[i + 2]);
@@ -4299,6 +4301,7 @@ class basic_inode_48
 #elif defined(__aarch64__)
     const auto nullptr_vector = vdupq_n_u64(0);
     while (true) {
+      UNODB_DETAIL_ASSERT(i < children_union::pointer_vector_size);
       const auto ptr_vec0 = children.pointer_vector[i];
       const auto ptr_vec1 = children.pointer_vector[i + 1];
       const auto ptr_vec2 = children.pointer_vector[i + 2];
@@ -4331,12 +4334,9 @@ class basic_inode_48
       i += 4;
     }
 #else   // #ifdef UNODB_DETAIL_X86_64
-    node_ptr child_ptr;
-    while (true) {
-      child_ptr = children.pointer_array[i];
-      if (child_ptr == nullptr) break;
-      UNODB_DETAIL_ASSERT(i < 255);
+    while (children.pointer_array[i] != nullptr) {
       ++i;
+      UNODB_DETAIL_ASSERT(i < parent_class::capacity);
     }
 #endif  // #ifdef UNODB_DETAIL_X86_64
 
@@ -4850,23 +4850,29 @@ class basic_inode_48
         pointer_array;
 #ifdef UNODB_DETAIL_SSE4_2
     static_assert(basic_inode_48::capacity % 8 == 0);
+    /// Number of SIMD vectors spanning `pointer_array`, and so the bound the
+    /// free-slot scans assert their vector index against.
+    static constexpr auto pointer_vector_size = basic_inode_48::capacity / 2;
     // No std::array below because it would ignore the alignment attribute
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     /// SSE vector for SIMD operations.
-    __m128i
-        pointer_vector[basic_inode_48::capacity / 2];  // NOLINT(runtime/arrays)
+    __m128i pointer_vector[pointer_vector_size];  // NOLINT(runtime/arrays)
 #elif defined(UNODB_DETAIL_AVX2)
     static_assert(basic_inode_48::capacity % 16 == 0);
+    /// Number of SIMD vectors spanning `pointer_array`, and so the bound the
+    /// free-slot scans assert their vector index against.
+    static constexpr auto pointer_vector_size = basic_inode_48::capacity / 4;
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     /// AVX vector for SIMD operations.
-    __m256i
-        pointer_vector[basic_inode_48::capacity / 4];  // NOLINT(runtime/arrays)
+    __m256i pointer_vector[pointer_vector_size];  // NOLINT(runtime/arrays)
 #elif defined(__aarch64__)
     static_assert(basic_inode_48::capacity % 8 == 0);
+    /// Number of SIMD vectors spanning `pointer_array`, and so the bound the
+    /// free-slot scans assert their vector index against.
+    static constexpr auto pointer_vector_size = basic_inode_48::capacity / 2;
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     /// NEON vector for SIMD operations.
-    uint64x2_t
-        pointer_vector[basic_inode_48::capacity / 2];  // NOLINT(runtime/arrays)
+    uint64x2_t pointer_vector[pointer_vector_size];  // NOLINT(runtime/arrays)
 #endif
 
     /// Default constructor.
