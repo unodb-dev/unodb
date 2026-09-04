@@ -728,10 +728,10 @@ class olc_db final {
     olc_db& db_;
 
     /// A stack reflecting the parent path from the root of the tree
-    /// to the current leaf position — a leaf, or in value-in-slot
-    /// mode the packed value.  An empty stack corresponds to a
-    /// logically empty iterator and can be detected using !valid().
-    /// The iterator for an empty tree is an empty stack.
+    /// to the current leaf position — a leaf, or under
+    /// `detail::basic_art_policy::can_eliminate_leaf` the packed value.  An empty
+    /// stack corresponds to a logically empty iterator and can be detected using
+    /// !valid().  The iterator for an empty tree is an empty stack.
     ///
     /// \sa unodb::db::iterator::stack_ for the full entry invariants,
     /// including the packed-zero/`nullptr` aliasing

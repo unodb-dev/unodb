@@ -750,11 +750,11 @@ class db final {
     db& db_;
 
     /// A stack reflecting the parent path from the root of the tree to the
-    /// current leaf position — a leaf, or in value-in-slot mode the packed
-    /// value, the latter marked by `detail::iter_result::is_packed_value`. An
-    /// empty stack corresponds to a logically empty iterator and the iterator
-    /// will report ! valid(). The iterator for an empty tree is an empty
-    /// stack.
+    /// current leaf position — a leaf, or under
+    /// `detail::basic_art_policy::can_eliminate_leaf` the packed value, marked by
+    /// `detail::iter_result::is_packed_value`. An empty stack corresponds to a
+    /// logically empty iterator and the iterator will report ! valid(). The
+    /// iterator for an empty tree is an empty stack.
     ///
     /// The stack is made up of `detail::iter_result` entries; the parts that
     /// matter here are `node`, `key_byte`, `child_index`, and
@@ -764,8 +764,9 @@ class db final {
     /// the path from the root. For the bottom of the stack, `node` is the root.
     /// For the top of the stack it is the current leaf position. In the
     /// degenerate case where the tree is a single root leaf, the stack
-    /// contains just that leaf; value-in-slot mode has no leaf nodes, so that
-    /// case does not arise there.
+    /// contains just that leaf; under
+    /// `detail::basic_art_policy::can_eliminate_leaf` there are no leaf nodes
+    /// at all, so that case does not arise there.
     ///
     /// The `node` is never `nullptr` except for an `is_packed_value` entry
     /// holding the value zero, which reads as a null `detail::node_ptr` (see
