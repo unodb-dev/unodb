@@ -508,7 +508,7 @@ class olc_db final {
         -> std::conditional_t<std::is_same_v<Value, unodb::value_view>,
                               unodb::value_view, value_type>;
 
-    /// Debugging
+    /// Output iterator state to stream \a os for debugging.
     // LCOV_EXCL_START
     [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump(std::ostream& os) const {
       if (empty()) {
@@ -545,7 +545,10 @@ class olc_db final {
     }
     // LCOV_EXCL_STOP
 
-    /// Debugging
+    /// Output iterator state to stderr for debugging.
+    ///
+    /// Convenience wrapper for `dump(std::cerr)`.
+    /// \note For debugging purposes only, not part of stable API
     // LCOV_EXCL_START
     [[gnu::cold]] UNODB_DETAIL_NOINLINE void dump() const { dump(std::cerr); }
     // LCOV_EXCL_STOP
@@ -760,9 +763,9 @@ class olc_db final {
   //
 
  public:
-  ///
-  /// public scan API
-  ///
+  //
+  // public scan API
+  //
 
   // Note: The scan() interface is public.  The iterator and the
   // methods to obtain an iterator are protected (except for tests).
