@@ -802,7 +802,8 @@ struct basic_art_policy final {
   using tree_depth_type = tree_depth<art_key_type>;
 
   /// Whether the full key is encoded in the inode path (prefix + dispatch
-  /// bytes at every level).  True for key_view keys with small values.
+  /// bytes at every level).  For the default policy, true when Key is
+  /// key_view, regardless of Value.
   /// False when a TupleHeap provides key recovery.
   static constexpr bool full_key_in_inode_path =
       !std::is_void_v<HeapTag>
