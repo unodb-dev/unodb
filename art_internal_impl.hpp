@@ -843,7 +843,18 @@ struct basic_art_policy final {
   using heap_type = HeapTag;
 
   /// Pack a value into a node_ptr slot (value-in-slot mode).
-  /// The parent inode's value_bitmask distinguishes this from a pointer.
+  ///
+  /// Writes the raw value over the whole word, so the result is not a tagged
+  /// pointer: a packed zero is bit-identical to a null node_ptr, and any other
+  /// value leaves arbitrary bits where the type tag would be. The parent
+  /// inode's value_bitmask is what distinguishes a packed value from a
+  /// pointer; the pointer test alone cannot.
+  ///
+  /// \param v Value to pack
+  ///
+  /// \return Slot word holding \a v
+  ///
+  /// \sa basic_node_ptr::type() for what such a word reads back as
   [[nodiscard]] static node_ptr pack_value(Value v) noexcept {
     static_assert(can_eliminate_leaf);
     std::uint64_t raw{};
@@ -4949,9 +4960,9 @@ using basic_inode_256_parent =
 /// type and cannot grow further.
 ///
 /// A slot is occupied if it holds a non-null child pointer or its
-/// value-in-slot bit is set: in value-in-slot mode a packed zero value is
-/// bit-identical to nullptr, so the pointer test alone does not decide
-/// occupancy.
+/// value-in-slot bit is set: the pointer test alone does not decide occupancy,
+/// since a packed zero value reads as nullptr (see
+/// basic_art_policy::pack_value()).
 ///
 /// \tparam ArtPolicy Policy class defining types and operations
 /// \sa basic_inode for inherited template parameters
@@ -5326,11 +5337,10 @@ class basic_inode_256
   /// \param func Callback to invoke for each occupied child slot
   ///
   /// \note The callback's second argument is the raw slot word. In
-  /// value-in-slot mode an occupied slot may hold a packed value rather than
-  /// a node pointer: bit-identical to nullptr when that value is zero, and an
-  /// arbitrarily-tagged non-null word otherwise. Test is_value_in_slot() on
-  /// the slot index before treating it as a pointer, as delete_subtree() and
-  /// dump() do.
+  /// value-in-slot mode an occupied slot may hold a packed value, which is no
+  /// tagged pointer at all (see basic_art_policy::pack_value()). Test
+  /// is_value_in_slot() on the slot index before treating it as a pointer, as
+  /// delete_subtree() and dump() do.
   // TODO(laurynas) Lifting this out might help with iterator and
   // lambda patterns.
   template <typename Function>
@@ -5407,7 +5417,8 @@ class basic_inode_256
     return bitmask_base::test(i);
   }
   /// Check whether slot at index is occupied: a non-null child pointer, or a
-  /// packed value, which is bit-identical to nullptr when that value is zero.
+  /// packed value, which may itself read as nullptr (see
+  /// basic_art_policy::pack_value()).
   [[nodiscard]] constexpr bool is_slot_occupied(std::uint8_t i) const noexcept {
     return children[i] != nullptr || is_value_in_slot(i);
   }

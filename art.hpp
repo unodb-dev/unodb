@@ -764,16 +764,11 @@ class db final {
     /// contains just that leaf; value-in-slot mode has no leaf nodes, so that
     /// case does not arise there.
     ///
-    /// The `node` is never `nullptr` except for a `is_packed_value` entry
-    /// holding the value zero: detail::basic_art_policy::pack_value() writes
-    /// the raw value over the whole word, so a packed zero is bit-identical to
-    /// a null `detail::node_ptr` (and, since node_type::LEAF is 0, reports
-    /// node_type::LEAF). The pointer test alone therefore cannot decide slot
-    /// occupancy — a null-reading slot may hold a packed zero — so
-    /// detail::basic_inode_impl::is_value_in_slot() must supplement the
-    /// `nullptr` comparison, and next() and prior() tolerate a null node on a
-    /// value-in-slot `is_packed_value` entry rather than asserting plain
-    /// non-nullness.
+    /// The `node` is never `nullptr` except for an `is_packed_value` entry
+    /// holding the value zero, which reads as a null `detail::node_ptr` (see
+    /// detail::basic_art_policy::pack_value()); next() and prior() therefore
+    /// tolerate a null node on a value-in-slot `is_packed_value` entry rather
+    /// than asserting plain non-nullness.
     ///
     /// The `detail::iter_result::key_byte` is the `std::byte` along which the
     /// path descends from that `node`. The `key_byte` has no meaning for a

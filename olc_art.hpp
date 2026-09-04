@@ -652,9 +652,9 @@ class olc_db final {
     /// stack is empty (similar to top(), but handles an empty stack).
     ///
     /// A `nullptr` return does *not* imply an empty stack: in value-in-slot
-    /// mode a packed zero value is bit-identical to a null node pointer, so
-    /// callers must additionally test `!empty() && top().is_packed_value`, as
-    /// next() and prior() do.
+    /// mode a packed zero value reads as a null node pointer (see
+    /// detail::basic_art_policy::pack_value()), so callers must additionally
+    /// test `!empty() && top().is_packed_value`, as next() and prior() do.
     [[nodiscard]] detail::olc_node_ptr current_node() const noexcept {
       return stack_.empty() ? detail::olc_node_ptr(nullptr) : stack_.top().node;
     }
