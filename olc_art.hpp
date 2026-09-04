@@ -580,7 +580,24 @@ class olc_db final {
     /// Return true iff the stack is empty.
     [[nodiscard]] bool empty() const noexcept { return stack_.empty(); }
 
-    /// Push an entry onto the stack.
+    /// Push internal node entry onto iterator stack.
+    ///
+    /// Updates both the stack and the key buffer to reflect descent through
+    /// the given node.
+    ///
+    /// \param node Internal node pointer (must not be a leaf)
+    /// \param key_byte Byte value along which descent occurs
+    /// \param child_index Child traversal index; see
+    /// detail::iter_result::child_index for node-type-specific semantics
+    /// \param prefix Snapshot of node's key prefix
+    ///
+    /// \param rcs Read critical section for \a node, covering its prefix and
+    /// child-selection data; only its version tag is stored on the entry, as
+    /// stack_entry explains
+    ///
+    /// \note The incoming \a node pointer is validated under its parent (or
+    /// root-pointer) critical section. The iter_result overload below separately
+    /// requires validation of the node data under \a rcs.
     void push(detail::olc_node_ptr node, std::byte key_byte,
               std::uint8_t child_index, detail::key_prefix_snapshot prefix,
               const optimistic_lock::read_critical_section& rcs) {
@@ -708,9 +725,13 @@ class olc_db final {
     olc_db& db_;
 
     /// A stack reflecting the parent path from the root of the tree
-    /// to the current leaf.  An empty stack corresponds to a
+    /// to the current leaf position — a leaf, or in value-in-slot
+    /// mode the packed value.  An empty stack corresponds to a
     /// logically empty iterator and can be detected using !valid().
     /// The iterator for an empty tree is an empty stack.
+    ///
+    /// \sa unodb::db::iterator::stack_ for the full entry invariants,
+    /// including the packed-zero/`nullptr` aliasing
     std::stack<stack_entry> stack_{};
 
     /// A buffer into which visited encoded (binary comparable) keys
