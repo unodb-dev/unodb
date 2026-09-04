@@ -682,15 +682,18 @@ class db final {
       keybuf_.push(key_byte);
     }
 
-    /// Push leaf entry \a aleaf onto iterator stack.
+    /// Push leaf-position entry \a aleaf onto iterator stack.
     ///
-    /// \param aleaf Leaf node pointer
+    /// \param aleaf Leaf node pointer, or in value-in-slot mode the packed
+    /// value
+    ///
+    /// \sa detail::iter_result::is_packed_value for which of the two it is
     void push_leaf(detail::node_ptr aleaf) {
       stack_.push({
           aleaf,
-          static_cast<std::byte>(0xFFU),     // ignored for leaf
-          static_cast<std::uint8_t>(0xFFU),  // ignored for leaf
-          detail::key_prefix_snapshot(0),    // ignored for leaf
+          static_cast<std::byte>(0xFFU),     // ignored at a leaf position
+          static_cast<std::uint8_t>(0xFFU),  // ignored at a leaf position
+          detail::key_prefix_snapshot(0),    // ignored at a leaf position
           art_policy::can_eliminate_leaf     // is_packed_value
       });
       // No change in the key_buffer.

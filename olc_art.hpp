@@ -596,14 +596,23 @@ class olc_db final {
       keybuf_.push(key_byte);
     }
 
-    /// Push a leaf onto the stack.
+    /// Push a leaf-position entry \a aleaf onto the stack.
+    ///
+    /// \param aleaf Leaf node pointer, or in value-in-slot mode the packed
+    /// value
+    ///
+    /// \param rcs Read critical section for the leaf node, or for the
+    /// containing inode when \a aleaf is a packed value; only its version
+    /// tag is stored on the entry
+    ///
+    /// \sa detail::iter_result::is_packed_value, which tells the two apart
     void push_leaf(detail::olc_node_ptr aleaf,
                    const optimistic_lock::read_critical_section& rcs) {
-      // The [key], [child_index] and [prefix] are ignored for a leaf.
+      // The [key], [child_index] and [prefix] are ignored at a leaf position.
       stack_.push({{aleaf,
-                    static_cast<std::byte>(0xFFU),     // ignored for leaf
-                    static_cast<std::uint8_t>(0xFFU),  // ignored for leaf
-                    detail::key_prefix_snapshot(0),    // ignored for leaf
+                    static_cast<std::byte>(0xFFU),     // ignored, see above
+                    static_cast<std::uint8_t>(0xFFU),  // ignored, see above
+                    detail::key_prefix_snapshot(0),    // ignored, see above
                     art_policy::can_eliminate_leaf},   // is_packed_value
                    rcs.get()});
     }
