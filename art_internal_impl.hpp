@@ -801,15 +801,6 @@ struct basic_art_policy final {
   /// Tree depth wrapper.
   using tree_depth_type = tree_depth<art_key_type>;
 
-  /// Whether values are stored directly in inode child slots rather than
-  /// in separate leaf nodes.  True when the value fits in a uint64_t.
-  static constexpr bool value_in_slot =
-      !std::is_void_v<HeapTag> ? leaf_policy_for<HeapTag, Value>::value_in_slot
-                               : (std::is_trivially_copyable_v<Value> &&
-                                  (sizeof(Value) <= sizeof(std::uint64_t)));
-  static_assert(sizeof(std::uintptr_t) <= sizeof(std::uint64_t),
-                "node_ptr must fit in a uint64_t slot");
-
   /// Whether the full key is encoded in the inode path (prefix + dispatch
   /// bytes at every level).  True for key_view keys with small values.
   /// False when a TupleHeap provides key recovery.
@@ -826,14 +817,16 @@ struct basic_art_policy final {
                 leaf_policy_for<HeapTag, Value>::can_eliminate_leaf
           : can_eliminate_key_in_leaf_v<Key, Value>;
 
-  /// Whether leaf allocation can be eliminated entirely.  Requires
-  /// the value in the inode child slot.  For the default policy this also
-  /// requires full_key_in_inode_path.  For the heap policy, the heap
-  /// provides key recovery so leaves can be eliminated with short keys.
+  /// Whether leaf allocation can be eliminated entirely — "value-in-slot
+  /// mode".  Requires a value that fits in an inode child slot.  For the
+  /// default policy this also requires full_key_in_inode_path.  For the heap
+  /// policy, the heap provides key recovery so leaves can be eliminated with
+  /// short keys.
   static constexpr bool can_eliminate_leaf =
       !std::is_void_v<HeapTag>
           ? leaf_policy_for<HeapTag, Value>::can_eliminate_leaf
-          : (full_key_in_inode_path && value_in_slot);
+          : (full_key_in_inode_path && std::is_trivially_copyable_v<Value> &&
+             (sizeof(Value) <= sizeof(std::uint64_t)));
 
   /// Whether a TupleHeap is configured for key recovery.
   static constexpr bool has_heap =
@@ -857,6 +850,8 @@ struct basic_art_policy final {
   /// \sa basic_node_ptr::type() for what such a word reads back as
   [[nodiscard]] static node_ptr pack_value(Value v) noexcept {
     static_assert(can_eliminate_leaf);
+    static_assert(sizeof(std::uintptr_t) <= sizeof(std::uint64_t),
+                  "node_ptr must fit in a uint64_t slot");
     std::uint64_t raw{};
     static_assert(sizeof(v) <= sizeof(raw));
     // cppcheck-suppress bufferAccessOutOfBounds
