@@ -4649,7 +4649,7 @@ bool olc_db<Key, Value, HeapTag>::iterator::try_left_most_traversal(
     // recursive descent.
     auto* const inode{node.ptr<inode_type*>()};
     const auto t =
-        inode->begin(node_type);  // first chold of current internal node
+        inode->begin(node_type);  // first child of current internal node
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return false;
     push(t, node_critical_section);
     if constexpr (art_policy::can_eliminate_leaf) {
