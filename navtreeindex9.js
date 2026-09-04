@@ -1,5 +1,11 @@
 var NAVTREEINDEX9 =
 {
+"md_CONTRIBUTING.html":[3],
+"md_CONTRIBUTING.html#autotoc_md14":[3,0],
+"md_CONTRIBUTING.html#autotoc_md15":[3,0,0],
+"md_CONTRIBUTING.html#autotoc_md16":[3,0,1],
+"md_CONTRIBUTING.html#autotoc_md17":[3,0,2],
+"md_CONTRIBUTING.html#autotoc_md18":[3,0,3],
 "md_CONTRIBUTING.html#autotoc_md19":[3,0,4],
 "md_CONTRIBUTING.html#autotoc_md20":[3,0,5],
 "md_CONTRIBUTING.html#autotoc_md21":[3,0,6],
@@ -243,11 +249,5 @@ var NAVTREEINDEX9 =
 "namespaceunodb_1_1detail.html#a4a4f19f630d67a625c508f7309e4baf1":[5,0,29,1,116],
 "namespaceunodb_1_1detail.html#a4bf738b8ea5a62ab94eb490521f021d4":[5,0,29,1,59],
 "namespaceunodb_1_1detail.html#a4c1fb4a85ef87c7a61e214c4871eb76f":[5,0,29,1,75],
-"namespaceunodb_1_1detail.html#a4c6387d4046bddd4f1d87150a2e6b94c":[5,0,29,1,110],
-"namespaceunodb_1_1detail.html#a52168a8b4ef78db5b5cdc3f60a97eb38":[5,0,29,1,72],
-"namespaceunodb_1_1detail.html#a60d6d8602d9590be64fd0031611bbf07":[5,0,29,1,87],
-"namespaceunodb_1_1detail.html#a67151fe8291fd24bff04038739700b1f":[5,0,29,1,79],
-"namespaceunodb_1_1detail.html#a6affb48b09460b87dbcb8ab404f26263":[5,0,29,1,113],
-"namespaceunodb_1_1detail.html#a6e0155f4cc9c31cf3cc24939b69c13d0":[5,0,29,1,71],
-"namespaceunodb_1_1detail.html#a73ccae20a7fde29e0381b903bbf0c58a":[5,0,29,1,80]
+"namespaceunodb_1_1detail.html#a4c6387d4046bddd4f1d87150a2e6b94c":[5,0,29,1,110]
 };

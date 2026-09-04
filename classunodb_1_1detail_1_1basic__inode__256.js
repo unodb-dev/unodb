@@ -14,6 +14,7 @@ var classunodb_1_1detail_1_1basic__inode__256 =
     [ "add_to_nonfull", "classunodb_1_1detail_1_1basic__inode__256.html#a4e0ba344ce716010b9923138427b57ec", null ],
     [ "add_to_nonfull", "classunodb_1_1detail_1_1basic__inode__256.html#afd82fae8ff72f0eee4a089db20ed66c6", null ],
     [ "begin", "classunodb_1_1detail_1_1basic__inode__256.html#a99666fcc07a17725259dded03d72a5b7", null ],
+    [ "clear_value_bit", "classunodb_1_1detail_1_1basic__inode__256.html#a6e40e9daf2a7b4675fd3fde93ed79f11", null ],
     [ "create_bulk", "classunodb_1_1detail_1_1basic__inode__256.html#a48ff16d40f2d16129fa63d50673def14", null ],
     [ "delete_subtree", "classunodb_1_1detail_1_1basic__inode__256.html#ad1b9e47884a84eb5ca8bb41c257da5b3", null ],
     [ "dump", "classunodb_1_1detail_1_1basic__inode__256.html#a9a61528d03755325ff0c417491700e11", null ],
@@ -24,11 +25,13 @@ var classunodb_1_1detail_1_1basic__inode__256 =
     [ "init", "classunodb_1_1detail_1_1basic__inode__256.html#a019111fa229113920a65be413b8fea00", null ],
     [ "init", "classunodb_1_1detail_1_1basic__inode__256.html#a09204ac29fae923cca33510cca3da77c", null ],
     [ "init_grow", "classunodb_1_1detail_1_1basic__inode__256.html#ac7e7f866f1a470934d4d3079e4746d2d", null ],
+    [ "is_value_in_slot", "classunodb_1_1detail_1_1basic__inode__256.html#a0be4e68cd14a04d2ad1243a535c97e2e", null ],
     [ "last", "classunodb_1_1detail_1_1basic__inode__256.html#a9f88237059f656a222fc051d36b999bf", null ],
     [ "lte_key_byte", "classunodb_1_1detail_1_1basic__inode__256.html#a4f59aed12cdc44bbff1efad4e83fd263", null ],
     [ "next", "classunodb_1_1detail_1_1basic__inode__256.html#a6930b829ffd40f24362f016d41af6fea", null ],
     [ "prior", "classunodb_1_1detail_1_1basic__inode__256.html#a25686dfc608f945f79f85056aaf7d7f9", null ],
     [ "remove", "classunodb_1_1detail_1_1basic__inode__256.html#a1b70988b2ca78ecfea81a2f88cc79a22", null ],
     [ "remove_child_entry", "classunodb_1_1detail_1_1basic__inode__256.html#a69ab396f3d129d3b3c53bb7a74a67aea", null ],
+    [ "set_value_bit", "classunodb_1_1detail_1_1basic__inode__256.html#a2381c9f993a49533ced03c71a58ac7a4", null ],
     [ "children", "classunodb_1_1detail_1_1basic__inode__256.html#a0ddf0e079c8cb24c7566798792c10de1", null ]
 ];
