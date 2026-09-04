@@ -801,6 +801,11 @@ struct basic_art_policy final {
   /// Tree depth wrapper.
   using tree_depth_type = tree_depth<art_key_type>;
 
+  /// \}
+
+  /// \name Compile-time policy switches
+  /// \{
+
   /// Whether the full key is encoded in the inode path (prefix + dispatch
   /// bytes at every level).  For the default policy, true when Key is
   /// key_view, regardless of Value.
@@ -835,6 +840,11 @@ struct basic_art_policy final {
 
   /// The heap type (void when no heap is configured).
   using heap_type = HeapTag;
+
+  /// \}
+
+  /// \name Value packing
+  /// \{
 
   /// Pack a value into a node_ptr slot (value-in-slot mode).
   ///
@@ -874,6 +884,11 @@ struct basic_art_policy final {
     std::memcpy(&v, &raw, sizeof(v));
     return v;
   }
+
+  /// \}
+
+  /// \name Derived type aliases
+  /// \{
 
   /// Leaf type — no_leaf_tag when can_eliminate_leaf (no leaf nodes in tree).
   using leaf_type =
@@ -1727,6 +1742,8 @@ class basic_inode_impl : public ArtPolicy::header_type {
   /// Leaf type.
   using leaf_type = typename ArtPolicy::leaf_type;
 
+  /// \}
+
   /// Read the dispatch byte from a leaf at the given depth.
   /// For keyless leaves this is unreachable — the caller must not
   /// invoke this path.
@@ -1739,8 +1756,6 @@ class basic_inode_impl : public ArtPolicy::header_type {
       return static_cast<std::uint8_t>(leaf->get_key_view()[depth]);
     }
   }
-
-  /// \}
 
  public:
   /// \name Accessors
