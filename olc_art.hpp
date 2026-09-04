@@ -702,21 +702,78 @@ class olc_db final {
     // Core logic invoked from retry loops.
     //
 
+    /// Position the iterator on the first entry in the index, leaving it
+    /// !valid() if the tree is empty.
+    ///
+    /// Each attempt clears the stack and key buffer before descending, so
+    /// first() can retry directly.
+    ///
+    /// \return `false` if an optimistic read failed and the caller must retry.
     [[nodiscard]] bool try_first();
+
+    /// Position the iterator on the last entry in the index, leaving it
+    /// !valid() if the tree is empty.
+    ///
+    /// Each attempt clears the stack and key buffer before descending, so
+    /// last() can retry directly.
+    ///
+    /// \return `false` if an optimistic read failed and the caller must retry.
     [[nodiscard]] bool try_last();
+
+    /// Advance the iterator to the next entry, emptying the stack — leaving
+    /// the iterator !valid(), i.e. at `end()` — when there is none.
+    ///
+    /// A failed attempt may modify the stack, so next() re-seeks to the
+    /// previously read key to recover.
+    ///
+    /// \return `false` if an optimistic read failed and the caller must
+    /// recover as next() does.
     [[nodiscard]] bool try_next();
+
+    /// Step the iterator to the previous entry, emptying the stack — leaving
+    /// the iterator !valid(), i.e. at `end()` — when there is none.
+    ///
+    /// A failed attempt may modify the stack, so prior() re-seeks to the
+    /// previously read key to recover.
+    ///
+    /// \return `false` if an optimistic read failed and the caller must
+    /// recover as prior() does.
     [[nodiscard]] bool try_prior();
 
-    /// Push the given node onto the stack and traverse from the
-    /// caller's node to the left-most leaf under that node, pushing
-    /// nodes onto the stack as they are visited.
+    /// Push \a node onto the stack and traverse from it to the left-most leaf
+    /// under it, pushing nodes onto the stack as they are visited.
+    ///
+    /// An optimistic lock is obtained for \a node and \a
+    /// parent_critical_section is then released (lock chaining).
+    ///
+    /// \param node Subtree root to descend from; must not be `nullptr`
+    /// \param parent_critical_section RCS covering the read that produced \a
+    /// node; consumed by this call and unusable afterwards, on either outcome
+    ///
+    /// \pre `parent_critical_section.must_restart()` returned `false`
+    ///
+    /// \return `true` with the iterator positioned and no optimistic locks
+    /// held, or `false` if an optimistic read failed and the caller must
+    /// restart
     [[nodiscard]] bool try_left_most_traversal(
         detail::olc_node_ptr node,
         optimistic_lock::read_critical_section& parent_critical_section);
 
-    /// Descend from the current state of the stack to the right most
-    /// child leaf, updating the state of the iterator during the
-    /// descent.
+    /// Push \a node onto the stack and traverse from it to the right-most leaf
+    /// under it, pushing nodes onto the stack as they are visited.
+    ///
+    /// An optimistic lock is obtained for \a node and \a
+    /// parent_critical_section is then released (lock chaining).
+    ///
+    /// \param node Subtree root to descend from; must not be `nullptr`
+    /// \param parent_critical_section RCS covering the read that produced \a
+    /// node; consumed by this call and unusable afterwards, on either outcome
+    ///
+    /// \pre `parent_critical_section.must_restart()` returned `false`
+    ///
+    /// \return `true` with the iterator positioned and no optimistic locks
+    /// held, or `false` if an optimistic read failed and the caller must
+    /// restart
     [[nodiscard]] bool try_right_most_traversal(
         detail::olc_node_ptr node,
         optimistic_lock::read_critical_section& parent_critical_section);
@@ -4326,8 +4383,6 @@ bool olc_db<Key, Value, HeapTag>::iterator::try_seek(art_key_type search_key,
                         static_cast<int>(key_prefix[shared_length]);
       UNODB_DETAIL_ASSERT(cmp_ != 0);
       if (fwd) {
-        // Note: parent_critical_section is unlocked along all paths
-        // by try_(left|right)_most_traversal
         if (cmp_ < 0) {
           // FWD and the search key is ordered before this node.  We
           // want the left-most leaf under the node.
@@ -4567,11 +4622,6 @@ bool olc_db<Key, Value, HeapTag>::iterator::try_seek(art_key_type search_key,
   UNODB_DETAIL_CANNOT_HAPPEN();
 }
 
-// Push the given node onto the stack and traverse from the caller's
-// node to the left-most leaf under that node, pushing nodes onto the
-// stack as they are visited.  An optimistic lock is obtained for the
-// caller's node and the parent critical section is then released
-// (lock chaining).  No optimistic locks are held on exit.
 template <typename Key, typename Value, typename HeapTag>
 bool olc_db<Key, Value, HeapTag>::iterator::try_left_most_traversal(
     detail::olc_node_ptr node,
@@ -4619,11 +4669,6 @@ bool olc_db<Key, Value, HeapTag>::iterator::try_left_most_traversal(
   UNODB_DETAIL_CANNOT_HAPPEN();
 }
 
-// Push the given node onto the stack and traverse from the caller's
-// node to the right-most leaf under that node, pushing nodes onto the
-// stack as they are visited.  An optimistic lock is obtained for the
-// caller's node and the parent critical section is then released
-// (lock chaining). No optimistic locks are held on exit.
 template <typename Key, typename Value, typename HeapTag>
 bool olc_db<Key, Value, HeapTag>::iterator::try_right_most_traversal(
     detail::olc_node_ptr node,
