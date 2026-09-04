@@ -747,9 +747,11 @@ class db final {
     db& db_;
 
     /// A stack reflecting the parent path from the root of the tree to the
-    /// current leaf. An empty stack corresponds to a logically empty iterator
-    /// and the iterator will report ! valid(). The iterator for an empty tree
-    /// is an empty stack.
+    /// current leaf position — a leaf, or in value-in-slot mode the packed
+    /// value, the latter marked by `detail::iter_result::is_packed_value`. An
+    /// empty stack corresponds to a logically empty iterator and the iterator
+    /// will report ! valid(). The iterator for an empty tree is an empty
+    /// stack.
     ///
     /// The stack is made up of `detail::iter_result` entries; the parts that
     /// matter here are `node`, `key_byte`, `child_index`, and
@@ -757,11 +759,10 @@ class db final {
     ///
     /// The `detail::iter_result::node` is the node for that step in
     /// the path from the root. For the bottom of the stack, `node` is the root.
-    /// For the top of the stack it is the current leaf or, in value-in-slot
-    /// mode, the packed value, the latter marked by
-    /// `detail::iter_result::is_packed_value`. In the degenerate case where the
-    /// tree is a single root leaf, the stack contains just that leaf;
-    /// value-in-slot mode has no leaf nodes, so that case does not arise there.
+    /// For the top of the stack it is the current leaf position. In the
+    /// degenerate case where the tree is a single root leaf, the stack
+    /// contains just that leaf; value-in-slot mode has no leaf nodes, so that
+    /// case does not arise there.
     ///
     /// The `node` is never `nullptr` except for a `is_packed_value` entry
     /// holding the value zero: detail::basic_art_policy::pack_value() writes
@@ -776,16 +777,16 @@ class db final {
     ///
     /// The `detail::iter_result::key_byte` is the `std::byte` along which the
     /// path descends from that `node`. The `key_byte` has no meaning for a
-    /// leaf. The key byte may be used to reconstruct the full key (along with
-    /// any prefix bytes in the nodes along the path). The key byte is tracked
-    /// to avoid having to search the keys of some node types
+    /// leaf-position entry. The key byte may be used to reconstruct the full
+    /// key (along with any prefix bytes in the nodes along the path). The key
+    /// byte is tracked to avoid having to search the keys of some node types
     /// (detail::inode_48) when the `child_index` does not directly imply the
     /// key byte.
     ///
     /// The `detail::iter_result::child_index` is the `std::uint8_t` index
     /// position in the parent at which the child pointer was found. The
-    /// `child_index` has no meaning for a leaf. In the special case of
-    /// detail::inode_48, the `child_index` is the index into the
+    /// `child_index` has no meaning for a leaf-position entry. In the special
+    /// case of detail::inode_48, the `child_index` is the index into the
     /// `detail::basic_inode_48::child_indexes[]`. For all other internal node
     /// types, the `child_index` is a direct index into the `children[]`. When
     /// finding the successor (or predecessor) the `child_index` needs to be
