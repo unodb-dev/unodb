@@ -2388,6 +2388,7 @@ db<Key, Value, HeapTag>::iterator::seek(art_key_type search_key, bool& match,
   auto remaining_key{k};
 
   while (true) {
+    UNODB_DETAIL_ASSERT(node != nullptr);
     const auto node_type = node.type();
     if constexpr (!art_policy::can_eliminate_leaf) {
       if (node_type == node_type::LEAF) {
