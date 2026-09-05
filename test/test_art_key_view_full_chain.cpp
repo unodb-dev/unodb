@@ -21,7 +21,9 @@
 #include <array>
 #include <cstddef>  // IWYU pragma: keep
 #include <cstdint>
+#include <optional>
 #include <random>
+#include <span>
 #include <stdexcept>
 #include <tuple>
 #include <vector>
@@ -33,6 +35,7 @@
 #include "db_test_utils.hpp"
 #include "gtest_utils.hpp"
 #include "node_type.hpp"
+#include "test_tuple_heap.hpp"
 
 // Each `copy_key(make_*(enc, ...), buf)` region below is wrapped in a 26815
 // suppression.  MSVC's analyzer sees the `key_view` returned by the `make_*`
@@ -60,11 +63,31 @@ class ARTKeyViewFullChainTest : public ::testing::Test {
     else
       return n;
   }
+
+ protected:
+  /// Heap instance for heap-backed types (unused otherwise).
+  unodb::test::TestHeap heap_{};
+
+  /// Next tuple_id for heap mode (auto-incremented per insert).
+  std::uint64_t next_tuple_id_{0};
+
+  /// Insert helper: for heap types, assigns a unique tuple_id (ignoring the
+  /// caller's value) and registers the key with the heap.  For non-heap types,
+  /// passes through unchanged.
+  bool do_insert(Db& db, unodb::key_view k, typename Db::value_type v) {
+    if constexpr (Db::has_heap) {
+      const auto tid = next_tuple_id_++;
+      heap_.add_tuple(tid, std::span<const std::byte>{k.data(), k.size()});
+      return db.insert(k, tid);
+    } else {
+      return db.insert(k, v);
+    }
+  }
 };
 
-using ARTTypes = ::testing::Types<unodb::test::key_view_u64val_db,
-                                  unodb::test::key_view_u64val_mutex_db,
-                                  unodb::test::key_view_u64val_olc_db>;
+using ARTTypes = ::testing::Types<
+    unodb::test::key_view_u64val_db, unodb::test::key_view_u64val_mutex_db,
+    unodb::test::key_view_u64val_olc_db, unodb::test::heap_olc_db>;
 
 UNODB_TYPED_TEST_SUITE(ARTKeyViewFullChainTest, ARTTypes)
 
@@ -86,14 +109,20 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, TooLongKey) {
 
 /// Minimal reproducer: two text keys into a keyless-leaf tree.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, TwoKeyMinimalRepro) {
-  TypeParam db;
+  std::optional<TypeParam> db_opt;
+  if constexpr (TypeParam::has_heap) {
+    db_opt.emplace(this->heap_);
+  } else {
+    db_opt.emplace();
+  }
+  auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
   unodb::key_encoder enc;
 
   const auto k1 = enc.reset().encode_text("").get_key_view();
-  UNODB_ASSERT_TRUE(db.insert(k1, 100));
+  UNODB_ASSERT_TRUE(this->do_insert(db, k1, 100));
 
   const auto k2 = enc.reset().encode_text("a").get_key_view();
-  UNODB_ASSERT_TRUE(db.insert(k2, 200));
+  UNODB_ASSERT_TRUE(this->do_insert(db, k2, 200));
 }
 
 /// Unit test inserts several string keys with proper encoding and
@@ -1633,137 +1662,178 @@ void verify_stack(const typename Db::iterator& it,
 
 /// Two keys sharing a long prefix (chain structure).
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureTwoChainKeys) {
-  TypeParam db;
-  unodb::key_encoder enc;
-  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
+  // Stack inspection uses get_key().view() which is not available in heap mode
+  if constexpr (!TypeParam::has_heap) {
+    // (heap iterators recover keys via the heap, not from internal art_key).
+    std::optional<TypeParam> db_opt;
+    if constexpr (TypeParam::has_heap) {
+      db_opt.emplace(this->heap_);
+    } else {
+      db_opt.emplace();
+    }
+    auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
+    unodb::key_encoder enc;
+    constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
-  std::array<std::byte, 9> buf_a{};
-  std::array<std::byte, 9> buf_b{};
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
-  const auto key_a = copy_key(make_key(enc, 0x01, 100), buf_a);
-  const auto key_b = copy_key(make_key(enc, 0x01, 200), buf_b);
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+    std::array<std::byte, 9> buf_a{};
+    std::array<std::byte, 9> buf_b{};
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
+    const auto key_a = copy_key(make_key(enc, 0x01, 100), buf_a);
+    const auto key_b = copy_key(make_key(enc, 0x01, 200), buf_b);
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  std::ignore = db.insert(key_a, val);
-  std::ignore = db.insert(key_b, val);
+    std::ignore = this->do_insert(db, key_a, val);
+    std::ignore = this->do_insert(db, key_b, val);
 
-  auto it = db.test_only_iterator();
-  it.first();
-  verify_stack<TypeParam>(it, it.get_key().view());
-  it.next();
-  if (it.valid()) verify_stack<TypeParam>(it, it.get_key().view());
+    auto it = db.test_only_iterator();
+    it.first();
+    verify_stack<TypeParam>(it, it.get_key().view());
+    it.next();
+    if (it.valid()) verify_stack<TypeParam>(it, it.get_key().view());
+  }
 }
 
 /// Three keys with different first bytes (wide I4, no chain).
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureWideNode) {
-  TypeParam db;
-  unodb::key_encoder enc;
-  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
+  if constexpr (!TypeParam::has_heap) {
+    std::optional<TypeParam> db_opt;
+    if constexpr (TypeParam::has_heap) {
+      db_opt.emplace(this->heap_);
+    } else {
+      db_opt.emplace();
+    }
+    auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
+    unodb::key_encoder enc;
+    constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
-  std::array<std::byte, 1> ba{};
-  std::array<std::byte, 1> bb{};
-  std::array<std::byte, 1> bc{};
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
-  const auto ka = copy_key(make_short_key(enc, 0x10), ba);
-  const auto kb = copy_key(make_short_key(enc, 0x20), bb);
-  const auto kc = copy_key(make_short_key(enc, 0x30), bc);
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+    std::array<std::byte, 1> ba{};
+    std::array<std::byte, 1> bb{};
+    std::array<std::byte, 1> bc{};
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
+    const auto ka = copy_key(make_short_key(enc, 0x10), ba);
+    const auto kb = copy_key(make_short_key(enc, 0x20), bb);
+    const auto kc = copy_key(make_short_key(enc, 0x30), bc);
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  std::ignore = db.insert(ka, val);
-  std::ignore = db.insert(kb, val);
-  std::ignore = db.insert(kc, val);
+    std::ignore = this->do_insert(db, ka, val);
+    std::ignore = this->do_insert(db, kb, val);
+    std::ignore = this->do_insert(db, kc, val);
 
-  auto it = db.test_only_iterator();
-  for (it.first(); it.valid(); it.next())
-    verify_stack<TypeParam>(it, it.get_key().view());
+    auto it = db.test_only_iterator();
+    for (it.first(); it.valid(); it.next())
+      verify_stack<TypeParam>(it, it.get_key().view());
+  }
 }
 
 /// Second insert with different tag must also create a full chain.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureSecondInsertChain) {
-  TypeParam db;
-  unodb::key_encoder enc;
-  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
+  if constexpr (!TypeParam::has_heap) {
+    std::optional<TypeParam> db_opt;
+    if constexpr (TypeParam::has_heap) {
+      db_opt.emplace(this->heap_);
+    } else {
+      db_opt.emplace();
+    }
+    auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
+    unodb::key_encoder enc;
+    constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
-  std::array<std::byte, 9> buf_a{};
-  std::array<std::byte, 9> buf_b{};
-  UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
-  const auto ka = copy_key(make_key(enc, 0x01, 0), buf_a);
-  const auto kb = copy_key(make_key(enc, 0x02, 0), buf_b);
-  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+    std::array<std::byte, 9> buf_a{};
+    std::array<std::byte, 9> buf_b{};
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
+    const auto ka = copy_key(make_key(enc, 0x01, 0), buf_a);
+    const auto kb = copy_key(make_key(enc, 0x02, 0), buf_b);
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  std::ignore = db.insert(ka, val);
-  std::ignore = db.insert(kb, val);
+    std::ignore = this->do_insert(db, ka, val);
+    std::ignore = this->do_insert(db, kb, val);
 
-  auto it = db.test_only_iterator();
-  for (it.first(); it.valid(); it.next())
-    verify_stack<TypeParam>(it, it.get_key().view());
+    auto it = db.test_only_iterator();
+    for (it.first(); it.valid(); it.next())
+      verify_stack<TypeParam>(it, it.get_key().view());
+  }
 }
 
 /// Forward and reverse scan, verify stack at every position.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureFullScan) {
-  TypeParam db;
-  unodb::key_encoder enc;
-  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
-
-  struct kh {
-    std::array<std::byte, 18> buf{};
-    std::size_t len{};
-    [[nodiscard]] unodb::key_view kv() const noexcept {
-      return {buf.data(), len};
+  if constexpr (!TypeParam::has_heap) {
+    std::optional<TypeParam> db_opt;
+    if constexpr (TypeParam::has_heap) {
+      db_opt.emplace(this->heap_);
+    } else {
+      db_opt.emplace();
     }
-  };
-  auto make = [&](std::uint8_t tag, std::uint64_t v) {
-    kh h;
-    const auto k = make_key(enc, tag, v);
-    std::ignore = std::ranges::copy(k, h.buf.begin());
-    h.len = k.size();
-    UNODB_DETAIL_DISABLE_CLANG_21_WARNING("-Wnrvo")
-    return h;
-    UNODB_DETAIL_RESTORE_CLANG_21_WARNINGS()
-  };
+    auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
+    unodb::key_encoder enc;
+    constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
-  const auto k1 = make(0x01, 100);
-  const auto k2 = make(0x01, 200);
-  const auto k3 = make(0x02, 300);
-  const auto k4 = make(0x03, 0);
+    struct kh {
+      std::array<std::byte, 18> buf{};
+      std::size_t len{};
+      [[nodiscard]] unodb::key_view kv() const noexcept {
+        return {buf.data(), len};
+      }
+    };
+    auto make = [&](std::uint8_t tag, std::uint64_t v) {
+      kh h;
+      auto k = enc.reset().encode(tag).encode(v).get_key_view();
+      std::ignore = std::ranges::copy(k, h.buf.begin());
+      h.len = k.size();
+      UNODB_DETAIL_DISABLE_CLANG_21_WARNING("-Wnrvo")
+      return h;
+      UNODB_DETAIL_RESTORE_CLANG_21_WARNINGS()
+    };
 
-  std::ignore = db.insert(k1.kv(), val);
-  std::ignore = db.insert(k2.kv(), val);
-  std::ignore = db.insert(k3.kv(), val);
-  std::ignore = db.insert(k4.kv(), val);
+    const auto k1 = make(0x01, 100);
+    const auto k2 = make(0x01, 200);
+    const auto k3 = make(0x02, 300);
+    const auto k4 = make(0x03, 0);
 
-  // Forward scan.
-  {
-    auto it = db.test_only_iterator();
-    int count = 0;
-    for (it.first(); it.valid(); it.next()) {
-      verify_stack<TypeParam>(it, it.get_key().view());
-      ++count;
+    std::ignore = this->do_insert(db, k1.kv(), val);
+    std::ignore = this->do_insert(db, k2.kv(), val);
+    std::ignore = this->do_insert(db, k3.kv(), val);
+    std::ignore = this->do_insert(db, k4.kv(), val);
+
+    // Forward scan.
+    {
+      auto it = db.test_only_iterator();
+      int count = 0;
+      for (it.first(); it.valid(); it.next()) {
+        verify_stack<TypeParam>(it, it.get_key().view());
+        ++count;
+      }
+      UNODB_EXPECT_EQ(count, 4);
     }
-    UNODB_EXPECT_EQ(count, 4);
-  }
 
-  // Reverse scan.
-  {
-    auto it = db.test_only_iterator();
-    int count = 0;
-    for (it.last(); it.valid(); it.prior()) {
-      verify_stack<TypeParam>(it, it.get_key().view());
-      ++count;
+    // Reverse scan.
+    {
+      auto it = db.test_only_iterator();
+      int count = 0;
+      for (it.last(); it.valid(); it.prior()) {
+        verify_stack<TypeParam>(it, it.get_key().view());
+        ++count;
+      }
+      UNODB_EXPECT_EQ(count, 4);
     }
-    UNODB_EXPECT_EQ(count, 4);
   }
 }
 
 // Empty key_view must be rejected (not UB).
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, EmptyKeyRejected) {
-  TypeParam db;
+  std::optional<TypeParam> db_opt;
+  if constexpr (TypeParam::has_heap) {
+    db_opt.emplace(this->heap_);
+  } else {
+    db_opt.emplace();
+  }
+  auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
   const std::byte empty_buf{};
   const unodb::key_view empty_key{&empty_buf, 0};
-  UNODB_ASSERT_THROW(std::ignore = db.insert(
-                         empty_key, unodb::test::get_test_value<TypeParam>(0)),
-                     std::length_error);
+  UNODB_ASSERT_THROW(
+      std::ignore = this->do_insert(db, empty_key,
+                                    unodb::test::get_test_value<TypeParam>(0)),
+      std::length_error);
   UNODB_ASSERT_TRUE(db.empty());
 
   // get and remove return sentinel values for empty key (get is noexcept).
@@ -1772,10 +1842,10 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, EmptyKeyRejected) {
 
   // scan_from with empty key on non-empty tree: visits all entries (fwd).
   unodb::key_encoder enc;
-  UNODB_ASSERT_TRUE(db.insert(make_short_key(enc, 0x01),
-                              unodb::test::get_test_value<TypeParam>(1)));
-  UNODB_ASSERT_TRUE(db.insert(make_short_key(enc, 0x02),
-                              unodb::test::get_test_value<TypeParam>(2)));
+  UNODB_ASSERT_TRUE(this->do_insert(db, make_short_key(enc, 0x01),
+                                    unodb::test::get_test_value<TypeParam>(1)));
+  UNODB_ASSERT_TRUE(this->do_insert(db, make_short_key(enc, 0x02),
+                                    unodb::test::get_test_value<TypeParam>(2)));
   std::size_t count{0};
   db.scan_from(empty_key, [&count](const auto& /*v*/) {
     ++count;
@@ -1885,7 +1955,13 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 // inode fills all 256 child slots including 0xFF, causing pop() to skip keybuf
 // truncation and corrupt every subsequent reconstructed key.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanKeyReconstructionFF) {
-  TypeParam db;
+  std::optional<TypeParam> db_opt;
+  if constexpr (TypeParam::has_heap) {
+    db_opt.emplace(this->heap_);
+  } else {
+    db_opt.emplace();
+  }
+  auto& db = *db_opt;     // NOLINT(bugprone-unchecked-optional-access)
   constexpr int N = 321;  // enough to span the c1->c2 encoded-float boundary
   constexpr float step = 100.0F / 1000.0F;
 
@@ -1894,7 +1970,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanKeyReconstructionFF) {
     enc.encode(step * static_cast<float>(i));
     enc.encode(static_cast<std::uint8_t>(0x76));
     enc.encode(static_cast<std::uint64_t>(i));
-    ASSERT_TRUE(db.insert(enc.get_key_view(), static_cast<std::uint64_t>(i)));
+    ASSERT_TRUE(
+        this->do_insert(db, enc.get_key_view(), static_cast<std::uint64_t>(i)));
   }
 
   int count = 0;
@@ -2064,13 +2141,19 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CollapseBlockedByVISChild) {
 // Exercise scan_from with non-matching key to trigger gte/lte backtracking.
 // This covers art.hpp descend_left/descend_right in scan_from.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromBacktracking) {
-  TypeParam db;
+  std::optional<TypeParam> db_opt;
+  if constexpr (TypeParam::has_heap) {
+    db_opt.emplace(this->heap_);
+  } else {
+    db_opt.emplace();
+  }
+  auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   // Insert keys at 0x10 and 0x30 — gap at 0x20.
-  std::ignore = db.insert(make_key(enc, 0x10, 1), val);
-  std::ignore = db.insert(make_key(enc, 0x30, 1), val);
+  std::ignore = this->do_insert(db, make_key(enc, 0x10, 1), val);
+  std::ignore = this->do_insert(db, make_key(enc, 0x30, 1), val);
 
   // Forward scan_from 0x20: no exact match, must backtrack and find 0x30.
   {
@@ -2130,15 +2213,21 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, PrefixSplitNoChain) {
 // chain subtree.  Scanning across the boundary between chain subtree and VIS
 // sibling exercises descend_left/right.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanMixedVISAndChainChildren) {
-  TypeParam db;
+  std::optional<TypeParam> db_opt;
+  if constexpr (TypeParam::has_heap) {
+    db_opt.emplace(this->heap_);
+  } else {
+    db_opt.emplace();
+  }
+  auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   // Short VIS keys at 0x10 and 0x30 (1 byte each).
-  std::ignore = db.insert(make_short_key(enc, 0x10), val);
-  std::ignore = db.insert(make_short_key(enc, 0x30), val);
+  std::ignore = this->do_insert(db, make_short_key(enc, 0x10), val);
+  std::ignore = this->do_insert(db, make_short_key(enc, 0x30), val);
   // Long chain key at 0x20 (9 bytes) — between the two VIS keys.
-  std::ignore = db.insert(make_key(enc, 0x20, 1), val);
+  std::ignore = this->do_insert(db, make_key(enc, 0x20, 1), val);
 
   // Forward scan: first() lands on 0x10 (VIS), next() goes to 0x20 (chain),
   // next() goes to 0x30 (VIS sibling — hits push_leaf in next()).
@@ -2189,17 +2278,27 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanMixedVISAndChainChildren) {
 
 // Exercise get_val() on VIS children — unpack_value path.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, GetValOnVISChild) {
-  TypeParam db;
+  std::optional<TypeParam> db_opt;
+  if constexpr (TypeParam::has_heap) {
+    db_opt.emplace(this->heap_);
+  } else {
+    db_opt.emplace();
+  }
+  auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
-  std::ignore = db.insert(make_short_key(enc, 0x10), val);
-  std::ignore = db.insert(make_short_key(enc, 0x20), val);
+  std::ignore = this->do_insert(db, make_short_key(enc, 0x10), val);
+  std::ignore = this->do_insert(db, make_short_key(enc, 0x20), val);
 
   // Scan and read values — exercises unpack_value in get_val().
   int count = 0;
   db.scan([&](const auto& visitor) {
-    UNODB_EXPECT_EQ(visitor.get_value(), val);
+    if constexpr (!TypeParam::has_heap) {
+      UNODB_EXPECT_EQ(visitor.get_value(), val);
+    } else {
+      std::ignore = visitor.get_value();  // Just verify it doesn't crash.
+    }
     ++count;
     return false;
   });
@@ -2233,14 +2332,20 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, DispatchByteCollision) {
 // scan_from backtracking to a VIS child — exercises descend_left and
 // descend_right with is_value_in_slot true.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromBacktrackToVIS) {
-  TypeParam db;
+  std::optional<TypeParam> db_opt;
+  if constexpr (TypeParam::has_heap) {
+    db_opt.emplace(this->heap_);
+  } else {
+    db_opt.emplace();
+  }
+  auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   // VIS at 0x10, chain at 0x20, VIS at 0x30.
-  std::ignore = db.insert(make_short_key(enc, 0x10), val);
-  std::ignore = db.insert(make_key(enc, 0x20, 1), val);
-  std::ignore = db.insert(make_short_key(enc, 0x30), val);
+  std::ignore = this->do_insert(db, make_short_key(enc, 0x10), val);
+  std::ignore = this->do_insert(db, make_key(enc, 0x20, 1), val);
+  std::ignore = this->do_insert(db, make_short_key(enc, 0x30), val);
 
   // Forward scan_from 0x25: nxt(0x25) → 0x30 (VIS) → descend_left hits VIS.
   {
@@ -2331,43 +2436,47 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromBacktrackToVIS) {
 /// the seek direction is a value in a slot: the climb must take the
 /// push_leaf() path instead of descending under an inode sibling.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, SeekClimbToVISSibling) {
-  TypeParam db;
-  unodb::key_encoder enc;
-  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
+  if constexpr (TypeParam::has_heap) {
+    GTEST_SKIP() << "Direct-insert test; heap needs tuple registration";
+  } else {
+    TypeParam db;
+    unodb::key_encoder enc;
+    constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
-  // VIS at 0x10, chain at 0x20 (last key bytes 1 and 2), VIS at 0x30.
-  UNODB_ASSERT_TRUE(db.insert(make_short_key(enc, 0x10), val));
-  UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x20, 1), val));
-  UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x20, 2), val));
-  UNODB_ASSERT_TRUE(db.insert(make_short_key(enc, 0x30), val));
+    // VIS at 0x10, chain at 0x20 (last key bytes 1 and 2), VIS at 0x30.
+    UNODB_ASSERT_TRUE(db.insert(make_short_key(enc, 0x10), val));
+    UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x20, 1), val));
+    UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x20, 2), val));
+    UNODB_ASSERT_TRUE(db.insert(make_short_key(enc, 0x30), val));
 
-  // Forward: [0x20, 200] is above the chain's key-byte range; the climb
-  // lands on the VIS child 0x30.
-  {
-    int count = 0;
-    db.scan_from(
-        make_key(enc, 0x20, 200),
-        [&count](const auto& /*v*/) {
-          ++count;
-          return false;
-        },
-        /*fwd=*/true);
-    UNODB_EXPECT_EQ(count, 1);  // 0x30
-  }
+    // Forward: [0x20, 200] is above the chain's key-byte range; the climb
+    // lands on the VIS child 0x30.
+    {
+      int count = 0;
+      db.scan_from(
+          make_key(enc, 0x20, 200),
+          [&count](const auto& /*v*/) {
+            ++count;
+            return false;
+          },
+          /*fwd=*/true);
+      UNODB_EXPECT_EQ(count, 1);  // 0x30
+    }
 
-  // Reverse: [0x20, 0] is below the chain's key-byte range; the climb
-  // lands on the VIS child 0x10.
-  {
-    int count = 0;
-    db.scan_from(
-        make_key(enc, 0x20, 0),
-        [&count](const auto& /*v*/) {
-          ++count;
-          return false;
-        },
-        /*fwd=*/false);
-    UNODB_EXPECT_EQ(count, 1);  // 0x10
-  }
+    // Reverse: [0x20, 0] is below the chain's key-byte range; the climb
+    // lands on the VIS child 0x10.
+    {
+      int count = 0;
+      db.scan_from(
+          make_key(enc, 0x20, 0),
+          [&count](const auto& /*v*/) {
+            ++count;
+            return false;
+          },
+          /*fwd=*/false);
+      UNODB_EXPECT_EQ(count, 1);  // 0x10
+    }
+  }  // !has_heap
 }
 
 /// Seek climbing the stack to an inode sibling.  As SeekClimbToVISSibling,
@@ -2375,66 +2484,78 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, SeekClimbToVISSibling) {
 /// sibling and continues with a left-most (forward) or right-most (reverse)
 /// descent under it.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, SeekClimbToChainSibling) {
-  TypeParam db;
-  unodb::key_encoder enc;
-  constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
+  if constexpr (TypeParam::has_heap) {
+    GTEST_SKIP() << "Direct-insert test; heap needs tuple registration";
+  } else {
+    TypeParam db;
+    unodb::key_encoder enc;
+    constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
-  // Chains at 0x10 and 0x20, two keys each.
-  UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x10, 1), val));
-  UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x10, 2), val));
-  UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x20, 1), val));
-  UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x20, 2), val));
+    // Chains at 0x10 and 0x20, two keys each.
+    UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x10, 1), val));
+    UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x10, 2), val));
+    UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x20, 1), val));
+    UNODB_ASSERT_TRUE(db.insert(make_key(enc, 0x20, 2), val));
 
-  // Reverse: [0x20, 0] fails in the 0x20 chain; the climb does a
-  // right-most descent under 0x10, landing on [0x10, 2].
-  {
-    int count = 0;
-    db.scan_from(
-        make_key(enc, 0x20, 0),
-        [&count](const auto& /*v*/) {
-          ++count;
-          return false;
-        },
-        /*fwd=*/false);
-    UNODB_EXPECT_EQ(count, 2);  // [0x10, 2], [0x10, 1]
-  }
+    // Reverse: [0x20, 0] fails in the 0x20 chain; the climb does a
+    // right-most descent under 0x10, landing on [0x10, 2].
+    {
+      int count = 0;
+      db.scan_from(
+          make_key(enc, 0x20, 0),
+          [&count](const auto& /*v*/) {
+            ++count;
+            return false;
+          },
+          /*fwd=*/false);
+      UNODB_EXPECT_EQ(count, 2);  // [0x10, 2], [0x10, 1]
+    }
 
-  // Forward: [0x10, 200] fails in the 0x10 chain; the climb does a
-  // left-most descent under 0x20, landing on [0x20, 1].
-  {
-    int count = 0;
-    db.scan_from(
-        make_key(enc, 0x10, 200),
-        [&count](const auto& /*v*/) {
-          ++count;
-          return false;
-        },
-        /*fwd=*/true);
-    UNODB_EXPECT_EQ(count, 2);  // [0x20, 1], [0x20, 2]
-  }
+    // Forward: [0x10, 200] fails in the 0x10 chain; the climb does a
+    // left-most descent under 0x20, landing on [0x20, 1].
+    {
+      int count = 0;
+      db.scan_from(
+          make_key(enc, 0x10, 200),
+          [&count](const auto& /*v*/) {
+            ++count;
+            return false;
+          },
+          /*fwd=*/true);
+      UNODB_EXPECT_EQ(count, 2);  // [0x20, 1], [0x20, 2]
+    }
+  }  // !has_heap
 }
 
 // scan_from where the search key is a proper prefix of all stored keys.
 // Exercises the remaining_key exhaustion guard after prefix matching.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromKeyIsPrefixOfStored) {
-  TypeParam db;
+  std::optional<TypeParam> db_opt;
+  if constexpr (TypeParam::has_heap) {
+    db_opt.emplace(this->heap_);
+  } else {
+    db_opt.emplace();
+  }
+  auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   // Two 3-byte keys sharing a 2-byte prefix.
   // Tree: I4 with prefix [0x41, 0x42], VIS children at 0x00 and 0x01.
-  std::ignore = db.insert(enc.reset()
-                              .encode(std::uint8_t{0x41})
-                              .encode(std::uint8_t{0x42})
-                              .encode(std::uint8_t{0x00})
-                              .get_key_view(),
-                          val);
-  std::ignore = db.insert(enc.reset()
-                              .encode(std::uint8_t{0x41})
-                              .encode(std::uint8_t{0x42})
-                              .encode(std::uint8_t{0x01})
-                              .get_key_view(),
-                          val);
+  std::ignore = this->do_insert(db,
+                                enc.reset()
+                                    .encode(std::uint8_t{0x41})
+                                    .encode(std::uint8_t{0x42})
+                                    .encode(std::uint8_t{0x00})
+                                    .get_key_view(),
+                                val);
+  std::ignore = this->do_insert(db,
+                                enc.reset()
+                                    .encode(std::uint8_t{0x41})
+                                    .encode(std::uint8_t{0x42})
+                                    .encode(std::uint8_t{0x01})
+                                    .get_key_view(),
+                                val);
 
   // Forward scan_from [0x41, 0x42]: key consumed by prefix, remaining empty.
   // GTE lands on leftmost child [0x41, 0x42, 0x00].
@@ -2532,15 +2653,21 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, PrefixOverflowBlocksCollapse) {
 /// the iterator to ascend past multiple parents before finding a sibling.
 /// Covers art.hpp forward ascent loop (lines ~2330-2340).
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromDeepAscent) {
-  TypeParam db;
+  std::optional<TypeParam> db_opt;
+  if constexpr (TypeParam::has_heap) {
+    db_opt.emplace(this->heap_);
+  } else {
+    db_opt.emplace();
+  }
+  auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   // Build a tree with two subtrees under different first bytes.
   // Subtree under 0x10: key at (0x10, 1).
-  std::ignore = db.insert(make_key(enc, 0x10, 1), val);
+  std::ignore = this->do_insert(db, make_key(enc, 0x10, 1), val);
   // Subtree under 0x30: key at (0x30, 1).
-  std::ignore = db.insert(make_key(enc, 0x30, 1), val);
+  std::ignore = this->do_insert(db, make_key(enc, 0x30, 1), val);
 
   // Forward: scan_from a key under 0x20 (between the two subtrees).
   // No 0x20 subtree exists, so the iterator must find the next sibling
@@ -2580,12 +2707,18 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromDeepAscent) {
 /// Reverse scan_from with empty key_view on OLC tree.
 /// Covers olc_art.hpp empty-key reverse path (line ~3264).
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromEmptyKeyReverse) {
-  TypeParam db;
+  std::optional<TypeParam> db_opt;
+  if constexpr (TypeParam::has_heap) {
+    db_opt.emplace(this->heap_);
+  } else {
+    db_opt.emplace();
+  }
+  auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
-  std::ignore = db.insert(make_key(enc, 0x10, 1), val);
-  std::ignore = db.insert(make_key(enc, 0x20, 1), val);
+  std::ignore = this->do_insert(db, make_key(enc, 0x10, 1), val);
+  std::ignore = this->do_insert(db, make_key(enc, 0x20, 1), val);
 
   // Reverse scan_from empty key: should visit nothing (empty key sorts
   // before all keys, so reverse from there has no predecessors).
@@ -2608,13 +2741,19 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromEmptyKeyReverse) {
 /// Insert a short (1-byte) key packed as VIS, then query with a longer key
 /// that shares the same dispatch byte.  get() must return not-found.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, GetRejectsStrictSupersetOfVISKey) {
-  TypeParam db;
+  std::optional<TypeParam> db_opt;
+  if constexpr (TypeParam::has_heap) {
+    db_opt.emplace(this->heap_);
+  } else {
+    db_opt.emplace();
+  }
+  auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
   // Insert two short keys so the root is an inode4 with VIS entries.
-  UNODB_ASSERT_TRUE(db.insert(make_short_key(enc, 0x10), val));
-  UNODB_ASSERT_TRUE(db.insert(make_short_key(enc, 0x20), val));
+  UNODB_ASSERT_TRUE(this->do_insert(db, make_short_key(enc, 0x10), val));
+  UNODB_ASSERT_TRUE(this->do_insert(db, make_short_key(enc, 0x20), val));
 
   // get with the exact short key must succeed.
   UNODB_ASSERT_TRUE(TypeParam::key_found(db.get(make_short_key(enc, 0x10))));

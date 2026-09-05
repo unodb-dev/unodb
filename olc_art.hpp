@@ -35,7 +35,7 @@
 
 namespace unodb {
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename HeapTag>
 class olc_db;
 
 namespace detail {
@@ -95,23 +95,24 @@ static_assert(std::is_standard_layout_v<olc_node_header>);
 template <typename Key, typename Value>
 class olc_inode;
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename HeapTag = void>
 class olc_inode_4;
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename HeapTag = void>
 class olc_inode_16;
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename HeapTag = void>
 class olc_inode_48;
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename HeapTag = void>
 class olc_inode_256;
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename HeapTag = void>
 using olc_inode_defs =
-    basic_inode_def<olc_inode<Key, Value>, olc_inode_4<Key, Value>,
-                    olc_inode_16<Key, Value>, olc_inode_48<Key, Value>,
-                    olc_inode_256<Key, Value>>;
+    basic_inode_def<olc_inode<Key, Value>, olc_inode_4<Key, Value, HeapTag>,
+                    olc_inode_16<Key, Value, HeapTag>,
+                    olc_inode_48<Key, Value, HeapTag>,
+                    olc_inode_256<Key, Value, HeapTag>>;
 
 using olc_node_ptr = basic_node_ptr<olc_node_header>;
 
@@ -128,7 +129,7 @@ static_assert(olc_node_ptr{nullptr}.raw_val() == 0,
 static_assert(olc_node_ptr{} == nullptr,
               "value-initialization must produce the null olc_node_ptr");
 
-template <typename, typename, class>
+template <typename, typename, class, typename>
 class db_inode_qsbr_deleter;  // IWYU pragma: keep
 
 template <class>
@@ -136,11 +137,13 @@ class db_leaf_qsbr_deleter;  // IWYU pragma: keep
 
 struct olc_impl_helpers;
 
-template <typename Key, typename Value>
-using olc_art_policy = basic_art_policy<
-    Key, Value, unodb::olc_db, unodb::in_critical_section,
-    unodb::optimistic_lock, unodb::optimistic_lock::read_critical_section,
-    olc_node_ptr, olc_inode_defs, db_inode_qsbr_deleter, db_leaf_qsbr_deleter>;
+template <typename Key, typename Value, typename HeapTag = void>
+using olc_art_policy =
+    basic_art_policy<Key, Value, unodb::olc_db, unodb::in_critical_section,
+                     unodb::optimistic_lock,
+                     unodb::optimistic_lock::read_critical_section,
+                     olc_node_ptr, olc_inode_defs, db_inode_qsbr_deleter,
+                     db_leaf_qsbr_deleter, HeapTag>;
 
 template <typename Key, typename Value>
 using olc_db_leaf_unique_ptr =
@@ -196,9 +199,15 @@ struct bulk_load_helpers;
 /// lock used is optimistic lock (see optimistic_lock.hpp), where only writers
 /// lock and readers access nodes optimistically with node version checks. For
 /// deleted node reclamation, Quiescent State-Based Reclamation is used.
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename HeapTag>
 class olc_db final {
+  static_assert(detail::heap_key_check_v<Key, HeapTag>,
+                "TupleHeap requires Key = key_view");
+
  public:
+  /// Whether a TupleHeap is configured for key retrieval.
+  static constexpr bool has_heap = detail::is_heap_v<HeapTag, Value>;
+
   /// The type of the keys in the index.
   using key_type = Key;
   /// The type of the value associated with the key in the index.
@@ -206,7 +215,7 @@ class olc_db final {
   using get_result = std::optional<value_type>;
   using inode_base = detail::olc_inode_base<Key, Value>;
   using leaf_type = detail::olc_leaf_type<Key, Value>;
-  using db_type = olc_db<Key, Value>;
+  using db_type = olc_db<Key, Value, HeapTag>;
 
   /// Internal encoded key type used for tree operations.
   using art_key_type = detail::basic_art_key<Key>;
@@ -235,11 +244,31 @@ class olc_db final {
   // Creation and destruction
 
   /// Construct empty OLC ART index with default allocator.
-  olc_db() noexcept = default;
+  olc_db() noexcept
+    requires(!has_heap)
+  = default;
+
+  /// Construct empty OLC ART index backed by a tuple heap for key retrieval.
+  template <typename H = HeapTag>
+    requires(has_heap && std::is_same_v<H, HeapTag>)
+  // cppcheck-suppress uninitMemberVar  // false positive: try_collapse_i4 is
+  //   a member function, not a variable.
+  constexpr explicit olc_db(const H& heap) noexcept : heap_{heap} {}
 
   /// Construct empty OLC ART index with a custom allocator.
   constexpr explicit olc_db(const allocator_type& alloc) noexcept
+    requires(!has_heap)
       : allocator_{alloc} {
+    UNODB_DETAIL_ASSERT(allocator_.alloc != nullptr);
+    UNODB_DETAIL_ASSERT(allocator_.dealloc != nullptr);
+    UNODB_DETAIL_ASSERT(allocator_.defer_dealloc != nullptr);
+  }
+
+  /// Construct heap-backed OLC ART index with a custom allocator.
+  template <typename H = HeapTag>
+    requires(has_heap && std::is_same_v<H, HeapTag>)
+  constexpr olc_db(const H& heap, const allocator_type& alloc) noexcept
+      : heap_{heap}, allocator_{alloc} {
     UNODB_DETAIL_ASSERT(allocator_.alloc != nullptr);
     UNODB_DETAIL_ASSERT(allocator_.dealloc != nullptr);
     UNODB_DETAIL_ASSERT(allocator_.defer_dealloc != nullptr);
@@ -379,11 +408,13 @@ class olc_db final {
   /// methods accessing the stack can not be declared as \c noexcept.
   class iterator {
     static_assert(
-        !detail::olc_art_policy<Key, Value>::can_eliminate_leaf ||
-            detail::olc_art_policy<Key, Value>::full_key_in_inode_path,
-        "VIS requires full_key_in_inode_path for key reconstruction");
+        !detail::olc_art_policy<Key, Value, HeapTag>::can_eliminate_leaf ||
+            detail::olc_art_policy<Key, Value,
+                                   HeapTag>::full_key_in_inode_path ||
+            detail::olc_art_policy<Key, Value, HeapTag>::has_heap,
+        "VIS requires full_key_in_inode_path or a TupleHeap for key retrieval");
 
-    friend class olc_db<Key, Value>;
+    friend class olc_db<Key, Value, HeapTag>;
     template <class>
     friend class visitor;
 
@@ -457,13 +488,13 @@ class olc_db final {
 
     /// Return type for get_key().
     using get_key_result = std::conditional_t<
-        detail::olc_art_policy<Key, Value>::full_key_in_inode_path,
+        detail::olc_art_policy<Key, Value, HeapTag>::full_key_in_inode_path,
         transient_key_view, key_view>;
 
     /// Return the key associated with the current position of the iterator.
     ///
     /// \pre The iterator MUST be valid().
-    [[nodiscard]] get_key_result get_key() noexcept;
+    [[nodiscard]] get_key_result get_key() noexcept(!art_policy::has_heap);
 
     /// Return the value_view associated with the current position of
     /// the iterator.
@@ -535,7 +566,8 @@ class olc_db final {
     /// internal buffer.
     ///
     /// \return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
-    [[nodiscard, gnu::pure]] int cmp(const art_key_type& akey) const noexcept;
+    [[nodiscard]] int cmp(const art_key_type& akey) noexcept(
+        !art_policy::has_heap);
 
     //
     // stack access methods.
@@ -676,6 +708,14 @@ class olc_db final {
     /// iterator stack and popped off of this buffer when we pop
     /// something off of the iterator stack.
     detail::key_buffer keybuf_{};
+
+    /// Buffer for get_key() in heap mode — the returned key_view must remain
+    /// valid until the next get_key() call or iterator movement.
+    struct empty_key_buf {};
+    UNODB_DETAIL_NO_UNIQUE_ADDRESS
+    std::conditional_t<detail::olc_art_policy<Key, Value, HeapTag>::has_heap,
+                       key_encoder, empty_key_buf>
+        get_key_buf_{};
   };  // class iterator
 
   //
@@ -893,13 +933,13 @@ class olc_db final {
   olc_db& operator=(olc_db&&) noexcept = delete;
 
  private:
-  using art_policy = detail::olc_art_policy<Key, Value>;
+  using art_policy = detail::olc_art_policy<Key, Value, HeapTag>;
   using header_type = typename art_policy::header_type;
-  using inode_type = detail::olc_inode<Key, Value>;
-  using inode_4 = detail::olc_inode_4<Key, Value>;
-  using inode_16 = detail::olc_inode_16<Key, Value>;
-  using inode_48 = detail::olc_inode_48<Key, Value>;
-  using inode_256 = detail::olc_inode_256<Key, Value>;
+  using inode_type = detail::basic_inode_impl<art_policy>;
+  using inode_4 = detail::olc_inode_4<Key, Value, HeapTag>;
+  using inode_16 = detail::olc_inode_16<Key, Value, HeapTag>;
+  using inode_48 = detail::olc_inode_48<Key, Value, HeapTag>;
+  using inode_256 = detail::olc_inode_256<Key, Value, HeapTag>;
 
  public:
   /// Tree depth tracking type.
@@ -915,7 +955,7 @@ class olc_db final {
  private:
   using visitor_type = visitor<db_type::iterator>;
   using olc_db_leaf_unique_ptr_type =
-      detail::olc_db_leaf_unique_ptr<Key, Value>;
+      typename detail::olc_art_policy<Key, Value, HeapTag>::db_leaf_unique_ptr;
 
   // If get_result is not present, the search was interrupted. Yes, this
   // resolves to std::optional<std::optional<value_view>>, but IMHO both
@@ -1064,6 +1104,9 @@ class olc_db final {
   alignas(detail::hardware_destructive_interference_size)
       allocator_type allocator_{detail::olc_default_allocator};
 
+  /// Heap reference (zero-size when no heap is configured via HeapTag).
+  UNODB_DETAIL_NO_UNIQUE_ADDRESS detail::heap_holder_t<HeapTag, Value> heap_{};
+
 #ifdef UNODB_DETAIL_WITH_STATS
 
   // Current logically allocated memory that is not scheduled to be reclaimed.
@@ -1113,19 +1156,21 @@ class olc_db final {
   template <class>
   friend class detail::db_leaf_qsbr_deleter;
 
-  template <typename, typename, class>
+  template <typename, typename, class, typename>
   friend class detail::db_inode_qsbr_deleter;
 
-  template <typename,                             // Key
-            typename,                             // Value
-            template <typename, typename> class,  // Db
-            template <class> class,               // CriticalSectionPolicy
-            class,                                // LockPolicy
-            class,                                // ReadCriticalSection
-            class,                                // NodePtr
-            template <typename, typename> class,  // INodeDefs
-            template <typename, typename, class> class,  // INodeReclamator
-            template <class> class>                      // LeafReclamator
+  template <
+      typename,                                       // Key
+      typename,                                       // Value
+      template <typename, typename, typename> class,  // Db
+      template <class> class,                         // CriticalSectionPolicy
+      class,                                          // LockPolicy
+      class,                                          // ReadCriticalSection
+      class,                                          // NodePtr
+      template <typename, typename, typename> class,  // INodeDefs
+      template <typename, typename, class, typename> class,  // INodeReclamator
+      template <class> class,                                // LeafReclamator
+      typename>                                              // HeapTag
   friend struct detail::basic_art_policy;
 
   template <class, class>
@@ -1136,16 +1181,17 @@ class olc_db final {
 
 namespace detail {
 
-template <typename Key, typename Value, class INode>
+template <typename Key, typename Value, class INode, typename HeapTag>
 using db_inode_qsbr_deleter_parent =
-    unodb::detail::basic_db_inode_deleter<INode, unodb::olc_db<Key, Value>>;
+    unodb::detail::basic_db_inode_deleter<INode,
+                                          unodb::olc_db<Key, Value, HeapTag>>;
 
-template <typename Key, typename Value, class INode>
+template <typename Key, typename Value, class INode, typename HeapTag>
 class db_inode_qsbr_deleter
-    : public db_inode_qsbr_deleter_parent<Key, Value, INode> {
+    : public db_inode_qsbr_deleter_parent<Key, Value, INode, HeapTag> {
  public:
-  using db_inode_qsbr_deleter_parent<Key, Value,
-                                     INode>::db_inode_qsbr_deleter_parent;
+  using db_inode_qsbr_deleter_parent<Key, Value, INode,
+                                     HeapTag>::db_inode_qsbr_deleter_parent;
 
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
   void operator()(INode* inode_ptr) noexcept {
@@ -1252,15 +1298,17 @@ struct olc_impl_helpers {
   // constexpr branch, such as node_in_parent for olc_inode_256.
   UNODB_DETAIL_DISABLE_GCC_10_WARNING("-Wunused-parameter")
 
-  template <typename Key, typename Value, class INode>
+  template <typename Key, typename Value, typename HeapTag, class INode>
   [[nodiscard]] static std::optional<in_critical_section<olc_node_ptr>*>
   add_or_choose_subtree(
       INode& inode, std::byte key_byte, basic_art_key<Key> k, Value v,
-      olc_db<Key, Value>& db_instance, tree_depth<basic_art_key<Key>> depth,
+      olc_db<Key, Value, HeapTag>& db_instance,
+      tree_depth<basic_art_key<Key>> depth,
       optimistic_lock::read_critical_section& node_critical_section,
       in_critical_section<olc_node_ptr>* node_in_parent,
       optimistic_lock::read_critical_section& parent_critical_section,
-      olc_db_leaf_unique_ptr<Key, Value>& cached_leaf);
+      typename olc_art_policy<Key, Value, HeapTag>::db_leaf_unique_ptr&
+          cached_leaf);
 
   UNODB_DETAIL_RESTORE_GCC_10_WARNINGS()
 
@@ -1270,10 +1318,10 @@ struct olc_impl_helpers {
   ///   write-locked). If a lambda observes version 0, the CAS gate is
   ///   skipped, but correctness is still guaranteed by write_guard's own
   ///   version validation (must_restart).
-  template <typename Key, typename Value, class INode>
+  template <typename Key, typename Value, typename HeapTag, class INode>
   [[nodiscard]] static std::optional<bool> remove_or_choose_subtree(
       INode& inode, std::byte key_byte, basic_art_key<Key> k,
-      olc_db<Key, Value>& db_instance,
+      olc_db<Key, Value, HeapTag>& db_instance,
       optimistic_lock::read_critical_section& parent_critical_section,
       optimistic_lock::read_critical_section& node_critical_section,
       in_critical_section<olc_node_ptr>* node_in_parent,
@@ -1296,20 +1344,21 @@ struct olc_impl_helpers {
 // condition remained true while data was read from the inode.
 //
 
-template <typename Key, typename Value>
-using olc_inode_4_parent = basic_inode_4<olc_art_policy<Key, Value>>;
+template <typename Key, typename Value, typename HeapTag>
+using olc_inode_4_parent = basic_inode_4<olc_art_policy<Key, Value, HeapTag>>;
 
-template <typename Key, typename Value>
-class [[nodiscard]] olc_inode_4 final : public olc_inode_4_parent<Key, Value> {
-  using parent_class = olc_inode_4_parent<Key, Value>;
+template <typename Key, typename Value, typename HeapTag>
+class [[nodiscard]] olc_inode_4 final
+    : public olc_inode_4_parent<Key, Value, HeapTag> {
+  using parent_class = olc_inode_4_parent<Key, Value, HeapTag>;
 
  public:
-  using db_type = olc_db<Key, Value>;
-  using inode_16_type = olc_inode_16<Key, Value>;
+  using db_type = olc_db<Key, Value, HeapTag>;
+  using inode_16_type = olc_inode_16<Key, Value, HeapTag>;
   using art_key_type = basic_art_key<Key>;
   using tree_depth_type = tree_depth<art_key_type>;
   using leaf_type = olc_leaf_type<Key, Value>;
-  using olc_db_leaf_unique_ptr_type = olc_db_leaf_unique_ptr<Key, Value>;
+  using olc_db_leaf_unique_ptr_type = typename parent_class::db_leaf_unique_ptr;
 
   using parent_class::parent_class;
 
@@ -1394,22 +1443,22 @@ static_assert(sizeof(olc_inode_4_test_type) == 56 + 24);
 #endif
 #endif  // #ifndef _MSC_VER
 
-template <typename Key, typename Value>
-using olc_inode_16_parent = basic_inode_16<olc_art_policy<Key, Value>>;
+template <typename Key, typename Value, typename HeapTag>
+using olc_inode_16_parent = basic_inode_16<olc_art_policy<Key, Value, HeapTag>>;
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename HeapTag>
 class [[nodiscard]] olc_inode_16 final
-    : public olc_inode_16_parent<Key, Value> {
-  using parent_class = olc_inode_16_parent<Key, Value>;
+    : public olc_inode_16_parent<Key, Value, HeapTag> {
+  using parent_class = olc_inode_16_parent<Key, Value, HeapTag>;
 
  public:
   using typename parent_class::find_result;
-  using db_type = olc_db<Key, Value>;
-  using inode_4_type = olc_inode_4<Key, Value>;
-  using inode_48_type = olc_inode_48<Key, Value>;
+  using db_type = olc_db<Key, Value, HeapTag>;
+  using inode_4_type = olc_inode_4<Key, Value, HeapTag>;
+  using inode_48_type = olc_inode_48<Key, Value, HeapTag>;
   using art_key_type = basic_art_key<Key>;
   using tree_depth_type = tree_depth<art_key_type>;
-  using olc_db_leaf_unique_ptr_type = olc_db_leaf_unique_ptr<Key, Value>;
+  using olc_db_leaf_unique_ptr_type = typename parent_class::db_leaf_unique_ptr;
 
   using parent_class::init;
   using parent_class::parent_class;
@@ -1494,8 +1543,8 @@ static_assert(sizeof(olc_inode_16_test_type) == 160 + 16);
 static_assert(sizeof(olc_inode_16_test_type) == 160 + 32);
 #endif  // #ifdef NDEBUG
 
-template <typename Key, typename Value>
-void olc_inode_4<Key, Value>::init(
+template <typename Key, typename Value, typename HeapTag>
+void olc_inode_4<Key, Value, HeapTag>::init(
     UNODB_DETAIL_NO_STATS_CONST db_type& db_instance,
     inode_16_type& source_node,
     unodb::optimistic_lock::write_guard& source_node_guard,
@@ -1511,8 +1560,8 @@ void olc_inode_4<Key, Value>::init(
   UNODB_DETAIL_ASSERT(!child_guard.active());
 }
 
-template <typename Key, typename Value>
-void olc_inode_4<Key, Value>::init(
+template <typename Key, typename Value, typename HeapTag>
+void olc_inode_4<Key, Value, HeapTag>::init(
     UNODB_DETAIL_NO_STATS_CONST db_type& db_instance,
     inode_16_type& source_node,
     unodb::optimistic_lock::write_guard& source_node_guard,
@@ -1523,21 +1572,21 @@ void olc_inode_4<Key, Value>::init(
   UNODB_DETAIL_ASSERT(!source_node_guard.active());
 }
 
-template <typename Key, typename Value>
-using olc_inode_48_parent = basic_inode_48<olc_art_policy<Key, Value>>;
+template <typename Key, typename Value, typename HeapTag>
+using olc_inode_48_parent = basic_inode_48<olc_art_policy<Key, Value, HeapTag>>;
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename HeapTag>
 class [[nodiscard]] olc_inode_48 final
-    : public olc_inode_48_parent<Key, Value> {
-  using parent_class = olc_inode_48_parent<Key, Value>;
+    : public olc_inode_48_parent<Key, Value, HeapTag> {
+  using parent_class = olc_inode_48_parent<Key, Value, HeapTag>;
 
  public:
-  using db_type = olc_db<Key, Value>;
-  using inode_16_type = olc_inode_16<Key, Value>;
-  using inode_256_type = olc_inode_256<Key, Value>;
+  using db_type = olc_db<Key, Value, HeapTag>;
+  using inode_16_type = olc_inode_16<Key, Value, HeapTag>;
+  using inode_256_type = olc_inode_256<Key, Value, HeapTag>;
   using art_key_type = basic_art_key<Key>;
   using tree_depth_type = tree_depth<art_key_type>;
-  using olc_db_leaf_unique_ptr_type = olc_db_leaf_unique_ptr<Key, Value>;
+  using olc_db_leaf_unique_ptr_type = typename parent_class::db_leaf_unique_ptr;
 
   using parent_class::parent_class;
 
@@ -1615,8 +1664,8 @@ static_assert(sizeof(olc_inode_48_test_type) == 656 + 32);
 #endif
 #endif  // #ifdef NDEBUG
 
-template <typename Key, typename Value>
-void olc_inode_16<Key, Value>::init(
+template <typename Key, typename Value, typename HeapTag>
+void olc_inode_16<Key, Value, HeapTag>::init(
     UNODB_DETAIL_NO_STATS_CONST db_type& db_instance,
     inode_48_type& source_node,
     unodb::optimistic_lock::write_guard& source_node_guard,
@@ -1632,8 +1681,8 @@ void olc_inode_16<Key, Value>::init(
   UNODB_DETAIL_ASSERT(!child_guard.active());
 }
 
-template <typename Key, typename Value>
-void olc_inode_16<Key, Value>::init(
+template <typename Key, typename Value, typename HeapTag>
+void olc_inode_16<Key, Value, HeapTag>::init(
     UNODB_DETAIL_NO_STATS_CONST db_type& db_instance,
     inode_48_type& source_node,
     unodb::optimistic_lock::write_guard& source_node_guard,
@@ -1644,20 +1693,21 @@ void olc_inode_16<Key, Value>::init(
   UNODB_DETAIL_ASSERT(!source_node_guard.active());
 }
 
-template <typename Key, typename Value>
-using olc_inode_256_parent = basic_inode_256<olc_art_policy<Key, Value>>;
+template <typename Key, typename Value, typename HeapTag>
+using olc_inode_256_parent =
+    basic_inode_256<olc_art_policy<Key, Value, HeapTag>>;
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename HeapTag>
 class [[nodiscard]] olc_inode_256 final
-    : public olc_inode_256_parent<Key, Value> {
-  using parent_class = olc_inode_256_parent<Key, Value>;
+    : public olc_inode_256_parent<Key, Value, HeapTag> {
+  using parent_class = olc_inode_256_parent<Key, Value, HeapTag>;
 
  public:
-  using db_type = olc_db<Key, Value>;
-  using inode_48_type = olc_inode_48<Key, Value>;
+  using db_type = olc_db<Key, Value, HeapTag>;
+  using inode_48_type = olc_inode_48<Key, Value, HeapTag>;
   using art_key_type = basic_art_key<Key>;
   using tree_depth_type = tree_depth<art_key_type>;
-  using olc_db_leaf_unique_ptr_type = olc_db_leaf_unique_ptr<Key, Value>;
+  using olc_db_leaf_unique_ptr_type = typename parent_class::db_leaf_unique_ptr;
 
   using parent_class::parent_class;
 
@@ -1719,8 +1769,8 @@ static_assert(sizeof(olc_inode_256_test_type) == 2064 + 8);
 static_assert(sizeof(olc_inode_256_test_type) == 2064 + 24);
 #endif
 
-template <typename Key, typename Value>
-void olc_inode_48<Key, Value>::init(
+template <typename Key, typename Value, typename HeapTag>
+void olc_inode_48<Key, Value, HeapTag>::init(
     UNODB_DETAIL_NO_STATS_CONST db_type& db_instance,
     inode_256_type& source_node,
     unodb::optimistic_lock::write_guard& source_node_guard,
@@ -1736,8 +1786,8 @@ void olc_inode_48<Key, Value>::init(
   UNODB_DETAIL_ASSERT(!child_guard.active());
 }
 
-template <typename Key, typename Value>
-void olc_inode_48<Key, Value>::init(
+template <typename Key, typename Value, typename HeapTag>
+void olc_inode_48<Key, Value, HeapTag>::init(
     UNODB_DETAIL_NO_STATS_CONST db_type& db_instance,
     inode_256_type& source_node,
     unodb::optimistic_lock::write_guard& source_node_guard,
@@ -1752,20 +1802,22 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26411)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26415)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26460)
-template <typename Key, typename Value>
-void create_leaf_if_needed(olc_db_leaf_unique_ptr<Key, Value>& cached_leaf,
-                           basic_art_key<Key> k, Value v,
-                           unodb::olc_db<Key, Value>& db_instance) {
-  if constexpr (olc_art_policy<Key, Value>::can_eliminate_leaf) {
+template <typename Key, typename Value, typename HeapTag>
+void create_leaf_if_needed(
+    typename olc_art_policy<Key, Value, HeapTag>::db_leaf_unique_ptr&
+        cached_leaf,
+    basic_art_key<Key> k, Value v,
+    unodb::olc_db<Key, Value, HeapTag>& db_instance) {
+  if constexpr (olc_art_policy<Key, Value, HeapTag>::can_eliminate_leaf) {
     // No leaf allocation needed — values are packed in inode slots.
   } else {
     if (UNODB_DETAIL_LIKELY(cached_leaf == nullptr)) {
       UNODB_DETAIL_ASSERT(&cached_leaf.get_deleter().get_db() == &db_instance);
       // Do not assign because we do not need to assign the deleter
       // NOLINTNEXTLINE(misc-uniqueptr-reset-release)
-      cached_leaf.reset(
-          olc_art_policy<Key, Value>::make_db_leaf_ptr(k, v, db_instance)
-              .release());
+      cached_leaf.reset(olc_art_policy<Key, Value, HeapTag>::make_db_leaf_ptr(
+                            k, v, db_instance)
+                            .release());
     }
   }
 }
@@ -1775,15 +1827,17 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26460)
-template <typename Key, typename Value, class INode>
+template <typename Key, typename Value, typename HeapTag, class INode>
 [[nodiscard]] std::optional<in_critical_section<olc_node_ptr>*>
 olc_impl_helpers::add_or_choose_subtree(
     INode& inode, std::byte key_byte, basic_art_key<Key> k, Value v,
-    olc_db<Key, Value>& db_instance, tree_depth<basic_art_key<Key>> depth,
+    olc_db<Key, Value, HeapTag>& db_instance,
+    tree_depth<basic_art_key<Key>> depth,
     optimistic_lock::read_critical_section& node_critical_section,
     in_critical_section<olc_node_ptr>* node_in_parent,
     optimistic_lock::read_critical_section& parent_critical_section,
-    olc_db_leaf_unique_ptr<Key, Value>& cached_leaf) {
+    typename olc_art_policy<Key, Value, HeapTag>::db_leaf_unique_ptr&
+        cached_leaf) {
   auto* const child_in_parent = inode.find_child(key_byte).second;
 
   if (child_in_parent == nullptr) {
@@ -1791,19 +1845,20 @@ olc_impl_helpers::add_or_choose_subtree(
 
     const auto children_count = inode.get_children_count();
 
-    if constexpr (!std::is_same_v<INode, olc_inode_256<Key, Value>>) {
+    if constexpr (!std::is_same_v<INode, olc_inode_256<Key, Value, HeapTag>>) {
       if (UNODB_DETAIL_UNLIKELY(children_count == INode::capacity)) {
-        if constexpr (detail::olc_art_policy<Key,
-                                             Value>::full_key_in_inode_path) {
+        if constexpr (detail::olc_art_policy<Key, Value,
+                                             HeapTag>::full_key_in_inode_path ||
+                      detail::olc_art_policy<Key, Value, HeapTag>::has_heap) {
           const auto chain_start =
               static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
           if (chain_start < k.size()) {
             // OOM safety: build chain BEFORE acquiring write guards.
             detail::olc_node_ptr chain_top{};
-            if constexpr (detail::olc_art_policy<Key,
-                                                 Value>::can_eliminate_leaf) {
+            if constexpr (detail::olc_art_policy<Key, Value,
+                                                 HeapTag>::can_eliminate_leaf) {
               chain_top = db_instance.build_chain(
-                  k, detail::olc_art_policy<Key, Value>::pack_value(v),
+                  k, detail::olc_art_policy<Key, Value, HeapTag>::pack_value(v),
                   chain_start);
             } else {
               create_leaf_if_needed(cached_leaf, k, v, db_instance);
@@ -1813,7 +1868,7 @@ olc_impl_helpers::add_or_choose_subtree(
               UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
               chain_top = db_instance.build_chain(k, leaf_ptr, chain_start);
             }
-            typename detail::olc_art_policy<Key, Value>::subtree_guard
+            typename detail::olc_art_policy<Key, Value, HeapTag>::subtree_guard
                 chain_guard{chain_top, db_instance};
             auto larger_node{
                 INode::larger_derived_type::create(db_instance, inode)};
@@ -1823,16 +1878,16 @@ olc_impl_helpers::add_or_choose_subtree(
               const optimistic_lock::write_guard write_unlock_on_exit{
                   std::move(parent_critical_section)};
               if (UNODB_DETAIL_UNLIKELY(write_unlock_on_exit.must_restart())) {
-                detail::olc_art_policy<Key, Value>::delete_subtree(chain_top,
-                                                                   db_instance);
+                detail::olc_art_policy<Key, Value, HeapTag>::delete_subtree(
+                    chain_top, db_instance);
                 return {};
               }
 
               optimistic_lock::write_guard node_write_guard{
                   std::move(node_critical_section)};
               if (UNODB_DETAIL_UNLIKELY(node_write_guard.must_restart())) {
-                detail::olc_art_policy<Key, Value>::delete_subtree(chain_top,
-                                                                   db_instance);
+                detail::olc_art_policy<Key, Value, HeapTag>::delete_subtree(
+                    chain_top, db_instance);
                 return {};
               }
 
@@ -1858,7 +1913,6 @@ olc_impl_helpers::add_or_choose_subtree(
             return child_in_parent;
           }
         }
-        // No chain needed: short key or !full_key_in_inode_path.
         auto larger_node{
             INode::larger_derived_type::create(db_instance, inode)};
         {
@@ -1871,11 +1925,12 @@ olc_impl_helpers::add_or_choose_subtree(
               std::move(node_critical_section)};
           if (UNODB_DETAIL_UNLIKELY(node_write_guard.must_restart())) return {};
 
-          if constexpr (detail::olc_art_policy<Key,
-                                               Value>::can_eliminate_leaf) {
-            larger_node->init(db_instance, inode, node_write_guard,
-                              detail::olc_art_policy<Key, Value>::pack_value(v),
-                              depth, key_byte);
+          if constexpr (detail::olc_art_policy<Key, Value,
+                                               HeapTag>::can_eliminate_leaf) {
+            larger_node->init(
+                db_instance, inode, node_write_guard,
+                detail::olc_art_policy<Key, Value, HeapTag>::pack_value(v),
+                depth, key_byte);
           } else {
             larger_node->init(db_instance, inode, node_write_guard,
                               std::move(cached_leaf), depth, key_byte);
@@ -1895,15 +1950,18 @@ olc_impl_helpers::add_or_choose_subtree(
       }
     }
 
-    if constexpr (detail::olc_art_policy<Key, Value>::full_key_in_inode_path) {
+    if constexpr (detail::olc_art_policy<Key, Value,
+                                         HeapTag>::full_key_in_inode_path ||
+                  detail::olc_art_policy<Key, Value, HeapTag>::has_heap) {
       const auto chain_start =
           static_cast<tree_depth<basic_art_key<Key>>>(depth + 1);
       if (chain_start < k.size()) {
         // OOM safety: build chain BEFORE acquiring write guard.
         detail::olc_node_ptr chain_top{};
-        if constexpr (detail::olc_art_policy<Key, Value>::can_eliminate_leaf) {
+        if constexpr (detail::olc_art_policy<Key, Value,
+                                             HeapTag>::can_eliminate_leaf) {
           chain_top = db_instance.build_chain(
-              k, detail::olc_art_policy<Key, Value>::pack_value(v),
+              k, detail::olc_art_policy<Key, Value, HeapTag>::pack_value(v),
               chain_start);
         } else {
           create_leaf_if_needed(cached_leaf, k, v, db_instance);
@@ -1918,22 +1976,24 @@ olc_impl_helpers::add_or_choose_subtree(
         const optimistic_lock::write_guard write_unlock_on_exit{
             std::move(node_critical_section)};
         if (UNODB_DETAIL_UNLIKELY(write_unlock_on_exit.must_restart())) {
-          detail::olc_art_policy<Key, Value>::delete_subtree(chain_top,
-                                                             db_instance);
+          detail::olc_art_policy<Key, Value, HeapTag>::delete_subtree(
+              chain_top, db_instance);
           return {};  // LCOV_EXCL_LINE
         }
 
         if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock())) {
-          detail::olc_art_policy<Key, Value>::delete_subtree(chain_top,
-                                                             db_instance);
+          detail::olc_art_policy<Key, Value,
+                                 HeapTag>::delete_subtree(  // LCOV_EXCL_LINE
+              chain_top, db_instance);
           return {};  // LCOV_EXCL_LINE
         }
 
-        if constexpr (detail::olc_art_policy<Key, Value>::can_eliminate_leaf) {
+        if constexpr (detail::olc_art_policy<Key, Value,
+                                             HeapTag>::can_eliminate_leaf) {
           // Insert packed value first (sets value bit), then overwrite
           // with chain_top and clear value bit.
           inode.add_to_nonfull(
-              detail::olc_art_policy<Key, Value>::pack_value(v), depth,
+              detail::olc_art_policy<Key, Value, HeapTag>::pack_value(v), depth,
               key_byte, children_count);
           std::atomic_signal_fence(std::memory_order_acq_rel);
           auto [ci_nf, slot_nf] = inode.find_child(key_byte);
@@ -1959,8 +2019,9 @@ olc_impl_helpers::add_or_choose_subtree(
 
     inode.add_to_nonfull(
         [&]() noexcept -> auto {
-          if constexpr (detail::olc_art_policy<Key, Value>::can_eliminate_leaf)
-            return detail::olc_art_policy<Key, Value>::pack_value(v);
+          if constexpr (detail::olc_art_policy<Key, Value,
+                                               HeapTag>::can_eliminate_leaf)
+            return detail::olc_art_policy<Key, Value, HeapTag>::pack_value(v);
           else
             return std::move(cached_leaf);
         }(),
@@ -1972,11 +2033,11 @@ olc_impl_helpers::add_or_choose_subtree(
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26460)
-template <typename Key, typename Value, class INode>
+template <typename Key, typename Value, typename HeapTag, class INode>
 // cppcheck-suppress missingReturn
 [[nodiscard]] std::optional<bool> olc_impl_helpers::remove_or_choose_subtree(
     INode& inode, std::byte key_byte, basic_art_key<Key> k,
-    olc_db<Key, Value>& db_instance,
+    olc_db<Key, Value, HeapTag>& db_instance,
     optimistic_lock::read_critical_section& parent_critical_section,
     optimistic_lock::read_critical_section& node_critical_section,
     in_critical_section<olc_node_ptr>* node_in_parent,
@@ -1999,7 +2060,7 @@ template <typename Key, typename Value, class INode>
 
   if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return {};
 
-  if constexpr (olc_art_policy<Key, Value>::can_eliminate_leaf) {
+  if constexpr (olc_art_policy<Key, Value, HeapTag>::can_eliminate_leaf) {
     if (inode.is_value_in_slot(child_i)) {
       *child_in_parent = nullptr;
       const auto is_node_min_size{inode.is_min_size()};
@@ -2018,7 +2079,8 @@ template <typename Key, typename Value, class INode>
             std::move(node_critical_section)};
         if (UNODB_DETAIL_UNLIKELY(node_guard.must_restart())) return {};
         inode.remove(child_i, db_instance);
-      } else if constexpr (std::is_same_v<INode, olc_inode_4<Key, Value>>) {
+      } else if constexpr (std::is_same_v<INode,
+                                          olc_inode_4<Key, Value, HeapTag>>) {
         // Min-size I4 with packed value — don't collapse for now (D3).
         // Just remove the child, leaving I4 with 1 child.
         if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
@@ -2055,7 +2117,7 @@ template <typename Key, typename Value, class INode>
   // A concurrent writer may clear the bitmask between check() above and
   // the is_value_in_slot read.  Re-validate version before dereferencing child
   // as a pointer — a stale bitmask could route a packed value here.
-  if constexpr (olc_art_policy<Key, Value>::can_eliminate_leaf) {
+  if constexpr (olc_art_policy<Key, Value, HeapTag>::can_eliminate_leaf) {
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return {};
   }
 
@@ -2072,7 +2134,7 @@ template <typename Key, typename Value, class INode>
     return true;
   }
 
-  if constexpr (olc_art_policy<Key, Value>::can_eliminate_leaf) {
+  if constexpr (olc_art_policy<Key, Value, HeapTag>::can_eliminate_leaf) {
     // No LEAF nodes exist — child was an inode, handled above.
     // cppcheck-suppress missingReturn
     UNODB_DETAIL_CANNOT_HAPPEN();  // LCOV_EXCL_LINE
@@ -2121,7 +2183,7 @@ template <typename Key, typename Value, class INode>
 
     UNODB_DETAIL_ASSERT(is_node_min_size);
 
-    if constexpr (std::is_same_v<INode, olc_inode_4<Key, Value>>) {
+    if constexpr (std::is_same_v<INode, olc_inode_4<Key, Value, HeapTag>>) {
       const optimistic_lock::write_guard parent_guard{
           std::move(parent_critical_section)};
       if (UNODB_DETAIL_UNLIKELY(parent_guard.must_restart())) return {};
@@ -2162,7 +2224,7 @@ template <typename Key, typename Value, class INode>
         }
       }
       auto current_node{
-          olc_art_policy<Key, Value>::make_db_inode_reclaimable_ptr(
+          olc_art_policy<Key, Value, HeapTag>::make_db_inode_reclaimable_ptr(
               &inode, db_instance)};
       node_guard.unlock_and_obsolete();
       child_guard.unlock_and_obsolete();
@@ -2212,16 +2274,16 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 // olc_db implementation
 //
 
-template <typename Key, typename Value>
-olc_db<Key, Value>::~olc_db() noexcept {
+template <typename Key, typename Value, typename HeapTag>
+olc_db<Key, Value, HeapTag>::~olc_db() noexcept {
   UNODB_DETAIL_QSBR_ASSERT(
       qsbr_state::single_thread_mode(qsbr::instance().get_state()));
 
   delete_root_subtree();
 }  // namespace >::~
 
-template <typename Key, typename Value>
-void olc_db<Key, Value>::delete_root_subtree() noexcept {
+template <typename Key, typename Value, typename HeapTag>
+void olc_db<Key, Value, HeapTag>::delete_root_subtree() noexcept {
   UNODB_DETAIL_QSBR_ASSERT(
       qsbr_state::single_thread_mode(qsbr::instance().get_state()));
 
@@ -2235,8 +2297,8 @@ void olc_db<Key, Value>::delete_root_subtree() noexcept {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-template <typename Key, typename Value>
-void olc_db<Key, Value>::clear() noexcept {
+template <typename Key, typename Value, typename HeapTag>
+void olc_db<Key, Value, HeapTag>::clear() noexcept {
   UNODB_DETAIL_QSBR_ASSERT(
       qsbr_state::single_thread_mode(qsbr::instance().get_state()));
 
@@ -2254,9 +2316,9 @@ void olc_db<Key, Value>::clear() noexcept {
 #endif  // UNODB_DETAIL_WITH_STATS
 }
 
-template <typename Key, typename Value>
-typename olc_db<Key, Value>::get_result olc_db<Key, Value>::get_internal(
-    art_key_type k) const noexcept {
+template <typename Key, typename Value, typename HeapTag>
+typename olc_db<Key, Value, HeapTag>::get_result
+olc_db<Key, Value, HeapTag>::get_internal(art_key_type k) const noexcept {
   if constexpr (std::is_same_v<Key, key_view>) {
     if (UNODB_DETAIL_UNLIKELY(k.size() == 0)) return {};
   }
@@ -2272,9 +2334,9 @@ typename olc_db<Key, Value>::get_result olc_db<Key, Value>::get_internal(
   return *result;
 }
 
-template <typename Key, typename Value>
-typename olc_db<Key, Value>::try_get_result_type olc_db<Key, Value>::try_get(
-    art_key_type k) const noexcept {
+template <typename Key, typename Value, typename HeapTag>
+typename olc_db<Key, Value, HeapTag>::try_get_result_type
+olc_db<Key, Value, HeapTag>::try_get(art_key_type k) const noexcept {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
   if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) {
     // LCOV_EXCL_START
@@ -2388,9 +2450,9 @@ typename olc_db<Key, Value>::try_get_result_type olc_db<Key, Value>::try_get(
   }
 }
 
-template <typename Key, typename Value>
-bool olc_db<Key, Value>::insert_internal(art_key_type insert_key,
-                                         value_type v) {
+template <typename Key, typename Value, typename HeapTag>
+bool olc_db<Key, Value, HeapTag>::insert_internal(art_key_type insert_key,
+                                                  value_type v) {
   if constexpr (std::is_same_v<Key, key_view>) {
     if (UNODB_DETAIL_UNLIKELY(insert_key.size() == 0)) {
       throw std::length_error("Key must not be empty");
@@ -2404,7 +2466,8 @@ bool olc_db<Key, Value>::insert_internal(art_key_type insert_key,
 
   try_update_result_type result;
   olc_db_leaf_unique_ptr_type cached_leaf{
-      nullptr, detail::basic_db_leaf_deleter<olc_db<Key, Value>>{*this}};
+      nullptr,
+      detail::basic_db_leaf_deleter<olc_db<Key, Value, HeapTag>>{*this}};
 
   while (true) {
     result = try_insert(insert_key, v, cached_leaf);
@@ -2414,16 +2477,16 @@ bool olc_db<Key, Value>::insert_internal(art_key_type insert_key,
   return *result;
 }
 
-template <typename Key, typename Value>
-detail::olc_node_ptr olc_db<Key, Value>::build_chain(
+template <typename Key, typename Value, typename HeapTag>
+detail::olc_node_ptr olc_db<Key, Value, HeapTag>::build_chain(
     art_key_type k, detail::olc_node_ptr child, tree_depth_type start_depth) {
   return detail::bulk_build_chain<art_policy>(*this, k, child, start_depth);
 }
 
-template <typename Key, typename Value>
-typename olc_db<Key, Value>::try_update_result_type
-olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
-                               olc_db_leaf_unique_ptr_type& cached_leaf) {
+template <typename Key, typename Value, typename HeapTag>
+typename olc_db<Key, Value, HeapTag>::try_update_result_type
+olc_db<Key, Value, HeapTag>::try_insert(
+    art_key_type k, value_type v, olc_db_leaf_unique_ptr_type& cached_leaf) {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
   if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) {
     // LCOV_EXCL_START
@@ -2582,7 +2645,8 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
         key_prefix.get_shared_length(remaining_key)};
 
     if (shared_prefix_length < key_prefix_length) {
-      if constexpr (art_policy::full_key_in_inode_path) {
+      if constexpr (art_policy::full_key_in_inode_path ||
+                    art_policy::has_heap) {
         const auto chain_start =
             static_cast<tree_depth_type>(depth + shared_prefix_length + 1);
         if (chain_start < k.size()) {
@@ -2639,7 +2703,6 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
           return true;
         }
       }
-      // No chain needed (short key or !full_key_in_inode_path).
       create_leaf_if_needed(cached_leaf, k, v, *this);
       auto new_node{inode_4::create(*this, node, shared_prefix_length)};
 
@@ -2723,9 +2786,9 @@ olc_db<Key, Value>::try_insert(art_key_type k, value_type v,
   }
 }
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename HeapTag>
 template <typename FN>
-bool olc_db<Key, Value>::upsert(Key k, value_type v, FN fn) {
+bool olc_db<Key, Value, HeapTag>::upsert(Key k, value_type v, FN fn) {
   static_assert(std::is_invocable_r_v<upsert_action, FN, value_type&>,
                 "upsert lambda must be callable as upsert_action(value_type&)");
 
@@ -2742,7 +2805,8 @@ bool olc_db<Key, Value>::upsert(Key k, value_type v, FN fn) {
   }
 
   olc_db_leaf_unique_ptr_type cached_leaf{
-      nullptr, detail::basic_db_leaf_deleter<olc_db<Key, Value>>{*this}};
+      nullptr,
+      detail::basic_db_leaf_deleter<olc_db<Key, Value, HeapTag>>{*this}};
 
   // Unbounded spin — standard OLC practice (Leis et al.
   // 2016). Liveness via OS scheduler + O(1) critical sections.
@@ -2753,11 +2817,12 @@ bool olc_db<Key, Value>::upsert(Key k, value_type v, FN fn) {
   }
 }
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename HeapTag>
 template <typename FN>
-typename olc_db<Key, Value>::try_update_result_type
-olc_db<Key, Value>::try_upsert(art_key_type k, value_type v, FN fn,
-                               olc_db_leaf_unique_ptr_type& cached_leaf) {
+typename olc_db<Key, Value, HeapTag>::try_update_result_type
+olc_db<Key, Value, HeapTag>::try_upsert(
+    art_key_type k, value_type v, FN fn,
+    olc_db_leaf_unique_ptr_type& cached_leaf) {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
   if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) {
     // LCOV_EXCL_START
@@ -3225,10 +3290,10 @@ olc_db<Key, Value>::try_upsert(art_key_type k, value_type v, FN fn,
   }
 }
 
-template <typename Key, typename Value>
-typename olc_db<Key, Value>::try_update_result_type
-olc_db<Key, Value>::try_upsert_erase(art_key_type k,
-                                     version_tag_type captured_ver) {
+template <typename Key, typename Value, typename HeapTag>
+typename olc_db<Key, Value, HeapTag>::try_update_result_type
+olc_db<Key, Value, HeapTag>::try_upsert_erase(art_key_type k,
+                                              version_tag_type captured_ver) {
   // Version-validated erase.  Traverses top-down to find the target node,
   // validates that its version matches captured_ver (ensuring the value
   // the lambda observed hasn't been modified), then performs the removal.
@@ -3464,8 +3529,8 @@ olc_db<Key, Value>::try_upsert_erase(art_key_type k,
   }
 }
 
-template <typename Key, typename Value>
-bool olc_db<Key, Value>::remove_internal(art_key_type remove_key) {
+template <typename Key, typename Value, typename HeapTag>
+bool olc_db<Key, Value, HeapTag>::remove_internal(art_key_type remove_key) {
   if constexpr (std::is_same_v<Key, key_view>) {
     if (UNODB_DETAIL_UNLIKELY(remove_key.size() == 0)) return false;
   }
@@ -3478,10 +3543,10 @@ bool olc_db<Key, Value>::remove_internal(art_key_type remove_key) {
   return *result;
 }
 
-template <typename Key, typename Value>
-typename olc_db<Key, Value>::try_update_result_type
-UNODB_DETAIL_DISABLE_MSVC_WARNING(26440) olc_db<Key, Value>::try_remove(
-    art_key_type k) {
+template <typename Key, typename Value, typename HeapTag>
+typename olc_db<Key, Value, HeapTag>::try_update_result_type
+UNODB_DETAIL_DISABLE_MSVC_WARNING(
+    26440) olc_db<Key, Value, HeapTag>::try_remove(art_key_type k) {
   if constexpr (std::is_same_v<Key, key_view>) {
     return try_remove_key_view(k);
   } else {
@@ -3490,9 +3555,9 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(26440) olc_db<Key, Value>::try_remove(
 }
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-template <typename Key, typename Value>
-typename olc_db<Key, Value>::try_update_result_type
-olc_db<Key, Value>::try_remove_key_view(
+template <typename Key, typename Value, typename HeapTag>
+typename olc_db<Key, Value, HeapTag>::try_update_result_type
+olc_db<Key, Value, HeapTag>::try_remove_key_view(
     art_key_type k, std::optional<version_tag_type> captured_ver) {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
   if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) {
@@ -3735,9 +3800,9 @@ olc_db<Key, Value>::try_remove_key_view(
   }
 }
 
-template <typename Key, typename Value>
-typename olc_db<Key, Value>::try_update_result_type
-olc_db<Key, Value>::try_remove_fixed_width_key(art_key_type k) {
+template <typename Key, typename Value, typename HeapTag>
+typename olc_db<Key, Value, HeapTag>::try_update_result_type
+olc_db<Key, Value, HeapTag>::try_remove_fixed_width_key(art_key_type k) {
   auto parent_critical_section = root_pointer_lock.try_read_lock();
   if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart())) {
     // LCOV_EXCL_START
@@ -3856,8 +3921,9 @@ olc_db<Key, Value>::try_remove_fixed_width_key(art_key_type k) {
 /// ART iterator implementation.
 ///
 
-template <typename Key, typename Value>
-typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::first() {
+template <typename Key, typename Value, typename HeapTag>
+typename olc_db<Key, Value, HeapTag>::iterator&
+olc_db<Key, Value, HeapTag>::iterator::first() {
   while (!try_first()) {
     unodb::spin_wait_loop_body();
   }
@@ -3867,8 +3933,8 @@ typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::first() {
 // Traverse to the left-most leaf. The stack is cleared first and then
 // re-populated as we step down along the path to the left-most leaf.
 // If the tree is empty, then the result is the same as end().
-template <typename Key, typename Value>
-bool olc_db<Key, Value>::iterator::try_first() {
+template <typename Key, typename Value, typename HeapTag>
+bool olc_db<Key, Value, HeapTag>::iterator::try_first() {
   invalidate();  // clear the stack
   auto parent_critical_section = db_.root_pointer_lock.try_read_lock();
   if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart()))
@@ -3880,8 +3946,9 @@ bool olc_db<Key, Value>::iterator::try_first() {
   return try_left_most_traversal(node, parent_critical_section);
 }
 
-template <typename Key, typename Value>
-typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::last() {
+template <typename Key, typename Value, typename HeapTag>
+typename olc_db<Key, Value, HeapTag>::iterator&
+olc_db<Key, Value, HeapTag>::iterator::last() {
   while (!try_last()) {
     unodb::spin_wait_loop_body();
   }
@@ -3891,8 +3958,8 @@ typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::last() {
 // Traverse to the right-most leaf. The stack is cleared first and then
 // re-populated as we step down along the path to the right-most leaf.
 // If the tree is empty, then the result is the same as end().
-template <typename Key, typename Value>
-bool olc_db<Key, Value>::iterator::try_last() {
+template <typename Key, typename Value, typename HeapTag>
+bool olc_db<Key, Value, HeapTag>::iterator::try_last() {
   invalidate();  // clear the stack
   auto parent_critical_section = db_.root_pointer_lock.try_read_lock();
   if (UNODB_DETAIL_UNLIKELY(parent_critical_section.must_restart()))
@@ -3904,14 +3971,21 @@ bool olc_db<Key, Value>::iterator::try_last() {
   return try_right_most_traversal(node, parent_critical_section);
 }
 
-template <typename Key, typename Value>
-typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::next() {
+template <typename Key, typename Value, typename HeapTag>
+typename olc_db<Key, Value, HeapTag>::iterator&
+olc_db<Key, Value, HeapTag>::iterator::next() {
   const auto node = current_node();
   if (node != nullptr ||
       (art_policy::can_eliminate_leaf && !empty() && top().packed_leaf)) {
     const art_key_type akey{[&]() noexcept -> art_key_type {
       if constexpr (art_policy::full_key_in_inode_path) {
         return art_key_type{keybuf_.get_key_view()};
+      } else if constexpr (art_policy::has_heap) {
+        // Heap mode: recover key from the heap using the packed value.
+        const auto value_id = art_policy::unpack_value(node);
+        key_encoder key_buf;
+        const auto kv = db_.heap_.heap.extract_key(value_id, key_buf);
+        return art_key_type{kv};
       } else {
         UNODB_DETAIL_ASSERT(
             !(art_policy::can_eliminate_leaf && stack_.top().packed_leaf));
@@ -3936,8 +4010,8 @@ typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::next() {
   return *this;  // LCOV_EXCL_LINE
 }
 
-template <typename Key, typename Value>
-bool olc_db<Key, Value>::iterator::try_next() {
+template <typename Key, typename Value, typename HeapTag>
+bool olc_db<Key, Value, HeapTag>::iterator::try_next() {
   while (!empty()) {
     const auto& e = top();
     const auto node{e.node};  // the node on the top of the stack.
@@ -3997,14 +4071,21 @@ bool olc_db<Key, Value>::iterator::try_next() {
   return true;  // stack is empty, so iterator == end().
 }
 
-template <typename Key, typename Value>
-typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::prior() {
+template <typename Key, typename Value, typename HeapTag>
+typename olc_db<Key, Value, HeapTag>::iterator&
+olc_db<Key, Value, HeapTag>::iterator::prior() {
   const auto node = current_node();
   if (node != nullptr ||
       (art_policy::can_eliminate_leaf && !empty() && top().packed_leaf)) {
     const art_key_type akey{[&]() noexcept -> art_key_type {
       if constexpr (art_policy::full_key_in_inode_path) {
         return art_key_type{keybuf_.get_key_view()};
+      } else if constexpr (art_policy::has_heap) {
+        // Heap mode: recover key from the heap using the packed value.
+        const auto value_id = art_policy::unpack_value(node);
+        key_encoder key_buf;
+        const auto kv = db_.heap_.heap.extract_key(value_id, key_buf);
+        return art_key_type{kv};
       } else {
         UNODB_DETAIL_ASSERT(
             !(art_policy::can_eliminate_leaf && stack_.top().packed_leaf));
@@ -4030,8 +4111,8 @@ typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::prior() {
 }
 
 // Position the iterator on the prior leaf in the index.
-template <typename Key, typename Value>
-bool olc_db<Key, Value>::iterator::try_prior() {
+template <typename Key, typename Value, typename HeapTag>
+bool olc_db<Key, Value, HeapTag>::iterator::try_prior() {
   while (!empty()) {
     const auto& e = top();
     const auto node{e.node};  // the node on the top of the stack.
@@ -4085,9 +4166,10 @@ bool olc_db<Key, Value>::iterator::try_prior() {
   return true;  // stack is empty, so iterator == end().
 }
 
-template <typename Key, typename Value>
-typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::seek(
-    art_key_type search_key, bool& match, bool fwd) {
+template <typename Key, typename Value, typename HeapTag>
+typename olc_db<Key, Value, HeapTag>::iterator&
+olc_db<Key, Value, HeapTag>::iterator::seek(art_key_type search_key,
+                                            bool& match, bool fwd) {
   while (!try_seek(search_key, match, fwd)) {
     unodb::spin_wait_loop_body();  // LCOV_EXCL_LINE
   }
@@ -4119,9 +4201,9 @@ typename olc_db<Key, Value>::iterator& olc_db<Key, Value>::iterator::seek(
 // more complicated and there is no data as yet about the importance
 // of this (which just optimizes part of the seek away) while the code
 // complexity would be definitely increased.
-template <typename Key, typename Value>
-bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
-                                            bool& match, bool fwd) {
+template <typename Key, typename Value, typename HeapTag>
+bool olc_db<Key, Value, HeapTag>::iterator::try_seek(art_key_type search_key,
+                                                     bool& match, bool fwd) {
   invalidate();   // invalidate the iterator (clear the stack).
   match = false;  // unless we wind up with an exact match.
   auto parent_critical_section = db_.root_pointer_lock.try_read_lock();
@@ -4176,6 +4258,14 @@ bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
       int cmp_{0};
       if constexpr (art_policy::full_key_in_inode_path) {
         cmp_ = unodb::detail::compare(keybuf_.get_key_view(), k.get_key_view());
+      } else if constexpr (art_policy::has_heap) {
+        // LCOV_EXCL_START — Heap mode has no leaf nodes; this branch is
+        // unreachable at runtime but must compile for type correctness.
+        const auto value_id = art_policy::unpack_value(node);
+        key_encoder key_buf;
+        const auto kv = db_.heap_.heap.extract_key(value_id, key_buf);
+        cmp_ = unodb::detail::compare(kv, k.get_key_view());
+        // LCOV_EXCL_STOP
       } else {
         cmp_ = leaf->cmp(k);
       }
@@ -4474,8 +4564,8 @@ bool olc_db<Key, Value>::iterator::try_seek(art_key_type search_key,
 // stack as they are visited.  An optimistic lock is obtained for the
 // caller's node and the parent critical section is then released
 // (lock chaining).  No optimistic locks are held on exit.
-template <typename Key, typename Value>
-bool olc_db<Key, Value>::iterator::try_left_most_traversal(
+template <typename Key, typename Value, typename HeapTag>
+bool olc_db<Key, Value, HeapTag>::iterator::try_left_most_traversal(
     detail::olc_node_ptr node,
     optimistic_lock::read_critical_section& parent_critical_section) {
   // A check() is required before acting on [node] by taking the lock.
@@ -4529,8 +4619,8 @@ bool olc_db<Key, Value>::iterator::try_left_most_traversal(
 // stack as they are visited.  An optimistic lock is obtained for the
 // caller's node and the parent critical section is then released
 // (lock chaining). No optimistic locks are held on exit.
-template <typename Key, typename Value>
-bool olc_db<Key, Value>::iterator::try_right_most_traversal(
+template <typename Key, typename Value, typename HeapTag>
+bool olc_db<Key, Value, HeapTag>::iterator::try_right_most_traversal(
     detail::olc_node_ptr node,
     optimistic_lock::read_critical_section& parent_critical_section) {
   // A check() is required before acting on [node] by taking the lock.
@@ -4580,12 +4670,19 @@ bool olc_db<Key, Value>::iterator::try_right_most_traversal(
 }
 
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
-template <typename Key, typename Value>
-typename olc_db<Key, Value>::iterator::get_key_result
-olc_db<Key, Value>::iterator::get_key() noexcept {
+template <typename Key, typename Value, typename HeapTag>
+typename olc_db<Key, Value, HeapTag>::iterator::get_key_result
+olc_db<Key, Value, HeapTag>::iterator::get_key() noexcept(
+    !art_policy::has_heap) {
   UNODB_DETAIL_ASSERT(valid());  // by contract
   if constexpr (art_policy::full_key_in_inode_path) {
     return transient_key_view{keybuf_.get_key_view()};
+  } else if constexpr (art_policy::has_heap) {
+    // Heap mode: recover full key from the heap.
+    const auto& node = stack_.top().node;
+    const auto value_id = art_policy::unpack_value(node);
+    const auto kv = db_.heap_.heap.extract_key(value_id, get_key_buf_);
+    return transient_key_view{kv};
   } else {
     const auto& e = stack_.top();
     const auto& node = e.node;
@@ -4596,8 +4693,8 @@ olc_db<Key, Value>::iterator::get_key() noexcept {
 }
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
-template <typename Key, typename Value>
-auto olc_db<Key, Value>::iterator::get_val() const noexcept
+template <typename Key, typename Value, typename HeapTag>
+auto olc_db<Key, Value, HeapTag>::iterator::get_val() const noexcept
     -> std::conditional_t<std::is_same_v<Value, unodb::value_view>,
                           unodb::value_view, value_type> {
   // Note: If the iterator is on a leaf, we return the value for
@@ -4621,18 +4718,30 @@ auto olc_db<Key, Value>::iterator::get_val() const noexcept
   }
 }
 
-template <typename Key, typename Value>
-int olc_db<Key, Value>::iterator::cmp(const art_key_type& akey) const noexcept {
+UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
+template <typename Key, typename Value, typename HeapTag>
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
+int olc_db<Key, Value, HeapTag>::iterator::cmp(
+    const art_key_type& akey) noexcept(!art_policy::has_heap) {
   UNODB_DETAIL_ASSERT(!stack_.empty());
   if constexpr (art_policy::full_key_in_inode_path) {
     return unodb::detail::compare(keybuf_.get_key_view(), akey.get_key_view());
+  } else if constexpr (art_policy::has_heap) {
+    // Heap mode: recover full key into get_key_buf_ so get_key() can
+    // reuse it without a redundant extract_key call.
+    const auto& node = stack_.top().node;
+    const auto value_id = art_policy::unpack_value(node);
+    const auto kv = db_.heap_.heap.extract_key(value_id, get_key_buf_);
+    return unodb::detail::compare(kv, akey.get_key_view());
   } else {
-    auto& node = stack_.top().node;
+    const auto& node = stack_.top().node;
     UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
     const auto* const leaf{node.template ptr<leaf_type*>()};
     return unodb::detail::compare(leaf->get_key_view(), akey.get_key_view());
   }
 }
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
 ///
 /// OLC scan implementation
@@ -4642,8 +4751,9 @@ int olc_db<Key, Value>::iterator::cmp(const art_key_type& akey) const noexcept {
 
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=cold")
 
-template <typename Key, typename Value>
-void olc_db<Key, Value>::increase_memory_use(std::size_t delta) noexcept {
+template <typename Key, typename Value, typename HeapTag>
+void olc_db<Key, Value, HeapTag>::increase_memory_use(
+    std::size_t delta) noexcept {
   UNODB_DETAIL_ASSERT(delta > 0);
 
   current_memory_use.fetch_add(delta, std::memory_order_relaxed);
@@ -4651,8 +4761,9 @@ void olc_db<Key, Value>::increase_memory_use(std::size_t delta) noexcept {
 
 UNODB_DETAIL_RESTORE_GCC_WARNINGS()
 
-template <typename Key, typename Value>
-void olc_db<Key, Value>::decrease_memory_use(std::size_t delta) noexcept {
+template <typename Key, typename Value, typename HeapTag>
+void olc_db<Key, Value, HeapTag>::decrease_memory_use(
+    std::size_t delta) noexcept {
   UNODB_DETAIL_ASSERT(delta > 0);
   UNODB_DETAIL_ASSERT(delta <=
                       current_memory_use.load(std::memory_order_relaxed));
@@ -4660,19 +4771,21 @@ void olc_db<Key, Value>::decrease_memory_use(std::size_t delta) noexcept {
   current_memory_use.fetch_sub(delta, std::memory_order_relaxed);
 }
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename HeapTag>
 template <class INode>
-constexpr void olc_db<Key, Value>::increment_inode_count() noexcept {
-  static_assert(detail::olc_inode_defs<Key, Value>::template is_inode<INode>());
+constexpr void olc_db<Key, Value, HeapTag>::increment_inode_count() noexcept {
+  static_assert(
+      detail::olc_inode_defs<Key, Value, HeapTag>::template is_inode<INode>());
 
   node_counts[as_i<INode::type>].fetch_add(1, std::memory_order_relaxed);
   increase_memory_use(sizeof(INode));
 }
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename HeapTag>
 template <class INode>
-constexpr void olc_db<Key, Value>::decrement_inode_count() noexcept {
-  static_assert(detail::olc_inode_defs<Key, Value>::template is_inode<INode>());
+constexpr void olc_db<Key, Value, HeapTag>::decrement_inode_count() noexcept {
+  static_assert(
+      detail::olc_inode_defs<Key, Value, HeapTag>::template is_inode<INode>());
 
   const auto old_inode_count UNODB_DETAIL_USED_IN_DEBUG =
       node_counts[as_i<INode::type>].fetch_sub(1, std::memory_order_relaxed);
@@ -4681,9 +4794,9 @@ constexpr void olc_db<Key, Value>::decrement_inode_count() noexcept {
   decrease_memory_use(sizeof(INode));
 }
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename HeapTag>
 template <node_type NodeType>
-constexpr void olc_db<Key, Value>::account_growing_inode() noexcept {
+constexpr void olc_db<Key, Value, HeapTag>::account_growing_inode() noexcept {
   static_assert(NodeType != node_type::LEAF);
 
   // NOLINTNEXTLINE(google-readability-casting)
@@ -4691,9 +4804,9 @@ constexpr void olc_db<Key, Value>::account_growing_inode() noexcept {
       1, std::memory_order_relaxed);
 }
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename HeapTag>
 template <node_type NodeType>
-constexpr void olc_db<Key, Value>::account_shrinking_inode() noexcept {
+constexpr void olc_db<Key, Value, HeapTag>::account_shrinking_inode() noexcept {
   static_assert(NodeType != node_type::LEAF);
 
   shrinking_inode_counts[internal_as_i<NodeType>].fetch_add(
@@ -4702,8 +4815,8 @@ constexpr void olc_db<Key, Value>::account_shrinking_inode() noexcept {
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
-template <typename Key, typename Value>
-void olc_db<Key, Value>::dump(std::ostream& os) const {
+template <typename Key, typename Value, typename HeapTag>
+void olc_db<Key, Value, HeapTag>::dump(std::ostream& os) const {
 #ifdef UNODB_DETAIL_WITH_STATS
   os << "olc_db dump, current memory use = " << get_current_memory_use()
      << '\n';
@@ -4714,15 +4827,15 @@ void olc_db<Key, Value>::dump(std::ostream& os) const {
 }
 
 // LCOV_EXCL_START
-template <typename Key, typename Value>
-void olc_db<Key, Value>::dump() const {
+template <typename Key, typename Value, typename HeapTag>
+void olc_db<Key, Value, HeapTag>::dump() const {
   dump(std::cerr);
 }
 // LCOV_EXCL_STOP
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename HeapTag>
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
-bool olc_db<Key, Value>::try_collapse_i4(
+bool olc_db<Key, Value, HeapTag>::try_collapse_i4(
     detail::olc_node_ptr i4_node, std::uint8_t del_ci,
     in_critical_section<detail::olc_node_ptr>* slot,
     optimistic_lock::write_guard& guard) {
@@ -4763,9 +4876,9 @@ bool olc_db<Key, Value>::try_collapse_i4(
 }
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-template <typename Key, typename Value>
-typename olc_db<Key, Value>::try_update_result_type
-olc_db<Key, Value>::try_chain_cut(
+template <typename Key, typename Value, typename HeapTag>
+typename olc_db<Key, Value, HeapTag>::try_update_result_type
+olc_db<Key, Value, HeapTag>::try_chain_cut(
     detail::olc_node_ptr chain_bottom, detail::olc_node_ptr leaf_ptr,
     optimistic_lock::write_guard parent_guard,
     optimistic_lock::write_guard chain_bottom_guard,
@@ -5016,10 +5129,10 @@ olc_db<Key, Value>::try_chain_cut(
 
 namespace unodb {
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename HeapTag>
 template <typename Fork, typename RandomIt>
-void olc_db<Key, Value>::bulk_load(Fork&& fork, std::size_t max_tasks,
-                                   RandomIt first, RandomIt last) {
+void olc_db<Key, Value, HeapTag>::bulk_load(Fork&& fork, std::size_t max_tasks,
+                                            RandomIt first, RandomIt last) {
   UNODB_DETAIL_QSBR_ASSERT(
       qsbr_state::single_thread_mode(qsbr::instance().get_state()));
 

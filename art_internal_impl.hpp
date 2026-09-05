@@ -23,6 +23,7 @@
 #include <iostream>
 #include <limits>
 #include <memory>
+#include <new>
 #include <span>
 #include <stdexcept>
 #include <type_traits>
@@ -50,10 +51,10 @@
 
 namespace unodb {
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename HeapTag>
 class db;
 
-template <typename Key, typename Value>
+template <typename Key, typename Value, typename HeapTag>
 class olc_db;
 
 }  // namespace unodb
@@ -581,7 +582,6 @@ class [[nodiscard]] basic_leaf<no_key_tag, Header> final : public Header {
 };  // class basic_leaf<no_key_tag, Header>
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-/// Create unique pointer to new leaf with given key and value.
 ///
 /// Allocates memory for leaf and constructs it with placement new.
 ///
@@ -596,11 +596,14 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 /// \return Unique pointer to newly created leaf
 ///
 /// \throws std::length_error if key or value exceeds maximum size
-template <typename Key, typename Value, template <typename, typename> class Db>
+template <typename Key, typename Value,
+          template <typename, typename, typename> class Db,
+          typename HeapTag = void>
 [[nodiscard]] auto make_db_leaf_ptr(
     basic_art_key<Key> k, Value v,
-    UNODB_DETAIL_NO_STATS_CONST Db<Key, Value>& db UNODB_DETAIL_LIFETIMEBOUND) {
-  using db_type = Db<Key, Value>;
+    UNODB_DETAIL_NO_STATS_CONST Db<Key, Value, HeapTag>& db
+    UNODB_DETAIL_LIFETIMEBOUND) {
+  using db_type = Db<Key, Value, HeapTag>;
   using header_type = typename db_type::header_type;
   using leaf_type = basic_leaf<leaf_key_type<Key, Value>, header_type>;
 
@@ -741,12 +744,14 @@ inline void basic_db_inode_deleter<INode, Db>::operator()(
 /// \tparam INodeDefs Internal node definitions template
 /// \tparam INodeReclamator Internal node reclamation policy
 /// \tparam LeafReclamator Leaf reclamation policy
-template <typename Key, typename Value, template <typename, typename> class Db,
+/// \tparam HeapTag Leaf policy tag (void = default behavior)
+template <typename Key, typename Value,
+          template <typename, typename, typename> class Db,
           template <class> class CriticalSectionPolicy, class LockPolicy,
           class ReadCriticalSection, class NodePtr,
-          template <typename, typename> class INodeDefs,
-          template <typename, typename, class> class INodeReclamator,
-          template <class> class LeafReclamator>
+          template <typename, typename, typename> class INodeDefs,
+          template <typename, typename, class, typename> class INodeReclamator,
+          template <class> class LeafReclamator, typename HeapTag = void>
 struct basic_art_policy final {
   /// \name Type aliases
   /// \{
@@ -773,7 +778,7 @@ struct basic_art_policy final {
   using read_critical_section = ReadCriticalSection;
 
   /// Internal node definitions.
-  using inode_defs = INodeDefs<Key, Value>;
+  using inode_defs = INodeDefs<Key, Value, HeapTag>;
 
   /// Base internal node type.
   using inode = typename inode_defs::inode;
@@ -796,23 +801,43 @@ struct basic_art_policy final {
   /// Whether values are stored directly in inode child slots rather than
   /// in separate leaf nodes.  True when the value fits in a uint64_t.
   static constexpr bool value_in_slot =
-      std::is_trivially_copyable_v<Value> &&
-      (sizeof(Value) <= sizeof(std::uint64_t));
+      !std::is_void_v<HeapTag> ? leaf_policy_for<HeapTag, Value>::value_in_slot
+                               : (std::is_trivially_copyable_v<Value> &&
+                                  (sizeof(Value) <= sizeof(std::uint64_t)));
   static_assert(sizeof(std::uintptr_t) <= sizeof(std::uint64_t),
                 "node_ptr must fit in a uint64_t slot");
 
   /// Whether the full key is encoded in the inode path (prefix + dispatch
   /// bytes at every level).  True for key_view keys with small values.
-  static constexpr bool full_key_in_inode_path = std::is_same_v<Key, key_view>;
+  /// False when a TupleHeap provides key recovery.
+  static constexpr bool full_key_in_inode_path =
+      !std::is_void_v<HeapTag>
+          ? leaf_policy_for<HeapTag, Value>::full_key_in_inode_path
+          : std::is_same_v<Key, key_view>;
 
   /// Whether the key can be omitted from the leaf.
+  /// For heap mode: true (key lives in the heap, not in any leaf).
   static constexpr bool can_eliminate_key_in_leaf =
-      can_eliminate_key_in_leaf_v<Key, Value>;
+      !std::is_void_v<HeapTag>
+          ? leaf_policy_for<HeapTag, Value>::full_key_in_inode_path ||
+                leaf_policy_for<HeapTag, Value>::can_eliminate_leaf
+          : can_eliminate_key_in_leaf_v<Key, Value>;
 
-  /// Whether leaf allocation can be eliminated entirely.  Requires the
-  /// full key in the inode path AND the value in the inode child slot.
+  /// Whether leaf allocation can be eliminated entirely.  Requires
+  /// the value in the inode child slot.  For the default policy this also
+  /// requires full_key_in_inode_path.  For the heap policy, the heap
+  /// provides key recovery so leaves can be eliminated with short keys.
   static constexpr bool can_eliminate_leaf =
-      full_key_in_inode_path && value_in_slot;
+      !std::is_void_v<HeapTag>
+          ? leaf_policy_for<HeapTag, Value>::can_eliminate_leaf
+          : (full_key_in_inode_path && value_in_slot);
+
+  /// Whether a TupleHeap is configured for key recovery.
+  static constexpr bool has_heap =
+      !std::is_void_v<HeapTag> && is_heap_v<HeapTag, Value>;
+
+  /// The heap type (void when no heap is configured).
+  using heap_type = HeapTag;
 
   /// Pack a value into a node_ptr slot (value-in-slot mode).
   /// The parent inode's value_bitmask distinguishes this from a pointer.
@@ -846,7 +871,7 @@ struct basic_art_policy final {
                          basic_leaf<leaf_key_type<Key, Value>, header_type>>;
 
   /// Database type.
-  using db_type = Db<Key, Value>;
+  using db_type = Db<Key, Value, HeapTag>;
 
  private:
   /// Internal node deleter type.
@@ -886,11 +911,11 @@ struct basic_art_policy final {
   /// Unique pointer to internal node for deferred reclamation.
   template <class INode>
   using db_inode_reclaimable_ptr =
-      std::unique_ptr<INode, INodeReclamator<Key, Value, INode>>;
+      std::unique_ptr<INode, INodeReclamator<Key, Value, INode, HeapTag>>;
 
   /// Unique pointer to leaf.
   using db_leaf_unique_ptr =
-      basic_db_leaf_unique_ptr<key_type, value_type, header_type, Db>;
+      basic_db_leaf_unique_ptr<key_type, value_type, header_type, Db, HeapTag>;
 
   /// \}
 
@@ -911,7 +936,8 @@ struct basic_art_policy final {
     static_assert(
         !can_eliminate_leaf,
         "make_db_leaf_ptr must not be called when leaf is eliminated");
-    return ::unodb::detail::make_db_leaf_ptr<Key, Value, Db>(k, v, db_instance);
+    return ::unodb::detail::make_db_leaf_ptr<Key, Value, Db, HeapTag>(
+        k, v, db_instance);
   }
 
   /// Create reclaimable pointer to leaf for deferred deletion.
@@ -1019,7 +1045,7 @@ struct basic_art_policy final {
       UNODB_DETAIL_NO_STATS_CONST db_type& db_instance
       UNODB_DETAIL_LIFETIMEBOUND) noexcept {
     return db_inode_reclaimable_ptr<INode>{
-        inode_ptr, INodeReclamator<Key, Value, INode>{db_instance}};
+        inode_ptr, INodeReclamator<Key, Value, INode, HeapTag>{db_instance}};
   }
 
  private:
@@ -1372,8 +1398,25 @@ union [[nodiscard]] key_prefix {
     UNODB_DETAIL_ASSERT(key_prefix_len <= key_prefix_capacity);
   }
 
+  /// Construct with truncated length from source with different policy.
+  ///
+  /// Enables inode construction from inode_type (which may use a different
+  /// ArtPolicy and thus a different CriticalSectionPolicy alias).
+  template <template <class> class OtherPolicy>
+  key_prefix(unsigned key_prefix_len,
+             const key_prefix<ArtKey, OtherPolicy>& source_key_prefix) noexcept
+      : u64{(source_key_prefix.load_u64() & key_bytes_mask) |
+            length_to_word(key_prefix_len)} {
+    UNODB_DETAIL_ASSERT(key_prefix_len <= key_prefix_capacity);
+  }
+
   /// Copy constructor.
   key_prefix(const key_prefix& other) noexcept : u64{other.u64.load()} {}
+
+  /// Load the raw u64 representation (for cross-policy copies).
+  [[nodiscard]] constexpr std::uint64_t load_u64() const noexcept {
+    return u64.load();
+  }
 
   /// Destructor.
   ~key_prefix() noexcept = default;
@@ -1436,9 +1479,23 @@ union [[nodiscard]] key_prefix {
   /// \param prefix2 Single byte between \a prefix1 and current prefix
   constexpr void prepend(const key_prefix& prefix1,
                          std::byte prefix2) noexcept {
-    UNODB_DETAIL_ASSERT(length() + prefix1.length() < key_prefix_capacity);
+    prepend_impl(prefix1.load_u64(), prefix1.length(), prefix2);
+  }
 
-    const auto prefix1_bit_length = prefix1.length() * 8U;
+  /// Cross-policy prepend overload.
+  template <template <class> class OtherPolicy>
+  constexpr void prepend(const key_prefix<ArtKey, OtherPolicy>& prefix1,
+                         std::byte prefix2) noexcept {
+    prepend_impl(prefix1.load_u64(), prefix1.length(), prefix2);
+  }
+
+ private:
+  constexpr void prepend_impl(std::uint64_t prefix1_u64,
+                              key_prefix_size prefix1_len,
+                              std::byte prefix2) noexcept {
+    UNODB_DETAIL_ASSERT(length() + prefix1_len < key_prefix_capacity);
+
+    const auto prefix1_bit_length = prefix1_len * 8U;
     const auto prefix1_mask = (1ULL << prefix1_bit_length) - 1;
     const auto prefix3_bit_length = length() * 8U;
     const auto prefix3_mask = (1ULL << prefix3_bit_length) - 1;
@@ -1446,14 +1503,15 @@ union [[nodiscard]] key_prefix {
     const auto shifted_prefix3 = prefix3 << (prefix1_bit_length + 8U);
     const auto shifted_prefix2 = static_cast<std::uint64_t>(prefix2)
                                  << prefix1_bit_length;
-    const auto masked_prefix1 = prefix1.u64 & prefix1_mask;
+    const auto masked_prefix1 = prefix1_u64 & prefix1_mask;
 
     u64 = shifted_prefix3 | shifted_prefix2 | masked_prefix1 |
-          length_to_word(length() + prefix1.length() + 1U);
+          length_to_word(length() + prefix1_len + 1U);
 
     UNODB_DETAIL_ASSERT(f.key_prefix_length.load() <= key_prefix_capacity);
   }
 
+ public:
   /// Return byte at specified index.
   ///
   /// \param i Index (must be less than length())

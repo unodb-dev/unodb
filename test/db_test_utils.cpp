@@ -52,6 +52,10 @@ template class tree_verifier<key_view_u64val_db>;
 template class tree_verifier<key_view_u64val_mutex_db>;
 template class tree_verifier<key_view_u64val_olc_db>;
 
+// template class tree_verifier<heap_db>;  // TODO: db shrink path
+// template class tree_verifier<heap_mutex_db>;  // TODO: db shrink path
+template class tree_verifier<heap_olc_db>;
+
 }  // namespace unodb::test
 
 namespace unodb {
