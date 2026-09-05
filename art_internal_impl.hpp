@@ -1269,6 +1269,31 @@ struct basic_art_policy final {
     }
   }
 
+  /// Dump one iterator stack entry's node to stream for debugging, and end the
+  /// line.
+  ///
+  /// Unlike dump_node(), tolerates \a node holding a packed value rather than
+  /// a tagged pointer, which is what the stack carries at a leaf position
+  /// under #can_eliminate_leaf. There its low bits are value bits, not a tag,
+  /// so node.type() names an arbitrary node type and dereferencing the masked
+  /// pointer is undefined; only detail::iter_result::is_packed_value tells the
+  /// two apart.
+  ///
+  /// \param os Output stream
+  /// \param node The stack entry's node
+  /// \param is_packed_value The entry's detail::iter_result::is_packed_value
+  [[gnu::cold]] UNODB_DETAIL_NOINLINE static void dump_stack_node(
+      std::ostream& os, const NodePtr& node, bool is_packed_value) {
+    if constexpr (can_eliminate_leaf) {
+      if (is_packed_value) {
+        os << "packed value = " << unpack_value(node) << '\n';
+        return;
+      }
+    }
+    dump_node(os, node, false /*recursive*/);
+    if (node.type() != node_type::LEAF) os << '\n';
+  }
+
   /// \}
 
   /// Not instantiable.

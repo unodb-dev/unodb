@@ -537,8 +537,8 @@ class olc_db final {
         os << ", version=";
         optimistic_lock::version_type(e.version).dump(os);  // version tag.
         os << ", ";
-        art_policy::dump_node(os, np, false /*recursive*/);  // node or leaf.
-        if (np.type() != node_type::LEAF) os << '\n';
+        // Node, leaf, or a packed value at a leaf position.
+        art_policy::dump_stack_node(os, np, e.is_packed_value);
         tmp.pop();
         level--;
       }
