@@ -183,8 +183,11 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, EncodedTextKeys) {
 // art_test_data.hpp for the encoded key shapes.
 using unodb::test_data::copy_key;
 using unodb::test_data::make_key;
+using unodb::test_data::make_key_11;
 using unodb::test_data::make_key_17;
 using unodb::test_data::make_key_17_byte10;
+using unodb::test_data::make_key_26;
+using unodb::test_data::make_key_34;
 using unodb::test_data::make_long_key;
 using unodb::test_data::make_short_key;
 
@@ -641,11 +644,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeyGetMissing) {
 
 #ifdef UNODB_DETAIL_WITH_STATS
 
-// Key helpers used only by the stats tests below.
-using unodb::test_data::make_key_11;
+// Key helper used only by the stats tests below.
 using unodb::test_data::make_key_18;
-using unodb::test_data::make_key_26;
-using unodb::test_data::make_key_34;
 
 // ===================================================================
 // Group 6: Stats verification — node counts at intermediate states
@@ -738,6 +738,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainShrinkI256ToI48) {
   verifier.assert_shrinking_inodes({0, 0, 0, 1});
 }
 
+#endif  // UNODB_DETAIL_WITH_STATS
+
 // -------------------------------------------------------------------
 // Group 6c: Full remove — all keys removed through each bottom inode
 // -------------------------------------------------------------------
@@ -767,6 +769,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainRemoveAllFromI256) {
     verifier.remove(make_key(enc, 0x42, i));
   verifier.assert_empty();
 }
+
+#ifdef UNODB_DETAIL_WITH_STATS
 
 // -------------------------------------------------------------------
 // Group 6d: Cascade — chain under parent at min_size, removing chain
@@ -870,6 +874,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CascadeChainUnderI256) {
   verifier.assert_node_counts({TestFixture::leaf_count(48), 0, 0, 1, 0});
 }
 
+#endif  // UNODB_DETAIL_WITH_STATS
+
 // Chain under I48(18 children, above min_size).  Remove chain child
 // via remove_child_entry (no shrink).
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainRemoveFromI48AboveMin) {
@@ -903,6 +909,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainRemoveFromI256AboveMin) {
   verifier.remove(make_key(enc, 0x42, 2));
   verifier.check_present_values();
 }
+
+#ifdef UNODB_DETAIL_WITH_STATS
 
 // -------------------------------------------------------------------
 // Group 6e: Multi-level chain removal
@@ -1097,6 +1105,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, MidLevelInodeShrink) {
   verifier.assert_shrinking_inodes({2, 1, 0, 0});
 }
 
+#endif  // UNODB_DETAIL_WITH_STATS
+
 // -------------------------------------------------------------------
 // Group 10a: Chain remove — key not found / mismatch coverage
 // -------------------------------------------------------------------
@@ -1146,6 +1156,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainRemoveLeafMismatch) {
   verifier.check_present_values();
 }
 
+#ifdef UNODB_DETAIL_WITH_STATS
+
 // -------------------------------------------------------------------
 // Group 10b: Atomic chain cut — structural gap tests
 // -------------------------------------------------------------------
@@ -1181,6 +1193,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1CollapseToLeaf) {
   verifier.remove(make_key_11(enc, 0x02, 0x01));
   verifier.assert_empty();
 }
+
+#endif  // UNODB_DETAIL_WITH_STATS
 
 // T7: I4(2) collapse with CD=0 chain, remaining child is inode.
 // Remove A → chain cut, I4 collapses, remaining child promoted.
@@ -1388,6 +1402,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1PrefixOverflow) {
   verifier.assert_empty();
 }
 
+#ifdef UNODB_DETAIL_WITH_STATS
+
 // T14: I16(min) shrink with CD=1 chain.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ChainCutCD1ShrinkI16) {
   unodb::test::tree_verifier<TypeParam> verifier;
@@ -1541,6 +1557,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CollapseToInodeAllowed) {
   verifier.assert_empty();
 }
 
+#endif  // UNODB_DETAIL_WITH_STATS
+
 // -------------------------------------------------------------------
 // Verify tree structures used by concurrent chain cut tests (CT1-CT4).
 // These confirm the chain depth and that insert/remove work correctly
@@ -1594,6 +1612,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ConcurrentTestTree34Byte) {
   verifier.remove(make_key_34(enc, 0x10, X, 0x01));
   verifier.check_present_values();
 }
+
+#ifdef UNODB_DETAIL_WITH_STATS
 
 // Group 11: Scan through chain with mixed-length keys (GAP E)
 // -------------------------------------------------------------------
