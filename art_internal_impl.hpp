@@ -1636,8 +1636,11 @@ struct iter_result {
   using node_ptr = basic_node_ptr<NodeHeader>;
 
   /// Node pointer: an internal node, a leaf, or, under
-  /// basic_art_policy::can_eliminate_leaf, the packed value itself.
-  /// #is_packed_value is set for the last.
+  /// `detail::basic_art_policy::can_eliminate_leaf`, the packed value itself.
+  /// #is_packed_value is set for the last, and is the only validity test there:
+  /// a packed zero value is bit-identical to a null node_ptr, so `node !=
+  /// nullptr` decides nothing about such an entry. See
+  /// `detail::basic_art_policy::pack_value()`.
   node_ptr node;
 
   /// Key byte consumed at this level when stepping down to the child node. For
@@ -1657,17 +1660,26 @@ struct iter_result {
   /// Snapshot of key prefix for node.
   key_prefix_snapshot prefix;
 
-  /// True when #node holds a packed value (value-in-slot) rather than an
-  /// inode or leaf pointer.  Set by unodb::db::iterator::push_leaf() and
-  /// unodb::olc_db::iterator::push_leaf(), the only writers, and only under
-  /// basic_art_policy::can_eliminate_leaf, where the tree has no leaf nodes
-  /// at all; elsewhere a leaf position carries a genuine leaf pointer and
-  /// this stays false.
+  /// True when #node holds a packed value rather than a node pointer. Set by
+  /// `unodb::db::iterator::push_leaf()` and
+  /// `unodb::olc_db::iterator::push_leaf()`, the only writers, and only under
+  /// `detail::basic_art_policy::can_eliminate_leaf`, where the tree has no
+  /// leaf nodes at all. Elsewhere a leaf position carries a genuine leaf
+  /// pointer and this stays false, so a bare read is the whole test; calling
+  /// `detail::basic_art_policy::unpack_value()` on #node still needs an
+  /// enclosing `if constexpr`, because that static_asserts the constant.
   ///
-  /// A leaf position is therefore `is_packed_value || node.type() ==
-  /// node_type::LEAF`, never `child_index == 0xFF`: `child_index` is `0xFF`
-  /// there only as a placeholder, and `0xFF` is a valid child index in
-  /// basic_inode_48 and basic_inode_256.
+  /// Being the only writers, they are also why a scan result from the
+  /// `detail::basic_inode_impl` scan family always carries false: it names a
+  /// child, and #node is the scanned inode, not that child. To learn whether
+  /// the named slot holds a packed value, ask the inode —
+  /// `detail::basic_inode_impl::is_value_in_slot()` — as
+  /// `unodb::db::iterator::descend_left()` does.
+  ///
+  /// A leaf position is `is_packed_value || node.type() == node_type::LEAF`,
+  /// never `child_index == 0xFF`: `child_index` is `0xFF` there only as a
+  /// placeholder, and `0xFF` is a valid child index in
+  /// `detail::basic_inode_48` and `detail::basic_inode_256`.
   bool is_packed_value{false};
 };
 

@@ -770,8 +770,8 @@ class db final {
     /// The `node` is never `nullptr` except for an `is_packed_value` entry
     /// holding the value zero, which reads as a null `detail::node_ptr` (see
     /// detail::basic_art_policy::pack_value()); next() and prior() therefore
-    /// tolerate a null node on a value-in-slot `is_packed_value` entry rather
-    /// than asserting plain non-nullness.
+    /// tolerate a null node on an `is_packed_value` entry rather than
+    /// asserting plain non-nullness.
     ///
     /// The `detail::iter_result::key_byte` is the `std::byte` along which the
     /// path descends from that `node`. The `key_byte` has no meaning for a
