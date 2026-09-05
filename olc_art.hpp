@@ -4084,7 +4084,6 @@ olc_db<Key, Value, HeapTag>::iterator::next() {
         const auto kv = db_.heap_.heap.extract_key(value_id, key_buf);
         return art_key_type{kv};
       } else {
-        UNODB_DETAIL_ASSERT(!stack_.top().is_packed_value);
         UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
         return node.template ptr<leaf_type*>()->get_key();
       }
@@ -4176,7 +4175,6 @@ olc_db<Key, Value, HeapTag>::iterator::prior() {
         const auto kv = db_.heap_.heap.extract_key(value_id, key_buf);
         return art_key_type{kv};
       } else {
-        UNODB_DETAIL_ASSERT(!stack_.top().is_packed_value);
         UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
         return node.template ptr<leaf_type*>()->get_key();
       }
