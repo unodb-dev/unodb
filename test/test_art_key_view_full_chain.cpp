@@ -28,6 +28,7 @@
 #include <tuple>
 #include <vector>
 
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "art_common.hpp"
@@ -1634,6 +1635,14 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanChainMixedLengths) {
 // must equal the full encoded key.
 // ===================================================================
 
+/// Verify the iterator stack at \a it's current position against the caller's
+/// \a expected_key.
+///
+/// \a expected_key must be the key the test encoded and inserted, not
+/// it.get_key(): the iterator's key buffer is written by the same push() that
+/// fills the stack, so comparing the two against each other only detects a
+/// pop() truncation desync, never a wrong prefix or dispatch byte pushed
+/// during descent.
 template <class Db>
 void verify_stack(const typename Db::iterator& it,
                   unodb::key_view expected_key) {
@@ -1641,14 +1650,10 @@ void verify_stack(const typename Db::iterator& it,
   auto stk = it.test_only_stack();
   UNODB_ASSERT_FALSE(stk.empty());
 
-  // For can_eliminate_leaf types, the top is a packed value sentinel (0xFF).
-  // For leaf types, the top is a LEAF node.
-  if (stk.back().child_index == static_cast<std::uint8_t>(0xFFU)) {
-    // Packed value — no type check possible.
-  } else {
-    UNODB_EXPECT_EQ(stk.back().node.type(),
-                    unodb::node_type::LEAF);  // LCOV_EXCL_LINE
-  }
+  // The top entry is a leaf position. child_index is 0xFF there only as a
+  // placeholder, and 0xFF is a valid child index in basic_inode_48 and
+  // basic_inode_256, so the flag is the discriminator and it is not.
+  UNODB_EXPECT_TRUE(stk.back().is_packed_value);
 
   const auto inode_end = stk.size() - 1;
   for (std::size_t i = 0; i < inode_end; ++i) {
@@ -1663,17 +1668,45 @@ void verify_stack(const typename Db::iterator& it,
       reconstructed.push_back(prefix[j]);
     reconstructed.push_back(stk[i].key_byte);
   }
-  UNODB_ASSERT_EQ(reconstructed.size(), expected_key.size());
-  for (std::size_t i = 0; i < reconstructed.size(); ++i) {
-    UNODB_EXPECT_EQ(reconstructed[i], expected_key[i]);
+  UNODB_ASSERT_THAT(reconstructed, ::testing::ElementsAreArray(expected_key));
+
+  // Independently, the key the iterator reports must be the inserted one too.
+  UNODB_ASSERT_THAT(it.get_key().view(),
+                    ::testing::ElementsAreArray(expected_key));
+}
+
+/// Direction argument for verify_scan().
+enum class scan_direction : std::uint8_t { forward, reverse };
+
+/// Scan \a db in \a direction, verifying the stack at every position against
+/// the correspondingly ordered element of \a expected.
+///
+/// Asserts the number of positions visited, so a scan that stops early or
+/// never starts fails rather than silently verifying nothing.
+template <class Db>
+void verify_scan(Db& db, std::span<const unodb::key_view> expected,
+                 scan_direction direction) {
+  auto it = db.test_only_iterator();
+  std::size_t count = 0;
+  if (direction == scan_direction::forward) {
+    for (it.first(); it.valid(); it.next()) {
+      UNODB_ASSERT_LT(count, expected.size());
+      verify_stack<Db>(it, expected[count]);
+      ++count;
+    }
+  } else {
+    for (it.last(); it.valid(); it.prior()) {
+      UNODB_ASSERT_LT(count, expected.size());
+      verify_stack<Db>(it, expected[expected.size() - 1 - count]);
+      ++count;
+    }
   }
+  UNODB_EXPECT_EQ(count, expected.size());
 }
 
 /// Two keys sharing a long prefix (chain structure).
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureTwoChainKeys) {
-  // Stack inspection uses get_key().view() which is not available in heap mode
   if constexpr (!TypeParam::has_heap) {
-    // (heap iterators recover keys via the heap, not from internal art_key).
     std::optional<TypeParam> db_opt;
     this->make_db(db_opt);
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26830)
@@ -1689,14 +1722,11 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureTwoChainKeys) {
     const auto key_b = copy_key(make_key(enc, 0x01, 200), buf_b);
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-    std::ignore = this->do_insert(db, key_a, val);
-    std::ignore = this->do_insert(db, key_b, val);
+    UNODB_ASSERT_TRUE(this->do_insert(db, key_a, val));
+    UNODB_ASSERT_TRUE(this->do_insert(db, key_b, val));
 
-    auto it = db.test_only_iterator();
-    it.first();
-    verify_stack<TypeParam>(it, it.get_key().view());
-    it.next();
-    if (it.valid()) verify_stack<TypeParam>(it, it.get_key().view());
+    const std::array<unodb::key_view, 2> expected{key_a, key_b};
+    verify_scan<TypeParam>(db, expected, scan_direction::forward);
   }
 }
 
@@ -1720,13 +1750,12 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureWideNode) {
     const auto kc = copy_key(make_short_key(enc, 0x30), bc);
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-    std::ignore = this->do_insert(db, ka, val);
-    std::ignore = this->do_insert(db, kb, val);
-    std::ignore = this->do_insert(db, kc, val);
+    UNODB_ASSERT_TRUE(this->do_insert(db, ka, val));
+    UNODB_ASSERT_TRUE(this->do_insert(db, kb, val));
+    UNODB_ASSERT_TRUE(this->do_insert(db, kc, val));
 
-    auto it = db.test_only_iterator();
-    for (it.first(); it.valid(); it.next())
-      verify_stack<TypeParam>(it, it.get_key().view());
+    const std::array<unodb::key_view, 3> expected{ka, kb, kc};
+    verify_scan<TypeParam>(db, expected, scan_direction::forward);
   }
 }
 
@@ -1748,12 +1777,11 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureSecondInsertChain) {
     const auto kb = copy_key(make_key(enc, 0x02, 0), buf_b);
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-    std::ignore = this->do_insert(db, ka, val);
-    std::ignore = this->do_insert(db, kb, val);
+    UNODB_ASSERT_TRUE(this->do_insert(db, ka, val));
+    UNODB_ASSERT_TRUE(this->do_insert(db, kb, val));
 
-    auto it = db.test_only_iterator();
-    for (it.first(); it.valid(); it.next())
-      verify_stack<TypeParam>(it, it.get_key().view());
+    const std::array<unodb::key_view, 2> expected{ka, kb};
+    verify_scan<TypeParam>(db, expected, scan_direction::forward);
   }
 }
 
@@ -1777,7 +1805,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureFullScan) {
     };
     auto make = [&](std::uint8_t tag, std::uint64_t v) {
       kh h;
-      auto k = enc.reset().encode(tag).encode(v).get_key_view();
+      const auto k = make_key(enc, tag, v);
       std::ignore = std::ranges::copy(k, h.buf.begin());
       h.len = k.size();
       UNODB_DETAIL_DISABLE_CLANG_21_WARNING("-Wnrvo")
@@ -1790,32 +1818,15 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureFullScan) {
     const auto k3 = make(0x02, 300);
     const auto k4 = make(0x03, 0);
 
-    std::ignore = this->do_insert(db, k1.kv(), val);
-    std::ignore = this->do_insert(db, k2.kv(), val);
-    std::ignore = this->do_insert(db, k3.kv(), val);
-    std::ignore = this->do_insert(db, k4.kv(), val);
+    UNODB_ASSERT_TRUE(this->do_insert(db, k1.kv(), val));
+    UNODB_ASSERT_TRUE(this->do_insert(db, k2.kv(), val));
+    UNODB_ASSERT_TRUE(this->do_insert(db, k3.kv(), val));
+    UNODB_ASSERT_TRUE(this->do_insert(db, k4.kv(), val));
 
-    // Forward scan.
-    {
-      auto it = db.test_only_iterator();
-      int count = 0;
-      for (it.first(); it.valid(); it.next()) {
-        verify_stack<TypeParam>(it, it.get_key().view());
-        ++count;
-      }
-      UNODB_EXPECT_EQ(count, 4);
-    }
-
-    // Reverse scan.
-    {
-      auto it = db.test_only_iterator();
-      int count = 0;
-      for (it.last(); it.valid(); it.prior()) {
-        verify_stack<TypeParam>(it, it.get_key().view());
-        ++count;
-      }
-      UNODB_EXPECT_EQ(count, 4);
-    }
+    const std::array<unodb::key_view, 4> expected{k1.kv(), k2.kv(), k3.kv(),
+                                                  k4.kv()};
+    verify_scan<TypeParam>(db, expected, scan_direction::forward);
+    verify_scan<TypeParam>(db, expected, scan_direction::reverse);
   }
 }
 
