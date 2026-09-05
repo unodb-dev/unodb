@@ -24,6 +24,7 @@
 #include <optional>
 #include <random>
 #include <span>
+#include <sstream>
 #include <stdexcept>
 #include <tuple>
 #include <vector>
@@ -1827,6 +1828,30 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureFullScan) {
                                                   k4.kv()};
     verify_scan<TypeParam>(db, expected, scan_direction::forward);
     verify_scan<TypeParam>(db, expected, scan_direction::reverse);
+  }
+}
+
+/// Dumping an iterator at a leaf position prints the packed value instead of
+/// dereferencing it as a node.
+UNODB_TYPED_TEST(ARTKeyViewFullChainTest, IteratorDumpPrintsPackedValue) {
+  if constexpr (!TypeParam::has_heap) {
+    std::optional<TypeParam> db_opt;
+    this->make_db(db_opt);
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26830)
+    auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+    unodb::key_encoder enc;
+    // The low bits of 1 read as an I4 tag, so dumping it as a node would
+    // dereference null.
+    constexpr typename TypeParam::value_type val{1};
+    UNODB_ASSERT_TRUE(this->do_insert(db, make_short_key(enc, 0x01), val));
+
+    auto it = db.test_only_iterator();
+    it.first();
+    UNODB_ASSERT_TRUE(it.valid());
+    std::ostringstream dump;
+    it.dump(dump);
+    UNODB_ASSERT_THAT(dump.str(), ::testing::HasSubstr("packed value = 1\n"));
   }
 }
 

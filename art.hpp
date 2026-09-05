@@ -548,8 +548,7 @@ class db final {
            << std::dec << ", prefix(" << e.prefix.length() << ")=";
         detail::dump_key(os, e.prefix.get_key_view());
         os << ", ";
-        art_policy::dump_node(os, np, false /*recursive*/);
-        if (np.type() != node_type::LEAF) os << '\n';
+        art_policy::dump_stack_node(os, np, e.is_packed_value);
         tmp.pop();
         level--;
       }
