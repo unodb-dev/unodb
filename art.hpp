@@ -2598,6 +2598,7 @@ db<Key, Value, HeapTag>::iterator::get_val() const noexcept {
   const auto& e = stack_.top();
   const auto& node = e.node;
   if constexpr (art_policy::can_eliminate_leaf) {
+    UNODB_DETAIL_ASSERT(e.is_packed_value);
     return art_policy::unpack_value(node);
   } else {
     UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
