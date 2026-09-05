@@ -368,6 +368,19 @@ class [[nodiscard]] tree_verifier final {
 #endif  // UNODB_DETAIL_WITH_STATS
   }
 
+  /// Dump the tree to a string. Do not attempt to check the dump format, only
+  /// that dumping does not crash.
+  ///
+  /// Deliberately not gated on statistics: STATS=OFF builds would otherwise
+  /// dump no tree except through the DeepState smoke test, which covers only
+  /// db<std::uint64_t, value_view> and runs only where DeepState is built.
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
+  void assert_dump_does_not_crash() const {
+    std::stringstream dump_sink;
+    (*test_db_).dump(dump_sink);
+  }
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
   // Replace std::enable_if_t in the next two methods with
   // requires(std::is_same_v) when LLVM 15 is the oldest supported LLVM version.
@@ -647,6 +660,8 @@ class [[nodiscard]] tree_verifier final {
   /// the scan can be checked, but not whether each key is in the ground truth -
   /// doing that requires knowledge about how the keys were encoded and the
   /// encoding needs to be reversible, which it is not in the general case).
+  /// It also dumps the tree, checking only that dumping does not crash; see
+  /// assert_dump_does_not_crash().
   void check_present_values() const {
     // Probe the test_db for each key, verifying the expected value is found
     // under that key.  Skip for heap types since stored values are tuple_ids,
@@ -720,6 +735,10 @@ class [[nodiscard]] tree_verifier final {
     //
     // const auto sz = values.size();  // #of (key,val) pairs expected.
     // UNODB_EXPECT_EQ(sz, n);
+
+    // Last, so a broken tree's probe or scan failure is reported before a
+    // crashing dump can take the test binary down.
+    assert_dump_does_not_crash();
   }
 
   template <typename T>
@@ -763,6 +782,10 @@ class [[nodiscard]] tree_verifier final {
   void assert_empty() const {
     UNODB_ASSERT_TRUE((*test_db_).empty());
 
+    // Reaches dump_node()'s null-root arm, which no inode dump() recurses
+    // into.
+    assert_dump_does_not_crash();
+
 #ifdef UNODB_DETAIL_WITH_STATS
     UNODB_ASSERT_EQ((*test_db_).get_current_memory_use(), 0);
 
@@ -775,13 +798,6 @@ class [[nodiscard]] tree_verifier final {
   UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
   void assert_node_counts(
       const node_type_counter_array& expected_node_counts) const {
-    // Dump the tree to a string. Do not attempt to check the dump format, only
-    // that dumping does not crash.
-    {
-      std::stringstream dump_sink;
-      (*test_db_).dump(dump_sink);
-    }
-
     const auto actual_node_counts = (*test_db_).get_node_counts();
     UNODB_ASSERT_THAT(actual_node_counts,
                       ::testing::ElementsAreArray(expected_node_counts));
