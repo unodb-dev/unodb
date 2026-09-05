@@ -664,9 +664,7 @@ class olc_db final {
       // each of them.
       const auto& e = top();
       const auto n = static_cast<std::size_t>(
-          (!e.is_packed_value && e.node.type() != node_type::LEAF)
-              ? e.prefix.length() + 1
-              : 0);
+          !e.is_leaf_position() ? e.prefix.length() + 1 : 0);
       keybuf_.pop(n);
       stack_.pop();
     }

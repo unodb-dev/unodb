@@ -1679,11 +1679,31 @@ struct iter_result {
   /// `detail::basic_inode_impl::is_value_in_slot()` — as
   /// `unodb::db::iterator::descend_left()` does.
   ///
-  /// A leaf position is `is_packed_value || node.type() == node_type::LEAF`,
-  /// never `child_index == 0xFF`: `child_index` is `0xFF` there only as a
-  /// placeholder, and `0xFF` is a valid child index in
-  /// `detail::basic_inode_48` and `detail::basic_inode_256`.
+  /// A leaf position is #is_leaf_position(), never `child_index == 0xFF`:
+  /// `child_index` is `0xFF` there only as a placeholder, and `0xFF` is a
+  /// valid child index in `detail::basic_inode_48` and
+  /// `detail::basic_inode_256`.
   bool is_packed_value{false};
+
+  /// True when this stack entry is at a leaf position — a packed value under
+  /// `detail::basic_art_policy::can_eliminate_leaf`, a genuine leaf pointer
+  /// otherwise. This is the question a descent asks. #is_packed_value alone
+  /// answers it only under that constant; without it the flag is permanently
+  /// false while leaf positions still exist, so a bare read would silently
+  /// miss every one of them.
+  ///
+  /// Meaningful only for an iterator stack entry. A scan result from the
+  /// detail::basic_inode_impl scan family names a child while #node is the
+  /// scanned inode, so the question does not arise there — see
+  /// #is_packed_value.
+  ///
+  /// A true result does not license dereferencing #node as a leaf: that
+  /// additionally needs `!is_packed_value`, because under
+  /// `detail::basic_art_policy::can_eliminate_leaf` the word is a value
+  /// rather than a pointer.
+  [[nodiscard, gnu::pure]] constexpr bool is_leaf_position() const noexcept {
+    return is_packed_value || node.type() == node_type::LEAF;
+  }
 };
 
 /// Optional wrapper for iter_result.
