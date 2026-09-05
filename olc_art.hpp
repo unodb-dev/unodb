@@ -519,7 +519,6 @@ class olc_db final {
     [[nodiscard]] bool valid() const noexcept { return !stack_.empty(); }
 
     /// Return stack entries bottom-to-top (test only).
-#ifdef UNODB_DETAIL_WITH_STATS
     [[nodiscard]] std::vector<stack_entry> test_only_stack() const {
       auto tmp = stack_;
       std::vector<stack_entry> result;
@@ -530,7 +529,6 @@ class olc_db final {
       std::reverse(result.begin(), result.end());
       return result;
     }
-#endif  // UNODB_DETAIL_WITH_STATS
 
    protected:
     /// Compare the given key (e.g., the to_key) to the current key in the

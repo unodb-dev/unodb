@@ -141,6 +141,7 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, EncodedTextKeys) {
 
 // Key construction helpers shared with the other test executables; see
 // art_test_data.hpp for the encoded key shapes.
+using unodb::test_data::copy_key;
 using unodb::test_data::make_key;
 using unodb::test_data::make_key_17;
 using unodb::test_data::make_key_17_byte10;
@@ -601,7 +602,6 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CompoundKeyGetMissing) {
 #ifdef UNODB_DETAIL_WITH_STATS
 
 // Key helpers used only by the stats tests below.
-using unodb::test_data::copy_key;
 using unodb::test_data::make_key_11;
 using unodb::test_data::make_key_18;
 using unodb::test_data::make_key_26;
@@ -1587,8 +1587,6 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanChainMixedLengths) {
 
 #endif  // UNODB_DETAIL_WITH_STATS
 
-#ifdef UNODB_DETAIL_WITH_STATS
-
 // ===================================================================
 // Stack structure validation tests (D5).
 //
@@ -1756,8 +1754,6 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureFullScan) {
     UNODB_EXPECT_EQ(count, 4);
   }
 }
-
-#endif  // UNODB_DETAIL_WITH_STATS
 
 // Empty key_view must be rejected (not UB).
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
