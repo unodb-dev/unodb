@@ -717,9 +717,7 @@ class db final {
 
       const auto& e = top();
       const auto n = static_cast<std::size_t>(
-          (!e.is_packed_value && e.node.type() != node_type::LEAF)
-              ? e.prefix.length() + 1
-              : 0);
+          !e.is_leaf_position() ? e.prefix.length() + 1 : 0);
       keybuf_.pop(n);
       stack_.pop();
     }
@@ -2250,7 +2248,7 @@ db<Key, Value, HeapTag>::iterator::next() {
     const auto node{e.node};
     UNODB_DETAIL_ASSERT(node != nullptr || e.is_packed_value);
     const auto node_type = node.type();
-    if (node_type == node_type::LEAF || e.is_packed_value) {
+    if (e.is_leaf_position()) {
       pop();     // pop off the leaf
       continue;  // falls through loop if just a root leaf since stack now
                  // empty.
@@ -2286,7 +2284,7 @@ db<Key, Value, HeapTag>::iterator::prior() {
     const auto node{e.node};
     UNODB_DETAIL_ASSERT(node != nullptr || e.is_packed_value);
     const auto node_type = node.type();
-    if (node_type == node_type::LEAF || e.is_packed_value) {
+    if (e.is_leaf_position()) {
       pop();     // pop off the leaf
       continue;  // falls through loop if just a root leaf since stack now
                  // empty.
