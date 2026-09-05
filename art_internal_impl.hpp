@@ -1647,17 +1647,20 @@ struct iter_result {
   /// basic_inode_48 and basic_inode_256, this equals the child index; for
   /// basic_inode_4 and basic_inode_16 it differs due to sparse key encoding.
   /// Explicit representation avoids searching for key byte in basic_inode_48
-  /// and basic_inode_256 cases.
+  /// and basic_inode_256 cases. Meaningless at a leaf position, which stores
+  /// `0xFF` here as a placeholder — see #is_packed_value.
   std::byte key_byte;
 
   /// Child index within parent node (except for basic_inode_48, where it
   /// indexes into basic_inode_48::child_indexes and equals key_byte). Overflow
   /// for child_index can occur for basic_inode_48 and basic_inode_256. When
   /// overflow happens, the iter_result is undefined and the wrapping
-  /// std::optional returns false.
+  /// std::optional returns false. Meaningless at a leaf position, which stores
+  /// `0xFF` here as a placeholder — see #is_packed_value.
   std::uint8_t child_index{};
 
-  /// Snapshot of key prefix for node.
+  /// Snapshot of key prefix for node. At a leaf position this is an empty
+  /// placeholder rather than any node's prefix — see #is_packed_value.
   key_prefix_snapshot prefix;
 
   /// True when #node holds a packed value rather than a node pointer. Set by
