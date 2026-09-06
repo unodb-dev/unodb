@@ -118,9 +118,8 @@ Public Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a854585e8656a3b42ae0e48a97d2f970a" id="r_a854585e8656a3b42ae0e48a97d2f970a"><td class="memItemLeft" align="right" valign="top"><a id="a854585e8656a3b42ae0e48a97d2f970a" name="a854585e8656a3b42ae0e48a97d2f970a"></a>
-<a class="el" href="structunodb_1_1detail_1_1iter__result.html#ab22270fae893b795cee9f4d663950f41">node_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><b>node</b></td></tr>
-<tr class="memdesc:a854585e8656a3b42ae0e48a97d2f970a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Node pointer (internal or leaf). <br /></td></tr>
+<tr class="memitem:a854585e8656a3b42ae0e48a97d2f970a" id="r_a854585e8656a3b42ae0e48a97d2f970a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structunodb_1_1detail_1_1iter__result.html#ab22270fae893b795cee9f4d663950f41">node_ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1iter__result.html#a854585e8656a3b42ae0e48a97d2f970a">node</a></td></tr>
+<tr class="memdesc:a854585e8656a3b42ae0e48a97d2f970a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Node pointer: an internal node, a leaf, or, under <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ac97b5279b03df6a710a346ca918e3ff1" title="Whether leaf allocation can be eliminated entirely.">basic_art_policy::can_eliminate_leaf</a>, the packed value itself.  <br /></td></tr>
 <tr class="separator:a854585e8656a3b42ae0e48a97d2f970a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af629f13328e6b7ebd271a9939d7559a8" id="r_af629f13328e6b7ebd271a9939d7559a8"><td class="memItemLeft" align="right" valign="top">std::byte&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1iter__result.html#af629f13328e6b7ebd271a9939d7559a8">key_byte</a></td></tr>
 <tr class="memdesc:af629f13328e6b7ebd271a9939d7559a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Key byte consumed at this level when stepping down to the child node.  <br /></td></tr>
@@ -133,7 +132,7 @@ Public Attributes</h2></td></tr>
 <tr class="memdesc:a567edf1377659f0138ac433674cf6091"><td class="mdescLeft">&#160;</td><td class="mdescRight">Snapshot of key prefix for node. <br /></td></tr>
 <tr class="separator:a567edf1377659f0138ac433674cf6091"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a66070f404623bf5d6632da65ce899528" id="r_a66070f404623bf5d6632da65ce899528"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1iter__result.html#a66070f404623bf5d6632da65ce899528">is_packed_value</a> {<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">false</a>}</td></tr>
-<tr class="memdesc:a66070f404623bf5d6632da65ce899528"><td class="mdescLeft">&#160;</td><td class="mdescRight">True when <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a854585e8656a3b42ae0e48a97d2f970a" title="Node pointer (internal or leaf).">node</a> holds a packed value (value-in-slot) rather than an inode or leaf pointer.  <br /></td></tr>
+<tr class="memdesc:a66070f404623bf5d6632da65ce899528"><td class="mdescLeft">&#160;</td><td class="mdescRight">True when <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a854585e8656a3b42ae0e48a97d2f970a" title="Node pointer: an internal node, a leaf, or, under basic_art_policy::can_eliminate_leaf,...">node</a> holds a packed value (value-in-slot) rather than an inode or leaf pointer.  <br /></td></tr>
 <tr class="separator:a66070f404623bf5d6632da65ce899528"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -180,7 +179,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
       </table>
 </div><div class="memdoc">
 
-<p>True when <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a854585e8656a3b42ae0e48a97d2f970a" title="Node pointer (internal or leaf).">node</a> holds a packed value (value-in-slot) rather than an inode or leaf pointer. </p>
+<p>True when <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a854585e8656a3b42ae0e48a97d2f970a" title="Node pointer: an internal node, a leaf, or, under basic_art_policy::can_eliminate_leaf,...">node</a> holds a packed value (value-in-slot) rather than an inode or leaf pointer. </p>
 <p>Set by <a class="el" href="classunodb_1_1db_1_1iterator.html#a1199f5eb7bca7ebd78dbcea6a32596a8" title="Push leaf entry aleaf onto iterator stack.">unodb::db::iterator::push_leaf()</a> and <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#ae7f71ebac47a8ba3a3ae8aee7cf5bde3" title="Push a leaf onto the stack.">unodb::olc_db::iterator::try_push_leaf()</a>, the only writers, and only under <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ac97b5279b03df6a710a346ca918e3ff1" title="Whether leaf allocation can be eliminated entirely.">basic_art_policy::can_eliminate_leaf</a>, where the tree has no leaf nodes at all; elsewhere a leaf position carries a genuine leaf pointer and this stays false.</p>
 <p>A leaf position is therefore <code>is_packed_value || node.type() == <a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350" title="Leaf node for a single value.">node_type::LEAF</a></code>, never <code>child_index == 0xFF</code>: <code>child_index</code> is <code>0xFF</code> there only as a placeholder, and <code>0xFF</code> is a valid child index in <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html" title="Internal node with 17-48 children (N48).">basic_inode_48</a> and <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html" title="Internal node with 49-256 children (N256).">basic_inode_256</a>. </p>
 
@@ -202,6 +201,25 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
 
 <p>Key byte consumed at this level when stepping down to the child node. </p>
 <p>For <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html" title="Internal node with 17-48 children (N48).">basic_inode_48</a> and <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html" title="Internal node with 49-256 children (N256).">basic_inode_256</a>, this equals the child index; for <a class="el" href="classunodb_1_1detail_1_1basic__inode__4.html" title="Internal node with 2-4 children (N4).">basic_inode_4</a> and <a class="el" href="classunodb_1_1detail_1_1basic__inode__16.html" title="Internal node with 5-16 children (N16).">basic_inode_16</a> it differs due to sparse key encoding. Explicit representation avoids searching for key byte in <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html" title="Internal node with 17-48 children (N48).">basic_inode_48</a> and <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html" title="Internal node with 49-256 children (N256).">basic_inode_256</a> cases. </p>
+
+</div>
+</div>
+<a id="a854585e8656a3b42ae0e48a97d2f970a" name="a854585e8656a3b42ae0e48a97d2f970a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a854585e8656a3b42ae0e48a97d2f970a">&#9670;&#160;</a></span>node</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">class</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">NodeHeader</a> &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structunodb_1_1detail_1_1iter__result.html#ab22270fae893b795cee9f4d663950f41">node_ptr</a> <a class="el" href="structunodb_1_1detail_1_1iter__result.html">unodb::detail::iter_result</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">NodeHeader</a> &gt;::node</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Node pointer: an internal node, a leaf, or, under <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ac97b5279b03df6a710a346ca918e3ff1" title="Whether leaf allocation can be eliminated entirely.">basic_art_policy::can_eliminate_leaf</a>, the packed value itself. </p>
+<p><a class="el" href="structunodb_1_1detail_1_1iter__result.html#a66070f404623bf5d6632da65ce899528" title="True when node holds a packed value (value-in-slot) rather than an inode or leaf pointer.">is_packed_value</a> is set for the last. </p>
 
 </div>
 </div>
