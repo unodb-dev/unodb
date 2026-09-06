@@ -37,10 +37,10 @@ using unodb::test::TestHeap;
 using heap_db = unodb::olc_db<unodb::key_view, std::uint64_t, TestHeap>;
 
 /// Test fixture providing QSBR context.
-// NOLINTNEXTLINE(cppcoreguidelines-virtual-class-destructor)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26432)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26436)
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26447)
+// NOLINTNEXTLINE(cppcoreguidelines-virtual-class-destructor)
 class HeapArtTest : public ::testing::Test {
  protected:
   HeapArtTest() noexcept { unodb::test::expect_idle_qsbr(); }
