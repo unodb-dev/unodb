@@ -217,9 +217,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>pop</b> () noexcept</
 const <a class="el" href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html">stack_entry</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>top</b> () const noexcept</td></tr>
 <tr class="memdesc:a5deaa353ea432657e2982beaabb9c9fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the entry on the top of the stack. <br /></td></tr>
 <tr class="separator:a5deaa353ea432657e2982beaabb9c9fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6984a97719773aa83c331fe51fa06045" id="r_a6984a97719773aa83c331fe51fa06045"><td class="memItemLeft" align="right" valign="top"><a id="a6984a97719773aa83c331fe51fa06045" name="a6984a97719773aa83c331fe51fa06045"></a>
-detail::olc_node_ptr&#160;</td><td class="memItemRight" valign="bottom"><b>current_node</b> () const noexcept</td></tr>
-<tr class="memdesc:a6984a97719773aa83c331fe51fa06045"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the node on the top of the stack and nullptr if the stack is empty (similar to <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a5deaa353ea432657e2982beaabb9c9fd" title="Return the entry on the top of the stack.">top()</a>, but handles an empty stack). <br /></td></tr>
+<tr class="memitem:a6984a97719773aa83c331fe51fa06045" id="r_a6984a97719773aa83c331fe51fa06045"><td class="memItemLeft" align="right" valign="top">detail::olc_node_ptr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a6984a97719773aa83c331fe51fa06045">current_node</a> () const noexcept</td></tr>
+<tr class="memdesc:a6984a97719773aa83c331fe51fa06045"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the node on the top of the stack and nullptr if the stack is empty (similar to <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a5deaa353ea432657e2982beaabb9c9fd" title="Return the entry on the top of the stack.">top()</a>, but handles an empty stack).  <br /></td></tr>
 <tr class="separator:a6984a97719773aa83c331fe51fa06045"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
@@ -312,6 +311,36 @@ template&lt;typename Key , typename Value &gt; </div>
 
 <p>Compare the given key (e.g., the to_key) to the current key in the internal buffer. </p>
 <dl class="section return"><dt>Returns</dt><dd>-1, 0, or 1 if this key is LT, EQ, or GT the other key. </dd></dl>
+
+</div>
+</div>
+<a id="a6984a97719773aa83c331fe51fa06045" name="a6984a97719773aa83c331fe51fa06045"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6984a97719773aa83c331fe51fa06045">&#9670;&#160;</a></span>current_node()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">detail::olc_node_ptr <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value &gt;::iterator::current_node </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">protected</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return the node on the top of the stack and nullptr if the stack is empty (similar to <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a5deaa353ea432657e2982beaabb9c9fd" title="Return the entry on the top of the stack.">top()</a>, but handles an empty stack). </p>
+<p>A <code>nullptr</code> return does <em>not</em> imply an empty stack: in value-in-slot mode a packed zero value is bit-identical to a null node pointer, so callers must additionally test <code>!empty() &amp;&amp; <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a5deaa353ea432657e2982beaabb9c9fd" title="Return the entry on the top of the stack.">top()</a>.is_packed_value</code>, as <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a2d564c77523ca1caabbd2ea75ac8035f" title="Advance the iterator to next entry in the index.">next()</a> and <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a2e40d0642da63e5b5906b9cd287d4598" title="Position the iterator on the previous entry in the index.">prior()</a> do. </p>
 
 </div>
 </div>

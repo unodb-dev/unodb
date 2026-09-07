@@ -1,7 +1,5 @@
 var NAVTREEINDEX9 =
 {
-"md_CONTRIBUTING.html":[3],
-"md_CONTRIBUTING.html#autotoc_md14":[3,0],
 "md_CONTRIBUTING.html#autotoc_md15":[3,0,0],
 "md_CONTRIBUTING.html#autotoc_md16":[3,0,1],
 "md_CONTRIBUTING.html#autotoc_md17":[3,0,2],
@@ -249,5 +247,7 @@ var NAVTREEINDEX9 =
 "namespaceunodb_1_1detail.html#a3ab520671507d4d7d913c5d2655fad89":[5,0,29,1,109],
 "namespaceunodb_1_1detail.html#a3c98952bb0651c3bd50ab5de879cfeff":[5,0,29,1,62],
 "namespaceunodb_1_1detail.html#a3f442e3027e04156cef43a9b865a0c16":[5,0,29,1,94],
-"namespaceunodb_1_1detail.html#a459acb52e40ddfb61e83d1fd213c49b1":[5,0,29,1,68]
+"namespaceunodb_1_1detail.html#a459acb52e40ddfb61e83d1fd213c49b1":[5,0,29,1,68],
+"namespaceunodb_1_1detail.html#a4a4f19f630d67a625c508f7309e4baf1":[5,0,29,1,116],
+"namespaceunodb_1_1detail.html#a4bf738b8ea5a62ab94eb490521f021d4":[5,0,29,1,59]
 };
