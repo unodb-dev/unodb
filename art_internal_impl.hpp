@@ -1949,7 +1949,6 @@ class basic_inode_impl : public ArtPolicy::header_type {
     switch (type) {
       case node_type::I4:
         return static_cast<const inode4_type*>(this)->is_value_in_slot(child_i);
-      // LCOV_EXCL_START — dispatch only called with I4 today
       case node_type::I16:
         return static_cast<const inode16_type*>(this)->is_value_in_slot(
             child_i);
@@ -1959,6 +1958,7 @@ class basic_inode_impl : public ArtPolicy::header_type {
       case node_type::I256:
         return static_cast<const inode256_type*>(this)->is_value_in_slot(
             child_i);
+      // LCOV_EXCL_START
       case node_type::LEAF:
         UNODB_DETAIL_CANNOT_HAPPEN();
     }
