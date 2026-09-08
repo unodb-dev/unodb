@@ -4563,6 +4563,8 @@ class basic_inode_48
   /// (OLC torn read), or if the slot holds a legitimately packed zero value
   ///
   /// \sa get_child(node_type, std::uint8_t) for the full nullptr contract
+  /// \sa sync_before_descent_child_loads, the sync point that makes the
+  /// `empty_child` path testable
   [[nodiscard, gnu::pure]] constexpr node_ptr get_child(
       std::uint8_t child_index) noexcept {
     const auto child_i = child_indexes[child_index].load();
@@ -4808,6 +4810,16 @@ class basic_inode_48
  public:
   /// For I48, the child_index from find_child is the key byte.
   /// Resolve to children array index before accessing the bitmask.
+  ///
+  /// The entry is observed `empty_child` on the same OLC torn read as in
+  /// get_child(std::uint8_t): a removal cleared it after the caller resolved
+  /// the key byte. Report no packed value rather than index the bitmask with
+  /// the sentinel; the caller's `read_critical_section::check()` then fails,
+  /// since that removal bumped the version.
+  ///
+  /// \sa get_child(std::uint8_t), which explains the race
+  /// \sa sync_before_descent_child_loads, the sync point that makes this
+  /// path testable
   [[nodiscard]] constexpr bool is_value_in_slot(
       std::uint8_t key_byte_i) const noexcept {
     if constexpr (!ArtPolicy::can_eliminate_leaf) return false;
