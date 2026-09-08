@@ -538,7 +538,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
 
 <p>Get node type from tag bits. </p>
 <dl class="section return"><dt>Returns</dt><dd>Node type</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Meaningful only for a value built from a (pointer, type) pair. A null <code><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html" title="Tagged pointer with node type stored in low bits.">basic_node_ptr</a></code> is the all-zero tagged value, so <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#a08a07d5e5b31f87c500fc63be6144860" title="Get node type from tag bits.">type()</a> reads back <a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350" title="Leaf node for a single value.">node_type::LEAF</a> and cannot tell a null from a leaf — test against <code>nullptr</code> instead. The same holds for any other word stored in the slot, such as a value-in-slot packed value, whose low bits are value bits and not a tag. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Meaningful only for a value built from a (pointer, type) pair. Null's encoding (see the class description) makes <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#a08a07d5e5b31f87c500fc63be6144860" title="Get node type from tag bits.">type()</a> read back <a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350" title="Leaf node for a single value.">node_type::LEAF</a>, so it cannot tell a null from a leaf — test against <code>nullptr</code> instead. The same holds for any other word stored in the slot, such as a value-in-slot packed value, whose low bits are value bits and not a tag. </dd></dl>
 
 </div>
 </div>
