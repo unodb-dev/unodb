@@ -3714,6 +3714,48 @@ using torn_read_inode_type = std::conditional_t<
     unodb::detail::olc_inode_48<unodb::key_view, std::uint64_t>,
     unodb::detail::olc_inode_256<unodb::key_view, std::uint64_t>>;
 
+/// Park first() (\a Forward) or last() on \a db at the \a ParkHit-th hit of
+/// \a point while \a writer runs, then check the resumed traversal: \a point
+/// was hit exactly \a expected_hits times, and the iterator is valid on
+/// \a expected_key with \a expected_val.
+///
+/// Only the traversal may reach \a point — no write path may — so that every
+/// hit is the traversal's.  Pinning the count exactly catches an unexpected
+/// extra restart and an early exit from the parked attempt, both of which a
+/// lower bound would silently tolerate.  Call it through
+/// UNODB_ASSERT_NO_FATAL_FAILURE: its checks are fatal asserts, which return
+/// only from this function.
+template <bool Forward, unsigned ParkHit, class Writer>
+void run_parked_extreme_traversal(
+    unodb::olc_db<unodb::key_view, std::uint64_t>& db,
+    unodb::detail::sync_point& point, const Writer& writer,
+    unsigned expected_hits, unodb::key_view expected_key,
+    std::uint64_t expected_val) {
+  bool valid = false;
+  // A copy: the iterator's key buffer goes with it.
+  std::vector<std::byte> observed_key;
+  std::uint64_t observed_val{0};
+  const auto hits = run_parked_interleaving<ParkHit>(
+      point,
+      [&] {
+        auto it = db.test_only_iterator();
+        if constexpr (Forward)
+          it.first();
+        else
+          it.last();
+        valid = it.valid();
+        if (valid) {
+          observed_key = key_bytes(it.get_key().view());
+          observed_val = it.get_val();
+        }
+      },
+      writer);
+  UNODB_ASSERT_EQ(expected_hits, hits);
+  UNODB_ASSERT_TRUE(valid);
+  UNODB_ASSERT_EQ(observed_key, key_bytes(expected_key));
+  UNODB_ASSERT_EQ(observed_val, expected_val);
+}
+
 /// Run one torn-read scan scenario on \a ExpectedType.
 ///
 /// Seeds that node type's min_size children at key bytes
@@ -3725,7 +3767,7 @@ using torn_read_inode_type = std::conditional_t<
 ///
 /// The resumed scan therefore finds every slot empty, check() fails, and the
 /// traversal must restart rather than abort, landing on the extreme filled
-/// key byte.  Every layout value is derived here, so a call site cannot
+/// key.  Every layout value is derived here, so a call site cannot
 /// perturb the invariants the static_asserts below pin.
 template <unodb::node_type ExpectedType, bool Forward>
 void run_torn_read_scan_test() {
@@ -3749,11 +3791,10 @@ void run_torn_read_scan_test() {
   static_assert(torn_read_seed_lo + count - 1U <= torn_read_park_slot_bwd);
 
   // Pack the filled run against the extreme of the already-scanned side, so
-  // the restart lands on a known key byte.
+  // the restart lands on a known key.
   constexpr auto fill_lo =
       static_cast<std::uint8_t>(Forward ? 0U : 256U - count);
-  constexpr auto expected_byte = static_cast<std::byte>(
-      Forward ? fill_lo : static_cast<std::uint8_t>(fill_lo + count - 1));
+  constexpr std::size_t expected_i = Forward ? 0U : count - 1U;
 
   db_type db;
   unodb::key_encoder enc;
@@ -3778,40 +3819,23 @@ void run_torn_read_scan_test() {
   UNODB_ASSERT_EQ(1U, db.get_node_counts()[unodb::as_i<ExpectedType>]);
 #endif
 
-  bool valid = false;
-  auto observed_byte = std::byte{0};
-  // Only T1's traversal reaches the instrumented scans -- no write path calls
-  // I48/I256 begin()/last() -- so the hit count is T1's alone, and the restart
-  // scan's hits fall through without parking.
-  const auto hits = run_parked_interleaving<torn_read_park_hit>(
-      unodb::detail::sync_in_inode_scan,
-      // T1: the traversal that observes every slot empty and must restart.
-      [&] {
-        auto it = db.test_only_iterator();
-        if constexpr (Forward)
-          it.first();
-        else
-          it.last();
-        valid = it.valid();
-        if (valid) observed_byte = it.get_key().view()[0];
-      },
-      // T2: migrate the occupancy set past the parked reader's cursor.
-      [&] {
-        for (std::size_t i = 0; i < count; ++i)
-          std::ignore = db.insert(filled[i], vals[count + i]);
-        for (const auto k : seeded) std::ignore = db.remove(k);
-      });
+  // No write path calls I48/I256 begin()/last(), so only the traversal reaches
+  // the instrumented scans.  The expected hits are the 256 slots of the parked
+  // scan, which found none occupied -- that fall-through is what returns
+  // torn_read_result rather than an ordinary child -- plus the single restart
+  // scan, which finds an occupied slot on its first iteration.
+  UNODB_ASSERT_NO_FATAL_FAILURE(
+      (run_parked_extreme_traversal<Forward, torn_read_park_hit>(
+          db, unodb::detail::sync_in_inode_scan,
+          // Migrate the occupancy set past the parked reader's cursor.
+          [&] {
+            for (std::size_t i = 0; i < count; ++i)
+              std::ignore = db.insert(filled[i], vals[count + i]);
+            for (const auto k : seeded) std::ignore = db.remove(k);
+          },
+          256U + 1U, filled[expected_i], vals[count + expected_i])));
 
   const unodb::quiescent_state_on_scope_exit q{};
-  // 256 slots of the parked scan, which found none occupied -- that
-  // fall-through is what returns torn_read_result rather than an ordinary
-  // child -- plus the single restart scan, which finds an occupied slot on its
-  // first iteration.  Pinning the sum exactly also catches an unexpected extra
-  // restart and an early exit from the parked scan, both of which a >= bound
-  // would silently tolerate.
-  UNODB_ASSERT_EQ(256U + 1U, hits);
-  UNODB_ASSERT_TRUE(valid);
-  UNODB_ASSERT_EQ(observed_byte, expected_byte);
   for (std::size_t i = 0; i < count; ++i)
     ASSERT_VALUE_FOR_KEY(db_type, db, filled[i], vals[count + i]);
   for (const auto k : seeded) UNODB_ASSERT_FALSE(db.get(k).has_value());
@@ -3854,6 +3878,98 @@ UNODB_TEST(OLCIteratorTornRead, I256BeginObservesAllSlotsEmpty) {
 /// 255-207; writer fills 207-255 and erases 100-148.
 UNODB_TEST(OLCIteratorTornRead, I256LastObservesAllSlotsEmpty) {
   run_torn_read_last_test<unodb::node_type::I256>();
+}
+
+// Torn-read descent tests.
+//
+// After an I48 scan resolved a key byte, try_left_most_traversal() and
+// try_right_most_traversal() re-resolve it twice through child_indexes, in
+// is_value_in_slot() and then get_child().  A removal landing between the scan
+// and those loads clears the entry in place, so both observe empty_child; each
+// has a guard for exactly that, and neither guard had a deterministic test.
+
+/// Run one torn-read descent scenario.
+///
+/// Seeds an I48 root with min_size + 1 one-byte keys, packed values at key
+/// bytes [torn_read_seed_lo, torn_read_seed_lo + count), so that removing one
+/// child keeps the root an I48: the writer takes the in-place removal path,
+/// and the reader resumes on a live node whose version check() rejects.  A
+/// shrinking removal would clear the entry too, but the reader would then
+/// resume on an obsoleted node.  Parks the reader after its scan resolved
+/// the extreme key byte, before is_value_in_slot() and get_child() re-resolve
+/// it, and has a writer remove that key.  Both re-resolutions then observe
+/// empty_child, check() fails, and the traversal must restart, landing on the
+/// next key in.
+template <bool Forward>
+void run_torn_read_descent_test() {
+  using db_type = unodb::olc_db<unodb::key_view, std::uint64_t>;
+  using inode_type = torn_read_inode_type<unodb::node_type::I48>;
+
+  constexpr auto count = static_cast<std::uint8_t>(inode_type::min_size + 1);
+  static_assert(count <= inode_type::capacity);
+  constexpr auto vals = distinct_u64_values<count>();
+  // Only value-in-slot mode makes the descent call is_value_in_slot(); in a
+  // leaf-backed Db the test would still pass but cover get_child()'s guard
+  // alone.
+  static_assert(!has_leaf_nodes_v<db_type>,
+                "is_value_in_slot()'s empty_child guard is reached only in "
+                "value-in-slot mode");
+  constexpr std::size_t removed_i = Forward ? 0 : count - 1U;
+  constexpr std::size_t expected_i = Forward ? 1U : count - 2U;
+
+  db_type db;
+  unodb::key_encoder enc;
+  std::vector<std::array<std::byte, 1>> bufs(count);
+  std::vector<unodb::key_view> keys;
+  for (std::uint8_t i = 0; i < count; ++i) {
+    keys.push_back(copy_key(
+        make_short_key(enc, static_cast<std::uint8_t>(torn_read_seed_lo + i)),
+        bufs[i]));
+    UNODB_ASSERT_TRUE(db.insert(keys.back(), vals[i]));
+  }
+  const auto removed = keys[removed_i];
+
+#ifdef UNODB_DETAIL_WITH_STATS
+  // Pin the shape: a single I48 root with no I4 below it, so the descent
+  // re-resolves the scanned key byte in that node and nowhere else.
+  UNODB_ASSERT_EQ(1U, db.get_node_counts()[unodb::as_i<unodb::node_type::I48>]);
+  UNODB_ASSERT_EQ(0U, db.get_node_counts()[unodb::as_i<unodb::node_type::I4>]);
+#endif
+
+  // MSVC's analysis misses the write in the lambda below.
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
+  bool removed_ok = false;
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+  // Only the traversal reaches the sync point.  The expected hits are the
+  // parked traversal and the single restart, which passes the point once more
+  // on its way to the packed value.
+  UNODB_ASSERT_NO_FATAL_FAILURE((run_parked_extreme_traversal<Forward, 1>(
+      db, unodb::detail::sync_before_descent_child_loads,
+      // Remove the child the parked reader has resolved.
+      [&] { removed_ok = db.remove(removed); }, 2U, keys[expected_i],
+      vals[expected_i])));
+  UNODB_ASSERT_TRUE(removed_ok);
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_FALSE(db.get(removed).has_value());
+  for (std::size_t i = 0; i < keys.size(); ++i) {
+    if (i == removed_i) continue;
+    ASSERT_VALUE_FOR_KEY(db_type, db, keys[i], vals[i]);
+  }
+}
+
+/// TR5: root I48 (18 children, one above basic_inode_48's min_size) at key
+/// bytes 100-117.  Reader parks after begin() resolved 100; writer removes it
+/// in place.  is_value_in_slot() and get_child() both observe empty_child,
+/// check() fails, and first() restarts onto key byte 101.
+UNODB_TEST(OLCIteratorTornRead, I48BeginObservesScannedChildRemoved) {
+  run_torn_read_descent_test<true>();
+}
+
+/// TR6: mirror of TR5 for last().  Reader parks after last() resolved 117;
+/// writer removes it in place; last() restarts onto key byte 116.
+UNODB_TEST(OLCIteratorTornRead, I48LastObservesScannedChildRemoved) {
+  run_torn_read_descent_test<false>();
 }
 
 // ===================================================================

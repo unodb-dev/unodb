@@ -114,6 +114,20 @@ inline sync_point sync_in_scan_after_parent_unlock;
 /// read-locked and its parent checked, before the node's key prefix is read.
 /// Fires once per inode on the seek path, the root first.
 inline sync_point sync_in_seek_before_prefix_load;
+
+/// Sync point: fires in olc_db::iterator::try_left_most_traversal() and
+/// olc_db::iterator::try_right_most_traversal() after the check() that follows
+/// begin() or last(), before is_value_in_slot() and get_child() load the chosen
+/// child; in basic_inode_48 both loads re-resolve its key byte through
+/// `detail::basic_inode_48::child_indexes`.  Fires once per inode on the
+/// descent, the first inode first.
+///
+/// Lets a test park a reader between its scan and those two loads while a
+/// writer removes the scanned child in place, which is what makes the
+/// `detail::basic_inode_48::empty_child` guards in
+/// detail::basic_inode_48::is_value_in_slot(std::uint8_t) const and
+/// detail::basic_inode_48::get_child(std::uint8_t) deterministic.
+inline sync_point sync_before_descent_child_loads;
 UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 
@@ -4890,6 +4904,7 @@ bool olc_db<Key, Value, HeapTag>::iterator::try_left_most_traversal(
         inode->begin(node_type);  // first child of current internal node
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return false;
     push(t, node_critical_section);
+    detail::sync(detail::sync_before_descent_child_loads);
     if constexpr (art_policy::can_eliminate_leaf) {
       if (inode->is_value_in_slot(node_type, t.child_index)) {
         node = inode->get_child(node_type, t.child_index);
@@ -4900,7 +4915,7 @@ bool olc_db<Key, Value, HeapTag>::iterator::try_left_most_traversal(
     }
     node = inode->get_child(node_type, t.child_index);          // get child
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))  // before using
-      return false;  // LCOV_EXCL_LINE
+      return false;
     // Move RCS (will check invariant at top of loop)
     parent_critical_section = std::move(node_critical_section);
   }
@@ -4938,6 +4953,7 @@ bool olc_db<Key, Value, HeapTag>::iterator::try_right_most_traversal(
         inode->last(node_type);  // last child of current internal node
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return false;
     push(t, node_critical_section);
+    detail::sync(detail::sync_before_descent_child_loads);
     if constexpr (art_policy::can_eliminate_leaf) {
       if (inode->is_value_in_slot(node_type, t.child_index)) {
         node = inode->get_child(node_type, t.child_index);
@@ -4948,7 +4964,7 @@ bool olc_db<Key, Value, HeapTag>::iterator::try_right_most_traversal(
     }
     node = inode->get_child(node_type, t.child_index);          // get child
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check()))  // before using
-      return false;  // LCOV_EXCL_LINE
+      return false;
     // Move RCS (will check invariant at top of loop)
     parent_critical_section = std::move(node_critical_section);
   }
