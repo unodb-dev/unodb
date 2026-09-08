@@ -411,7 +411,8 @@ class basic_db_inode_deleter {
 /// You have to know statically the target type, then call
 /// `node_ptr_var.ptr<target_type*>()` to get `target_type*`.
 ///
-/// A null `basic_node_ptr` is the all-zero tagged value.
+/// A null `basic_node_ptr` is the all-zero tagged value, which
+/// value-initialization (`basic_node_ptr{}`) also produces.
 ///
 /// \note The three `std::nullptr_t` members below spell that value as a literal
 /// `0` rather than as `reinterpret_cast<std::uintptr_t>(nullptr)`: a
@@ -426,10 +427,25 @@ class [[nodiscard]] basic_node_ptr {
   /// Node header type.
   using header_type = Header;
 
-  /// Default constructor, does not initialize fields.
+  /// Default constructor, leaves `tagged_ptr` indeterminate unless
+  /// value-initialized.
   ///
-  /// Used by `std::array` and we don't want to initialize to zero or any other
-  /// value there at construction time.
+  /// Every `detail::basic_inode_4`, `detail::basic_inode_16` and
+  /// `detail::basic_inode_256` constructor but the bulk-load one
+  /// default-initializes `children`, and `init()` populates it, so a trivial
+  /// constructor spares the unodb::db tree a zero-fill (unodb::olc_db's
+  /// `std::atomic` slots value-initialize regardless).
+  /// `detail::basic_inode_48` runs no slot constructor in either tree:
+  /// `detail::basic_inode_48::children_union`'s constructor is user-provided
+  /// and empty.
+  ///
+  /// Value-initialization (`basic_node_ptr{}`) yields the class description's
+  /// null, but only while `basic_node_ptr`'s default constructor is defaulted
+  /// on its first declaration, and so not user-provided: keep it `= default`
+  /// here, not an empty body and not defaulted out of line. The
+  /// `static_assert`s at the `detail::node_ptr` and `detail::olc_node_ptr`
+  /// alias definitions pin that null; the `detail::node_ptr` ones also pin the
+  /// triviality.
   // cppcheck-suppress uninitMemberVar
   constexpr basic_node_ptr() noexcept = default;
 

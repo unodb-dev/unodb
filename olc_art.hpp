@@ -114,6 +114,7 @@ using olc_inode_defs =
                     olc_inode_48<Key, Value, HeapTag>,
                     olc_inode_256<Key, Value, HeapTag>>;
 
+/// Node pointer type for OLC ART.
 using olc_node_ptr = basic_node_ptr<olc_node_header>;
 
 static_assert(sizeof(olc_node_ptr) == sizeof(void*));
