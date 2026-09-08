@@ -3767,7 +3767,7 @@ $(document).ready(function(){initNavTree('art__internal__impl_8hpp_source.html',
 <div class="line"><a id="l04374" name="l04374"></a><span class="lineno"> 4374</span>    <span class="comment">// children.pointer_array — empty_child is 0xFF, so the load lands far</span></div>
 <div class="line"><a id="l04375" name="l04375"></a><span class="lineno"> 4375</span>    <span class="comment">// outside the node&#39;s allocation; return nullptr instead.</span></div>
 <div class="line"><a id="l04376" name="l04376"></a><span class="lineno"> 4376</span>    <span class="keywordflow">return</span> <a class="code hl_define" href="group__internal.html#ga179146ac5b62703d8069468266dd7ea7">UNODB_DETAIL_UNLIKELY</a>(child_i == empty_child)</div>
-<div class="line"><a id="l04377" name="l04377"></a><span class="lineno"> 4377</span>               ? <a class="code hl_typedef" href="classunodb_1_1detail_1_1basic__inode__impl.html#af470045f63b1888c85166604c3d8a6be">node_ptr</a>()  <span class="comment">// aka nullptr</span></div>
+<div class="line"><a id="l04377" name="l04377"></a><span class="lineno"> 4377</span>               ? <a class="code hl_typedef" href="classunodb_1_1detail_1_1basic__inode__48.html#af470045f63b1888c85166604c3d8a6be">node_ptr</a>{<span class="keyword">nullptr</span>}</div>
 <div class="line"><a id="l04378" name="l04378"></a><span class="lineno"> 4378</span>               : children.pointer_array[child_i].load();</div>
 <div class="line"><a id="l04379" name="l04379"></a><span class="lineno"> 4379</span>  }</div>
 </div>
