@@ -83,6 +83,17 @@ class ARTKeyViewFullChainTest : public ::testing::Test {
       return db.insert(k, v);
     }
   }
+
+  /// Create a Db instance, forwarding the heap for heap-backed types.
+  /// Uses std::optional because Db is non-movable and requires
+  /// conditional constructor arguments.
+  void make_db(std::optional<Db>& db) {
+    if constexpr (Db::has_heap) {
+      db.emplace(heap_);
+    } else {
+      db.emplace();
+    }
+  }
 };
 
 using ARTTypes = ::testing::Types<
@@ -110,12 +121,10 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, TooLongKey) {
 /// Minimal reproducer: two text keys into a keyless-leaf tree.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, TwoKeyMinimalRepro) {
   std::optional<TypeParam> db_opt;
-  if constexpr (TypeParam::has_heap) {
-    db_opt.emplace(this->heap_);
-  } else {
-    db_opt.emplace();
-  }
+  this->make_db(db_opt);
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26830)
   auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   unodb::key_encoder enc;
 
   const auto k1 = enc.reset().encode_text("").get_key_view();
@@ -1666,12 +1675,10 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureTwoChainKeys) {
   if constexpr (!TypeParam::has_heap) {
     // (heap iterators recover keys via the heap, not from internal art_key).
     std::optional<TypeParam> db_opt;
-    if constexpr (TypeParam::has_heap) {
-      db_opt.emplace(this->heap_);
-    } else {
-      db_opt.emplace();
-    }
+    this->make_db(db_opt);
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26830)
     auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
     unodb::key_encoder enc;
     constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
@@ -1697,12 +1704,10 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureTwoChainKeys) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureWideNode) {
   if constexpr (!TypeParam::has_heap) {
     std::optional<TypeParam> db_opt;
-    if constexpr (TypeParam::has_heap) {
-      db_opt.emplace(this->heap_);
-    } else {
-      db_opt.emplace();
-    }
+    this->make_db(db_opt);
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26830)
     auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
     unodb::key_encoder enc;
     constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
@@ -1729,12 +1734,10 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureWideNode) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureSecondInsertChain) {
   if constexpr (!TypeParam::has_heap) {
     std::optional<TypeParam> db_opt;
-    if constexpr (TypeParam::has_heap) {
-      db_opt.emplace(this->heap_);
-    } else {
-      db_opt.emplace();
-    }
+    this->make_db(db_opt);
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26830)
     auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
     unodb::key_encoder enc;
     constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
@@ -1758,12 +1761,10 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureSecondInsertChain) {
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureFullScan) {
   if constexpr (!TypeParam::has_heap) {
     std::optional<TypeParam> db_opt;
-    if constexpr (TypeParam::has_heap) {
-      db_opt.emplace(this->heap_);
-    } else {
-      db_opt.emplace();
-    }
+    this->make_db(db_opt);
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26830)
     auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
     unodb::key_encoder enc;
     constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
@@ -1822,12 +1823,10 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, StackStructureFullScan) {
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, EmptyKeyRejected) {
   std::optional<TypeParam> db_opt;
-  if constexpr (TypeParam::has_heap) {
-    db_opt.emplace(this->heap_);
-  } else {
-    db_opt.emplace();
-  }
+  this->make_db(db_opt);
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26830)
   auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   const std::byte empty_buf{};
   const unodb::key_view empty_key{&empty_buf, 0};
   UNODB_ASSERT_THROW(
@@ -1956,12 +1955,10 @@ UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 // truncation and corrupt every subsequent reconstructed key.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanKeyReconstructionFF) {
   std::optional<TypeParam> db_opt;
-  if constexpr (TypeParam::has_heap) {
-    db_opt.emplace(this->heap_);
-  } else {
-    db_opt.emplace();
-  }
-  auto& db = *db_opt;     // NOLINT(bugprone-unchecked-optional-access)
+  this->make_db(db_opt);
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26830)
+  auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   constexpr int N = 321;  // enough to span the c1->c2 encoded-float boundary
   constexpr float step = 100.0F / 1000.0F;
 
@@ -2142,12 +2139,10 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CollapseBlockedByVISChild) {
 // This covers art.hpp descend_left/descend_right in scan_from.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromBacktracking) {
   std::optional<TypeParam> db_opt;
-  if constexpr (TypeParam::has_heap) {
-    db_opt.emplace(this->heap_);
-  } else {
-    db_opt.emplace();
-  }
+  this->make_db(db_opt);
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26830)
   auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
@@ -2214,12 +2209,10 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, PrefixSplitNoChain) {
 // sibling exercises descend_left/right.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanMixedVISAndChainChildren) {
   std::optional<TypeParam> db_opt;
-  if constexpr (TypeParam::has_heap) {
-    db_opt.emplace(this->heap_);
-  } else {
-    db_opt.emplace();
-  }
+  this->make_db(db_opt);
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26830)
   auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
@@ -2279,12 +2272,10 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanMixedVISAndChainChildren) {
 // Exercise get_val() on VIS children — unpack_value path.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, GetValOnVISChild) {
   std::optional<TypeParam> db_opt;
-  if constexpr (TypeParam::has_heap) {
-    db_opt.emplace(this->heap_);
-  } else {
-    db_opt.emplace();
-  }
+  this->make_db(db_opt);
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26830)
   auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
@@ -2333,12 +2324,10 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, DispatchByteCollision) {
 // descend_right with is_value_in_slot true.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromBacktrackToVIS) {
   std::optional<TypeParam> db_opt;
-  if constexpr (TypeParam::has_heap) {
-    db_opt.emplace(this->heap_);
-  } else {
-    db_opt.emplace();
-  }
+  this->make_db(db_opt);
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26830)
   auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
@@ -2531,12 +2520,10 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, SeekClimbToChainSibling) {
 // Exercises the remaining_key exhaustion guard after prefix matching.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromKeyIsPrefixOfStored) {
   std::optional<TypeParam> db_opt;
-  if constexpr (TypeParam::has_heap) {
-    db_opt.emplace(this->heap_);
-  } else {
-    db_opt.emplace();
-  }
+  this->make_db(db_opt);
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26830)
   auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
@@ -2654,12 +2641,10 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, PrefixOverflowBlocksCollapse) {
 /// Covers art.hpp forward ascent loop (lines ~2330-2340).
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromDeepAscent) {
   std::optional<TypeParam> db_opt;
-  if constexpr (TypeParam::has_heap) {
-    db_opt.emplace(this->heap_);
-  } else {
-    db_opt.emplace();
-  }
+  this->make_db(db_opt);
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26830)
   auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
@@ -2708,12 +2693,10 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromDeepAscent) {
 /// Covers olc_art.hpp empty-key reverse path (line ~3264).
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromEmptyKeyReverse) {
   std::optional<TypeParam> db_opt;
-  if constexpr (TypeParam::has_heap) {
-    db_opt.emplace(this->heap_);
-  } else {
-    db_opt.emplace();
-  }
+  this->make_db(db_opt);
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26830)
   auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 
@@ -2742,12 +2725,10 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ScanFromEmptyKeyReverse) {
 /// that shares the same dispatch byte.  get() must return not-found.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, GetRejectsStrictSupersetOfVISKey) {
   std::optional<TypeParam> db_opt;
-  if constexpr (TypeParam::has_heap) {
-    db_opt.emplace(this->heap_);
-  } else {
-    db_opt.emplace();
-  }
+  this->make_db(db_opt);
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26830)
   auto& db = *db_opt;  // NOLINT(bugprone-unchecked-optional-access)
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
   unodb::key_encoder enc;
   constexpr auto val = unodb::test::get_test_value<TypeParam>(0);
 

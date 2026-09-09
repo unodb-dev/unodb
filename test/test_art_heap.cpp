@@ -17,10 +17,6 @@
 
 #include <gtest/gtest.h>
 
-// MSVC SA C26440 (test body can be noexcept) fires on generated TestBody
-// methods.  UNODB_TEST_F does not suppress this.
-UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
-
 #include "art_common.hpp"
 #include "gtest_utils.hpp"
 #include "olc_art.hpp"
@@ -257,5 +253,3 @@ UNODB_TEST_F(HeapArtTest, ConcurrentInsertGet) {
 }
 
 }  // namespace
-
-UNODB_DETAIL_RESTORE_MSVC_WARNINGS()

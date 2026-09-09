@@ -494,7 +494,8 @@ class olc_db final {
     /// Return the key associated with the current position of the iterator.
     ///
     /// \pre The iterator MUST be valid().
-    [[nodiscard]] get_key_result get_key() noexcept(!art_policy::has_heap);
+    [[nodiscard]] get_key_result get_key() const
+        noexcept(!art_policy::has_heap);
 
     /// Return the value_view associated with the current position of
     /// the iterator.
@@ -566,8 +567,8 @@ class olc_db final {
     /// internal buffer.
     ///
     /// \return -1, 0, or 1 if this key is LT, EQ, or GT the other key.
-    [[nodiscard]] int cmp(const art_key_type& akey) noexcept(
-        !art_policy::has_heap);
+    [[nodiscard]] int cmp(const art_key_type& akey) const
+        noexcept(!art_policy::has_heap);
 
     //
     // stack access methods.
@@ -712,9 +713,14 @@ class olc_db final {
     /// Buffer for get_key() in heap mode — the returned key_view must remain
     /// valid until the next get_key() call or iterator movement.
     struct empty_key_buf {};
-    UNODB_DETAIL_NO_UNIQUE_ADDRESS
-    std::conditional_t<detail::olc_art_policy<Key, Value, HeapTag>::has_heap,
-                       key_encoder, empty_key_buf>
+    /// Scratch buffer for heap key retrieval.  Mutable because it is not
+    /// part of the iterator's observable state — it caches the last
+    /// extract_key() result for get_key() reuse.  Note: cmp()/get_key()
+    /// must NOT be marked gnu::pure despite being const, because they
+    /// mutate this buffer as a side effect the caller depends on.
+    UNODB_DETAIL_NO_UNIQUE_ADDRESS mutable std::conditional_t<
+        detail::olc_art_policy<Key, Value, HeapTag>::has_heap, key_encoder,
+        empty_key_buf>
         get_key_buf_{};
   };  // class iterator
 
@@ -4672,8 +4678,8 @@ bool olc_db<Key, Value, HeapTag>::iterator::try_right_most_traversal(
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
 template <typename Key, typename Value, typename HeapTag>
 typename olc_db<Key, Value, HeapTag>::iterator::get_key_result
-olc_db<Key, Value, HeapTag>::iterator::get_key() noexcept(
-    !art_policy::has_heap) {
+olc_db<Key, Value, HeapTag>::iterator::get_key() const
+    noexcept(!art_policy::has_heap) {
   UNODB_DETAIL_ASSERT(valid());  // by contract
   if constexpr (art_policy::full_key_in_inode_path) {
     return transient_key_view{keybuf_.get_key_view()};
@@ -4721,8 +4727,8 @@ auto olc_db<Key, Value, HeapTag>::iterator::get_val() const noexcept
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
 template <typename Key, typename Value, typename HeapTag>
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
-int olc_db<Key, Value, HeapTag>::iterator::cmp(
-    const art_key_type& akey) noexcept(!art_policy::has_heap) {
+int olc_db<Key, Value, HeapTag>::iterator::cmp(const art_key_type& akey) const
+    noexcept(!art_policy::has_heap) {
   UNODB_DETAIL_ASSERT(!stack_.empty());
   if constexpr (art_policy::full_key_in_inode_path) {
     return unodb::detail::compare(keybuf_.get_key_view(), akey.get_key_view());

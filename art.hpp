@@ -512,7 +512,8 @@ class db final {
     /// returns a key_view into the leaf (stable for the leaf's lifetime).
     ///
     /// \pre The iterator MUST be valid().
-    [[nodiscard]] get_key_result get_key() noexcept(!art_policy::has_heap);
+    [[nodiscard]] get_key_result get_key() const
+        noexcept(!art_policy::has_heap);
 
     /// Return the value_view associated with the current position of
     /// the iterator.
@@ -630,7 +631,8 @@ class db final {
     /// \return -1, 0, or 1 if this key is LT, EQ, or GT the other
     /// key.
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
-    [[nodiscard]] int cmp(art_key_type akey) noexcept(!art_policy::has_heap) {
+    [[nodiscard]] int cmp(art_key_type akey) const
+        noexcept(!art_policy::has_heap) {
       UNODB_DETAIL_ASSERT(!stack_.empty());
       if constexpr (art_policy::full_key_in_inode_path) {
         return unodb::detail::compare(keybuf_.get_key_view(),
@@ -799,9 +801,14 @@ class db final {
     /// Buffer for get_key()/cmp() in heap mode — the returned key_view must
     /// remain valid until the next get_key()/cmp() call or iterator movement.
     struct empty_key_buf {};
-    UNODB_DETAIL_NO_UNIQUE_ADDRESS
-    std::conditional_t<detail::art_policy<Key, Value, HeapTag>::has_heap,
-                       key_encoder, empty_key_buf>
+    /// Scratch buffer for heap key retrieval.  Mutable because it is not
+    /// part of the iterator's observable state — it caches the last
+    /// extract_key() result for get_key() reuse.  Note: cmp()/get_key()
+    /// must NOT be marked gnu::pure despite being const, because they
+    /// mutate this buffer as a side effect the caller depends on.
+    UNODB_DETAIL_NO_UNIQUE_ADDRESS mutable std::conditional_t<
+        detail::art_policy<Key, Value, HeapTag>::has_heap, key_encoder,
+        empty_key_buf>
         get_key_buf_{};
   };  // class iterator
 
@@ -2557,7 +2564,8 @@ db<Key, Value, HeapTag>::iterator::seek(art_key_type search_key, bool& match,
 UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
 template <typename Key, typename Value, typename HeapTag>
 typename db<Key, Value, HeapTag>::iterator::get_key_result
-db<Key, Value, HeapTag>::iterator::get_key() noexcept(!art_policy::has_heap) {
+db<Key, Value, HeapTag>::iterator::get_key() const
+    noexcept(!art_policy::has_heap) {
   UNODB_DETAIL_ASSERT(valid());  // by contract
   if constexpr (art_policy::full_key_in_inode_path) {
     return transient_key_view{keybuf_.get_key_view()};

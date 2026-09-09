@@ -1352,6 +1352,11 @@ static_assert(sizeof(key_prefix_snapshot) == sizeof(std::uint64_t));
 template <typename ArtKey, template <class> class CriticalSectionPolicy>
 union [[nodiscard]] key_prefix {
  private:
+  /// Allow cross-policy access (e.g., during inode construction from a
+  /// different ArtPolicy).
+  template <typename, template <class> class>
+  friend union key_prefix;
+
   /// Critical section wrapper for type T.
   template <typename T>
   using critical_section_policy = CriticalSectionPolicy<T>;
@@ -1390,33 +1395,18 @@ union [[nodiscard]] key_prefix {
   /// Construct with truncated length from source.
   ///
   /// \param key_prefix_len New prefix length (must not exceed capacity)
-  /// \param source_key_prefix Source to copy bytes from
-  key_prefix(unsigned key_prefix_len,
-             const key_prefix& source_key_prefix) noexcept
-      : u64{(source_key_prefix.u64 & key_bytes_mask) |
-            length_to_word(key_prefix_len)} {
-    UNODB_DETAIL_ASSERT(key_prefix_len <= key_prefix_capacity);
-  }
-
-  /// Construct with truncated length from source with different policy.
-  ///
-  /// Enables inode construction from inode_type (which may use a different
-  /// ArtPolicy and thus a different CriticalSectionPolicy alias).
+  /// \param source_key_prefix Source to copy bytes from (may use a different
+  ///   CriticalSectionPolicy)
   template <template <class> class OtherPolicy>
   key_prefix(unsigned key_prefix_len,
              const key_prefix<ArtKey, OtherPolicy>& source_key_prefix) noexcept
-      : u64{(source_key_prefix.load_u64() & key_bytes_mask) |
+      : u64{(source_key_prefix.u64 & key_bytes_mask) |
             length_to_word(key_prefix_len)} {
     UNODB_DETAIL_ASSERT(key_prefix_len <= key_prefix_capacity);
   }
 
   /// Copy constructor.
   key_prefix(const key_prefix& other) noexcept : u64{other.u64.load()} {}
-
-  /// Load the raw u64 representation (for cross-policy copies).
-  [[nodiscard]] constexpr std::uint64_t load_u64() const noexcept {
-    return u64.load();
-  }
 
   /// Destructor.
   ~key_prefix() noexcept = default;
@@ -1475,18 +1465,13 @@ union [[nodiscard]] key_prefix {
   ///
   /// Result is: \a prefix1 + \a prefix2 + current_prefix.
   ///
-  /// \param prefix1 Prefix to prepend at start
+  /// \param prefix1 Prefix to prepend at start (may use a different
+  ///   CriticalSectionPolicy)
   /// \param prefix2 Single byte between \a prefix1 and current prefix
-  constexpr void prepend(const key_prefix& prefix1,
-                         std::byte prefix2) noexcept {
-    prepend_impl(prefix1.load_u64(), prefix1.length(), prefix2);
-  }
-
-  /// Cross-policy prepend overload.
   template <template <class> class OtherPolicy>
   constexpr void prepend(const key_prefix<ArtKey, OtherPolicy>& prefix1,
                          std::byte prefix2) noexcept {
-    prepend_impl(prefix1.load_u64(), prefix1.length(), prefix2);
+    prepend_impl(prefix1.u64.load(), prefix1.length(), prefix2);
   }
 
  private:

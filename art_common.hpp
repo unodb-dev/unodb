@@ -43,7 +43,6 @@ using key_size_type = std::uint32_t;
 /// Non-owning view of key bytes, copied into index upon insertion.
 using key_view = std::span<const std::byte>;
 
-// Forward declaration — full definition below.
 class key_encoder;
 
 /// Concept for a tuple heap used as a secondary index key source.
