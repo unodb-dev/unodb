@@ -25,6 +25,7 @@ var classunodb_1_1detail_1_1basic__inode__256 =
     [ "init", "classunodb_1_1detail_1_1basic__inode__256.html#a019111fa229113920a65be413b8fea00", null ],
     [ "init", "classunodb_1_1detail_1_1basic__inode__256.html#a09204ac29fae923cca33510cca3da77c", null ],
     [ "init_grow", "classunodb_1_1detail_1_1basic__inode__256.html#ac7e7f866f1a470934d4d3079e4746d2d", null ],
+    [ "is_slot_occupied", "classunodb_1_1detail_1_1basic__inode__256.html#a3cb44532dc6b9d127d2b66cb72d95343", null ],
     [ "is_value_in_slot", "classunodb_1_1detail_1_1basic__inode__256.html#a0be4e68cd14a04d2ad1243a535c97e2e", null ],
     [ "last", "classunodb_1_1detail_1_1basic__inode__256.html#a9f88237059f656a222fc051d36b999bf", null ],
     [ "lte_key_byte", "classunodb_1_1detail_1_1basic__inode__256.html#a4f59aed12cdc44bbff1efad4e83fd263", null ],
