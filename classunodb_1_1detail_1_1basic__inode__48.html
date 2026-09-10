@@ -585,7 +585,7 @@ ArtPolicy::template critical_section_policy&lt; std::array&lt; std::uint8_t, 6 &
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">class</a> ArtPolicy&gt;<br />
 class unodb::detail::basic_inode_48&lt; ArtPolicy &gt;</div><p>Internal node with 17-48 children (N48). </p>
-<p>Uses 256-byte child_indexes array directly indexed by key byte, storing indices into 48-element child pointer array. Neither child_indexes nor child pointers are dense. Uses SIMD for finding first empty slot.</p>
+<p>Uses 256-byte <code>child_indexes</code> array directly indexed by key byte, storing indices into 48-element child pointer array. Neither <code>child_indexes</code> nor child pointers are dense. Uses SIMD for finding first empty slot.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
     <tr><td class="paramname">ArtPolicy</td><td>Policy class defining types and operations </td></tr>
@@ -802,7 +802,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
 </div><div class="memdoc">
 
 <p>Get iterator result for first child. </p>
-<p>Scans child_indexes[256] for first mapped entry (smallest key).</p>
+<p>Scans <code>child_indexes</code>[256] for first mapped entry (smallest key).</p>
 <dl class="section return"><dt>Returns</dt><dd>Iterator result pointing to first child, or torn_read_result if no mapped entry was observed (OLC torn read) </dd></dl>
 
 </div>
@@ -1295,7 +1295,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e23
 </div><div class="memdoc">
 
 <p>Get iterator result for last child. </p>
-<p>Scans child_indexes[256] in reverse for last mapped entry (greatest key).</p>
+<p>Scans <code>child_indexes</code>[256] in reverse for last mapped entry (greatest key).</p>
 <dl class="section return"><dt>Returns</dt><dd>Iterator result pointing to last child, or torn_read_result if no mapped entry was observed (OLC torn read) </dd></dl>
 
 </div>
