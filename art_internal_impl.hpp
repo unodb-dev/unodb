@@ -3902,9 +3902,6 @@ class basic_inode_16
       children;
 
  private:
-  /// Sentinel value for empty child slot.
-  static constexpr std::uint8_t empty_child = 0xFF;
-
   template <class>
   friend class basic_inode_4;
   friend class basic_inode_impl<ArtPolicy>;
