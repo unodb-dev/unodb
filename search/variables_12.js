@@ -2,7 +2,7 @@ var searchData=
 [
   ['tag_5fbit_5fmask_0',['tag_bit_mask',['../classunodb_1_1detail_1_1basic__node__ptr.html#aa18f73ec20fc9c6b99a583a6041cbb89',1,'unodb::detail::basic_node_ptr']]],
   ['tagged_5fptr_1',['tagged_ptr',['../classunodb_1_1detail_1_1basic__node__ptr.html#af901e36ea6cdd43da01546cc890270e4',1,'unodb::detail::basic_node_ptr']]],
-  ['test_5fdb_2',['test_db',['../classunodb_1_1test_1_1tree__verifier.html#a255d8a782011be60d44662b806a6506a',1,'unodb::test::tree_verifier']]],
+  ['test_5fdb_5f_2',['test_db_',['../classunodb_1_1test_1_1tree__verifier.html#a8040ffe1a0b438fc09cc73519a2ef65f',1,'unodb::test::tree_verifier']]],
   ['test_5fvalue_5f1_3',['test_value_1',['../namespaceunodb_1_1test__data.html#a70ce1684bb027df51d2f3b420e178b77',1,'unodb::test_data']]],
   ['test_5fvalue_5f2_4',['test_value_2',['../namespaceunodb_1_1test__data.html#ac28955b0dd84d444821727ad3196cfbd',1,'unodb::test_data']]],
   ['test_5fvalue_5f3_5',['test_value_3',['../namespaceunodb_1_1test__data.html#a0185cf681b0a2abc698dfbf218732cef',1,'unodb::test_data']]],

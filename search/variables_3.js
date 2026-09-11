@@ -1,8 +1,8 @@
 var searchData=
 [
   ['data_0',['data',['../classunodb_1_1detail_1_1basic__leaf.html#a9b9efcf5222a040cac645af90218351b',1,'unodb::detail::basic_leaf']]],
-  ['db_1',['db',['../classunodb_1_1detail_1_1basic__db__leaf__deleter.html#a4403f75f60b858a7c5db028ced9ec45f',1,'unodb::detail::basic_db_leaf_deleter::db'],['../classunodb_1_1detail_1_1basic__db__inode__deleter.html#ab862e072dd273ac65bebd9e67d20e834',1,'unodb::detail::basic_db_inode_deleter::db'],['../structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html#a3bd1de3c1e1dfac11eec9febaec1193c',1,'unodb::detail::basic_art_policy::delete_db_node_ptr_at_scope_exit::db']]],
-  ['db_5f_2',['db_',['../classunodb_1_1db_1_1iterator.html#aa094c5e39d773de49bd5466645c7f50a',1,'unodb::db::iterator::db_'],['../classunodb_1_1olc__db_1_1iterator.html#af020f84dcc6007e101309abcef54cd39',1,'unodb::olc_db::iterator::db_']]],
+  ['db_1',['db',['../classunodb_1_1detail_1_1basic__db__leaf__deleter.html#a4403f75f60b858a7c5db028ced9ec45f',1,'unodb::detail::basic_db_leaf_deleter::db'],['../classunodb_1_1detail_1_1basic__db__inode__deleter.html#ab862e072dd273ac65bebd9e67d20e834',1,'unodb::detail::basic_db_inode_deleter::db'],['../structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html#a6fa2a4670d917ac140e7c2db35a7ddc0',1,'unodb::detail::basic_art_policy::delete_db_node_ptr_at_scope_exit::db']]],
+  ['db_5f_2',['db_',['../classunodb_1_1db_1_1iterator.html#a4719bdbd5058648b2a323b4fd78513a1',1,'unodb::db::iterator::db_'],['../classunodb_1_1olc__db_1_1iterator.html#a8f453def307034758721fdb90b54c3b9',1,'unodb::olc_db::iterator::db_']]],
   ['dealloc_3',['dealloc',['../structunodb_1_1allocator__type.html#a465cfa9461027f0e0707a0596dbb3dce',1,'unodb::allocator_type']]],
   ['dealloc_5fcallback_4',['dealloc_callback',['../classunodb_1_1detail_1_1deallocation__request.html#a0625f115fb1ff05f1d5c2294b13b492f',1,'unodb::detail::deallocation_request']]],
   ['dealloc_5fepoch_5',['dealloc_epoch',['../classunodb_1_1detail_1_1deferred__requests.html#a3e260cd682d39bee9d37c3d30fef3a1a',1,'unodb::detail::deferred_requests']]],

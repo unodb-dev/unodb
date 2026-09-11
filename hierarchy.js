@@ -4,9 +4,9 @@ var hierarchy =
     [ "unodb::allocator_type", "structunodb_1_1allocator__type.html", null ],
     [ "unodb::optimistic_lock::atomic_version_type", "classunodb_1_1optimistic__lock_1_1atomic__version__type.html", null ],
     [ "unodb::detail::basic_art_key< KeyType >", "structunodb_1_1detail_1_1basic__art__key.html", null ],
-    [ "unodb::detail::basic_art_policy< Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator >", "structunodb_1_1detail_1_1basic__art__policy.html", null ],
+    [ "unodb::detail::basic_art_policy< Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator, HeapTag >", "structunodb_1_1detail_1_1basic__art__policy.html", null ],
     [ "unodb::detail::basic_db_inode_deleter< INode, Db >", "classunodb_1_1detail_1_1basic__db__inode__deleter.html", [
-      [ "unodb::detail::db_inode_qsbr_deleter< Key, Value, INode >", "classunodb_1_1detail_1_1db__inode__qsbr__deleter.html", null ]
+      [ "unodb::detail::db_inode_qsbr_deleter< Key, Value, INode, HeapTag >", "classunodb_1_1detail_1_1db__inode__qsbr__deleter.html", null ]
     ] ],
     [ "unodb::detail::basic_db_leaf_deleter< Db >", "classunodb_1_1detail_1_1basic__db__leaf__deleter.html", null ],
     [ "unodb::detail::basic_inode_def< INode, Node4, Node16, Node48, Node256 >", "structunodb_1_1detail_1_1basic__inode__def.html", null ],
@@ -29,12 +29,18 @@ var hierarchy =
       [ "anonymous_namespace{micro_benchmark_olc.cpp}::concurrent_benchmark_olc", "classanonymous__namespace_02micro__benchmark__olc_8cpp_03_1_1concurrent__benchmark__olc.html", null ]
     ] ],
     [ "anonymous_namespace{test_art_allocator.cpp}::counting_arena", "structanonymous__namespace_02test__art__allocator_8cpp_03_1_1counting__arena.html", null ],
-    [ "unodb::db< Key, Value >", "classunodb_1_1db.html", null ],
+    [ "unodb::db< Key, Value, HeapTag >", "classunodb_1_1db.html", null ],
+    [ "unodb::db< Key, Value, void >", "classunodb_1_1db.html", null ],
     [ "unodb::detail::db_leaf_qsbr_deleter< Db >", "classunodb_1_1detail_1_1db__leaf__qsbr__deleter.html", null ],
     [ "unodb::detail::dealloc_vector_list_node", "structunodb_1_1detail_1_1dealloc__vector__list__node.html", null ],
     [ "unodb::detail::deallocation_request", "classunodb_1_1detail_1_1deallocation__request.html", null ],
+    [ "unodb::detail::default_leaf_policy", "structunodb_1_1detail_1_1default__leaf__policy.html", null ],
     [ "unodb::detail::deferred_requests", "classunodb_1_1detail_1_1deferred__requests.html", null ],
-    [ "unodb::detail::basic_art_policy< Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator >::delete_db_node_ptr_at_scope_exit", "structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html", null ],
+    [ "unodb::detail::basic_art_policy< Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator, HeapTag >::delete_db_node_ptr_at_scope_exit", "structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html", null ],
+    [ "unodb::detail::empty_heap_holder", "structunodb_1_1detail_1_1empty__heap__holder.html", null ],
+    [ "unodb::test::tree_verifier< Db >::empty_heap_tag", "structunodb_1_1test_1_1tree__verifier_1_1empty__heap__tag.html", null ],
+    [ "unodb::db< Key, Value, HeapTag >::iterator::empty_key_buf", "structunodb_1_1db_1_1iterator_1_1empty__key__buf.html", null ],
+    [ "unodb::olc_db< Key, Value, HeapTag >::iterator::empty_key_buf", "structunodb_1_1olc__db_1_1iterator_1_1empty__key__buf.html", null ],
     [ "std::exception", null, [
       [ "anonymous_namespace{test_art_scan.cpp}::scan_callback_exception", "structanonymous__namespace_02test__art__scan_8cpp_03_1_1scan__callback__exception.html", null ]
     ] ],
@@ -51,26 +57,28 @@ var hierarchy =
       [ "unodb::detail::basic_inode_impl< ArtPolicy >", "classunodb_1_1detail_1_1basic__inode__impl.html", [
         [ "unodb::detail::basic_inode< ArtPolicy, MinSize, Capacity, NodeType, SmallerDerived, LargerDerived, Derived >", "classunodb_1_1detail_1_1basic__inode.html", [
           [ "unodb::detail::basic_inode_16< ArtPolicy >", "classunodb_1_1detail_1_1basic__inode__16.html", [
-            [ "unodb::detail::inode_16< Key, Value >", "classunodb_1_1detail_1_1inode__16.html", null ],
-            [ "unodb::detail::olc_inode_16< Key, Value >", "classunodb_1_1detail_1_1olc__inode__16.html", null ]
+            [ "unodb::detail::inode_16< Key, Value, HeapTag >", "classunodb_1_1detail_1_1inode__16.html", null ],
+            [ "unodb::detail::olc_inode_16< Key, Value, HeapTag >", "classunodb_1_1detail_1_1olc__inode__16.html", null ]
           ] ],
           [ "unodb::detail::basic_inode_256< ArtPolicy >", "classunodb_1_1detail_1_1basic__inode__256.html", [
-            [ "unodb::detail::inode_256< Key, Value >", "classunodb_1_1detail_1_1inode__256.html", null ],
-            [ "unodb::detail::olc_inode_256< Key, Value >", "classunodb_1_1detail_1_1olc__inode__256.html", null ]
+            [ "unodb::detail::inode_256< Key, Value, HeapTag >", "classunodb_1_1detail_1_1inode__256.html", null ],
+            [ "unodb::detail::olc_inode_256< Key, Value, HeapTag >", "classunodb_1_1detail_1_1olc__inode__256.html", null ]
           ] ],
           [ "unodb::detail::basic_inode_4< ArtPolicy >", "classunodb_1_1detail_1_1basic__inode__4.html", [
-            [ "unodb::detail::inode_4< Key, Value >", "classunodb_1_1detail_1_1inode__4.html", null ],
-            [ "unodb::detail::olc_inode_4< Key, Value >", "classunodb_1_1detail_1_1olc__inode__4.html", null ]
+            [ "unodb::detail::inode_4< Key, Value, HeapTag >", "classunodb_1_1detail_1_1inode__4.html", null ],
+            [ "unodb::detail::olc_inode_4< Key, Value, HeapTag >", "classunodb_1_1detail_1_1olc__inode__4.html", null ]
           ] ],
           [ "unodb::detail::basic_inode_48< ArtPolicy >", "classunodb_1_1detail_1_1basic__inode__48.html", [
-            [ "unodb::detail::inode_48< Key, Value >", "classunodb_1_1detail_1_1inode__48.html", null ],
-            [ "unodb::detail::olc_inode_48< Key, Value >", "classunodb_1_1detail_1_1olc__inode__48.html", null ]
+            [ "unodb::detail::inode_48< Key, Value, HeapTag >", "classunodb_1_1detail_1_1inode__48.html", null ],
+            [ "unodb::detail::olc_inode_48< Key, Value, HeapTag >", "classunodb_1_1detail_1_1olc__inode__48.html", null ]
           ] ]
         ] ],
         [ "unodb::detail::inode< Key, Value >", "classunodb_1_1detail_1_1inode.html", null ],
         [ "unodb::detail::olc_inode< Key, Value >", "classunodb_1_1detail_1_1olc__inode.html", null ]
       ] ]
     ] ],
+    [ "unodb::detail::heap_leaf_policy", "structunodb_1_1detail_1_1heap__leaf__policy.html", null ],
+    [ "unodb::detail::heap_ref_holder< Heap >", "structunodb_1_1detail_1_1heap__ref__holder.html", null ],
     [ "unodb::detail::impl_helpers", "structunodb_1_1detail_1_1impl__helpers.html", null ],
     [ "unodb::in_critical_section< T >", "classunodb_1_1in__critical__section.html", null ],
     [ "unodb::in_critical_section< detail::olc_node_ptr >", "classunodb_1_1in__critical__section.html", null ],
@@ -78,11 +86,11 @@ var hierarchy =
     [ "unodb::detail::key_prefix< ArtKey, CriticalSectionPolicy >::inode_fields", "structunodb_1_1detail_1_1key__prefix_1_1inode__fields.html", null ],
     [ "unodb::detail::key_prefix_snapshot::inode_fields", "structunodb_1_1detail_1_1key__prefix__snapshot_1_1inode__fields.html", null ],
     [ "inode_base::iter_result", null, [
-      [ "unodb::olc_db< Key, Value >::iterator::stack_entry", "structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html", null ]
+      [ "unodb::olc_db< Key, Value, HeapTag >::iterator::stack_entry", "structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html", null ]
     ] ],
     [ "unodb::detail::iter_result< NodeHeader >", "structunodb_1_1detail_1_1iter__result.html", null ],
-    [ "unodb::db< Key, Value >::iterator", "classunodb_1_1db_1_1iterator.html", null ],
-    [ "unodb::olc_db< Key, Value >::iterator", "classunodb_1_1olc__db_1_1iterator.html", null ],
+    [ "unodb::db< Key, Value, HeapTag >::iterator", "classunodb_1_1db_1_1iterator.html", null ],
+    [ "unodb::olc_db< Key, Value, HeapTag >::iterator", "classunodb_1_1olc__db_1_1iterator.html", null ],
     [ "unodb::detail::key_buffer", "classunodb_1_1detail_1_1key__buffer.html", null ],
     [ "unodb::key_decoder", "classunodb_1_1key__decoder.html", null ],
     [ "unodb::key_encoder", "classunodb_1_1key__encoder.html", null ],
@@ -93,12 +101,15 @@ var hierarchy =
     [ "unodb::detail::basic_inode_16< ArtPolicy >::key_union", "unionunodb_1_1detail_1_1basic__inode__16_1_1key__union.html", null ],
     [ "unodb::detail::basic_inode_4< ArtPolicy >::key_union", "unionunodb_1_1detail_1_1basic__inode__4_1_1key__union.html", null ],
     [ "unodb::benchmark::key_view_set", "classunodb_1_1benchmark_1_1key__view__set.html", null ],
-    [ "unodb::mutex_db< Key, Value >", "classunodb_1_1mutex__db.html", null ],
+    [ "unodb::detail::lazy_leaf< typename >", "classunodb_1_1detail_1_1lazy__leaf.html", null ],
+    [ "unodb::detail::leaf_policy_for_impl< Heap, Value, typename >", "structunodb_1_1detail_1_1leaf__policy__for__impl.html", null ],
+    [ "unodb::detail::leaf_policy_for_impl< Heap, Value, std::enable_if_t<!std::is_void_v< Heap > > >", "structunodb_1_1detail_1_1leaf__policy__for__impl_3_01Heap_00_01Value_00_01std_1_1enable__if__t_31506750323a032ff32f3d65a618a7cd9.html", null ],
+    [ "unodb::mutex_db< Key, Value, HeapTag >", "classunodb_1_1mutex__db.html", null ],
     [ "unodb::detail::no_key_tag", "structunodb_1_1detail_1_1no__key__tag.html", null ],
     [ "unodb::detail::no_leaf_tag", "structunodb_1_1detail_1_1no__leaf__tag.html", null ],
     [ "unodb::detail::node_header", "structunodb_1_1detail_1_1node__header.html", null ],
     [ "anonymous_namespace{test_qsbr.cpp}::notify_thread_on_scope_exit", "classanonymous__namespace_02test__qsbr_8cpp_03_1_1notify__thread__on__scope__exit.html", null ],
-    [ "unodb::olc_db< Key, Value >", "classunodb_1_1olc__db.html", null ],
+    [ "unodb::olc_db< Key, Value, HeapTag >", "classunodb_1_1olc__db.html", null ],
     [ "unodb::detail::olc_impl_helpers", "structunodb_1_1detail_1_1olc__impl__helpers.html", null ],
     [ "unodb::detail::olc_node_header", "structunodb_1_1detail_1_1olc__node__header.html", null ],
     [ "unodb::optimistic_lock", "classunodb_1_1optimistic__lock.html", null ],
@@ -112,10 +123,10 @@ var hierarchy =
     [ "unodb::qsbr_state", "structunodb_1_1qsbr__state.html", null ],
     [ "unodb::quiescent_state_on_scope_exit", "structunodb_1_1quiescent__state__on__scope__exit.html", null ],
     [ "unodb::optimistic_lock::read_critical_section", "classunodb_1_1optimistic__lock_1_1read__critical__section.html", null ],
-    [ "unodb::olc_db< Key, Value >::remove_entry", "structunodb_1_1olc__db_1_1remove__entry.html", null ],
+    [ "unodb::olc_db< Key, Value, HeapTag >::remove_entry", "structunodb_1_1olc__db_1_1remove__entry.html", null ],
     [ "unodb::detail::set_qsbr_per_thread_in_main_thread", "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html", null ],
     [ "unodb::detail::basic_inode< ArtPolicy, MinSize, Capacity, NodeType, SmallerDerived, LargerDerived, Derived >::single_child_tag", "structunodb_1_1detail_1_1basic__inode_1_1single__child__tag.html", null ],
-    [ "unodb::detail::basic_art_policy< Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator >::subtree_guard", "structunodb_1_1detail_1_1basic__art__policy_1_1subtree__guard.html", null ],
+    [ "unodb::detail::basic_art_policy< Key, Value, Db, CriticalSectionPolicy, LockPolicy, ReadCriticalSection, NodePtr, INodeDefs, INodeReclamator, LeafReclamator, HeapTag >::subtree_guard", "structunodb_1_1detail_1_1basic__art__policy_1_1subtree__guard.html", null ],
     [ "unodb::detail::sync_point", "structunodb_1_1detail_1_1sync__point.html", null ],
     [ "unodb::test::sync_point_guard", "structunodb_1_1test_1_1sync__point__guard.html", null ],
     [ "testing::Test", null, [
@@ -123,6 +134,7 @@ var hierarchy =
       [ "anonymous_namespace{test_art_concurrency.cpp}::ARTConcurrencyTest< Db >", "classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTConcurrencyTest.html", [
         [ "anonymous_namespace{test_art_concurrency.cpp}::ARTChainConcurrencyTest< Db >", "classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTChainConcurrencyTest.html", null ]
       ] ],
+      [ "anonymous_namespace{test_art_heap.cpp}::HeapArtTest", "classanonymous__namespace_02test__art__heap_8cpp_03_1_1HeapArtTest.html", null ],
       [ "anonymous_namespace{test_art_iter.cpp}::ARTIteratorTest< Db >", "classanonymous__namespace_02test__art__iter_8cpp_03_1_1ARTIteratorTest.html", null ],
       [ "anonymous_namespace{test_art_key_view.cpp}::ARTKeyViewCorrectnessTest< Db >", "classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html", null ],
       [ "anonymous_namespace{test_art_key_view_full_chain.cpp}::ARTKeyViewFullChainTest< Db >", "classanonymous__namespace_02test__art__key__view__full__chain_8cpp_03_1_1ARTKeyViewFullChainTest.html", null ],
@@ -135,6 +147,7 @@ var hierarchy =
       [ "anonymous_namespace{test_key_encode_decode.cpp}::ARTKeyEncodeDecodeTest< Db >", "classanonymous__namespace_02test__key__encode__decode_8cpp_03_1_1ARTKeyEncodeDecodeTest.html", null ],
       [ "unodb::test::QSBRTestBase", "classunodb_1_1test_1_1QSBRTestBase.html", null ]
     ] ],
+    [ "unodb::test::TestHeap", "classunodb_1_1test_1_1TestHeap.html", null ],
     [ "std::thread", null, [
       [ "unodb::qsbr_thread", "classunodb_1_1qsbr__thread.html", null ]
     ] ],

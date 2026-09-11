@@ -1,9 +1,9 @@
 var searchData=
 [
-  ['_7edb_0',['~db',['../classunodb_1_1db.html#a985328c3b15963c73eda8e27731eaeef',1,'unodb::db']]],
+  ['_7edb_0',['~db',['../classunodb_1_1db.html#ae112ac105f4a2c3215ad4ea95a9f4272',1,'unodb::db']]],
   ['_7edeallocation_5frequest_1',['~deallocation_request',['../classunodb_1_1detail_1_1deallocation__request.html#a09828aa1a4e94b26e0f987a498b5a77f',1,'unodb::detail::deallocation_request']]],
   ['_7edeferred_5frequests_2',['~deferred_requests',['../classunodb_1_1detail_1_1deferred__requests.html#a09dab31c5386d2fc52b5f1d32e3904f9',1,'unodb::detail::deferred_requests']]],
-  ['_7edelete_5fdb_5fnode_5fptr_5fat_5fscope_5fexit_3',['~delete_db_node_ptr_at_scope_exit',['../structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html#a69f50cfc4f9c67b3f190dc04b98a2356',1,'unodb::detail::basic_art_policy::delete_db_node_ptr_at_scope_exit']]],
+  ['_7edelete_5fdb_5fnode_5fptr_5fat_5fscope_5fexit_3',['~delete_db_node_ptr_at_scope_exit',['../structunodb_1_1detail_1_1basic__art__policy_1_1delete__db__node__ptr__at__scope__exit.html#a33bb89c79182e1f2dd640ff67ff53afe',1,'unodb::detail::basic_art_policy::delete_db_node_ptr_at_scope_exit']]],
   ['_7efail_5fon_5fnth_5fallocation_5fguard_4',['~fail_on_nth_allocation_guard',['../structunodb_1_1test_1_1fail__on__nth__allocation__guard.html#af1b17e3cd48fcf0586cbff7de14531d2',1,'unodb::test::fail_on_nth_allocation_guard']]],
   ['_7efake_5fread_5fcritical_5fsection_5',['~fake_read_critical_section',['../classunodb_1_1fake__read__critical__section.html#a5818b3291ce3cc94d3faac099619482a',1,'unodb::fake_read_critical_section']]],
   ['_7ein_5fcritical_5fsection_6',['~in_critical_section',['../classunodb_1_1in__critical__section.html#a3a816ce38114699b46752bdd7581f33e',1,'unodb::in_critical_section']]],

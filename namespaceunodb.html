@@ -99,6 +99,7 @@ $(document).ready(function(){initNavTree('namespaceunodb.html',''); initResizabl
   <div class="summary">
 <a href="#namespaces">Namespaces</a> &#124;
 <a href="#nested-classes">Classes</a> &#124;
+<a href="#concepts">Concepts</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a> &#124;
@@ -188,6 +189,12 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper providing access to key and value during index scan.  <a href="classunodb_1_1visitor.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="concepts" name="concepts"></a>
+Concepts</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptunodb_1_1TupleHeap.html">TupleHeap</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concept for a tuple heap used as a secondary index key source. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
 <tr class="memitem:a793515d74258955e30df0151f3ad9896" id="r_a793515d74258955e30df0151f3ad9896"><td class="memItemLeft" align="right" valign="top"><a id="a793515d74258955e30df0151f3ad9896" name="a793515d74258955e30df0151f3ad9896"></a>
@@ -247,10 +254,10 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aa9073306ff796dcdb770b32e770ceb3d" id="r_aa9073306ff796dcdb770b32e770ceb3d"><td class="memTemplParams" colspan="2"><a id="aa9073306ff796dcdb770b32e770ceb3d" name="aa9073306ff796dcdb770b32e770ceb3d"></a>
-template&lt;typename Key , typename Value &gt; </td></tr>
-<tr class="memitem:aa9073306ff796dcdb770b32e770ceb3d"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><b>UNODB_DETAIL_DISABLE_MSVC_WARNING</b> (26815) bool <a class="el" href="classunodb_1_1db.html">db</a>&lt; Key</td></tr>
-<tr class="separator:aa9073306ff796dcdb770b32e770ceb3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75ea1b5578e809f495245796edf0898c" id="r_a75ea1b5578e809f495245796edf0898c"><td class="memTemplParams" colspan="2"><a id="a75ea1b5578e809f495245796edf0898c" name="a75ea1b5578e809f495245796edf0898c"></a>
+template&lt;typename Key , typename Value , typename HeapTag &gt; </td></tr>
+<tr class="memitem:a75ea1b5578e809f495245796edf0898c"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><b>UNODB_DETAIL_DISABLE_MSVC_WARNING</b> (26815) bool <a class="el" href="classunodb_1_1db.html">db</a>&lt; Key</td></tr>
+<tr class="separator:a75ea1b5578e809f495245796edf0898c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7a60a32f6fea903e6de1e8d22de2eac9" id="r_a7a60a32f6fea903e6de1e8d22de2eac9"><td class="memItemLeft" align="right" valign="top"><a id="a7a60a32f6fea903e6de1e8d22de2eac9" name="a7a60a32f6fea903e6de1e8d22de2eac9"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>unlock_and_return</b> (const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">unodb::optimistic_lock::read_critical_section</a> &amp;cs, bool ret) noexcept</td></tr>
 <tr class="separator:a7a60a32f6fea903e6de1e8d22de2eac9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -272,6 +279,9 @@ template&lt;typename T &gt; </td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
+<tr class="memitem:a989ecedccc0a33402e780ed16b7ee3a3" id="r_a989ecedccc0a33402e780ed16b7ee3a3"><td class="memItemLeft" align="right" valign="top"><a id="a989ecedccc0a33402e780ed16b7ee3a3" name="a989ecedccc0a33402e780ed16b7ee3a3"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Value</b></td></tr>
+<tr class="separator:a989ecedccc0a33402e780ed16b7ee3a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af9b052db17b88851bb075efd8d84f8d1" id="r_af9b052db17b88851bb075efd8d84f8d1"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3">node_type</a> NodeType&gt; </td></tr>
 <tr class="memitem:af9b052db17b88851bb075efd8d84f8d1"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#af9b052db17b88851bb075efd8d84f8d1">as_i</a> {static_cast&lt;std::size_t&gt;(NodeType)}</td></tr>
 <tr class="memdesc:af9b052db17b88851bb075efd8d84f8d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert <em>NodeType</em> to a value suitable for use as an index.  <br /></td></tr>
@@ -280,10 +290,10 @@ Variables</h2></td></tr>
 <tr class="memitem:a775cf37c7ccec6301c8512193550b424"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#a775cf37c7ccec6301c8512193550b424">internal_as_i</a></td></tr>
 <tr class="memdesc:a775cf37c7ccec6301c8512193550b424"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert internal <em>NodeType</em> to a value suitable for use as an index.  <br /></td></tr>
 <tr class="separator:a775cf37c7ccec6301c8512193550b424"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3497d5273f6a0991bdeef3345c1db78e" id="r_a3497d5273f6a0991bdeef3345c1db78e"><td class="memTemplParams" colspan="2"><a id="a3497d5273f6a0991bdeef3345c1db78e" name="a3497d5273f6a0991bdeef3345c1db78e"></a>
-template&lt;typename Key , typename Value &gt; </td></tr>
-<tr class="memitem:a3497d5273f6a0991bdeef3345c1db78e"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1olc__db.html">olc_db</a>&lt; Key, Value &gt;::try_update_result_type&#160;</td><td class="memTemplItemRight" valign="bottom"><b>UNODB_DETAIL_DISABLE_MSVC_WARNING</b> (26440) <a class="el" href="classunodb_1_1olc__db.html">olc_db</a>&lt; Key</td></tr>
-<tr class="separator:a3497d5273f6a0991bdeef3345c1db78e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a48f3ea7b9fea1058e0d128e3fee283ab" id="r_a48f3ea7b9fea1058e0d128e3fee283ab"><td class="memTemplParams" colspan="2"><a id="a48f3ea7b9fea1058e0d128e3fee283ab" name="a48f3ea7b9fea1058e0d128e3fee283ab"></a>
+template&lt;typename Key , typename Value , typename HeapTag &gt; </td></tr>
+<tr class="memitem:a48f3ea7b9fea1058e0d128e3fee283ab"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classunodb_1_1olc__db.html">olc_db</a>&lt; Key, Value, HeapTag &gt;::try_update_result_type&#160;</td><td class="memTemplItemRight" valign="bottom"><b>UNODB_DETAIL_DISABLE_MSVC_WARNING</b> (26440) <a class="el" href="classunodb_1_1olc__db.html">olc_db</a>&lt; Key</td></tr>
+<tr class="separator:a48f3ea7b9fea1058e0d128e3fee283ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a43c189e41434317736d00dfa2cda4429" id="r_a43c189e41434317736d00dfa2cda4429"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="namespaceunodb.html#ada0b4ac1dc20e0b46e360f0743ee24d4">qsbr_thread_count_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceunodb.html#a43c189e41434317736d00dfa2cda4429">max_qsbr_threads</a> = (2UL &lt;&lt; 29U) - 1U</td></tr>
 <tr class="memdesc:a43c189e41434317736d00dfa2cda4429"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of threads that can participate in QSBR simultaneously.  <br /></td></tr>
 <tr class="separator:a43c189e41434317736d00dfa2cda4429"><td class="memSeparator" colspan="2">&#160;</td></tr>

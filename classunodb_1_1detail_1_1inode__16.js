@@ -1,5 +1,5 @@
 var classunodb_1_1detail_1_1inode__16 =
 [
-    [ "add_or_choose_subtree", "classunodb_1_1detail_1_1inode__16.html#a958db180a2f6fd3422ead14456aa2849", null ],
-    [ "remove_or_choose_subtree", "classunodb_1_1detail_1_1inode__16.html#aa56ad41738f0a8179b231a0677f61ffe", null ]
+    [ "add_or_choose_subtree", "classunodb_1_1detail_1_1inode__16.html#a8c83cba8a7f0acb7542e89c3f860a28a", null ],
+    [ "remove_or_choose_subtree", "classunodb_1_1detail_1_1inode__16.html#a05ed4f643fd91509ff40620a6302d6e7", null ]
 ];

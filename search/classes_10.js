@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['upsertconcurrencytest_0',['UpsertConcurrencyTest',['../classanonymous__namespace_02test__art__upsert_8cpp_03_1_1UpsertConcurrencyTest.html',1,'anonymous_namespace{test_art_upsert.cpp}']]],
-  ['upsertoomtest_1',['UpsertOOMTest',['../classanonymous__namespace_02test__art__upsert_8cpp_03_1_1UpsertOOMTest.html',1,'anonymous_namespace{test_art_upsert.cpp}']]],
-  ['upserttest_2',['UpsertTest',['../classanonymous__namespace_02test__art__upsert_8cpp_03_1_1UpsertTest.html',1,'anonymous_namespace{test_art_upsert.cpp}']]]
+  ['read_5fcritical_5fsection_0',['read_critical_section',['../classunodb_1_1optimistic__lock_1_1read__critical__section.html',1,'unodb::optimistic_lock']]],
+  ['remove_5fentry_1',['remove_entry',['../structunodb_1_1olc__db_1_1remove__entry.html',1,'unodb::olc_db']]]
 ];

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>UnoDB: unodb::olc_db&lt; Key, Value &gt;::iterator::stack_entry Struct Reference</title>
+<title>UnoDB: unodb::olc_db&lt; Key, Value, HeapTag &gt;::iterator::stack_entry Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -99,14 +99,14 @@ $(document).ready(function(){initNavTree('structunodb_1_1olc__db_1_1iterator_1_1
   <div class="summary">
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">unodb::olc_db&lt; Key, Value &gt;::iterator::stack_entry Struct Reference</div></div>
+  <div class="headertitle"><div class="title">unodb::olc_db&lt; Key, Value, HeapTag &gt;::iterator::stack_entry Struct Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
 <p>Element of the iterator stack.  
  <a href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html#details">More...</a></p>
 <div class="dynheader">
-Inheritance diagram for unodb::olc_db&lt; Key, Value &gt;::iterator::stack_entry:</div>
+Inheritance diagram for unodb::olc_db&lt; Key, Value, HeapTag &gt;::iterator::stack_entry:</div>
 <div class="dyncontent">
  <div class="center">
   <img src="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.png" alt=""/>
@@ -114,25 +114,25 @@ Inheritance diagram for unodb::olc_db&lt; Key, Value &gt;::iterator::stack_entry
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a1f949b04c733017ac581722d90edcd27" id="r_a1f949b04c733017ac581722d90edcd27"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#a70595f75a79bde2520bdcfb07689da7b">version_tag_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html#a1f949b04c733017ac581722d90edcd27">version</a></td></tr>
-<tr class="memdesc:a1f949b04c733017ac581722d90edcd27"><td class="mdescLeft">&#160;</td><td class="mdescRight">The version tag invariant for the node.  <br /></td></tr>
-<tr class="separator:a1f949b04c733017ac581722d90edcd27"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a036b6153ed16d4f1a9866499af31d11a" id="r_a036b6153ed16d4f1a9866499af31d11a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb.html#a70595f75a79bde2520bdcfb07689da7b">version_tag_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html#a036b6153ed16d4f1a9866499af31d11a">version</a></td></tr>
+<tr class="memdesc:a036b6153ed16d4f1a9866499af31d11a"><td class="mdescLeft">&#160;</td><td class="mdescRight">The version tag invariant for the node.  <br /></td></tr>
+<tr class="separator:a036b6153ed16d4f1a9866499af31d11a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><div class="compoundTemplParams">template&lt;typename Key, typename Value&gt;<br />
-struct unodb::olc_db&lt; Key, Value &gt;::iterator::stack_entry</div><p>Element of the iterator stack. </p>
+<div class="textblock"><div class="compoundTemplParams">template&lt;typename Key, typename Value, typename HeapTag&gt;<br />
+struct unodb::olc_db&lt; Key, Value, HeapTag &gt;::iterator::stack_entry</div><p>Element of the iterator stack. </p>
 <p>A <code><a class="el" href="structunodb_1_1detail_1_1iter__result.html" title="Iterator traversal result representing tree path element.">detail::iter_result</a></code> extended with the version tag that must still be valid for the data read from the node. </p>
 </div><h2 class="groupheader">Member Data Documentation</h2>
-<a id="a1f949b04c733017ac581722d90edcd27" name="a1f949b04c733017ac581722d90edcd27"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1f949b04c733017ac581722d90edcd27">&#9670;&#160;</a></span>version</h2>
+<a id="a036b6153ed16d4f1a9866499af31d11a" name="a036b6153ed16d4f1a9866499af31d11a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a036b6153ed16d4f1a9866499af31d11a">&#9670;&#160;</a></span>version</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename Key , typename Value &gt; </div>
+template&lt;typename Key , typename Value , typename HeapTag &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="namespaceunodb.html#a70595f75a79bde2520bdcfb07689da7b">version_tag_type</a> <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value &gt;::iterator::stack_entry::version</td>
+          <td class="memname"><a class="el" href="namespaceunodb.html#a70595f75a79bde2520bdcfb07689da7b">version_tag_type</a> <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value, HeapTag &gt;::iterator::stack_entry::version</td>
         </tr>
       </table>
 </div><div class="memdoc">

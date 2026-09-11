@@ -2,13 +2,22 @@ var art__common_8hpp =
 [
     [ "unodb::detail::no_key_tag", "structunodb_1_1detail_1_1no__key__tag.html", null ],
     [ "unodb::detail::no_leaf_tag", "structunodb_1_1detail_1_1no__leaf__tag.html", null ],
+    [ "unodb::detail::default_leaf_policy", "structunodb_1_1detail_1_1default__leaf__policy.html", null ],
+    [ "unodb::detail::heap_leaf_policy", "structunodb_1_1detail_1_1heap__leaf__policy.html", null ],
+    [ "unodb::detail::leaf_policy_for_impl< Heap, Value, typename >", "structunodb_1_1detail_1_1leaf__policy__for__impl.html", null ],
+    [ "unodb::detail::leaf_policy_for_impl< Heap, Value, std::enable_if_t<!std::is_void_v< Heap > > >", "structunodb_1_1detail_1_1leaf__policy__for__impl_3_01Heap_00_01Value_00_01std_1_1enable__if__t_31506750323a032ff32f3d65a618a7cd9.html", null ],
+    [ "unodb::detail::empty_heap_holder", "structunodb_1_1detail_1_1empty__heap__holder.html", null ],
+    [ "unodb::detail::heap_ref_holder< Heap >", "structunodb_1_1detail_1_1heap__ref__holder.html", null ],
     [ "unodb::transient_key_view", "classunodb_1_1transient__key__view.html", null ],
     [ "unodb::visitor< Iterator >", "classunodb_1_1visitor.html", "classunodb_1_1visitor" ],
     [ "unodb::key_encoder", "classunodb_1_1key__encoder.html", "classunodb_1_1key__encoder" ],
     [ "unodb::key_decoder", "classunodb_1_1key__decoder.html", "classunodb_1_1key__decoder" ],
+    [ "unodb::TupleHeap", "conceptunodb_1_1TupleHeap.html", null ],
+    [ "heap_holder_t", "art__common_8hpp.html#a97d4e9315d1e6068ccb371658d1f2fbf", null ],
     [ "key_size_type", "art__common_8hpp.html#aa6744476ee7ac432b5377c804ddfca1c", null ],
     [ "key_view", "art__common_8hpp.html#a37e43379ef5bf4922acff8db9a432a90", null ],
     [ "leaf_key_type", "art__common_8hpp.html#a8d3a7aec825f0d8cdde007954faa4647", null ],
+    [ "leaf_policy_for", "art__common_8hpp.html#acf099e57d28a6719630eb3de54c71369", null ],
     [ "value_size_type", "art__common_8hpp.html#a6b16b24543826b94728828213976f2cb", null ],
     [ "value_view", "art__common_8hpp.html#ae25127f715f2aac269da8a3616284c0b", null ],
     [ "upsert_action", "art__common_8hpp.html#a64d4c56bb0eec45bd7782645b9dbc0d1", [
@@ -22,5 +31,10 @@ var art__common_8hpp =
     [ "dump_val", "art__common_8hpp.html#a815292cf4ea423f309805739554301b5", null ],
     [ "ensure_capacity", "art__common_8hpp.html#ae50fbbc0bfcabb917d60da68dd6ea193", null ],
     [ "can_eliminate_key_in_leaf_v", "art__common_8hpp.html#ad6143a3f0577dce38a7470201e05e067", null ],
-    [ "INITIAL_BUFFER_CAPACITY", "art__common_8hpp.html#aba258d6d1df5e71714ec57d8b041b129", null ]
+    [ "heap_key_check_v", "art__common_8hpp.html#a0d6d4507255c1fcce4a8ceca52c9e63b", null ],
+    [ "INITIAL_BUFFER_CAPACITY", "art__common_8hpp.html#aba258d6d1df5e71714ec57d8b041b129", null ],
+    [ "is_heap_v", "art__common_8hpp.html#a62da4a0c5135aaa3c7669567d3122c02", null ],
+    [ "policy_can_eliminate_leaf_v", "art__common_8hpp.html#a1d2338923629085564bf19c086912781", null ],
+    [ "policy_full_key_in_inode_path_v", "art__common_8hpp.html#a397aa17e1ba317b4dde29f10c32d6b7e", null ],
+    [ "policy_value_in_slot_v", "art__common_8hpp.html#a9bca8812b22f7d7262418b7414927d8a", null ]
 ];

@@ -21,6 +21,7 @@ var namespaces_dup =
     [ "anonymous_namespace{test_art_bulk_load.cpp}", "namespaceanonymous__namespace_02test__art__bulk__load_8cpp_03.html", null ],
     [ "anonymous_namespace{test_art_concurrency.cpp}", "namespaceanonymous__namespace_02test__art__concurrency_8cpp_03.html", "namespaceanonymous__namespace_02test__art__concurrency_8cpp_03" ],
     [ "anonymous_namespace{test_art_fuzz_deepstate.cpp}", "namespaceanonymous__namespace_02test__art__fuzz__deepstate_8cpp_03.html", null ],
+    [ "anonymous_namespace{test_art_heap.cpp}", "namespaceanonymous__namespace_02test__art__heap_8cpp_03.html", "namespaceanonymous__namespace_02test__art__heap_8cpp_03" ],
     [ "anonymous_namespace{test_art_iter.cpp}", "namespaceanonymous__namespace_02test__art__iter_8cpp_03.html", "namespaceanonymous__namespace_02test__art__iter_8cpp_03" ],
     [ "anonymous_namespace{test_art_key_view.cpp}", "namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html", "namespaceanonymous__namespace_02test__art__key__view_8cpp_03" ],
     [ "anonymous_namespace{test_art_key_view_full_chain.cpp}", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03" ],

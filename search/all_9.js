@@ -10,13 +10,13 @@ var searchData=
   ['fields_7',['fields',['../md_CLAUDE.html#autotoc_md13',1,'TSan and OLC Fields'],['../md_AGENTS.html#autotoc_md5',1,'TSan and OLC Fields']]],
   ['find_5fchild_8',['find_child',['../classunodb_1_1detail_1_1basic__inode__48.html#aedfbbb5f9e0469e3c539defe64a77d29',1,'unodb::detail::basic_inode_48::find_child()'],['../classunodb_1_1detail_1_1basic__inode__256.html#a8f38dc284dc59406e81571ebe5a6fbaa',1,'unodb::detail::basic_inode_256::find_child()'],['../classunodb_1_1detail_1_1basic__inode__16.html#a43cf30b2626ed340ac428b0b900b98cd',1,'unodb::detail::basic_inode_16::find_child()'],['../classunodb_1_1detail_1_1basic__inode__4.html#a07d8163cb8015006a3d711dadad3ae8d',1,'unodb::detail::basic_inode_4::find_child()'],['../classunodb_1_1detail_1_1basic__inode__impl.html#a9199d94a15fedd493387941042e577f3',1,'unodb::detail::basic_inode_impl::find_child(node_type type, std::byte key_byte) noexcept']]],
   ['find_5fresult_9',['find_result',['../classunodb_1_1detail_1_1basic__inode__impl.html#abd5f9efd3d001e70509078bbfe214d48',1,'unodb::detail::basic_inode_impl']]],
-  ['first_10',['first',['../classunodb_1_1db_1_1iterator.html#ae7140da77bdaddcb5412a67ac4dbb28d',1,'unodb::db::iterator::first()'],['../classunodb_1_1olc__db_1_1iterator.html#a6070f7c0df4edd70aeaf773ad6a0059b',1,'unodb::olc_db::iterator::first()']]],
+  ['first_10',['first',['../classunodb_1_1db_1_1iterator.html#a736ba6ae761dde0e0f7b0a7797bd7b0d',1,'unodb::db::iterator::first()'],['../classunodb_1_1olc__db_1_1iterator.html#ab0c3cca7cfe39fdf68e8ca0b56e3a4f5',1,'unodb::olc_db::iterator::first()']]],
   ['flag_11',['flag',['../classunodb_1_1detail_1_1thread__sync.html#ad53abbcc8f46d484b73cb04250b07cc3',1,'unodb::detail::thread_sync']]],
   ['flags_5ftimeout_12',['FLAGS_timeout',['../deepstate__utils_8hpp.html#adac6355a8772d2ec7dceaf87a160477b',1,'deepstate_utils.hpp']]],
   ['for_5feach_5fchild_13',['for_each_child',['../classunodb_1_1detail_1_1basic__inode__256.html#a18a47990426d3230e25cc165fa864e4a',1,'unodb::detail::basic_inode_256']]],
   ['free_5faligned_14',['free_aligned',['../namespaceunodb_1_1detail.html#a857e30bf5bbe06e321300ee868010df9',1,'unodb::detail']]],
   ['free_5forphan_5flist_15',['free_orphan_list',['../namespaceunodb_1_1anonymous__namespace_02qsbr_8cpp_03.html#ae7d1d0020a8d2f5a2adee0519e9b8fec',1,'unodb::anonymous_namespace{qsbr.cpp}']]],
   ['from_20contributing_20md_16',['from contributing md',['../md_AGENTS.html#autotoc_md3',1,'Code Quality Rules (from CONTRIBUTING.md)'],['../md_CLAUDE.html#autotoc_md11',1,'Code Quality Rules (from CONTRIBUTING.md)']]],
-  ['full_5fkey_5fin_5finode_5fpath_17',['full_key_in_inode_path',['../structunodb_1_1detail_1_1basic__art__policy.html#a657f97b210461c0d1cb6700de77f644c',1,'unodb::detail::basic_art_policy']]],
+  ['full_5fkey_5fin_5finode_5fpath_17',['full_key_in_inode_path',['../structunodb_1_1detail_1_1basic__art__policy.html#ab81cbeb07e83da69833015a7a8a8e82d',1,'unodb::detail::basic_art_policy']]],
   ['fuzzing_18',['Fuzzing',['../md_CONTRIBUTING.html#autotoc_md23',1,'']]]
 ];

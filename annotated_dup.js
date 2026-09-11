@@ -16,6 +16,9 @@ var annotated_dup =
       [ "ARTChainConcurrencyTest", "classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTChainConcurrencyTest.html", "classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTChainConcurrencyTest" ],
       [ "ARTConcurrencyTest", "classanonymous__namespace_02test__art__concurrency_8cpp_03_1_1ARTConcurrencyTest.html", null ]
     ] ],
+    [ "anonymous_namespace{test_art_heap.cpp}", "namespaceanonymous__namespace_02test__art__heap_8cpp_03.html", [
+      [ "HeapArtTest", "classanonymous__namespace_02test__art__heap_8cpp_03_1_1HeapArtTest.html", null ]
+    ] ],
     [ "anonymous_namespace{test_art_iter.cpp}", "namespaceanonymous__namespace_02test__art__iter_8cpp_03.html", [
       [ "ARTIteratorTest", "classanonymous__namespace_02test__art__iter_8cpp_03_1_1ARTIteratorTest.html", null ]
     ] ],
@@ -83,8 +86,12 @@ var annotated_dup =
         [ "db_leaf_qsbr_deleter", "classunodb_1_1detail_1_1db__leaf__qsbr__deleter.html", null ],
         [ "dealloc_vector_list_node", "structunodb_1_1detail_1_1dealloc__vector__list__node.html", "structunodb_1_1detail_1_1dealloc__vector__list__node" ],
         [ "deallocation_request", "classunodb_1_1detail_1_1deallocation__request.html", "classunodb_1_1detail_1_1deallocation__request" ],
+        [ "default_leaf_policy", "structunodb_1_1detail_1_1default__leaf__policy.html", null ],
         [ "deferred_requests", "classunodb_1_1detail_1_1deferred__requests.html", "classunodb_1_1detail_1_1deferred__requests" ],
+        [ "empty_heap_holder", "structunodb_1_1detail_1_1empty__heap__holder.html", null ],
         [ "fake_inode", "classunodb_1_1detail_1_1fake__inode.html", "classunodb_1_1detail_1_1fake__inode" ],
+        [ "heap_leaf_policy", "structunodb_1_1detail_1_1heap__leaf__policy.html", null ],
+        [ "heap_ref_holder", "structunodb_1_1detail_1_1heap__ref__holder.html", null ],
         [ "impl_helpers", "structunodb_1_1detail_1_1impl__helpers.html", "structunodb_1_1detail_1_1impl__helpers" ],
         [ "inode", "classunodb_1_1detail_1_1inode.html", null ],
         [ "inode_16", "classunodb_1_1detail_1_1inode__16.html", "classunodb_1_1detail_1_1inode__16" ],
@@ -95,6 +102,9 @@ var annotated_dup =
         [ "key_buffer", "classunodb_1_1detail_1_1key__buffer.html", "classunodb_1_1detail_1_1key__buffer" ],
         [ "key_prefix", "unionunodb_1_1detail_1_1key__prefix.html", "unionunodb_1_1detail_1_1key__prefix" ],
         [ "key_prefix_snapshot", "unionunodb_1_1detail_1_1key__prefix__snapshot.html", "unionunodb_1_1detail_1_1key__prefix__snapshot" ],
+        [ "lazy_leaf", "classunodb_1_1detail_1_1lazy__leaf.html", null ],
+        [ "leaf_policy_for_impl", "structunodb_1_1detail_1_1leaf__policy__for__impl.html", null ],
+        [ "leaf_policy_for_impl< Heap, Value, std::enable_if_t<!std::is_void_v< Heap > > >", "structunodb_1_1detail_1_1leaf__policy__for__impl_3_01Heap_00_01Value_00_01std_1_1enable__if__t_31506750323a032ff32f3d65a618a7cd9.html", null ],
         [ "no_key_tag", "structunodb_1_1detail_1_1no__key__tag.html", null ],
         [ "no_leaf_tag", "structunodb_1_1detail_1_1no__leaf__tag.html", null ],
         [ "node_header", "structunodb_1_1detail_1_1node__header.html", null ],
@@ -121,6 +131,7 @@ var annotated_dup =
         [ "pause_heap_faults", "structunodb_1_1test_1_1pause__heap__faults.html", "structunodb_1_1test_1_1pause__heap__faults" ],
         [ "QSBRTestBase", "classunodb_1_1test_1_1QSBRTestBase.html", null ],
         [ "sync_point_guard", "structunodb_1_1test_1_1sync__point__guard.html", "structunodb_1_1test_1_1sync__point__guard" ],
+        [ "TestHeap", "classunodb_1_1test_1_1TestHeap.html", "classunodb_1_1test_1_1TestHeap" ],
         [ "tree_verifier", "classunodb_1_1test_1_1tree__verifier.html", "classunodb_1_1test_1_1tree__verifier" ]
       ] ],
       [ "allocator_type", "structunodb_1_1allocator__type.html", "structunodb_1_1allocator__type" ],

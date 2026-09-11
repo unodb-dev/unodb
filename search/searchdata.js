@@ -1,7 +1,7 @@
 var indexSectionsWithContent =
 {
   0: "012_abcdefghiklmnopqrstuvwz~—",
-  1: "abcdfgikmnopqrstuvw",
+  1: "abcdefghiklmnopqrstuvw",
   2: "au",
   3: "adghimnopqst",
   4: "_abcdefgiklmnopqrstuvwz~",
@@ -9,10 +9,11 @@ var indexSectionsWithContent =
   6: "abcdefghiklnpqrstuv",
   7: "nu",
   8: "il",
-  9: "dmotv",
+  9: "dkmotv",
   10: "u",
   11: "bciloqrst",
-  12: "abcu—"
+  12: "abcu—",
+  13: "u"
 };
 
 var indexSectionNames =
@@ -29,7 +30,8 @@ var indexSectionNames =
   9: "related",
   10: "defines",
   11: "groups",
-  12: "pages"
+  12: "pages",
+  13: "concepts"
 };
 
 var indexSectionLabels =
@@ -46,6 +48,7 @@ var indexSectionLabels =
   9: "Friends",
   10: "Macros",
   11: "Modules",
-  12: "Pages"
+  12: "Pages",
+  13: "Concepts"
 };
 

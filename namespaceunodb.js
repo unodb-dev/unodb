@@ -56,6 +56,7 @@ var namespaceunodb =
     [ "quiescent_state_on_scope_exit", "structunodb_1_1quiescent__state__on__scope__exit.html", "structunodb_1_1quiescent__state__on__scope__exit" ],
     [ "transient_key_view", "classunodb_1_1transient__key__view.html", null ],
     [ "visitor", "classunodb_1_1visitor.html", "classunodb_1_1visitor" ],
+    [ "TupleHeap", "conceptunodb_1_1TupleHeap.html", null ],
     [ "destroy_callback_type", "namespaceunodb.html#a793515d74258955e30df0151f3ad9896", null ],
     [ "inode_type_counter_array", "namespaceunodb.html#a60a52550ffa9f2d0d9e1cd9ebc7cab28", null ],
     [ "key_size_type", "namespaceunodb.html#aa6744476ee7ac432b5377c804ddfca1c", null ],

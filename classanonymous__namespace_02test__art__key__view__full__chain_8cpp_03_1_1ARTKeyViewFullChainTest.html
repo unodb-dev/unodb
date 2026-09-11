@@ -98,6 +98,8 @@ $(document).ready(function(){initNavTree('classanonymous__namespace_02test__art_
 <div class="header">
   <div class="summary">
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
+<a href="#pro-attribs">Protected Attributes</a> &#124;
 <a href="classanonymous__namespace_02test__art__key__view__full__chain_8cpp_03_1_1ARTKeyViewFullChainTest-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">anonymous_namespace{test_art_key_view_full_chain.cpp}::ARTKeyViewFullChainTest&lt; Db &gt; Class Template Reference</div></div>
 </div><!--header-->
@@ -115,7 +117,106 @@ Static Public Member Functions</h2></td></tr>
 static constexpr std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>leaf_count</b> (std::uint64_t n)</td></tr>
 <tr class="memdesc:a7f8f1a14f23965b6e8b8c26760f238c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Leaf count adjustment: returns n when leaves are allocated (value_view values), 0 when leaves are eliminated (VIS / small value types). <br /></td></tr>
 <tr class="separator:a7f8f1a14f23965b6e8b8c26760f238c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:a8efe3e3a3701097e2f9f7e52aac7c2d9" id="r_a8efe3e3a3701097e2f9f7e52aac7c2d9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classanonymous__namespace_02test__art__key__view__full__chain_8cpp_03_1_1ARTKeyViewFullChainTest.html#a8efe3e3a3701097e2f9f7e52aac7c2d9">do_insert</a> (Db &amp;db, <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a> k, typename Db::value_type v)</td></tr>
+<tr class="memdesc:a8efe3e3a3701097e2f9f7e52aac7c2d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert helper: for heap types, assigns a unique tuple_id (ignoring the caller's value) and registers the key with the heap.  <br /></td></tr>
+<tr class="separator:a8efe3e3a3701097e2f9f7e52aac7c2d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a435d8966dc434491d55a5bc50593e2f7" id="r_a435d8966dc434491d55a5bc50593e2f7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classanonymous__namespace_02test__art__key__view__full__chain_8cpp_03_1_1ARTKeyViewFullChainTest.html#a435d8966dc434491d55a5bc50593e2f7">make_db</a> (std::optional&lt; Db &gt; &amp;db)</td></tr>
+<tr class="memdesc:a435d8966dc434491d55a5bc50593e2f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a Db instance, forwarding the heap for heap-backed types.  <br /></td></tr>
+<tr class="separator:a435d8966dc434491d55a5bc50593e2f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:a155b8e1a13c2266f68e9f0c1691aa262" id="r_a155b8e1a13c2266f68e9f0c1691aa262"><td class="memItemLeft" align="right" valign="top"><a id="a155b8e1a13c2266f68e9f0c1691aa262" name="a155b8e1a13c2266f68e9f0c1691aa262"></a>
+<a class="el" href="classunodb_1_1test_1_1TestHeap.html">unodb::test::TestHeap</a>&#160;</td><td class="memItemRight" valign="bottom"><b>heap_</b> {}</td></tr>
+<tr class="memdesc:a155b8e1a13c2266f68e9f0c1691aa262"><td class="mdescLeft">&#160;</td><td class="mdescRight">Heap instance for heap-backed types (unused otherwise). <br /></td></tr>
+<tr class="separator:a155b8e1a13c2266f68e9f0c1691aa262"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5cf7894c7fb3dca95c65841be5c25fb8" id="r_a5cf7894c7fb3dca95c65841be5c25fb8"><td class="memItemLeft" align="right" valign="top"><a id="a5cf7894c7fb3dca95c65841be5c25fb8" name="a5cf7894c7fb3dca95c65841be5c25fb8"></a>
+std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>next_tuple_id_</b> {0}</td></tr>
+<tr class="memdesc:a5cf7894c7fb3dca95c65841be5c25fb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Next tuple_id for heap mode (auto-incremented per insert). <br /></td></tr>
+<tr class="separator:a5cf7894c7fb3dca95c65841be5c25fb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a8efe3e3a3701097e2f9f7e52aac7c2d9" name="a8efe3e3a3701097e2f9f7e52aac7c2d9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8efe3e3a3701097e2f9f7e52aac7c2d9">&#9670;&#160;</a></span>do_insert()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Db &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool anonymous_namespace{test_art_key_view_full_chain.cpp}::ARTKeyViewFullChainTest&lt; Db &gt;::do_insert </td>
+          <td>(</td>
+          <td class="paramtype">Db &amp;&#160;</td>
+          <td class="paramname"><em>db</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a>&#160;</td>
+          <td class="paramname"><em>k</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">typename Db::value_type&#160;</td>
+          <td class="paramname"><em>v</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Insert helper: for heap types, assigns a unique tuple_id (ignoring the caller's value) and registers the key with the heap. </p>
+<p>For non-heap types, passes through unchanged. </p>
+
+</div>
+</div>
+<a id="a435d8966dc434491d55a5bc50593e2f7" name="a435d8966dc434491d55a5bc50593e2f7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a435d8966dc434491d55a5bc50593e2f7">&#9670;&#160;</a></span>make_db()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Db &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void anonymous_namespace{test_art_key_view_full_chain.cpp}::ARTKeyViewFullChainTest&lt; Db &gt;::make_db </td>
+          <td>(</td>
+          <td class="paramtype">std::optional&lt; Db &gt; &amp;&#160;</td>
+          <td class="paramname"><em>db</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Create a Db instance, forwarding the heap for heap-backed types. </p>
+<p>Uses std::optional because Db is non-movable and requires conditional constructor arguments. </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li>test/<a class="el" href="test__art__key__view__full__chain_8cpp.html">test_art_key_view_full_chain.cpp</a></li>
 </ul>

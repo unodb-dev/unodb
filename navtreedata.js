@@ -92,6 +92,7 @@ var NAVTREE =
         [ "Enumerations", "namespacemembers_enum.html", null ]
       ] ]
     ] ],
+    [ "Concepts", "concepts.html", "concepts" ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
       [ "Class Index", "classes.html", null ],
@@ -119,18 +120,19 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"classunodb_1_1db.html#a792923c1d17a8abac900b216a35d074e",
-"classunodb_1_1detail_1_1basic__inode__16.html#a43cf30b2626ed340ac428b0b900b98cd",
-"classunodb_1_1detail_1_1basic__inode__48.html#a2a3cfa039f088aa1b446f2de18b2a6b6",
-"classunodb_1_1detail_1_1basic__node__ptr.html#a7824c5a5d27ca8e2919f3454b24132be",
-"classunodb_1_1fake__read__critical__section.html#aef58c23a1eca1fac26c4a7ee1ff28b27",
-"classunodb_1_1olc__db.html#a654ac331a170f35e23b3599ef65dac94",
-"classunodb_1_1qsbr.html#a5943d4828314d047e2e8248ce782d13b",
-"classunodb_1_1qsbr__ptr__span.html#ae8aa7c96647a4a3299584b3e57629069",
-"md_AGENTS.html#autotoc_md2",
-"namespaceunodb_1_1detail.html#a25eb4ea7710810f49fcc23353dad6c8f",
-"structunodb_1_1detail_1_1basic__art__policy.html#a6fc55c990a19eed5219f72cb054dcb97",
-"structunodb_1_1test_1_1fail__on__nth__allocation__guard.html#a68531c223360eacc4a1dd9e0bd9db185"
+"classunodb_1_1db.html#a6d9e134ceb0828edcfda76bab9e3d0ca",
+"classunodb_1_1detail_1_1basic__inode.html#ac0b0a49458da13290693abb4d81cb5c6",
+"classunodb_1_1detail_1_1basic__inode__4.html#af470045f63b1888c85166604c3d8a6be",
+"classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4.html#a4cd336e9dbe6de8d361b8fdb902fdc5a",
+"classunodb_1_1detail_1_1tree__depth.html#a46bb58c1b9e47eecee51003b6afc25a9",
+"classunodb_1_1olc__db.html#a07df0b7a4c643a33a74509ab5f61ca78",
+"classunodb_1_1optimistic__lock_1_1write__guard.html#ac5808e71507ce64965b364a5e5c345c3",
+"classunodb_1_1qsbr__ptr.html#aaa660d9528516c1142878f2e86b4c940",
+"group__test-internals.html#ga1e31cec00d41ec2d3a7b136db8c09d70",
+"namespacemembers_func.html",
+"structunodb_1_1detail_1_1basic__art__key.html#a0a5a6bb536028d38b08447c64cd91cf1",
+"structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01std_1_1array_3_01T_00_01N_01_4_00_01CritSec_01_4.html",
+"unionunodb_1_1detail_1_1key__prefix.html#ad4c78e1c8b5b9f41912e4fcd25c1d43a"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

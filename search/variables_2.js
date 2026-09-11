@@ -1,8 +1,8 @@
 var searchData=
 [
-  ['can_5feliminate_5fkey_5fin_5fleaf_0',['can_eliminate_key_in_leaf',['../structunodb_1_1detail_1_1basic__art__policy.html#aeea7cefae40990d3d13618514394ec1b',1,'unodb::detail::basic_art_policy']]],
+  ['can_5feliminate_5fkey_5fin_5fleaf_0',['can_eliminate_key_in_leaf',['../structunodb_1_1detail_1_1basic__art__policy.html#afa97a718b961729b69f24138a5681fef',1,'unodb::detail::basic_art_policy']]],
   ['can_5feliminate_5fkey_5fin_5fleaf_5fv_1',['can_eliminate_key_in_leaf_v',['../namespaceunodb_1_1detail.html#ad6143a3f0577dce38a7470201e05e067',1,'unodb::detail']]],
-  ['can_5feliminate_5fleaf_2',['can_eliminate_leaf',['../structunodb_1_1detail_1_1basic__art__policy.html#ac97b5279b03df6a710a346ca918e3ff1',1,'unodb::detail::basic_art_policy']]],
+  ['can_5feliminate_5fleaf_2',['can_eliminate_leaf',['../structunodb_1_1detail_1_1basic__art__policy.html#a13839e40d629aed7055626a853ecf30d',1,'unodb::detail::basic_art_policy']]],
   ['cap_3',['cap',['../classunodb_1_1key__encoder.html#ae1478bff6b7044ef89d7fde75061011d',1,'unodb::key_encoder::cap'],['../classunodb_1_1key__decoder.html#a3945bba5bf4a21d6de3dab6004201026',1,'unodb::key_decoder::cap'],['../classunodb_1_1detail_1_1key__buffer.html#a7ac0dfb045cfa4a5f6dbdbb2fe03779a',1,'unodb::detail::key_buffer::cap']]],
   ['capacity_4',['capacity',['../classunodb_1_1detail_1_1basic__inode.html#a8a9f7cf8d7ee999fd402894bcc04a28f',1,'unodb::detail::basic_inode']]],
   ['chain_5fi4_5fper_5fkey_5',['chain_i4_per_key',['../namespaceanonymous__namespace_02test__art_8cpp_03.html#ae6a4ed1734b9869724b2d830fd249f4f',1,'anonymous_namespace{test_art.cpp}']]],
@@ -18,6 +18,6 @@ var searchData=
   ['current_5finterval_5fdealloc_5frequests_15',['current_interval_dealloc_requests',['../classunodb_1_1qsbr__per__thread.html#a7557ea586b33893b1bd9f4aa5581d391',1,'unodb::qsbr_per_thread']]],
   ['current_5finterval_5forphan_5flist_5fnode_16',['current_interval_orphan_list_node',['../classunodb_1_1qsbr__per__thread.html#a0956872b02e7c8af4f6d0078eaa909f7',1,'unodb::qsbr_per_thread']]],
   ['current_5finterval_5ftotal_5fdealloc_5fsize_17',['current_interval_total_dealloc_size',['../classunodb_1_1qsbr__per__thread.html#ae651fad1c94f8ddec93282ea769d0d3f',1,'unodb::qsbr_per_thread']]],
-  ['current_5fmemory_5fuse_18',['current_memory_use',['../classunodb_1_1db.html#a8d5d69b544ebdb7201f95ce4182f8756',1,'unodb::db']]],
+  ['current_5fmemory_5fuse_18',['current_memory_use',['../classunodb_1_1db.html#a385a311dc77c84e9e26b8287148e2f45',1,'unodb::db']]],
   ['current_5fthread_5finstance_19',['current_thread_instance',['../classunodb_1_1qsbr__per__thread.html#a6e459784b1c15eedee7aace0729d4d4c',1,'unodb::qsbr_per_thread']]]
 ];

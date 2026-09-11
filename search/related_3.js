@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['this_5fthread_0',['this_thread',['../classunodb_1_1qsbr__per__thread.html#a0665641e11efcb2ef47493202c85f38c',1,'unodb::qsbr_per_thread']]]
+  ['operator_2b_0',['operator+',['../classunodb_1_1qsbr__ptr.html#a0a36ae6f4a19d0ce890722b0bcd4f978',1,'unodb::qsbr_ptr']]],
+  ['operator_3c_3c_1',['operator&lt;&lt;',['../structunodb_1_1detail_1_1basic__art__key.html#a9df8f2c9dc5f0b843d97ce6b35f16407',1,'unodb::detail::basic_art_key']]]
 ];

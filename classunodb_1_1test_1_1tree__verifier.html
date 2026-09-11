@@ -116,6 +116,9 @@ $(document).ready(function(){initNavTree('classunodb_1_1test_1_1tree__verifier.h
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1test_1_1tree__verifier_1_1comparator.html">comparator</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1test_1_1tree__verifier_1_1empty__heap__tag.html">empty_heap_tag</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Heap instance for heap-backed types (zero-size empty struct otherwise).  <a href="structunodb_1_1test_1_1tree__verifier_1_1empty__heap__tag.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -170,10 +173,10 @@ template&lt;class Db2  = Db, typename T &gt; </td></tr>
 template&lt;typename T &gt; </td></tr>
 <tr class="memitem:ae3da20911f67d315c5db288a4be7d895"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>attempt_remove_missing_keys</b> (std::initializer_list&lt; T &gt; absent_keys)</td></tr>
 <tr class="separator:ae3da20911f67d315c5db288a4be7d895"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a388389b919c21744314595d330594740" id="r_a388389b919c21744314595d330594740"><td class="memTemplParams" colspan="2"><a id="a388389b919c21744314595d330594740" name="a388389b919c21744314595d330594740"></a>
+<tr class="memitem:a5451b52bf2e3922b3981fa34703e3b96" id="r_a5451b52bf2e3922b3981fa34703e3b96"><td class="memTemplParams" colspan="2"><a id="a5451b52bf2e3922b3981fa34703e3b96" name="a5451b52bf2e3922b3981fa34703e3b96"></a>
 template&lt;class Db2  = Db, typename T &gt; </td></tr>
-<tr class="memitem:a388389b919c21744314595d330594740"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt;!is_olc_db&lt; Db2 &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>try_get</b> (T k) noexcept(noexcept(<a class="el" href="classunodb_1_1test_1_1tree__verifier.html#a7ae2a42a2b24def6dc7ad0b5ceec3e87">coerce_key</a>(k)) &amp;&amp;noexcept(this-&gt;test_db.get(<a class="el" href="classunodb_1_1test_1_1tree__verifier.html#a7ae2a42a2b24def6dc7ad0b5ceec3e87">coerce_key</a>(k))))</td></tr>
-<tr class="separator:a388389b919c21744314595d330594740"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5451b52bf2e3922b3981fa34703e3b96"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt;!is_olc_db&lt; Db2 &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>try_get</b> (T k)</td></tr>
+<tr class="separator:a5451b52bf2e3922b3981fa34703e3b96"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae977f79073782cc40f84820a034be07d" id="r_ae977f79073782cc40f84820a034be07d"><td class="memTemplParams" colspan="2"><a id="ae977f79073782cc40f84820a034be07d" name="ae977f79073782cc40f84820a034be07d"></a>
 template&lt;class Db2  = Db, typename T &gt; </td></tr>
 <tr class="memitem:ae977f79073782cc40f84820a034be07d"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt; is_olc_db&lt; Db2 &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>try_get</b> (T k)</td></tr>
@@ -181,10 +184,10 @@ template&lt;class Db2  = Db, typename T &gt; </td></tr>
 <tr class="memitem:aa5272379cd23253f105135a5a448d2f2" id="r_aa5272379cd23253f105135a5a448d2f2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1test_1_1tree__verifier.html#aa5272379cd23253f105135a5a448d2f2">check_present_values</a> () const</td></tr>
 <tr class="memdesc:aa5272379cd23253f105135a5a448d2f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verify that each key and value in the internal ground truth collection can be found in the test db.  <br /></td></tr>
 <tr class="separator:aa5272379cd23253f105135a5a448d2f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae8d2c8408c5777fb6b8d59d6aa7fd4ae" id="r_ae8d2c8408c5777fb6b8d59d6aa7fd4ae"><td class="memTemplParams" colspan="2"><a id="ae8d2c8408c5777fb6b8d59d6aa7fd4ae" name="ae8d2c8408c5777fb6b8d59d6aa7fd4ae"></a>
+<tr class="memitem:aa01f9536ca1e5edba3234349270d14ec" id="r_aa01f9536ca1e5edba3234349270d14ec"><td class="memTemplParams" colspan="2"><a id="aa01f9536ca1e5edba3234349270d14ec" name="aa01f9536ca1e5edba3234349270d14ec"></a>
 template&lt;typename T &gt; </td></tr>
-<tr class="memitem:ae8d2c8408c5777fb6b8d59d6aa7fd4ae"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>check_absent_keys</b> (std::initializer_list&lt; T &gt; absent_keys) noexcept(noexcept(this-&gt;try_get(<a class="el" href="classunodb_1_1test_1_1tree__verifier.html#a7ae2a42a2b24def6dc7ad0b5ceec3e87">coerce_key</a>(*absent_keys.begin()))))</td></tr>
-<tr class="separator:ae8d2c8408c5777fb6b8d59d6aa7fd4ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa01f9536ca1e5edba3234349270d14ec"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>check_absent_keys</b> (std::initializer_list&lt; T &gt; absent_keys)</td></tr>
+<tr class="separator:aa01f9536ca1e5edba3234349270d14ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2b46c0a2e9ae7657f6445df1b9fb7943" id="r_a2b46c0a2e9ae7657f6445df1b9fb7943"><td class="memTemplParams" colspan="2"><a id="a2b46c0a2e9ae7657f6445df1b9fb7943" name="a2b46c0a2e9ae7657f6445df1b9fb7943"></a>
 template&lt;typename FN , typename T &gt; </td></tr>
 <tr class="memitem:a2b46c0a2e9ae7657f6445df1b9fb7943"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>scan</b> (FN fn, bool fwd=true)</td></tr>
@@ -272,10 +275,16 @@ Private Attributes</h2></td></tr>
 <tr class="memitem:a65777ba9652a17fdb01d6281d4aa1a1b" id="r_a65777ba9652a17fdb01d6281d4aa1a1b"><td class="memItemLeft" align="right" valign="top"><a id="a65777ba9652a17fdb01d6281d4aa1a1b" name="a65777ba9652a17fdb01d6281d4aa1a1b"></a>
 key_type&#160;</td><td class="memItemRight" valign="bottom"><b>unused_key</b> {}</td></tr>
 <tr class="separator:a65777ba9652a17fdb01d6281d4aa1a1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a255d8a782011be60d44662b806a6506a" id="r_a255d8a782011be60d44662b806a6506a"><td class="memItemLeft" align="right" valign="top"><a id="a255d8a782011be60d44662b806a6506a" name="a255d8a782011be60d44662b806a6506a"></a>
-Db&#160;</td><td class="memItemRight" valign="bottom"><b>test_db</b> {}</td></tr>
-<tr class="memdesc:a255d8a782011be60d44662b806a6506a"><td class="mdescLeft">&#160;</td><td class="mdescRight">The tree under test. <br /></td></tr>
-<tr class="separator:a255d8a782011be60d44662b806a6506a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8cee0511b974912a05343160c8b68a5d" id="r_a8cee0511b974912a05343160c8b68a5d"><td class="memItemLeft" align="right" valign="top"><a id="a8cee0511b974912a05343160c8b68a5d" name="a8cee0511b974912a05343160c8b68a5d"></a>
+<a class="el" href="group__internal.html#ga812df364f15ec853682ef5ab637b32bc">UNODB_DETAIL_NO_UNIQUE_ADDRESS</a> std::conditional_t&lt; Db::has_heap, <a class="el" href="classunodb_1_1test_1_1TestHeap.html">unodb::test::TestHeap</a>, <a class="el" href="structunodb_1_1test_1_1tree__verifier_1_1empty__heap__tag.html">empty_heap_tag</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>heap_</b> {}</td></tr>
+<tr class="separator:a8cee0511b974912a05343160c8b68a5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a406ced96b86fd37345a0a24326129ff6" id="r_a406ced96b86fd37345a0a24326129ff6"><td class="memItemLeft" align="right" valign="top"><a id="a406ced96b86fd37345a0a24326129ff6" name="a406ced96b86fd37345a0a24326129ff6"></a>
+std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>next_tuple_id_</b> {0}</td></tr>
+<tr class="memdesc:a406ced96b86fd37345a0a24326129ff6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Auto-incrementing tuple_id for heap mode inserts. <br /></td></tr>
+<tr class="separator:a406ced96b86fd37345a0a24326129ff6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8040ffe1a0b438fc09cc73519a2ef65f" id="r_a8040ffe1a0b438fc09cc73519a2ef65f"><td class="memItemLeft" align="right" valign="top">std::optional&lt; Db &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1test_1_1tree__verifier.html#a8040ffe1a0b438fc09cc73519a2ef65f">test_db_</a></td></tr>
+<tr class="memdesc:a8040ffe1a0b438fc09cc73519a2ef65f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The tree under test — uses std::optional to support non-movable types that require constructor arguments (heap ref).  <br /></td></tr>
+<tr class="separator:a8040ffe1a0b438fc09cc73519a2ef65f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1739ea9940991d3db15a94fa3f920471" id="r_a1739ea9940991d3db15a94fa3f920471"><td class="memItemLeft" align="right" valign="top">std::map&lt; <a class="el" href="classunodb_1_1test_1_1tree__verifier.html#afa56f531a5ce52d2b664ce1f2abdf993">ikey_type</a>&lt; Db &gt;, value_type, <a class="el" href="structunodb_1_1test_1_1tree__verifier_1_1comparator.html">comparator</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1test_1_1tree__verifier.html#a1739ea9940991d3db15a94fa3f920471">values</a></td></tr>
 <tr class="memdesc:a1739ea9940991d3db15a94fa3f920471"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ground truth (key,val) pairs.  <br /></td></tr>
 <tr class="separator:a1739ea9940991d3db15a94fa3f920471"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -447,6 +456,33 @@ Type promotion is explicitly to std::uint64_t since that is the historical exter
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
+<a id="a8040ffe1a0b438fc09cc73519a2ef65f" name="a8040ffe1a0b438fc09cc73519a2ef65f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8040ffe1a0b438fc09cc73519a2ef65f">&#9670;&#160;</a></span>test_db_</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Db &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::optional&lt;Db&gt; <a class="el" href="classunodb_1_1test_1_1tree__verifier.html">unodb::test::tree_verifier</a>&lt; Db &gt;::test_db_</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The tree under test — uses std::optional to support non-movable types that require constructor arguments (heap ref). </p>
+<p>Initialized in constructor body via emplace(). </p>
+
+</div>
+</div>
 <a id="a1739ea9940991d3db15a94fa3f920471" name="a1739ea9940991d3db15a94fa3f920471"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1739ea9940991d3db15a94fa3f920471">&#9670;&#160;</a></span>values</h2>
 
