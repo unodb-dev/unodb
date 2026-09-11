@@ -301,6 +301,15 @@
 
 #endif  // #ifndef UNODB_DETAIL_MSVC
 
+/// Portable `[[no_unique_address]]` — MSVC and clang-cl both require the
+/// `[[msvc::no_unique_address]]` spelling; keyed on `_MSC_VER` (which both
+/// define) rather than `UNODB_DETAIL_MSVC` (MSVC-frontend only).
+#ifdef _MSC_VER
+#define UNODB_DETAIL_NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
+#else
+#define UNODB_DETAIL_NO_UNIQUE_ADDRESS [[no_unique_address]]
+#endif
+
 /// \}
 
 /// Declaration specifier for a function in a header file that should not be

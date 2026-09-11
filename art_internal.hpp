@@ -35,6 +35,9 @@ namespace unodb::detail {
 template <class, class>
 class [[nodiscard]] basic_leaf;
 
+template <typename>
+class [[nodiscard]] lazy_leaf;
+
 template <class>
 class [[nodiscard]] basic_db_leaf_deleter;
 
@@ -365,10 +368,11 @@ class basic_db_leaf_deleter {
 /// \tparam Header Node header type
 /// \tparam Db Database template
 template <typename Key, typename Value, class Header,
-          template <typename, typename> class Db>
+          template <typename, typename, typename> class Db,
+          typename HeapTag = void>
 using basic_db_leaf_unique_ptr =
     std::unique_ptr<basic_leaf<leaf_key_type<Key, Value>, Header>,
-                    basic_db_leaf_deleter<Db<Key, Value>>>;
+                    basic_db_leaf_deleter<Db<Key, Value, HeapTag>>>;
 
 // TODO(laurynas): extract a base class db_ref?
 

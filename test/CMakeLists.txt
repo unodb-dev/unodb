@@ -76,6 +76,7 @@ target_link_libraries(test_art_bulk_load PRIVATE qsbr_test_utils)
 
 add_db_test_target(test_art_key_view)
 add_db_test_target(test_art_key_view_full_chain)
+target_compile_options(test_art_key_view_full_chain PRIVATE "$<${is_msvc}:/bigobj>")
 add_db_test_target(test_art_iter)
 add_db_test_target(test_art_scan)
 add_db_test_target(test_art_concurrency)
@@ -95,6 +96,10 @@ if (NOT MSVC AND NOT SANITIZE_ADDRESS AND NOT SANITIZE_THREAD
 endif()
 target_link_libraries(test_art_concurrency PRIVATE qsbr_test_utils)
 target_link_libraries(test_art_upsert PRIVATE qsbr_test_utils)
+
+# TupleHeap secondary index tests.
+add_db_test_target(test_art_heap)
+target_link_libraries(test_art_heap PRIVATE qsbr_test_utils)
 
 # Regression test: olc_db with custom allocator must link without libunodb_qsbr.
 # Intentionally links only unodb_util (header-only) and Threads, NOT unodb or
