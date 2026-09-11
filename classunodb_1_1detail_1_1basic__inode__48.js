@@ -17,6 +17,7 @@ var classunodb_1_1detail_1_1basic__inode__48 =
     [ "add_to_nonfull", "classunodb_1_1detail_1_1basic__inode__48.html#af182526fefac33a4167ca5a5a8dea26e", null ],
     [ "add_to_nonfull", "classunodb_1_1detail_1_1basic__inode__48.html#ab5f8cca1532e9156168ee2246ebea7fe", null ],
     [ "begin", "classunodb_1_1detail_1_1basic__inode__48.html#a0bf35daa99cc7e9033553ea47cd4f5fe", null ],
+    [ "clear_value_bit", "classunodb_1_1detail_1_1basic__inode__48.html#ac23f404bdfd801fe866e54176f3d4e46", null ],
     [ "create_bulk", "classunodb_1_1detail_1_1basic__inode__48.html#a7c59634dfe2241685ae0d6d18cfba48d", null ],
     [ "delete_subtree", "classunodb_1_1detail_1_1basic__inode__48.html#af36a072a6473ce78bab3773590c08b57", null ],
     [ "direct_remove_child_pointer", "classunodb_1_1detail_1_1basic__inode__48.html#a2a3cfa039f088aa1b446f2de18b2a6b6", null ],
@@ -37,6 +38,8 @@ var classunodb_1_1detail_1_1basic__inode__48 =
     [ "remove", "classunodb_1_1detail_1_1basic__inode__48.html#a23f86c1df6c3f373b9789dc1f61302e0", null ],
     [ "remove_child_entry", "classunodb_1_1detail_1_1basic__inode__48.html#ad387fbbfbfb72667303f23b451ce63f2", null ],
     [ "remove_child_pointer", "classunodb_1_1detail_1_1basic__inode__48.html#a9f5d1d816509f6217a4692c2b10a644e", null ],
+    [ "set_value_bit", "classunodb_1_1detail_1_1basic__inode__48.html#ad858bdb8d6394c635264c44eda336fdc", null ],
+    [ "set_value_bit_by_ci", "classunodb_1_1detail_1_1basic__inode__48.html#a6720b4f2204346f2cd49ebc333a5e71e", null ],
     [ "child_indexes", "classunodb_1_1detail_1_1basic__inode__48.html#a733c51620437f23e6b970454c975d192", null ],
     [ "children", "classunodb_1_1detail_1_1basic__inode__48.html#a3c631bd9909626a9a6c2f3fc6d91f422", null ],
     [ "empty_child", "classunodb_1_1detail_1_1basic__inode__48.html#aca64ed46cfa64faedc25f7f2c50e2231", null ]

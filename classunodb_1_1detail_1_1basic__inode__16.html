@@ -104,7 +104,6 @@ $(document).ready(function(){initNavTree('classunodb_1_1detail_1_1basic__inode__
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="#pri-types">Private Types</a> &#124;
 <a href="#pri-methods">Private Member Functions</a> &#124;
-<a href="#pri-static-attribs">Static Private Attributes</a> &#124;
 <a href="#friends">Friends</a> &#124;
 <a href="classunodb_1_1detail_1_1basic__inode__16-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">unodb::detail::basic_inode_16&lt; ArtPolicy &gt; Class Template Reference</div></div>
@@ -311,12 +310,15 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a1b8999d11ba345add1ecf8ce16395929"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abcf599178dce76c0964f5b444c5fd0e9" id="r_abcf599178dce76c0964f5b444c5fd0e9"><td class="memItemLeft" align="right" valign="top"><a id="abcf599178dce76c0964f5b444c5fd0e9" name="abcf599178dce76c0964f5b444c5fd0e9"></a>
 <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">constexpr</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>is_value_in_slot</b> (std::uint8_t <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">i</a>) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">const</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
+<tr class="memdesc:abcf599178dce76c0964f5b444c5fd0e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if child at index holds a packed value (not a pointer). <br /></td></tr>
 <tr class="separator:abcf599178dce76c0964f5b444c5fd0e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad0b18511f61584489ca9e9e5bf81f8fb" id="r_ad0b18511f61584489ca9e9e5bf81f8fb"><td class="memItemLeft" align="right" valign="top"><a id="ad0b18511f61584489ca9e9e5bf81f8fb" name="ad0b18511f61584489ca9e9e5bf81f8fb"></a>
 <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">constexpr</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>set_value_bit</b> (std::uint8_t <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">i</a>) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
+<tr class="memdesc:ad0b18511f61584489ca9e9e5bf81f8fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mark child at index as holding a packed value. <br /></td></tr>
 <tr class="separator:ad0b18511f61584489ca9e9e5bf81f8fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3c1282b652c3a7f5ecdc5967585e7d11" id="r_a3c1282b652c3a7f5ecdc5967585e7d11"><td class="memItemLeft" align="right" valign="top"><a id="a3c1282b652c3a7f5ecdc5967585e7d11" name="a3c1282b652c3a7f5ecdc5967585e7d11"></a>
 <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">constexpr</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>clear_value_bit</b> (std::uint8_t <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">i</a>) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
+<tr class="memdesc:a3c1282b652c3a7f5ecdc5967585e7d11"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mark child at index as holding a pointer (clear value bit). <br /></td></tr>
 <tr class="separator:a3c1282b652c3a7f5ecdc5967585e7d11"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classunodb_1_1detail_1_1basic__inode"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classunodb_1_1detail_1_1basic__inode')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classunodb_1_1detail_1_1basic__inode.html">unodb::detail::basic_inode&lt; ArtPolicy, MinSize, Capacity, NodeType, SmallerDerived, LargerDerived, Derived &gt;</a></td></tr>
 <tr class="memitem:a8d1cc0321605ea86c48978fdb898fdfb inherit pub_methods_classunodb_1_1detail_1_1basic__inode" id="r_a8d1cc0321605ea86c48978fdb898fdfb"><td class="memItemLeft" align="right" valign="top">
@@ -460,13 +462,6 @@ Private Member Functions</h2></td></tr>
 <tr class="memitem:ab42061b27fb984cfc9b7d022d712f18a inherit pub_methods_structunodb_1_1detail_1_1value__bitmask__field" id="r_ab42061b27fb984cfc9b7d022d712f18a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1value__bitmask__field.html#ab42061b27fb984cfc9b7d022d712f18a">insert_at</a> (std::uint8_t <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">i</a>) <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">noexcept</a></td></tr>
 <tr class="memdesc:ab42061b27fb984cfc9b7d022d712f18a inherit pub_methods_structunodb_1_1detail_1_1value__bitmask__field"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert space at position <code>i</code>, shifting higher bits up.  <br /></td></tr>
 <tr class="separator:ab42061b27fb984cfc9b7d022d712f18a inherit pub_methods_structunodb_1_1detail_1_1value__bitmask__field"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-attribs" name="pri-static-attribs"></a>
-Static Private Attributes</h2></td></tr>
-<tr class="memitem:a2c767e94651a5ddc1516c34c6818aebb" id="r_a2c767e94651a5ddc1516c34c6818aebb"><td class="memItemLeft" align="right" valign="top"><a id="a2c767e94651a5ddc1516c34c6818aebb" name="a2c767e94651a5ddc1516c34c6818aebb"></a>
-<a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">static</a> <a class="el" href="namespaceunodb_1_1detail.html#af486b3ba28a2f7e238e2db1946e3b8fb">constexpr</a> std::uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>empty_child</b> = 0xFF</td></tr>
-<tr class="memdesc:a2c767e94651a5ddc1516c34c6818aebb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sentinel value for empty child slot. <br /></td></tr>
-<tr class="separator:a2c767e94651a5ddc1516c34c6818aebb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>

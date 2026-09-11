@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['empty_5fchild_0',['empty_child',['../classunodb_1_1detail_1_1basic__inode__16.html#a2c767e94651a5ddc1516c34c6818aebb',1,'unodb::detail::basic_inode_16::empty_child'],['../classunodb_1_1detail_1_1basic__inode__48.html#aca64ed46cfa64faedc25f7f2c50e2231',1,'unodb::detail::basic_inode_48::empty_child']]],
+  ['empty_5fchild_0',['empty_child',['../classunodb_1_1detail_1_1basic__inode__48.html#aca64ed46cfa64faedc25f7f2c50e2231',1,'unodb::detail::basic_inode_48']]],
   ['empty_5ftest_5fvalue_1',['empty_test_value',['../namespaceunodb_1_1test__data.html#a0f891396b690825eae34a409b219b2fc',1,'unodb::test_data']]],
   ['encoded_5ftext_5fkeys_2',['encoded_text_keys',['../namespaceunodb_1_1test__data.html#abb651c6739432b8db61fde80cb97d177',1,'unodb::test_data']]],
   ['end_5fresult_3',['end_result',['../classunodb_1_1detail_1_1basic__inode__impl.html#a309951d14c3d09aff0f0fc8be224a6e9',1,'unodb::detail::basic_inode_impl']]],
