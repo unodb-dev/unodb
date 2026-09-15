@@ -227,9 +227,8 @@ Static Protected Attributes</h2></td></tr>
 <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">static</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#abd5f9efd3d001e70509078bbfe214d48">find_result</a>&#160;</td><td class="memItemRight" valign="bottom"><b>child_not_found</b> {<a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#adc6e07b0120630ba8a01da34cde094a0">child_not_found_i</a>, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">nullptr</a>}</td></tr>
 <tr class="memdesc:a6905ec23ef797ae856d05259c70385bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents the find_result when no such child was found. <br /></td></tr>
 <tr class="separator:a6905ec23ef797ae856d05259c70385bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a309951d14c3d09aff0f0fc8be224a6e9" id="r_a309951d14c3d09aff0f0fc8be224a6e9"><td class="memItemLeft" align="right" valign="top"><a id="a309951d14c3d09aff0f0fc8be224a6e9" name="a309951d14c3d09aff0f0fc8be224a6e9"></a>
-<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">static</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a2030306d16106e373eb2a38d17d3815c">iter_result_opt</a>&#160;</td><td class="memItemRight" valign="bottom"><b>end_result</b> {}</td></tr>
-<tr class="memdesc:a309951d14c3d09aff0f0fc8be224a6e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Iterator result value at the end of iteration. <br /></td></tr>
+<tr class="memitem:a309951d14c3d09aff0f0fc8be224a6e9" id="r_a309951d14c3d09aff0f0fc8be224a6e9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">static</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a2030306d16106e373eb2a38d17d3815c">iter_result_opt</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a309951d14c3d09aff0f0fc8be224a6e9">end_result</a> {}</td></tr>
+<tr class="memdesc:a309951d14c3d09aff0f0fc8be224a6e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Iterator result value at the end of iteration.  <br /></td></tr>
 <tr class="separator:a309951d14c3d09aff0f0fc8be224a6e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a71635c68333ed8b5a98b4beca50d0dba" id="r_a71635c68333ed8b5a98b4beca50d0dba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">static</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a5e989cf901f1b719e9b482fd2f61e9a6">iter_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a71635c68333ed8b5a98b4beca50d0dba">torn_read_result</a></td></tr>
 <tr class="memdesc:a71635c68333ed8b5a98b4beca50d0dba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returned by <code><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a83a284df0726f2d5166a16fa77a6ff7e" title="Return iterator result for first valid child.">begin()</a></code> and <code><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a0b089ac9ab0ce19f7f9814120e87825f" title="Return iterator result for last valid child.">last()</a></code> when every child slot was observed empty.  <br /></td></tr>
@@ -843,7 +842,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Optional <a class="el" href="structunodb_1_1detail_1_1iter__result.html" title="Iterator traversal result representing tree path element.">iter_result</a> for matching or greater child </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Optional <a class="el" href="structunodb_1_1detail_1_1iter__result.html" title="Iterator traversal result representing tree path element.">iter_result</a> for matching or greater child, or empty if none was found or if an OLC torn read observed no mapped entry over the scanned range; act on the result only after a successful version validation (read_critical_section::check(), or <code><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a440405f82d354281cf33f37de0433b95" title="Check one last time whether this RCS is still valid and unlock it.">optimistic_lock::read_critical_section::try_read_unlock()</a></code> in <code><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a1805cb340b9cce4811dd784821e16bc3" title="Core logic invoked from retry loop.">olc_db::iterator::try_seek()</a></code>) </dd></dl>
 
 </div>
 </div>
@@ -970,7 +969,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Optional <a class="el" href="structunodb_1_1detail_1_1iter__result.html" title="Iterator traversal result representing tree path element.">iter_result</a> for matching or lesser child </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Optional <a class="el" href="structunodb_1_1detail_1_1iter__result.html" title="Iterator traversal result representing tree path element.">iter_result</a> for matching or lesser child, or empty if none was found or if an OLC torn read observed no mapped entry over the scanned range; act on the result only after a successful version validation (read_critical_section::check(), or <code><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a440405f82d354281cf33f37de0433b95" title="Check one last time whether this RCS is still valid and unlock it.">optimistic_lock::read_critical_section::try_read_unlock()</a></code> in <code><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a1805cb340b9cce4811dd784821e16bc3" title="Core logic invoked from retry loop.">olc_db::iterator::try_seek()</a></code>) </dd></dl>
 
 </div>
 </div>
@@ -1018,7 +1017,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Optional <a class="el" href="structunodb_1_1detail_1_1iter__result.html" title="Iterator traversal result representing tree path element.">iter_result</a> for next child if one exists </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Optional <a class="el" href="structunodb_1_1detail_1_1iter__result.html" title="Iterator traversal result representing tree path element.">iter_result</a> for next child, or empty if at end or if an OLC torn read observed no mapped entry over the scanned range; act on the result only after a successful version validation (read_critical_section::check(), or <code><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a440405f82d354281cf33f37de0433b95" title="Check one last time whether this RCS is still valid and unlock it.">optimistic_lock::read_critical_section::try_read_unlock()</a></code> in <code><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a1805cb340b9cce4811dd784821e16bc3" title="Core logic invoked from retry loop.">olc_db::iterator::try_seek()</a></code>) </dd></dl>
 
 </div>
 </div>
@@ -1066,7 +1065,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Optional <a class="el" href="structunodb_1_1detail_1_1iter__result.html" title="Iterator traversal result representing tree path element.">iter_result</a> for previous child if one exists </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Optional <a class="el" href="structunodb_1_1detail_1_1iter__result.html" title="Iterator traversal result representing tree path element.">iter_result</a> for previous child, or empty if at start or if an OLC torn read observed no mapped entry over the scanned range; act on the result only after a successful version validation (read_critical_section::check(), or <code><a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html#a440405f82d354281cf33f37de0433b95" title="Check one last time whether this RCS is still valid and unlock it.">optimistic_lock::read_critical_section::try_read_unlock()</a></code> in <code><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a1805cb340b9cce4811dd784821e16bc3" title="Core logic invoked from retry loop.">olc_db::iterator::try_seek()</a></code>) </dd></dl>
 
 </div>
 </div>
@@ -1175,6 +1174,33 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
+<a id="a309951d14c3d09aff0f0fc8be224a6e9" name="a309951d14c3d09aff0f0fc8be224a6e9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a309951d14c3d09aff0f0fc8be224a6e9">&#9670;&#160;</a></span>end_result</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">class</a> ArtPolicy &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">constexpr</a> <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a2030306d16106e373eb2a38d17d3815c">iter_result_opt</a> <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html">unodb::detail::basic_inode_impl</a>&lt; ArtPolicy &gt;::end_result {}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">constexpr</span><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Iterator result value at the end of iteration. </p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a71635c68333ed8b5a98b4beca50d0dba" title="Returned by begin() and last() when every child slot was observed empty.">torn_read_result</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02" title="Whether the third template parameter is a TupleHeap (vs void/default).">for</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02" title="Whether the third template parameter is a TupleHeap (vs void/default).">what</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02" title="Whether the third template parameter is a TupleHeap (vs void/default).">a</a> whole-array scan <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02" title="Whether the third template parameter is a TupleHeap (vs void/default).">returns</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02" title="Whether the third template parameter is a TupleHeap (vs void/default).">instead</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02" title="Whether the third template parameter is a TupleHeap (vs void/default).">when</a> it <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02" title="Whether the third template parameter is a TupleHeap (vs void/default).">observes</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02" title="Whether the third template parameter is a TupleHeap (vs void/default).">no</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02" title="Whether the third template parameter is a TupleHeap (vs void/default).">mapped</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02" title="Whether the third template parameter is a TupleHeap (vs void/default).">entry</a> </dd></dl>
+
+</div>
+</div>
 <a id="a71635c68333ed8b5a98b4beca50d0dba" name="a71635c68333ed8b5a98b4beca50d0dba"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a71635c68333ed8b5a98b4beca50d0dba">&#9670;&#160;</a></span>torn_read_result</h2>
 
@@ -1203,7 +1229,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c
 </div><!-- fragment -->
 <p>Returned by <code><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a83a284df0726f2d5166a16fa77a6ff7e" title="Return iterator result for first valid child.">begin()</a></code> and <code><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a0b089ac9ab0ce19f7f9814120e87825f" title="Return iterator result for last valid child.">last()</a></code> when every child slot was observed empty. </p>
 <p>A live <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html" title="Internal node with 17-48 children (N48).">basic_inode_48</a> always maps at least 17 key bytes and a live <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html" title="Internal node with 49-256 children (N256).">basic_inode_256</a> at least 49, so this cannot happen single-threaded.</p>
-<p>Distinct from end_result, which marks a legitimate end of scan that callers act on by popping the stack. This value must instead be discarded, so the two are deliberately not the same iter_result_opt nullopt: <code>!e</code> would conflate an ordinary end of iteration with an observation that corresponds to no state of the tree.</p>
+<p>Distinct from <code>end_result</code> by what the caller does with it: <code>end_result</code> is popped, this value must be discarded. That is the whole of the difference, and not a claim that <code>end_result</code> always marks a genuine end — a sub-range scan (<a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#ab5b30c90837a6b5f9db79d13a17cfdaf" title="Return iterator result for next child after given index.">next()</a>, <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a9bc2a9ac06fef0b585ef78a635d430ab" title="Return iterator result for previous child before given index.">prior()</a>, <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a925e671302e30860ff7aaf0b285744c7" title="Return iterator result for greatest key byte &lt;= given key byte.">lte_key_byte()</a>, <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#ad318e98bdf4405045abac7eb0066c228" title="Return iterator result for smallest key byte &gt;= given key byte.">gte_key_byte()</a>) yields <code>end_result</code> under a torn read too, and is safe only because a version validation runs before the empty result is acted on. What is unique to this value is that it corresponds to no state the node ever held under any policy, which is why it gets a representation the callers can tell apart: the two are deliberately not the same iter_result_opt nullopt, since <code>!e</code> would conflate an ordinary end of iteration with an observation that corresponds to no state of the tree.</p>
 <p>Under OLC the 256-slot scan is not atomic with respect to the node: concurrent insert and remove change which key bytes are occupied while the scan is in progress. An occupancy set that migrates from slots the scan has not reached to slots it has already passed leaves every slot observed empty even though the node was never empty. With 17 children at key bytes 100-116, a reader scans 0..99, a writer inserts at 0..16 and then erases 100..116, and the reader scans 100..255. The insert must precede the erase, as dropping below 17 children would shrink the node.</p>
 <p>No individual load tears: each is one relaxed atomic load of a critical_section_policy field. It is the composite of the scan's loads, taken at different times, that corresponds to no state the node ever held: inconsistent, not stale. "Torn read" here means such an inconsistent optimistic read rather than a non-atomic read of a single object.</p>
 <p>The fields are never acted on. Every write that produces this observation bumps the node version, so the OLC caller's <code>read_critical_section::check()</code> fails before the result is used. The single-threaded db traversals take no critical section at all and cannot observe this value. Both <a class="el" href="classunodb_1_1db_1_1iterator.html#a7ffc0b8bf3103bcd7c5ce78ce41648ba" title="Push internal node entry onto iterator stack.">db::iterator::push()</a> and <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a8398ca302bd72f1f6e65644f1ab7c34e" title="Push an entry onto the stack.">olc_db::iterator::push()</a> assert the node is non-null, keeping a tripwire on each side: structural corruption for db, a missed version bump for <a class="el" href="classunodb_1_1olc__db.html" title="A thread-safe Adaptive Radix Tree that is synchronized using optimistic lock coupling.">olc_db</a>. Asserting in the dispatcher rather than at each caller covers every producer and names the fault. The 4- and 5-argument push() they forward to would reject a null as well, since a null node_ptr reports <a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350" title="Leaf node for a single value.">node_type::LEAF</a>, but only as a generic type violation.</p>
