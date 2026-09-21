@@ -2507,7 +2507,7 @@ class basic_inode_4
   constexpr basic_inode_4(UNODB_DETAIL_NO_STATS_CONST db_type&, key_view k1,
                           art_key_type shifted_k2,
                           // cppcheck-suppress passedByValue
-                          tree_depth_type depth, leaf_type* child1,
+                          tree_depth_type depth, const leaf_type* child1,
                           db_leaf_unique_ptr&& child2) noexcept
       : parent_class{k1, shifted_k2, depth} {
     init(k1, shifted_k2, depth, child1, std::move(child2));
