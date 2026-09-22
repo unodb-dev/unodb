@@ -122,7 +122,7 @@ var NAVTREEINDEX =
 "annotated.html",
 "classunodb_1_1db.html#a6d9e134ceb0828edcfda76bab9e3d0ca",
 "classunodb_1_1detail_1_1basic__inode.html#ac0b0a49458da13290693abb4d81cb5c6",
-"classunodb_1_1detail_1_1basic__inode__4.html#af470045f63b1888c85166604c3d8a6be",
+"classunodb_1_1detail_1_1basic__inode__4.html#af3348dec16bae6a32557d3b43f0006db",
 "classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4.html#a4cd336e9dbe6de8d361b8fdb902fdc5a",
 "classunodb_1_1detail_1_1tree__depth.html#a46bb58c1b9e47eecee51003b6afc25a9",
 "classunodb_1_1olc__db.html#a07df0b7a4c643a33a74509ab5f61ca78",
