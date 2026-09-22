@@ -1325,7 +1325,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c
 </div><div class="memdoc">
 
 <p>Check by children array index (for internal iteration). </p>
-<dl class="section pre"><dt>Precondition</dt><dd>ci in [0, capacity), never <code>empty_child</code>: the bitmask is sized to capacity and does no range check </dd></dl>
+<dl class="section pre"><dt>Precondition</dt><dd>ci in [0, capacity), never <code>empty_child</code> </dd></dl>
 
 </div>
 </div>
@@ -1660,7 +1660,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c
 
 <p>Mark child at children array index as holding a packed value. </p>
 <p>Takes the children array index directly: no <code>child_indexes</code> lookup and no mapped-key-byte assert, unlike <code><a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#ad858bdb8d6394c635264c44eda336fdc" title="Mark child at key byte as holding a packed value.">set_value_bit()</a></code>. Pairs with <code><a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#aa6a4a2e8c7ce11d43eed44b2375add18" title="Check by children array index (for internal iteration).">is_value_in_slot_by_ci()</a></code>.</p>
-<dl class="section pre"><dt>Precondition</dt><dd>ci in [0, capacity), never <code>empty_child</code>: the bitmask is sized to capacity and does no range check </dd></dl>
+<dl class="section pre"><dt>Precondition</dt><dd>ci in [0, capacity), never <code>empty_child</code> </dd></dl>
 
 </div>
 </div>
