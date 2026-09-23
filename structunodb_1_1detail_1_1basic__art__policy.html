@@ -722,7 +722,15 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c
 </div><div class="memdoc">
 
 <p>Pack a value into a node_ptr slot (value-in-slot mode). </p>
-<p>The parent inode's value_bitmask distinguishes this from a pointer. </p>
+<p>Writes the raw value over the whole word, so the result is not a tagged pointer: a packed zero is bit-identical to a null node_ptr, and any other value leaves arbitrary bits where the type tag would be. The parent inode's value_bitmask is what distinguishes a packed value from a pointer; the pointer test alone cannot.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">v</td><td>Value to pack</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Slot word holding <em>v</em> </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html#a08a07d5e5b31f87c500fc63be6144860" title="Get node type from tag bits.">basic_node_ptr::type()</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02" title="Whether the third template parameter is a TupleHeap (vs void/default).">for</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02" title="Whether the third template parameter is a TupleHeap (vs void/default).">what</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02" title="Whether the third template parameter is a TupleHeap (vs void/default).">such</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02" title="Whether the third template parameter is a TupleHeap (vs void/default).">a</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02" title="Whether the third template parameter is a TupleHeap (vs void/default).">word</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02" title="Whether the third template parameter is a TupleHeap (vs void/default).">reads</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02" title="Whether the third template parameter is a TupleHeap (vs void/default).">back</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02" title="Whether the third template parameter is a TupleHeap (vs void/default).">as</a> </dd></dl>
 
 </div>
 </div>

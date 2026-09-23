@@ -300,7 +300,7 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a0be4e68cd14a04d2ad1243a535c97e2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3cb44532dc6b9d127d2b66cb72d95343" id="r_a3cb44532dc6b9d127d2b66cb72d95343"><td class="memItemLeft" align="right" valign="top"><a id="a3cb44532dc6b9d127d2b66cb72d95343" name="a3cb44532dc6b9d127d2b66cb72d95343"></a>
 <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">constexpr</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>is_slot_occupied</b> (std::uint8_t <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">i</a>) <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">const</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">noexcept</a></td></tr>
-<tr class="memdesc:a3cb44532dc6b9d127d2b66cb72d95343"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether slot at index is occupied: a non-null child pointer, or a packed value, which is bit-identical to nullptr when that value is zero. <br /></td></tr>
+<tr class="memdesc:a3cb44532dc6b9d127d2b66cb72d95343"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether slot at index is occupied: a non-null child pointer, or a packed value, which may itself read as nullptr (see <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a3090fda205b6760127ea6a2b44a015b4" title="Pack a value into a node_ptr slot (value-in-slot mode).">basic_art_policy::pack_value()</a>). <br /></td></tr>
 <tr class="separator:a3cb44532dc6b9d127d2b66cb72d95343"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2381c9f993a49533ced03c71a58ac7a4" id="r_a2381c9f993a49533ced03c71a58ac7a4"><td class="memItemLeft" align="right" valign="top"><a id="a2381c9f993a49533ced03c71a58ac7a4" name="a2381c9f993a49533ced03c71a58ac7a4"></a>
 <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">constexpr</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">void</a>&#160;</td><td class="memItemRight" valign="bottom"><b>set_value_bit</b> (std::uint8_t <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">i</a>) <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">noexcept</a></td></tr>
@@ -546,7 +546,7 @@ ArtPolicy::template critical_section_policy&lt; std::array&lt; std::uint8_t, 32 
 <div class="textblock"><div class="compoundTemplParams">template&lt;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">class</a> ArtPolicy&gt;<br />
 class unodb::detail::basic_inode_256&lt; ArtPolicy &gt;</div><p>Internal node with 49-256 children (N256). </p>
 <p>Uses key byte as direct index into 256-element child slot array. No separate keys array is needed. This is the largest internal node type and cannot grow further.</p>
-<p>A slot is occupied if it holds a non-null child pointer or its value-in-slot bit is set: in value-in-slot mode a packed zero value is bit-identical to nullptr, so the pointer test alone does not decide occupancy.</p>
+<p>A slot is occupied if it holds a non-null child pointer or its value-in-slot bit is set: the pointer test alone does not decide occupancy, since a packed zero value reads as nullptr (see <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a3090fda205b6760127ea6a2b44a015b4" title="Pack a value into a node_ptr slot (value-in-slot mode).">basic_art_policy::pack_value()</a>).</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
     <tr><td class="paramname">ArtPolicy</td><td>Policy class defining types and operations </td></tr>
@@ -672,6 +672,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c
 </div><div class="memdoc">
 
 <p>Add child to non-full node. </p>
+<dl class="section pre"><dt>Precondition</dt><dd><code>!ArtPolicy::can_eliminate_leaf</code>. When leaves are eliminated, terminal values occupy child slots and the policy disables leaf allocation; insertion uses the <code>node_ptr</code> overload. </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">child</td><td>Child leaf to add </td></tr>
@@ -943,7 +944,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>The callback's second argument is the raw slot word. In value-in-slot mode an occupied slot may hold a packed value rather than a node pointer: bit-identical to nullptr when that value is zero, and an arbitrarily-tagged non-null word otherwise. Test <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html#a0be4e68cd14a04d2ad1243a535c97e2e" title="Check if child at index holds a packed value (not a pointer).">is_value_in_slot()</a> on the slot index before treating it as a pointer, as <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html#ad1b9e47884a84eb5ca8bb41c257da5b3" title="Recursively delete all children.">delete_subtree()</a> and <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html#a9a61528d03755325ff0c417491700e11" title="Dump node contents to stream for debugging.">dump()</a> do. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The callback's second argument is the raw slot word. In value-in-slot mode an occupied slot may hold a packed value, which is no tagged pointer at all (see <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a3090fda205b6760127ea6a2b44a015b4" title="Pack a value into a node_ptr slot (value-in-slot mode).">basic_art_policy::pack_value()</a>). Test <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html#a0be4e68cd14a04d2ad1243a535c97e2e" title="Check if child at index holds a packed value (not a pointer).">is_value_in_slot()</a> on the slot index before treating it as a pointer, as <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html#ad1b9e47884a84eb5ca8bb41c257da5b3" title="Recursively delete all children.">delete_subtree()</a> and <a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html#a9a61528d03755325ff0c417491700e11" title="Dump node contents to stream for debugging.">dump()</a> do. </dd></dl>
 
 </div>
 </div>

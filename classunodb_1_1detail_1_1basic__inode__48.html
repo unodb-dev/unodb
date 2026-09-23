@@ -762,6 +762,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c
 </div><div class="memdoc">
 
 <p>Add child to non-full node. </p>
+<dl class="section pre"><dt>Precondition</dt><dd><code>!ArtPolicy::can_eliminate_leaf</code>. The free-slot scan below finds a slot by comparing against zero, which <code><a class="el" href="unionunodb_1_1detail_1_1basic__inode__48_1_1children__union.html" title="Union for child pointer storage with SIMD vector access.">children_union</a></code> documents a packed zero value aliases, so it can only run where packed values cannot occur. </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">child</td><td>Child leaf to add </td></tr>

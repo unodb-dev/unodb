@@ -1122,6 +1122,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c
 </div><div class="memdoc">
 
 <p>Add child to node that has available capacity. </p>
+<dl class="section pre"><dt>Precondition</dt><dd><code>!ArtPolicy::can_eliminate_leaf</code>. When leaves are eliminated, terminal values occupy child slots and the policy disables leaf allocation; insertion uses the <code>node_ptr</code> overload. </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">child</td><td>Leaf child to add </td></tr>

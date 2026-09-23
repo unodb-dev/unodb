@@ -205,9 +205,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>empty</b> () const no
 void&#160;</td><td class="memItemRight" valign="bottom"><b>push</b> (detail::olc_node_ptr node, std::byte key_byte, std::uint8_t child_index, detail::key_prefix_snapshot prefix, const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a> &amp;rcs)</td></tr>
 <tr class="memdesc:a8398ca302bd72f1f6e65644f1ab7c34e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push an entry onto the stack. <br /></td></tr>
 <tr class="separator:a8398ca302bd72f1f6e65644f1ab7c34e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaefd3182666bda4a655d0486df1361b3" id="r_aaefd3182666bda4a655d0486df1361b3"><td class="memItemLeft" align="right" valign="top"><a id="aaefd3182666bda4a655d0486df1361b3" name="aaefd3182666bda4a655d0486df1361b3"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>push_leaf</b> (detail::olc_node_ptr aleaf, const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a> &amp;rcs)</td></tr>
-<tr class="memdesc:aaefd3182666bda4a655d0486df1361b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push a leaf onto the stack. <br /></td></tr>
+<tr class="memitem:aaefd3182666bda4a655d0486df1361b3" id="r_aaefd3182666bda4a655d0486df1361b3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#aaefd3182666bda4a655d0486df1361b3">push_leaf</a> (detail::olc_node_ptr aleaf, const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a> &amp;rcs)</td></tr>
+<tr class="memdesc:aaefd3182666bda4a655d0486df1361b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push a leaf-position entry <em>aleaf</em> onto the stack.  <br /></td></tr>
 <tr class="separator:aaefd3182666bda4a655d0486df1361b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1578d8e2cbf23c70458115d07a35a79b" id="r_a1578d8e2cbf23c70458115d07a35a79b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a1578d8e2cbf23c70458115d07a35a79b">push</a> (const typename inode_base::iter_result &amp;e, const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a> &amp;rcs)</td></tr>
 <tr class="memdesc:a1578d8e2cbf23c70458115d07a35a79b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push an entry <em>e</em> onto the stack.  <br /></td></tr>
@@ -346,7 +345,7 @@ template&lt;typename Key , typename Value , typename HeapTag &gt; </div>
 </div><div class="memdoc">
 
 <p>Return the node on the top of the stack and nullptr if the stack is empty (similar to <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#ad59b584795e6e7b063f66bb965f3d79b" title="Return the entry on the top of the stack.">top()</a>, but handles an empty stack). </p>
-<p>A <code>nullptr</code> return does <em>not</em> imply an empty stack: in value-in-slot mode a packed zero value is bit-identical to a null node pointer, so callers must additionally test <code>!empty() &amp;&amp; <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#ad59b584795e6e7b063f66bb965f3d79b" title="Return the entry on the top of the stack.">top()</a>.is_packed_value</code>, as <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a89f5a30e0bb4a3343cf721d20d51d5b6" title="Advance the iterator to next entry in the index.">next()</a> and <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#aa059a0a65d993fc3d791c0582fe8e683" title="Position the iterator on the previous entry in the index.">prior()</a> do. </p>
+<p>A <code>nullptr</code> return does <em>not</em> imply an empty stack: in value-in-slot mode a packed zero value reads as a null node pointer (see <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a3090fda205b6760127ea6a2b44a015b4" title="Pack a value into a node_ptr slot (value-in-slot mode).">detail::basic_art_policy::pack_value()</a>), so callers must additionally test <code>!empty() &amp;&amp; <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#ad59b584795e6e7b063f66bb965f3d79b" title="Return the entry on the top of the stack.">top()</a>.is_packed_value</code>, as <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a89f5a30e0bb4a3343cf721d20d51d5b6" title="Advance the iterator to next entry in the index.">next()</a> and <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#aa059a0a65d993fc3d791c0582fe8e683" title="Position the iterator on the previous entry in the index.">prior()</a> do. </p>
 
 </div>
 </div>
@@ -502,6 +501,54 @@ template&lt;typename Key , typename Value , typename HeapTag &gt; </div>
 <p>Push an entry <em>e</em> onto the stack. </p>
 <dl class="section pre"><dt>Precondition</dt><dd><em>e.node</em> is non-null. Every caller check()s the read that produced <em>e</em> before pushing it, and a successful check() means the producing scan was consistent, so a null here means a missed version bump, not a torn read.</dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a71635c68333ed8b5a98b4beca50d0dba" title="Returned by begin() and last() when every child slot was observed empty.">detail::basic_inode_impl::torn_read_result</a> for why the assert lives here rather than at the callers </dd></dl>
+
+</div>
+</div>
+<a id="aaefd3182666bda4a655d0486df1361b3" name="aaefd3182666bda4a655d0486df1361b3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaefd3182666bda4a655d0486df1361b3">&#9670;&#160;</a></span>push_leaf()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value , typename HeapTag &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value, HeapTag &gt;::iterator::push_leaf </td>
+          <td>(</td>
+          <td class="paramtype">detail::olc_node_ptr&#160;</td>
+          <td class="paramname"><em>aleaf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a> &amp;&#160;</td>
+          <td class="paramname"><em>rcs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Push a leaf-position entry <em>aleaf</em> onto the stack. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">aleaf</td><td>Leaf node pointer, or in value-in-slot mode the packed value</td></tr>
+    <tr><td class="paramname">rcs</td><td>Read critical section for the leaf node, or for the containing inode when <em>aleaf</em> is a packed value; only its version tag is stored on the entry</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="structunodb_1_1detail_1_1iter__result.html#a66070f404623bf5d6632da65ce899528" title="True when node holds a packed value (value-in-slot) rather than an inode or leaf pointer.">detail::iter_result::is_packed_value</a>, which tells the two apart </dd></dl>
 
 </div>
 </div>

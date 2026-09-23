@@ -99,6 +99,7 @@ $(document).ready(function(){initNavTree('unionunodb_1_1detail_1_1basic__inode__
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="unionunodb_1_1detail_1_1basic__inode__48_1_1children__union-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">unodb::detail::basic_inode_48&lt; ArtPolicy &gt;::children_union Union Reference</div></div>
 </div><!--header-->
@@ -122,10 +123,17 @@ Public Attributes</h2></td></tr>
 std::array&lt; <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#a5746647717698cb39c280e100b8cea2e">critical_section_policy</a>&lt; <a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html#af470045f63b1888c85166604c3d8a6be">node_ptr</a> &gt;, <a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a8a9f7cf8d7ee999fd402894bcc04a28f">basic_inode_48::capacity</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>pointer_array</b></td></tr>
 <tr class="memdesc:ac290f8e0a4fa5714e5a448181eeb9b0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Array access to child pointers. <br /></td></tr>
 <tr class="separator:ac290f8e0a4fa5714e5a448181eeb9b0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a896e2a7db1c19e714b4c934fa7c181c3" id="r_a896e2a7db1c19e714b4c934fa7c181c3"><td class="memItemLeft" align="right" valign="top"><a id="a896e2a7db1c19e714b4c934fa7c181c3" name="a896e2a7db1c19e714b4c934fa7c181c3"></a>
-<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">__m128i</a>&#160;</td><td class="memItemRight" valign="bottom"><b>pointer_vector</b> [<a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a8a9f7cf8d7ee999fd402894bcc04a28f">basic_inode_48::capacity</a>/2]</td></tr>
-<tr class="memdesc:a896e2a7db1c19e714b4c934fa7c181c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">SSE vector for SIMD operations. <br /></td></tr>
-<tr class="separator:a896e2a7db1c19e714b4c934fa7c181c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91ca18e9023020e43ceac863ee5582aa" id="r_a91ca18e9023020e43ceac863ee5582aa"><td class="memItemLeft" align="right" valign="top"><a id="a91ca18e9023020e43ceac863ee5582aa" name="a91ca18e9023020e43ceac863ee5582aa"></a>
+<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">__m128i</a>&#160;</td><td class="memItemRight" valign="bottom"><b>pointer_vector</b> [<a class="el" href="unionunodb_1_1detail_1_1basic__inode__48_1_1children__union.html#a3ab0babf520307f0902d7d94ad1590b6">pointer_vector_size</a>]</td></tr>
+<tr class="memdesc:a91ca18e9023020e43ceac863ee5582aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">SSE vector for SIMD operations. <br /></td></tr>
+<tr class="separator:a91ca18e9023020e43ceac863ee5582aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
+Static Public Attributes</h2></td></tr>
+<tr class="memitem:a3ab0babf520307f0902d7d94ad1590b6" id="r_a3ab0babf520307f0902d7d94ad1590b6"><td class="memItemLeft" align="right" valign="top"><a id="a3ab0babf520307f0902d7d94ad1590b6" name="a3ab0babf520307f0902d7d94ad1590b6"></a>
+<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">static</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">constexpr</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">auto</a>&#160;</td><td class="memItemRight" valign="bottom"><b>pointer_vector_size</b> = <a class="el" href="classunodb_1_1detail_1_1basic__inode.html#a8a9f7cf8d7ee999fd402894bcc04a28f">basic_inode_48::capacity</a> / 2</td></tr>
+<tr class="memdesc:a3ab0babf520307f0902d7d94ad1590b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of SIMD vectors spanning <code>pointer_array</code>, and so the bound the free-slot scans assert their vector index against. <br /></td></tr>
+<tr class="separator:a3ab0babf520307f0902d7d94ad1590b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">class</a> ArtPolicy&gt;<br />
