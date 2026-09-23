@@ -119,7 +119,7 @@ $(document).ready(function(){initNavTree('classunodb_1_1olc__db.html',''); initR
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html">iterator</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The OLC <a class="el" href="classunodb_1_1olc__db.html#afcabbd74cae6041479a5ae225d6c88ac" title="public scan API">scan()</a> logic tracks the version tag (a read_critical_section) for each node in the stack.  <a href="classunodb_1_1olc__db_1_1iterator.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The OLC <a class="el" href="classunodb_1_1olc__db.html#afcabbd74cae6041479a5ae225d6c88ac" title="Scan the tree, applying the caller&#39;s lambda to each visited leaf.">scan()</a> logic tracks the version tag (a read_critical_section) for each node in the stack.  <a href="classunodb_1_1olc__db_1_1iterator.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1olc__db_1_1remove__entry.html">remove_entry</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stack entry for key_view remove traversal.  <a href="structunodb_1_1olc__db_1_1remove__entry.html#details">More...</a><br /></td></tr>
@@ -220,7 +220,7 @@ template&lt;typename RandomIt &gt; </td></tr>
 <tr class="separator:a683fc34c37eebdb6b1dc5ea5193c003b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afcabbd74cae6041479a5ae225d6c88ac" id="r_afcabbd74cae6041479a5ae225d6c88ac"><td class="memTemplParams" colspan="2">template&lt;typename FN &gt; </td></tr>
 <tr class="memitem:afcabbd74cae6041479a5ae225d6c88ac"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db.html#afcabbd74cae6041479a5ae225d6c88ac">scan</a> (FN fn, bool fwd=true)</td></tr>
-<tr class="memdesc:afcabbd74cae6041479a5ae225d6c88ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">public scan API  <br /></td></tr>
+<tr class="memdesc:afcabbd74cae6041479a5ae225d6c88ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scan the tree, applying the caller's lambda to each visited leaf.  <br /></td></tr>
 <tr class="separator:afcabbd74cae6041479a5ae225d6c88ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a78c9f2ccb6025275977f036746546a4b" id="r_a78c9f2ccb6025275977f036746546a4b"><td class="memTemplParams" colspan="2">template&lt;typename FN &gt; </td></tr>
 <tr class="memitem:a78c9f2ccb6025275977f036746546a4b"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db.html#a78c9f2ccb6025275977f036746546a4b">scan_from</a> (Key from_key, FN fn, bool fwd=true)</td></tr>
@@ -877,8 +877,7 @@ template&lt;typename FN &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>public scan API </p>
-<p>Scan the tree, applying the caller's lambda to each visited leaf.</p>
+<p>Scan the tree, applying the caller's lambda to each visited leaf. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">fn</td><td>A function <code>f(<a class="el" href="classunodb_1_1visitor.html" title="Wrapper providing access to key and value during index scan.">unodb::visitor</a>&lt;<a class="el" href="classunodb_1_1olc__db_1_1iterator.html" title="The OLC scan() logic tracks the version tag (a read_critical_section) for each node in the stack.">unodb::olc_db::iterator</a>&gt;&amp;)</code> returning <code>bool</code>. The traversal will halt if the function returns <code>true</code>.</td></tr>

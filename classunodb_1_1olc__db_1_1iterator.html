@@ -109,7 +109,7 @@ $(document).ready(function(){initNavTree('classunodb_1_1olc__db_1_1iterator.html
 </div><!--header-->
 <div class="contents">
 
-<p>The OLC <a class="el" href="classunodb_1_1olc__db.html#afcabbd74cae6041479a5ae225d6c88ac" title="public scan API">scan()</a> logic tracks the version tag (a read_critical_section) for each node in the stack.  
+<p>The OLC <a class="el" href="classunodb_1_1olc__db.html#afcabbd74cae6041479a5ae225d6c88ac" title="Scan the tree, applying the caller&#39;s lambda to each visited leaf.">scan()</a> logic tracks the version tag (a read_critical_section) for each node in the stack.  
  <a href="classunodb_1_1olc__db_1_1iterator.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="olc__art_8hpp_source.html">olc_art.hpp</a>&gt;</code></p>
@@ -164,11 +164,10 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a224df8fcbad8aaaecc2b7e7a24b4b0fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaeeff541a77c1ce3bd8b70331e40fde6" id="r_aaeeff541a77c1ce3bd8b70331e40fde6"><td class="memItemLeft" align="right" valign="top"><a id="aaeeff541a77c1ce3bd8b70331e40fde6" name="aaeeff541a77c1ce3bd8b70331e40fde6"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> (std::ostream &amp;os) const</td></tr>
-<tr class="memdesc:aaeeff541a77c1ce3bd8b70331e40fde6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Debugging. <br /></td></tr>
+<tr class="memdesc:aaeeff541a77c1ce3bd8b70331e40fde6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Output iterator state to stream <em>os</em> for debugging. <br /></td></tr>
 <tr class="separator:aaeeff541a77c1ce3bd8b70331e40fde6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a318ed5ecfa3abab6a8a9501f7f60b3c9" id="r_a318ed5ecfa3abab6a8a9501f7f60b3c9"><td class="memItemLeft" align="right" valign="top"><a id="a318ed5ecfa3abab6a8a9501f7f60b3c9" name="a318ed5ecfa3abab6a8a9501f7f60b3c9"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>dump</b> () const</td></tr>
-<tr class="memdesc:a318ed5ecfa3abab6a8a9501f7f60b3c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Debugging. <br /></td></tr>
+<tr class="memitem:a318ed5ecfa3abab6a8a9501f7f60b3c9" id="r_a318ed5ecfa3abab6a8a9501f7f60b3c9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a318ed5ecfa3abab6a8a9501f7f60b3c9">dump</a> () const</td></tr>
+<tr class="memdesc:a318ed5ecfa3abab6a8a9501f7f60b3c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Output iterator state to stderr for debugging.  <br /></td></tr>
 <tr class="separator:a318ed5ecfa3abab6a8a9501f7f60b3c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f139c64061550e10046dffd44e60d4c" id="r_a6f139c64061550e10046dffd44e60d4c"><td class="memItemLeft" align="right" valign="top"><a id="a6f139c64061550e10046dffd44e60d4c" name="a6f139c64061550e10046dffd44e60d4c"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>valid</b> () const noexcept</td></tr>
@@ -201,9 +200,8 @@ Protected Member Functions</h2></td></tr>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>empty</b> () const noexcept</td></tr>
 <tr class="memdesc:a968f0f953021e744ffe7cb1eda2513ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true iff the stack is empty. <br /></td></tr>
 <tr class="separator:a968f0f953021e744ffe7cb1eda2513ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8398ca302bd72f1f6e65644f1ab7c34e" id="r_a8398ca302bd72f1f6e65644f1ab7c34e"><td class="memItemLeft" align="right" valign="top"><a id="a8398ca302bd72f1f6e65644f1ab7c34e" name="a8398ca302bd72f1f6e65644f1ab7c34e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>push</b> (detail::olc_node_ptr node, std::byte key_byte, std::uint8_t child_index, detail::key_prefix_snapshot prefix, const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a> &amp;rcs)</td></tr>
-<tr class="memdesc:a8398ca302bd72f1f6e65644f1ab7c34e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push an entry onto the stack. <br /></td></tr>
+<tr class="memitem:a8398ca302bd72f1f6e65644f1ab7c34e" id="r_a8398ca302bd72f1f6e65644f1ab7c34e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a8398ca302bd72f1f6e65644f1ab7c34e">push</a> (detail::olc_node_ptr node, std::byte key_byte, std::uint8_t child_index, detail::key_prefix_snapshot prefix, const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a> &amp;rcs)</td></tr>
+<tr class="memdesc:a8398ca302bd72f1f6e65644f1ab7c34e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push internal node entry onto iterator stack.  <br /></td></tr>
 <tr class="separator:a8398ca302bd72f1f6e65644f1ab7c34e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaefd3182666bda4a655d0486df1361b3" id="r_aaefd3182666bda4a655d0486df1361b3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#aaefd3182666bda4a655d0486df1361b3">push_leaf</a> (detail::olc_node_ptr aleaf, const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a> &amp;rcs)</td></tr>
 <tr class="memdesc:aaefd3182666bda4a655d0486df1361b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push a leaf-position entry <em>aleaf</em> onto the stack.  <br /></td></tr>
@@ -260,7 +258,7 @@ Private Attributes</h2></td></tr>
 <tr class="memdesc:a8f453def307034758721fdb90b54c3b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">The outer db instance. <br /></td></tr>
 <tr class="separator:a8f453def307034758721fdb90b54c3b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a559f2229853202eee57ac82fc16b0c93" id="r_a559f2229853202eee57ac82fc16b0c93"><td class="memItemLeft" align="right" valign="top">std::stack&lt; <a class="el" href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html">stack_entry</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a559f2229853202eee57ac82fc16b0c93">stack_</a> {}</td></tr>
-<tr class="memdesc:a559f2229853202eee57ac82fc16b0c93"><td class="mdescLeft">&#160;</td><td class="mdescRight">A stack reflecting the parent path from the root of the tree to the current leaf.  <br /></td></tr>
+<tr class="memdesc:a559f2229853202eee57ac82fc16b0c93"><td class="mdescLeft">&#160;</td><td class="mdescRight">A stack reflecting the parent path from the root of the tree to the current leaf position — a leaf, or under <code><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a13839e40d629aed7055626a853ecf30d" title="Whether leaf allocation can be eliminated entirely.">detail::basic_art_policy::can_eliminate_leaf</a></code> the packed value.  <br /></td></tr>
 <tr class="separator:a559f2229853202eee57ac82fc16b0c93"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6ea483c2b43a16dd8bc5bb18d46933e2" id="r_a6ea483c2b43a16dd8bc5bb18d46933e2"><td class="memItemLeft" align="right" valign="top">detail::key_buffer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a6ea483c2b43a16dd8bc5bb18d46933e2">keybuf_</a> {}</td></tr>
 <tr class="memdesc:a6ea483c2b43a16dd8bc5bb18d46933e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">A buffer into which visited encoded (binary comparable) keys are materialized by during the iterator traversal.  <br /></td></tr>
@@ -281,9 +279,9 @@ template&lt;class &gt; </td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename Key, typename Value, typename HeapTag&gt;<br />
-class unodb::olc_db&lt; Key, Value, HeapTag &gt;::iterator</div><p>The OLC <a class="el" href="classunodb_1_1olc__db.html#afcabbd74cae6041479a5ae225d6c88ac" title="public scan API">scan()</a> logic tracks the version tag (a read_critical_section) for each node in the stack. </p>
+class unodb::olc_db&lt; Key, Value, HeapTag &gt;::iterator</div><p>The OLC <a class="el" href="classunodb_1_1olc__db.html#afcabbd74cae6041479a5ae225d6c88ac" title="Scan the tree, applying the caller&#39;s lambda to each visited leaf.">scan()</a> logic tracks the version tag (a read_critical_section) for each node in the stack. </p>
 <p>This information is required because the iter_result tuples already contain physical information read from nodes which may have been invalidated by subsequent mutations. The scan is built on iterator methods for <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a8cd750013f9567dc6cb31fdcf280e197" title="Position the iterator on, before, or after the caller&#39;s key.">seek()</a>, <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a89f5a30e0bb4a3343cf721d20d51d5b6" title="Advance the iterator to next entry in the index.">next()</a>, <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#aa059a0a65d993fc3d791c0582fe8e683" title="Position the iterator on the previous entry in the index.">prior()</a>, etc. These methods must restart (rebuilding the stack and redoing the work) if they encounter a version tag for an element on the stack which is no longer valid. Restart works by performing a <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a8cd750013f9567dc6cb31fdcf280e197" title="Position the iterator on, before, or after the caller&#39;s key.">seek()</a> to the key for the leaf on the bottom of the stack. Restarts can be full (from the root) or partial (from the first element in the stack which was not invalidated by the structural modification).</p>
-<p>During <a class="el" href="classunodb_1_1olc__db.html#afcabbd74cae6041479a5ae225d6c88ac" title="public scan API">scan()</a>, the iterator <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a8cd750013f9567dc6cb31fdcf280e197" title="Position the iterator on, before, or after the caller&#39;s key.">seek()</a>s to some key and then invokes the caller's lambda passing a reference to a visitor object. That visitor allows the caller to access the key and/or value associated with the leaf. If the leaf is concurrently deleted from the structure, the visitor relies on epoch protection to return the data from the now invalidated leaf. This is still the state that the caller would have observed without the concurrent structural modification. When <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a89f5a30e0bb4a3343cf721d20d51d5b6" title="Advance the iterator to next entry in the index.">next()</a> is called, it will discover that the leaf on the bottom of the stack is not valid (it is marked as obsolete) and it will have to restart by <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a8cd750013f9567dc6cb31fdcf280e197" title="Position the iterator on, before, or after the caller&#39;s key.">seek()</a> to the key for that leaf and then invoking <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a89f5a30e0bb4a3343cf721d20d51d5b6" title="Advance the iterator to next entry in the index.">next()</a> if the key still exists and otherwise we should already be on the successor of that leaf.</p>
+<p>During <a class="el" href="classunodb_1_1olc__db.html#afcabbd74cae6041479a5ae225d6c88ac" title="Scan the tree, applying the caller&#39;s lambda to each visited leaf.">scan()</a>, the iterator <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a8cd750013f9567dc6cb31fdcf280e197" title="Position the iterator on, before, or after the caller&#39;s key.">seek()</a>s to some key and then invokes the caller's lambda passing a reference to a visitor object. That visitor allows the caller to access the key and/or value associated with the leaf. If the leaf is concurrently deleted from the structure, the visitor relies on epoch protection to return the data from the now invalidated leaf. This is still the state that the caller would have observed without the concurrent structural modification. When <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a89f5a30e0bb4a3343cf721d20d51d5b6" title="Advance the iterator to next entry in the index.">next()</a> is called, it will discover that the leaf on the bottom of the stack is not valid (it is marked as obsolete) and it will have to restart by <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a8cd750013f9567dc6cb31fdcf280e197" title="Position the iterator on, before, or after the caller&#39;s key.">seek()</a> to the key for that leaf and then invoking <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a89f5a30e0bb4a3343cf721d20d51d5b6" title="Advance the iterator to next entry in the index.">next()</a> if the key still exists and otherwise we should already be on the successor of that leaf.</p>
 <dl class="section note"><dt>Note</dt><dd>The OLC thread safety mechanisms permit concurrent non-atomic (multi-work) mutations to be applied to nodes. This means that a thread can read junk in the middle of some reorganization of a node (e.g., the keys or children are being reordered to maintain an invariant for <code>I16</code>). To protect against reading such junk, the thread reads the version tag before and after it accesses data in the node and restarts if the version information has changed. The thread must not act on information that it had read until it verifies that the version tag remained unchanged across the read operation.</dd>
 <dd>
 The iterator is backed by a std::stack. This means that the iterator methods accessing the stack can not be declared as <code>noexcept</code>. </dd></dl>
@@ -346,6 +344,36 @@ template&lt;typename Key , typename Value , typename HeapTag &gt; </div>
 
 <p>Return the node on the top of the stack and nullptr if the stack is empty (similar to <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#ad59b584795e6e7b063f66bb965f3d79b" title="Return the entry on the top of the stack.">top()</a>, but handles an empty stack). </p>
 <p>A <code>nullptr</code> return does <em>not</em> imply an empty stack: in value-in-slot mode a packed zero value reads as a null node pointer (see <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a3090fda205b6760127ea6a2b44a015b4" title="Pack a value into a node_ptr slot (value-in-slot mode).">detail::basic_art_policy::pack_value()</a>), so callers must additionally test <code>!empty() &amp;&amp; <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#ad59b584795e6e7b063f66bb965f3d79b" title="Return the entry on the top of the stack.">top()</a>.is_packed_value</code>, as <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#a89f5a30e0bb4a3343cf721d20d51d5b6" title="Advance the iterator to next entry in the index.">next()</a> and <a class="el" href="classunodb_1_1olc__db_1_1iterator.html#aa059a0a65d993fc3d791c0582fe8e683" title="Position the iterator on the previous entry in the index.">prior()</a> do. </p>
+
+</div>
+</div>
+<a id="a318ed5ecfa3abab6a8a9501f7f60b3c9" name="a318ed5ecfa3abab6a8a9501f7f60b3c9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a318ed5ecfa3abab6a8a9501f7f60b3c9">&#9670;&#160;</a></span>dump()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value , typename HeapTag &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value, HeapTag &gt;::iterator::dump </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Output iterator state to stderr for debugging. </p>
+<p>Convenience wrapper for <code>dump(std::cerr)</code>. </p><dl class="section note"><dt>Note</dt><dd>For debugging purposes only, not part of stable API </dd></dl>
 
 </div>
 </div>
@@ -463,7 +491,7 @@ template&lt;typename Key , typename Value , typename HeapTag &gt; </div>
 </div>
 </div>
 <a id="a1578d8e2cbf23c70458115d07a35a79b" name="a1578d8e2cbf23c70458115d07a35a79b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1578d8e2cbf23c70458115d07a35a79b">&#9670;&#160;</a></span>push()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a1578d8e2cbf23c70458115d07a35a79b">&#9670;&#160;</a></span>push() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -501,6 +529,76 @@ template&lt;typename Key , typename Value , typename HeapTag &gt; </div>
 <p>Push an entry <em>e</em> onto the stack. </p>
 <dl class="section pre"><dt>Precondition</dt><dd><em>e.node</em> is non-null. Every caller check()s the read that produced <em>e</em> before pushing it, and a successful check() means the producing scan was consistent, so a null here means a missed version bump, not a torn read.</dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a71635c68333ed8b5a98b4beca50d0dba" title="Returned by begin() and last() when every child slot was observed empty.">detail::basic_inode_impl::torn_read_result</a> for why the assert lives here rather than at the callers </dd></dl>
+
+</div>
+</div>
+<a id="a8398ca302bd72f1f6e65644f1ab7c34e" name="a8398ca302bd72f1f6e65644f1ab7c34e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8398ca302bd72f1f6e65644f1ab7c34e">&#9670;&#160;</a></span>push() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Key , typename Value , typename HeapTag &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classunodb_1_1olc__db.html">unodb::olc_db</a>&lt; Key, Value, HeapTag &gt;::iterator::push </td>
+          <td>(</td>
+          <td class="paramtype">detail::olc_node_ptr&#160;</td>
+          <td class="paramname"><em>node</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::byte&#160;</td>
+          <td class="paramname"><em>key_byte</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::uint8_t&#160;</td>
+          <td class="paramname"><em>child_index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">detail::key_prefix_snapshot&#160;</td>
+          <td class="paramname"><em>prefix</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classunodb_1_1optimistic__lock_1_1read__critical__section.html">optimistic_lock::read_critical_section</a> &amp;&#160;</td>
+          <td class="paramname"><em>rcs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Push internal node entry onto iterator stack. </p>
+<p>Updates both the stack and the key buffer to reflect descent through the given node.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">node</td><td>Internal node pointer (must not be a leaf) </td></tr>
+    <tr><td class="paramname">key_byte</td><td>Byte value along which descent occurs </td></tr>
+    <tr><td class="paramname">child_index</td><td>Child traversal index; see <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a985b95e52360b47cc69e53c0ab48946e" title="Child index within parent node (except for basic_inode_48, where it indexes into basic_inode_48::chil...">detail::iter_result::child_index</a> for node-type-specific semantics </td></tr>
+    <tr><td class="paramname">prefix</td><td>Snapshot of node's key prefix</td></tr>
+    <tr><td class="paramname">rcs</td><td>Read critical section for <em>node</em>, covering its prefix and child-selection data; only its version tag is stored on the entry, as <a class="el" href="structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html" title="Element of the iterator stack.">stack_entry</a> explains</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>The incoming <em>node</em> pointer is validated under its parent (or root-pointer) critical section. The iter_result overload below separately requires validation of the node data under <em>rcs</em>. </dd></dl>
 
 </div>
 </div>
@@ -676,8 +774,9 @@ template&lt;typename Key , typename Value , typename HeapTag &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>A stack reflecting the parent path from the root of the tree to the current leaf. </p>
-<p>An empty stack corresponds to a logically empty iterator and can be detected using !valid(). The iterator for an empty tree is an empty stack. </p>
+<p>A stack reflecting the parent path from the root of the tree to the current leaf position — a leaf, or under <code><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a13839e40d629aed7055626a853ecf30d" title="Whether leaf allocation can be eliminated entirely.">detail::basic_art_policy::can_eliminate_leaf</a></code> the packed value. </p>
+<p>An empty stack corresponds to a logically empty iterator and can be detected using !valid(). The iterator for an empty tree is an empty stack.</p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classunodb_1_1db_1_1iterator.html#a84884b26cd83e6fe1628943f670445b4" title="A stack reflecting the parent path from the root of the tree to the current leaf position — a leaf,...">unodb::db::iterator::stack_</a> for the full entry invariants, including the packed-zero/<code>nullptr</code> aliasing </dd></dl>
 
 </div>
 </div>
