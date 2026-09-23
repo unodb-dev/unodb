@@ -4359,7 +4359,10 @@ class basic_inode_48
                                 [[maybe_unused]] tree_depth_type depth,
                                 std::byte key_byte,
                                 std::uint8_t children_count_) noexcept {
-    std::ignore = children_count_;
+    UNODB_DETAIL_ASSERT(this->children_count == children_count_);
+    UNODB_DETAIL_ASSERT(children_count_ >= parent_class::min_size);
+    UNODB_DETAIL_ASSERT(children_count_ < parent_class::capacity);
+
     UNODB_DETAIL_ASSERT(child_indexes[static_cast<std::uint8_t>(key_byte)] ==
                         empty_child);
     // Scan for the first slot holding neither a live pointer nor a packed
@@ -4374,12 +4377,12 @@ class basic_inode_48
       ++slot;
       UNODB_DETAIL_ASSERT(slot < parent_class::capacity);
     }
-    UNODB_DETAIL_ASSUME(slot < 48);
+    UNODB_DETAIL_ASSUME(slot < parent_class::capacity);
     child_indexes[static_cast<std::uint8_t>(key_byte)] =
         static_cast<std::uint8_t>(slot);
     children.pointer_array[slot] = packed_value;
     set_value_bit(static_cast<std::uint8_t>(key_byte));
-    this->children_count = this->children_count + 1U;
+    this->children_count = children_count_ + 1U;
   }
 
   /// Remove child at given key byte index.
