@@ -44,6 +44,5 @@ var structunodb_1_1detail_1_1basic__art__policy =
     [ "can_eliminate_key_in_leaf", "structunodb_1_1detail_1_1basic__art__policy.html#afa97a718b961729b69f24138a5681fef", null ],
     [ "can_eliminate_leaf", "structunodb_1_1detail_1_1basic__art__policy.html#a13839e40d629aed7055626a853ecf30d", null ],
     [ "full_key_in_inode_path", "structunodb_1_1detail_1_1basic__art__policy.html#ab81cbeb07e83da69833015a7a8a8e82d", null ],
-    [ "has_heap", "structunodb_1_1detail_1_1basic__art__policy.html#ae77ec61ad4f0274ab834f1b162d46722", null ],
-    [ "value_in_slot", "structunodb_1_1detail_1_1basic__art__policy.html#aa540faa6548469d0a17a241f63cce4e3", null ]
+    [ "has_heap", "structunodb_1_1detail_1_1basic__art__policy.html#ae77ec61ad4f0274ab834f1b162d46722", null ]
 ];

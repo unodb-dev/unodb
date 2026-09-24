@@ -1,5 +1,13 @@
 var NAVTREEINDEX9 =
 {
+"group__internal.html#gaee0e862fc042519ca2923ba9be4e237f":[4,1,60],
+"group__internal.html#gaf5a41e323936137cb87fdb25e5acd652":[4,1,32],
+"group__internal.html#gaf8bc21678478a2f86632015e259d030f":[4,1,53],
+"group__internal.html#gafd4e412d2f7204ec7887d6d20cb7f53b":[4,1,43],
+"group__optimistic-lock.html":[4,1,0],
+"group__qsbr.html":[4,0],
+"group__test-internals.html":[4,1,1],
+"group__test-internals.html#ga1a5d3a8daef8f3bd4d5b6bd86fa48ce1":[4,1,1,22],
 "group__test-internals.html#ga1e31cec00d41ec2d3a7b136db8c09d70":[4,1,1,11],
 "group__test-internals.html#ga2d2f13c1772a67fd0d86b62eb960c865":[4,1,1,16],
 "group__test-internals.html#ga32c0ae2e848a4564ebc04be693c7af15":[4,1,1,29],
@@ -32,8 +40,8 @@ var NAVTREEINDEX9 =
 "heap_8hpp.html#a942ec905f356c797a53d6a9bee4b168c":[8,0,13,0],
 "heap_8hpp_source.html":[8,0,13],
 "hierarchy.html":[7,2],
-"in__fake__critical__section_8hpp.html":[4,1,0,0],
 "in__fake__critical__section_8hpp.html":[8,0,14],
+"in__fake__critical__section_8hpp.html":[4,1,0,0],
 "in__fake__critical__section_8hpp_source.html":[8,0,14],
 "index.html":[],
 "index.html#autotoc_md37":[0],
@@ -241,13 +249,5 @@ var NAVTREEINDEX9 =
 "namespaceanonymous__namespace_02test__qsbr__fuzz__deepstate_8cpp_03.html":[5,0,27],
 "namespaceanonymous__namespace_02test__qsbr__oom_8cpp_03.html":[5,0,28],
 "namespaceanonymous__namespace_02test__qsbr__ptr_8cpp_03.html":[5,0,29],
-"namespacemembers.html":[5,1,0],
-"namespacemembers.html":[5,1,0,0],
-"namespacemembers_a.html":[5,1,0,1],
-"namespacemembers_b.html":[5,1,0,2],
-"namespacemembers_c.html":[5,1,0,3],
-"namespacemembers_d.html":[5,1,0,4],
-"namespacemembers_e.html":[5,1,0,5],
-"namespacemembers_enum.html":[5,1,4],
-"namespacemembers_f.html":[5,1,0,6]
+"namespacemembers.html":[5,1,0]
 };
