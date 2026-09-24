@@ -599,8 +599,8 @@ class olc_db final {
     /// stack_entry explains
     ///
     /// \note The incoming \a node pointer is validated under its parent (or
-    /// root-pointer) critical section. The iter_result overload below separately
-    /// requires validation of the node data under \a rcs.
+    /// root-pointer) critical section. The iter_result overload below
+    /// separately requires validation of the node data under \a rcs.
     void push(detail::olc_node_ptr node, std::byte key_byte,
               std::uint8_t child_index, detail::key_prefix_snapshot prefix,
               const optimistic_lock::read_critical_section& rcs) {
@@ -786,9 +786,10 @@ class olc_db final {
 
     /// A stack reflecting the parent path from the root of the tree
     /// to the current leaf position — a leaf, or under
-    /// `detail::basic_art_policy::can_eliminate_leaf` the packed value.  An empty
-    /// stack corresponds to a logically empty iterator and can be detected using
-    /// !valid().  The iterator for an empty tree is an empty stack.
+    /// `detail::basic_art_policy::can_eliminate_leaf` the packed value.  An
+    /// empty stack corresponds to a logically empty iterator and can be
+    /// detected using !valid().  The iterator for an empty tree is an empty
+    /// stack.
     ///
     /// \sa unodb::db::iterator::stack_ for the full entry invariants,
     /// including the packed-zero/`nullptr` aliasing

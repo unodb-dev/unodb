@@ -751,9 +751,9 @@ class db final {
 
     /// A stack reflecting the parent path from the root of the tree to the
     /// current leaf position — a leaf, or under
-    /// `detail::basic_art_policy::can_eliminate_leaf` the packed value, marked by
-    /// `detail::iter_result::is_packed_value`. An empty stack corresponds to a
-    /// logically empty iterator and the iterator will report ! valid(). The
+    /// `detail::basic_art_policy::can_eliminate_leaf` the packed value, marked
+    /// by `detail::iter_result::is_packed_value`. An empty stack corresponds to
+    /// a logically empty iterator and the iterator will report ! valid(). The
     /// iterator for an empty tree is an empty stack.
     ///
     /// The stack is made up of `detail::iter_result` entries; the parts that
