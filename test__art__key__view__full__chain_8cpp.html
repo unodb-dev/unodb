@@ -99,6 +99,7 @@ $(document).ready(function(){initNavTree('test__art__key__view__full__chain_8cpp
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">test_art_key_view_full_chain.cpp File Reference</div></div>
 </div><!--header-->
@@ -117,6 +118,7 @@ $(document).ready(function(){initNavTree('test__art__key__view__full__chain_8cpp
 <code>#include &lt;stdexcept&gt;</code><br />
 <code>#include &lt;tuple&gt;</code><br />
 <code>#include &lt;vector&gt;</code><br />
+<code>#include &lt;gmock/gmock.h&gt;</code><br />
 <code>#include &lt;gtest/gtest.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="art__common_8hpp_source.html">art_common.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="art__test__data_8hpp_source.html">art_test_data.hpp</a>&quot;</code><br />
@@ -135,6 +137,14 @@ Typedefs</h2></td></tr>
 <tr class="memitem:a1b124b341af2a72434f4116665904420" id="r_a1b124b341af2a72434f4116665904420"><td class="memItemLeft" align="right" valign="top"><a id="a1b124b341af2a72434f4116665904420" name="a1b124b341af2a72434f4116665904420"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>anonymous_namespace{test_art_key_view_full_chain.cpp}::ARTTypes</b> = ::testing::Types&lt; <a class="el" href="classunodb_1_1db.html">unodb::test::key_view_u64val_db</a>, <a class="el" href="classunodb_1_1mutex__db.html">unodb::test::key_view_u64val_mutex_db</a>, <a class="el" href="classunodb_1_1olc__db.html">unodb::test::key_view_u64val_olc_db</a>, <a class="el" href="classunodb_1_1olc__db.html">unodb::test::heap_olc_db</a> &gt;</td></tr>
 <tr class="separator:a1b124b341af2a72434f4116665904420"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:a9efeb298173c8c2f218de6c6c7000fbb" id="r_a9efeb298173c8c2f218de6c6c7000fbb"><td class="memItemLeft" align="right" valign="top"><a id="a9efeb298173c8c2f218de6c6c7000fbb" name="a9efeb298173c8c2f218de6c6c7000fbb"></a>enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#a9efeb298173c8c2f218de6c6c7000fbb">anonymous_namespace{test_art_key_view_full_chain.cpp}::scan_direction</a> : std::uint8_t { <b>forward</b>
+, <b>reverse</b>
+ }</td></tr>
+<tr class="memdesc:a9efeb298173c8c2f218de6c6c7000fbb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Direction argument for <a class="el" href="namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#a628567eb3882767cae10a9da7549c2ef" title="Scan db in direction, verifying the stack at every position against the correspondingly ordered eleme...">verify_scan()</a>. <br /></td></tr>
+<tr class="separator:a9efeb298173c8c2f218de6c6c7000fbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -231,10 +241,14 @@ Functions</h2></td></tr>
 &#160;</td><td class="memItemRight" valign="bottom"><b>anonymous_namespace{test_art_key_view_full_chain.cpp}::UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__key__view__full__chain_8cpp_03_1_1ARTKeyViewFullChainTest.html">ARTKeyViewFullChainTest</a>, CompoundKeyGetMissing)</td></tr>
 <tr class="memdesc:a266206387c25f7e93109ced7469fd434"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get with a key sharing 8 bytes but differing at the last byte should return empty when only one key is present. <br /></td></tr>
 <tr class="separator:a266206387c25f7e93109ced7469fd434"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0049abe7ee24e0636f44b1ee2f7cbb11" id="r_a0049abe7ee24e0636f44b1ee2f7cbb11"><td class="memTemplParams" colspan="2"><a id="a0049abe7ee24e0636f44b1ee2f7cbb11" name="a0049abe7ee24e0636f44b1ee2f7cbb11"></a>
-template&lt;class Db &gt; </td></tr>
-<tr class="memitem:a0049abe7ee24e0636f44b1ee2f7cbb11"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>anonymous_namespace{test_art_key_view_full_chain.cpp}::verify_stack</b> (const typename Db::iterator &amp;it, <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a> expected_key)</td></tr>
+<tr class="memitem:a0049abe7ee24e0636f44b1ee2f7cbb11" id="r_a0049abe7ee24e0636f44b1ee2f7cbb11"><td class="memTemplParams" colspan="2">template&lt;class Db &gt; </td></tr>
+<tr class="memitem:a0049abe7ee24e0636f44b1ee2f7cbb11"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#a0049abe7ee24e0636f44b1ee2f7cbb11">anonymous_namespace{test_art_key_view_full_chain.cpp}::verify_stack</a> (const typename Db::iterator &amp;it, <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a> expected_key)</td></tr>
+<tr class="memdesc:a0049abe7ee24e0636f44b1ee2f7cbb11"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verify the iterator stack at <em>it's</em> current position against the caller's <em>expected_key</em>.  <br /></td></tr>
 <tr class="separator:a0049abe7ee24e0636f44b1ee2f7cbb11"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a628567eb3882767cae10a9da7549c2ef" id="r_a628567eb3882767cae10a9da7549c2ef"><td class="memTemplParams" colspan="2">template&lt;class Db &gt; </td></tr>
+<tr class="memitem:a628567eb3882767cae10a9da7549c2ef"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#a628567eb3882767cae10a9da7549c2ef">anonymous_namespace{test_art_key_view_full_chain.cpp}::verify_scan</a> (Db &amp;db, std::span&lt; const <a class="el" href="namespaceunodb.html#a37e43379ef5bf4922acff8db9a432a90">unodb::key_view</a> &gt; expected, <a class="el" href="namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#a9efeb298173c8c2f218de6c6c7000fbb">scan_direction</a> direction)</td></tr>
+<tr class="memdesc:a628567eb3882767cae10a9da7549c2ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scan <em>db</em> in <em>direction</em>, verifying the stack at every position against the correspondingly ordered element of <em>expected</em>.  <br /></td></tr>
+<tr class="separator:a628567eb3882767cae10a9da7549c2ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abae221382d0aad1ecaa841bd8210f130" id="r_abae221382d0aad1ecaa841bd8210f130"><td class="memItemLeft" align="right" valign="top"><a id="abae221382d0aad1ecaa841bd8210f130" name="abae221382d0aad1ecaa841bd8210f130"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>anonymous_namespace{test_art_key_view_full_chain.cpp}::UNODB_TYPED_TEST</b> (<a class="el" href="classanonymous__namespace_02test__art__key__view__full__chain_8cpp_03_1_1ARTKeyViewFullChainTest.html">ARTKeyViewFullChainTest</a>, StackStructureTwoChainKeys)</td></tr>
 <tr class="memdesc:abae221382d0aad1ecaa841bd8210f130"><td class="mdescLeft">&#160;</td><td class="mdescRight">Two keys sharing a long prefix (chain structure). <br /></td></tr>
