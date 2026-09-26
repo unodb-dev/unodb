@@ -32,6 +32,7 @@ var structunodb_1_1detail_1_1basic__art__policy =
     [ "basic_art_policy", "structunodb_1_1detail_1_1basic__art__policy.html#afb19baf2171312b2bdbc0bd35f0ec073", null ],
     [ "delete_subtree", "structunodb_1_1detail_1_1basic__art__policy.html#a880426b44b3010130a262ec993b52b75", null ],
     [ "dump_node", "structunodb_1_1detail_1_1basic__art__policy.html#ab16f237da503b083482aa397e3e3881e", null ],
+    [ "dump_stack_node", "structunodb_1_1detail_1_1basic__art__policy.html#aa0a755c3b474369b66586100e755d8c9", null ],
     [ "make_db_inode_reclaimable_ptr", "structunodb_1_1detail_1_1basic__art__policy.html#a168efe689c6288dc1e5e945bc0e08848", null ],
     [ "make_db_inode_unique_ptr", "structunodb_1_1detail_1_1basic__art__policy.html#a66ed35910032ab2e6adab03379496ae8", null ],
     [ "make_db_inode_unique_ptr", "structunodb_1_1detail_1_1basic__art__policy.html#ad7f6ff1011a95d267698c6f68b389f9a", null ],

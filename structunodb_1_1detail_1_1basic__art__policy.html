@@ -233,6 +233,9 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:ab16f237da503b083482aa397e3e3881e" id="r_ab16f237da503b083482aa397e3e3881e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">static</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ab16f237da503b083482aa397e3e3881e">dump_node</a> (std::ostream &amp;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">os</a>, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">const</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">NodePtr</a> &amp;node, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">bool</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">recursive</a>=<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">true</a>)</td></tr>
 <tr class="memdesc:ab16f237da503b083482aa397e3e3881e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dump node contents to stream for debugging.  <br /></td></tr>
 <tr class="separator:ab16f237da503b083482aa397e3e3881e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa0a755c3b474369b66586100e755d8c9" id="r_aa0a755c3b474369b66586100e755d8c9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">static</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#aa0a755c3b474369b66586100e755d8c9">dump_stack_node</a> (std::ostream &amp;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">os</a>, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">const</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">NodePtr</a> &amp;node, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">bool</a> is_packed_value)</td></tr>
+<tr class="memdesc:aa0a755c3b474369b66586100e755d8c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dump one iterator stack entry's node to stream for debugging, and end the line.  <br /></td></tr>
+<tr class="separator:aa0a755c3b474369b66586100e755d8c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader">Compile-time policy switches</h2></td></tr>
 <tr class="memitem:a71be4dbff7c6a06876e053daf600fd45" id="r_a71be4dbff7c6a06876e053daf600fd45"><td class="memItemLeft" align="right" valign="top"><a id="a71be4dbff7c6a06876e053daf600fd45" name="a71be4dbff7c6a06876e053daf600fd45"></a>
@@ -419,6 +422,61 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c
     <tr><td class="paramname">os</td><td>Output stream </td></tr>
     <tr><td class="paramname">node</td><td>Node to dump </td></tr>
     <tr><td class="paramname">recursive</td><td>If true, also dump child nodes </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aa0a755c3b474369b66586100e755d8c9" name="aa0a755c3b474369b66586100e755d8c9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa0a755c3b474369b66586100e755d8c9">&#9670;&#160;</a></span>dump_stack_node()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">typename</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">Key</a> , <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">typename</a> Value , <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">template</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">typename</a>, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">typename</a>, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">typename</a> &gt; <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">class</a> Db, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">template</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">class</a> &gt; <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">class</a> CriticalSectionPolicy, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">class</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">LockPolicy</a> , <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">class</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">ReadCriticalSection</a> , <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">class</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">NodePtr</a> , <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">template</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">typename</a>, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">typename</a>, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">typename</a> &gt; <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">class</a> INodeDefs, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">template</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">typename</a>, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">typename</a>, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">class</a>, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">typename</a> &gt; <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">class</a> INodeReclamator, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">template</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">class</a> &gt; <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">class</a> LeafReclamator, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">typename</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">HeapTag</a>  = void&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">static</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">void</a> <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html">unodb::detail::basic_art_policy</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">Key</a>, Value, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">Db</a>, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">CriticalSectionPolicy</a>, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">LockPolicy</a>, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">ReadCriticalSection</a>, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">NodePtr</a>, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">INodeDefs</a>, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">INodeReclamator</a>, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">LeafReclamator</a>, <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">HeapTag</a> &gt;::dump_stack_node </td>
+          <td>(</td>
+          <td class="paramtype">std::ostream &amp;&#160;</td>
+          <td class="paramname"><em>os</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">const</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">NodePtr</a> &amp;&#160;</td>
+          <td class="paramname"><em>node</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">bool</a>&#160;</td>
+          <td class="paramname"><em>is_packed_value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Dump one iterator stack entry's node to stream for debugging, and end the line. </p>
+<p>Unlike <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ab16f237da503b083482aa397e3e3881e" title="Dump node contents to stream for debugging.">dump_node()</a>, tolerates <em>node</em> holding a packed value rather than a tagged pointer, which is what the stack carries at a leaf position under <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a13839e40d629aed7055626a853ecf30d" title="Whether leaf allocation can be eliminated entirely — &quot;value-in-slot mode&quot;.">can_eliminate_leaf</a>. There its low bits are value bits, not a tag, so node.type() names an arbitrary node type and dereferencing the masked pointer is undefined; only <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a66070f404623bf5d6632da65ce899528" title="True when node holds a packed value (value-in-slot) rather than an inode or leaf pointer.">detail::iter_result::is_packed_value</a> tells the two apart.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">os</td><td>Output stream </td></tr>
+    <tr><td class="paramname">node</td><td>The stack entry's node </td></tr>
+    <tr><td class="paramname">is_packed_value</td><td>The entry's <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a66070f404623bf5d6632da65ce899528" title="True when node holds a packed value (value-in-slot) rather than an inode or leaf pointer.">detail::iter_result::is_packed_value</a> </td></tr>
   </table>
   </dd>
 </dl>

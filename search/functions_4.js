@@ -38,5 +38,6 @@ var searchData=
   ['dump_5fbyte_35',['dump_byte',['../namespaceunodb_1_1detail.html#a0ea0a7a9ae7c67e2636bae1ca01e11fe',1,'unodb::detail']]],
   ['dump_5fkey_36',['dump_key',['../namespaceunodb_1_1detail.html#a0ef7220cb1655f8cd8f759659bf99ab7',1,'unodb::detail::dump_key(std::ostream &amp;os, key_view key)'],['../namespaceunodb_1_1detail.html#a3f442e3027e04156cef43a9b865a0c16',1,'unodb::detail::dump_key(std::ostream &amp;os, T key)']]],
   ['dump_5fnode_37',['dump_node',['../structunodb_1_1detail_1_1basic__art__policy.html#ab16f237da503b083482aa397e3e3881e',1,'unodb::detail::basic_art_policy']]],
-  ['dump_5fval_38',['dump_val',['../namespaceunodb_1_1detail.html#a815292cf4ea423f309805739554301b5',1,'unodb::detail']]]
+  ['dump_5fstack_5fnode_38',['dump_stack_node',['../structunodb_1_1detail_1_1basic__art__policy.html#aa0a755c3b474369b66586100e755d8c9',1,'unodb::detail::basic_art_policy']]],
+  ['dump_5fval_39',['dump_val',['../namespaceunodb_1_1detail.html#a815292cf4ea423f309805739554301b5',1,'unodb::detail']]]
 ];
