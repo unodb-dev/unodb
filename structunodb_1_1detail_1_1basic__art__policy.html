@@ -471,12 +471,12 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c
 </div><div class="memdoc">
 
 <p>Dump one iterator stack entry's node to stream for debugging, and end the line. </p>
-<p>Unlike <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ab16f237da503b083482aa397e3e3881e" title="Dump node contents to stream for debugging.">dump_node()</a>, tolerates <em>node</em> holding a packed value rather than a tagged pointer, which is what the stack carries at a leaf position under <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a13839e40d629aed7055626a853ecf30d" title="Whether leaf allocation can be eliminated entirely — &quot;value-in-slot mode&quot;.">can_eliminate_leaf</a>. There its low bits are value bits, not a tag, so node.type() names an arbitrary node type and dereferencing the masked pointer is undefined; only <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a66070f404623bf5d6632da65ce899528" title="True when node holds a packed value (value-in-slot) rather than an inode or leaf pointer.">detail::iter_result::is_packed_value</a> tells the two apart.</p>
+<p>Unlike <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#ab16f237da503b083482aa397e3e3881e" title="Dump node contents to stream for debugging.">dump_node()</a>, tolerates <em>node</em> holding a packed value rather than a tagged pointer, which is what the stack carries at a leaf position under <a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a13839e40d629aed7055626a853ecf30d" title="Whether leaf allocation can be eliminated entirely — &quot;value-in-slot mode&quot;.">can_eliminate_leaf</a>. There its low bits are value bits, not a tag, so node.type() names an arbitrary node type and dereferencing the masked pointer is undefined; only <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a66070f404623bf5d6632da65ce899528" title="True when node holds a packed value rather than a node pointer.">detail::iter_result::is_packed_value</a> tells the two apart.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">os</td><td>Output stream </td></tr>
     <tr><td class="paramname">node</td><td>The stack entry's node </td></tr>
-    <tr><td class="paramname">is_packed_value</td><td>The entry's <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a66070f404623bf5d6632da65ce899528" title="True when node holds a packed value (value-in-slot) rather than an inode or leaf pointer.">detail::iter_result::is_packed_value</a> </td></tr>
+    <tr><td class="paramname">is_packed_value</td><td>The entry's <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a66070f404623bf5d6632da65ce899528" title="True when node holds a packed value rather than a node pointer.">detail::iter_result::is_packed_value</a> </td></tr>
   </table>
   </dd>
 </dl>
