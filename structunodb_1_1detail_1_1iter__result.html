@@ -98,6 +98,7 @@ $(document).ready(function(){initNavTree('structunodb_1_1detail_1_1iter__result.
 <div class="header">
   <div class="summary">
 <a href="#pub-types">Public Types</a> &#124;
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="structunodb_1_1detail_1_1iter__result-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">unodb::detail::iter_result&lt; NodeHeader &gt; Struct Template Reference</div></div>
@@ -115,6 +116,12 @@ Public Types</h2></td></tr>
 <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">using</a>&#160;</td><td class="memItemRight" valign="bottom"><b>node_ptr</b> = <a class="el" href="classunodb_1_1detail_1_1basic__node__ptr.html">basic_node_ptr</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">NodeHeader</a> &gt;</td></tr>
 <tr class="memdesc:ab22270fae893b795cee9f4d663950f41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Node pointer type. <br /></td></tr>
 <tr class="separator:ab22270fae893b795cee9f4d663950f41"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a3b32bfd92e6442ddd878a862c0353eff" id="r_a3b32bfd92e6442ddd878a862c0353eff"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">constexpr</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structunodb_1_1detail_1_1iter__result.html#a3b32bfd92e6442ddd878a862c0353eff">is_leaf_position</a> () <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">const</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">noexcept</a></td></tr>
+<tr class="memdesc:a3b32bfd92e6442ddd878a862c0353eff"><td class="mdescLeft">&#160;</td><td class="mdescRight">True when this stack entry is at a leaf position — a packed value under <code><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a13839e40d629aed7055626a853ecf30d" title="Whether leaf allocation can be eliminated entirely — &quot;value-in-slot mode&quot;.">detail::basic_art_policy::can_eliminate_leaf</a></code>, a genuine leaf pointer otherwise.  <br /></td></tr>
+<tr class="separator:a3b32bfd92e6442ddd878a862c0353eff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -144,7 +151,40 @@ struct unodb::detail::iter_result&lt; NodeHeader &gt;</div><p>Iterator traversal
   </table>
   </dd>
 </dl>
-</div><h2 class="groupheader">Member Data Documentation</h2>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a3b32bfd92e6442ddd878a862c0353eff" name="a3b32bfd92e6442ddd878a862c0353eff"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3b32bfd92e6442ddd878a862c0353eff">&#9670;&#160;</a></span>is_leaf_position()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">class</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">NodeHeader</a> &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">constexpr</a> <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">bool</a> <a class="el" href="structunodb_1_1detail_1_1iter__result.html">unodb::detail::iter_result</a>&lt; <a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c7669567d3122c02">NodeHeader</a> &gt;::is_leaf_position </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>True when this stack entry is at a leaf position — a packed value under <code><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a13839e40d629aed7055626a853ecf30d" title="Whether leaf allocation can be eliminated entirely — &quot;value-in-slot mode&quot;.">detail::basic_art_policy::can_eliminate_leaf</a></code>, a genuine leaf pointer otherwise. </p>
+<p>This is the question a descent asks. <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a66070f404623bf5d6632da65ce899528" title="True when node holds a packed value rather than a node pointer.">is_packed_value</a> alone answers it only under that constant; without it the flag is permanently false while leaf positions still exist, so a bare read would silently miss every one of them.</p>
+<p>Meaningful only for an iterator stack entry. A scan result from the <a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html" title="Base class for all internal node types.">detail::basic_inode_impl</a> scan family names a child while <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a854585e8656a3b42ae0e48a97d2f970a" title="Node pointer: an internal node, a leaf, or, under detail::basic_art_policy::can_eliminate_leaf,...">node</a> is the scanned inode, so the question does not arise there — see <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a66070f404623bf5d6632da65ce899528" title="True when node holds a packed value rather than a node pointer.">is_packed_value</a>.</p>
+<p>A true result does not license dereferencing <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a854585e8656a3b42ae0e48a97d2f970a" title="Node pointer: an internal node, a leaf, or, under detail::basic_art_policy::can_eliminate_leaf,...">node</a> as a leaf: that additionally needs <code>!is_packed_value</code>, because under <code><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a13839e40d629aed7055626a853ecf30d" title="Whether leaf allocation can be eliminated entirely — &quot;value-in-slot mode&quot;.">detail::basic_art_policy::can_eliminate_leaf</a></code> the word is a value rather than a pointer. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
 <a id="a985b95e52360b47cc69e53c0ab48946e" name="a985b95e52360b47cc69e53c0ab48946e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a985b95e52360b47cc69e53c0ab48946e">&#9670;&#160;</a></span>child_index</h2>
 
@@ -181,7 +221,7 @@ template&lt;<a class="el" href="namespaceunodb_1_1detail.html#a62da4a0c5135aaa3c
 <p>True when <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a854585e8656a3b42ae0e48a97d2f970a" title="Node pointer: an internal node, a leaf, or, under detail::basic_art_policy::can_eliminate_leaf,...">node</a> holds a packed value rather than a node pointer. </p>
 <p>Set by <code><a class="el" href="classunodb_1_1db_1_1iterator.html#a91bd55912498959d361d828d9a520abb" title="Push leaf-position entry aleaf onto iterator stack.">unodb::db::iterator::push_leaf()</a></code> and <code><a class="el" href="classunodb_1_1olc__db_1_1iterator.html#aaefd3182666bda4a655d0486df1361b3" title="Push a leaf-position entry aleaf onto the stack.">unodb::olc_db::iterator::push_leaf()</a></code>, the only writers, and only under <code><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a13839e40d629aed7055626a853ecf30d" title="Whether leaf allocation can be eliminated entirely — &quot;value-in-slot mode&quot;.">detail::basic_art_policy::can_eliminate_leaf</a></code>, where the tree has no leaf nodes at all. Elsewhere a leaf position carries a genuine leaf pointer and this stays false, so a bare read is the whole test; calling <code><a class="el" href="structunodb_1_1detail_1_1basic__art__policy.html#a58755b53b9ccc1527b148e9ec760ab07" title="Extract a value from a node_ptr slot (value-in-slot mode).">detail::basic_art_policy::unpack_value()</a></code> on <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a854585e8656a3b42ae0e48a97d2f970a" title="Node pointer: an internal node, a leaf, or, under detail::basic_art_policy::can_eliminate_leaf,...">node</a> still needs an enclosing <code>if constexpr</code>, because that static_asserts the constant.</p>
 <p>Being the only writers, they are also why a scan result from the <code><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html" title="Base class for all internal node types.">detail::basic_inode_impl</a></code> scan family always carries false: it names a child, and <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a854585e8656a3b42ae0e48a97d2f970a" title="Node pointer: an internal node, a leaf, or, under detail::basic_art_policy::can_eliminate_leaf,...">node</a> is the scanned inode, not that child. To learn whether the named slot holds a packed value, ask the inode — <code><a class="el" href="classunodb_1_1detail_1_1basic__inode__impl.html#a06464f8d513d03bb2fd4a96a241e1775" title="Check if child at index holds a packed value, dispatching by type.">detail::basic_inode_impl::is_value_in_slot()</a></code> — as <code><a class="el" href="classunodb_1_1db_1_1iterator.html#a17adfe8e52c3577de023352f6009c69a" title="Descend left if child is an inode, or push as leaf if value-in-slot.">unodb::db::iterator::descend_left()</a></code> does.</p>
-<p>A leaf position is <code>is_packed_value || node.type() == <a class="el" href="namespaceunodb.html#a074fabb6a852ee032fb9b7f35a64b8e3a5c19bc679506425e481a34caff777350" title="Leaf node for a single value.">node_type::LEAF</a></code>, never <code>child_index == 0xFF</code>: <code>child_index</code> is <code>0xFF</code> there only as a placeholder, and <code>0xFF</code> is a valid child index in <code><a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html" title="Internal node with 17-48 children (N48).">detail::basic_inode_48</a></code> and <code><a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html" title="Internal node with 49-256 children (N256).">detail::basic_inode_256</a></code>. </p>
+<p>A leaf position is <a class="el" href="structunodb_1_1detail_1_1iter__result.html#a3b32bfd92e6442ddd878a862c0353eff" title="True when this stack entry is at a leaf position — a packed value under detail::basic_art_policy::can...">is_leaf_position()</a>, never <code>child_index == 0xFF</code>: <code>child_index</code> is <code>0xFF</code> there only as a placeholder, and <code>0xFF</code> is a valid child index in <code><a class="el" href="classunodb_1_1detail_1_1basic__inode__48.html" title="Internal node with 17-48 children (N48).">detail::basic_inode_48</a></code> and <code><a class="el" href="classunodb_1_1detail_1_1basic__inode__256.html" title="Internal node with 49-256 children (N256).">detail::basic_inode_256</a></code>. </p>
 
 </div>
 </div>

@@ -1,6 +1,7 @@
 var structunodb_1_1detail_1_1iter__result =
 [
     [ "node_ptr", "structunodb_1_1detail_1_1iter__result.html#ab22270fae893b795cee9f4d663950f41", null ],
+    [ "is_leaf_position", "structunodb_1_1detail_1_1iter__result.html#a3b32bfd92e6442ddd878a862c0353eff", null ],
     [ "child_index", "structunodb_1_1detail_1_1iter__result.html#a985b95e52360b47cc69e53c0ab48946e", null ],
     [ "is_packed_value", "structunodb_1_1detail_1_1iter__result.html#a66070f404623bf5d6632da65ce899528", null ],
     [ "key_byte", "structunodb_1_1detail_1_1iter__result.html#af629f13328e6b7ebd271a9939d7559a8", null ],
