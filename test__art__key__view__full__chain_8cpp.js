@@ -5,6 +5,8 @@ var test__art__key__view__full__chain_8cpp =
       [ "forward", "test__art__key__view__full__chain_8cpp.html#a9efeb298173c8c2f218de6c6c7000fbba965dbaac085fc891bfbbd4f9d145bbc8", null ],
       [ "reverse", "test__art__key__view__full__chain_8cpp.html#a9efeb298173c8c2f218de6c6c7000fbba4d9c2073afa3c2abb817dceb22c34de6", null ]
     ] ],
+    [ "UNODB_TYPED_TEST", "test__art__key__view__full__chain_8cpp.html#a3ab354559466837563bf48a657c4b011", null ],
+    [ "UNODB_TYPED_TEST", "test__art__key__view__full__chain_8cpp.html#aac0d8d8c97e0b02a38f89c528ed00e7b", null ],
     [ "UNODB_TYPED_TEST", "test__art__key__view__full__chain_8cpp.html#a4f0444e4fe0c8f1c32be86c5dc2e7c08", null ],
     [ "UNODB_TYPED_TEST", "test__art__key__view__full__chain_8cpp.html#a266206387c25f7e93109ced7469fd434", null ],
     [ "UNODB_TYPED_TEST", "test__art__key__view__full__chain_8cpp.html#a91e162e250305c90340308e1b377a351", null ],
