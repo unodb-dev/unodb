@@ -255,6 +255,9 @@ template&lt;class Db2  = Db&gt; </td></tr>
 <tr class="memitem:a927f2654dbb2bc53085ad57d9ad7841c" id="r_a927f2654dbb2bc53085ad57d9ad7841c"><td class="memItemLeft" align="right" valign="top"><a id="a927f2654dbb2bc53085ad57d9ad7841c" name="a927f2654dbb2bc53085ad57d9ad7841c"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>do_remove</b> (key_type k, bool bypass_verifier)</td></tr>
 <tr class="separator:a927f2654dbb2bc53085ad57d9ad7841c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af43d5125bf8421626da6e07a7a08fc3e" id="r_af43d5125bf8421626da6e07a7a08fc3e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classunodb_1_1test_1_1tree__verifier.html#af43d5125bf8421626da6e07a7a08fc3e">assert_dump_does_not_crash</a> () const</td></tr>
+<tr class="memdesc:af43d5125bf8421626da6e07a7a08fc3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dump the tree to a string.  <br /></td></tr>
+<tr class="separator:af43d5125bf8421626da6e07a7a08fc3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b93f029abdb6d7b01da6ad896ac4198" id="r_a6b93f029abdb6d7b01da6ad896ac4198"><td class="memTemplParams" colspan="2"><a id="a6b93f029abdb6d7b01da6ad896ac4198" name="a6b93f029abdb6d7b01da6ad896ac4198"></a>
 template&lt;class Db2  = Db, typename T &gt; </td></tr>
 <tr class="memitem:a6b93f029abdb6d7b01da6ad896ac4198"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if_t&lt;!is_olc_db&lt; Db2 &gt;, void &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>do_try_remove_missing_key</b> (T absent_key)</td></tr>
@@ -383,6 +386,37 @@ template&lt;class Db &gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="af43d5125bf8421626da6e07a7a08fc3e" name="af43d5125bf8421626da6e07a7a08fc3e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af43d5125bf8421626da6e07a7a08fc3e">&#9670;&#160;</a></span>assert_dump_does_not_crash()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Db &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classunodb_1_1test_1_1tree__verifier.html">unodb::test::tree_verifier</a>&lt; Db &gt;::assert_dump_does_not_crash </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Dump the tree to a string. </p>
+<p>Do not attempt to check the dump format, only that dumping does not crash.</p>
+<p>Deliberately not gated on statistics: STATS=OFF builds would otherwise dump no tree except through the DeepState smoke test, which covers only db&lt;std::uint64_t, value_view&gt; and runs only where DeepState is built. </p>
+
+</div>
+</div>
 <a id="aa5272379cd23253f105135a5a448d2f2" name="aa5272379cd23253f105135a5a448d2f2"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa5272379cd23253f105135a5a448d2f2">&#9670;&#160;</a></span>check_present_values()</h2>
 
@@ -409,7 +443,7 @@ template&lt;class Db &gt; </div>
 </div><div class="memdoc">
 
 <p>Verify that each key and value in the internal ground truth collection can be found in the test db. </p>
-<p>This also performs a full scan of the test db and verify that each (key,val) visited in lexicographic order (we can't probe the ground truth with the encoded keys so the number of keys visited by the scan can be checked, but not whether each key is in the ground truth - doing that requires knowledge about how the keys were encoded and the encoding needs to be reversible, which it is not in the general case). </p>
+<p>This also performs a full scan of the test db and verify that each (key,val) visited in lexicographic order (we can't probe the ground truth with the encoded keys so the number of keys visited by the scan can be checked, but not whether each key is in the ground truth - doing that requires knowledge about how the keys were encoded and the encoding needs to be reversible, which it is not in the general case). It also dumps the tree, checking only that dumping does not crash; see <a class="el" href="classunodb_1_1test_1_1tree__verifier.html#af43d5125bf8421626da6e07a7a08fc3e" title="Dump the tree to a string.">assert_dump_does_not_crash()</a>. </p>
 
 </div>
 </div>

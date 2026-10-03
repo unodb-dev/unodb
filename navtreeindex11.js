@@ -1,5 +1,7 @@
 var NAVTREEINDEX11 =
 {
+"structanonymous__namespace_02test__art__scan_8cpp_03_1_1scan__callback__exception.html":[7,0,10,1],
+"structanonymous__namespace_02test__qsbr__fuzz__deepstate_8cpp_03_1_1thread__info.html":[5,0,27,0],
 "structanonymous__namespace_02test__qsbr__fuzz__deepstate_8cpp_03_1_1thread__info.html":[7,0,14,0],
 "structunodb_1_1allocator__type.html":[5,0,30,4],
 "structunodb_1_1allocator__type.html":[7,0,15,3],
@@ -247,7 +249,5 @@ var NAVTREEINDEX11 =
 "structunodb_1_1detail_1_1node__header.html":[7,0,15,1,44],
 "structunodb_1_1detail_1_1node__header.html":[5,0,30,1,45],
 "structunodb_1_1detail_1_1olc__impl__helpers.html":[7,0,15,1,45],
-"structunodb_1_1detail_1_1olc__impl__helpers.html":[5,0,30,1,46],
-"structunodb_1_1detail_1_1olc__impl__helpers.html#a42c4bb8c2e56ceeb33d1bbe86de4dd15":[5,0,30,1,46,0],
-"structunodb_1_1detail_1_1olc__impl__helpers.html#a42c4bb8c2e56ceeb33d1bbe86de4dd15":[7,0,15,1,45,0]
+"structunodb_1_1detail_1_1olc__impl__helpers.html":[5,0,30,1,46]
 };

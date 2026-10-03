@@ -1,5 +1,7 @@
 var NAVTREEINDEX12 =
 {
+"structunodb_1_1detail_1_1olc__impl__helpers.html#a42c4bb8c2e56ceeb33d1bbe86de4dd15":[5,0,30,1,46,0],
+"structunodb_1_1detail_1_1olc__impl__helpers.html#a42c4bb8c2e56ceeb33d1bbe86de4dd15":[7,0,15,1,45,0],
 "structunodb_1_1detail_1_1olc__node__header.html":[5,0,30,1,52],
 "structunodb_1_1detail_1_1olc__node__header.html":[7,0,15,1,51],
 "structunodb_1_1detail_1_1set__qsbr__per__thread__in__main__thread.html":[5,0,30,1,54],
@@ -247,7 +249,5 @@ var NAVTREEINDEX12 =
 "unionunodb_1_1detail_1_1key__prefix.html#a22f5e3b38d809435bb6d7832d0e8e9ca":[7,0,15,1,37,22],
 "unionunodb_1_1detail_1_1key__prefix.html#a22f5e3b38d809435bb6d7832d0e8e9ca":[5,0,30,1,38,22],
 "unionunodb_1_1detail_1_1key__prefix.html#a2866197edfbf076586ccdc781aacb0f1":[5,0,30,1,38,26],
-"unionunodb_1_1detail_1_1key__prefix.html#a2866197edfbf076586ccdc781aacb0f1":[7,0,15,1,37,26],
-"unionunodb_1_1detail_1_1key__prefix.html#a289084e3e46efbcba12228051a30c373":[5,0,30,1,38,23],
-"unionunodb_1_1detail_1_1key__prefix.html#a289084e3e46efbcba12228051a30c373":[7,0,15,1,37,23]
+"unionunodb_1_1detail_1_1key__prefix.html#a2866197edfbf076586ccdc781aacb0f1":[7,0,15,1,37,26]
 };
