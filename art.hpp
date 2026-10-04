@@ -77,6 +77,10 @@ static_assert(node_ptr{nullptr}.raw_val() == 0,
               "basic_inode_48's free-slot scan compares against");
 static_assert(node_ptr{} == nullptr,
               "value-initialization must produce the null node_ptr");
+static_assert(std::is_trivially_default_constructible_v<
+                  unodb::in_fake_critical_section<node_ptr>>,
+              "unodb::db inode children must default-initialize without a "
+              "zero-fill");
 
 struct impl_helpers;
 
