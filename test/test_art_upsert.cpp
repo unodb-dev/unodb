@@ -25,6 +25,8 @@
 #include "qsbr_test_utils.hpp"
 
 #ifndef NDEBUG
+#include <vector>
+
 #include "sync.hpp"
 #include "sync_point_test_utils.hpp"
 #include "test_utils.hpp"
@@ -1291,15 +1293,23 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, EraseAfterConcurrentRemove) {
 }
 #endif  // NDEBUG
 
-// ID-23h: CAS-erase bypass regression — remove_or_choose_subtree terminal
-// delete must check captured_ver.  T1 upsert(erase) pauses inside
-// remove_or_choose_subtree, T2 modifies the same key, T1 resumes.
-// Without the captured_ver check, T1 would erase the wrong value.
+// ID-23h: an upsert(erase) retries when remove_or_choose_subtree's write guard
+// fails.  T1 upsert(erase) pauses inside remove_or_choose_subtree before its
+// write guards, T2 removes and re-inserts the key, which moves the I4's
+// version, so T1's node write-guard upgrade fails and its retry runs the
+// lambda again on the re-inserted value.  The captured_ver gates there do not
+// fire on this schedule: both versions they compare are fixed before the sync
+// point.
 #ifndef NDEBUG
-UNODB_TYPED_TEST(UpsertConcurrencyTest, EraseBypassInRemoveOrChooseSubtree) {
+UNODB_TYPED_TEST(UpsertConcurrencyTest, EraseRetriesWhenRemoveWriteGuardFails) {
+  using value_type = typename TypeParam::value_type;
+  static constexpr bool value_is_view =
+      std::is_same_v<value_type, unodb::value_view>;
   auto& db = this->verifier.get_db();
-  // Use 3 sibling keys so the inode has >1 child, forcing the non-chain
-  // path in try_remove_key_view (where the bug lived).
+  // Three keys keep key's I4 above min_size for both removals, so T2 changes
+  // it in place without write-locking the parent, and T1 fails at the I4's
+  // write guard.  With two, the leaf instantiations take the min-size branch,
+  // where T2 write-locks the parent and T1 fails there.
   const auto key = this->verifier.coerce_key(10);
   const auto sib1 = this->verifier.coerce_key(11);
   const auto sib2 = this->verifier.coerce_key(12);
@@ -1313,12 +1323,15 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, EraseBypassInRemoveOrChooseSubtree) {
     UNODB_ASSERT_TRUE(db.insert(sib2, v0));
   }
 
-  // Track how many times the lambda fires.
-  std::atomic<int> lambda_calls{0};
+  // What each of T1's lambda calls saw.  Outside the closure, because upsert
+  // copies fn into every attempt.
+  std::vector<
+      std::conditional_t<value_is_view, std::vector<std::byte>, value_type>>
+      seen;
 
   // Arm sync point inside remove_or_choose_subtree's VIS/leaf terminal
-  // delete path.  T1 pauses BEFORE the write lock (and before the new
-  // captured_ver check).
+  // delete path.  T1 pauses before its write guards and the captured_ver
+  // check.
   const sync_point_guard guard{unodb::detail::sync_before_remove_write_guard};
   unodb::detail::sync_before_remove_write_guard.arm([&]() {
     unodb::detail::sync_before_remove_write_guard.disarm();
@@ -1338,12 +1351,15 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, EraseBypassInRemoveOrChooseSubtree) {
     unodb::detail::thread_syncs[1].notify();
   });
 
-  // T1: upsert with erase lambda.  On retry after CAS rejection,
-  // the lambda fires again for the new value.
+  // T1: upsert with erase lambda.  Its node write-guard upgrade fails, and
+  // the retry runs the lambda again for the re-inserted value.
   auto t1 = unodb::qsbr_thread([&] {
     const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.upsert(key, v1, [&](auto& /*v*/) {
-      lambda_calls.fetch_add(1, std::memory_order_relaxed);
+    std::ignore = db.upsert(key, v1, [&seen](auto& v) {
+      if constexpr (value_is_view)
+        seen.emplace_back(v.begin(), v.end());
+      else
+        seen.push_back(v);
       return unodb::upsert_action::erase;
     });
   });
@@ -1352,10 +1368,21 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, EraseBypassInRemoveOrChooseSubtree) {
   t2.join();
   unodb::this_thread().qsbr_resume();
 
-  // The CAS gate must have rejected T1's first erase attempt (stale version)
-  // forcing a retry.  The lambda must have been invoked more than once.
-  EXPECT_GT(lambda_calls.load(), 1)
-      << "CAS gate should have forced at least one retry";
+  // The first attempt, and the retry after the failed write-guard upgrade.
+  UNODB_ASSERT_EQ(2U, seen.size());
+  if constexpr (value_is_view) {
+    UNODB_ASSERT_TRUE(std::ranges::equal(seen[0], v0));
+    UNODB_ASSERT_TRUE(std::ranges::equal(seen[1], v1));
+  } else {
+    UNODB_ASSERT_EQ(v0, seen[0]);
+    UNODB_ASSERT_EQ(v1, seen[1]);
+  }
+
+  // Post: the retry erased key and left both siblings alone.
+  with_qsbr<TypeParam>(
+      [&] { UNODB_ASSERT_FALSE(TypeParam::key_found(db.get(key))); });
+  ASSERT_VALUE_FOR_KEY(TypeParam, db, sib1, v0);
+  ASSERT_VALUE_FOR_KEY(TypeParam, db, sib2, v0);
 }
 #endif  // NDEBUG
 
