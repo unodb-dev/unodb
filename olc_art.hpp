@@ -2991,7 +2991,7 @@ olc_db<Key, Value, HeapTag>::try_upsert(
           case upsert_action::keep:
             if (UNODB_DETAIL_UNLIKELY(
                     !parent_critical_section.try_read_unlock()))
-              return {};  // LCOV_EXCL_LINE
+              return {};
             if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
               return {};  // LCOV_EXCL_LINE
             if (UNODB_DETAIL_UNLIKELY(cached_leaf != nullptr))
@@ -3065,7 +3065,7 @@ olc_db<Key, Value, HeapTag>::try_upsert(
             case upsert_action::keep:
               if (UNODB_DETAIL_UNLIKELY(
                       !parent_critical_section.try_read_unlock()))
-                return {};  // LCOV_EXCL_LINE
+                return {};
               if (UNODB_DETAIL_UNLIKELY(
                       !node_critical_section.try_read_unlock()))
                 return {};  // LCOV_EXCL_LINE

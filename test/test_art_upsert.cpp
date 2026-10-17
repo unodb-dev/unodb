@@ -108,6 +108,48 @@ decltype(auto) with_qsbr([[maybe_unused]] Fn&& fn) {
   }
 }
 
+#ifndef NDEBUG
+/// The values an upsert lambda saw, one per call.  It lives outside the lambda
+/// because upsert copies fn into every attempt, and it copies value_view bytes
+/// because a concurrent writer may retire the leaf they point into.
+template <class Db>
+class seen_values {
+ public:
+  /// The value type the lambda sees.
+  using value_type = typename Db::value_type;
+
+  /// Record the value one lambda call saw.
+  void record(const value_type& v) {
+    if constexpr (value_is_view)
+      seen_.emplace_back(v.begin(), v.end());
+    else
+      seen_.push_back(v);
+  }
+
+  /// Assert that the lambda ran twice, seeing \a first and then \a second.
+  void assert_saw(const value_type& first, const value_type& second) const {
+    UNODB_ASSERT_EQ(2U, seen_.size());
+    if constexpr (value_is_view) {
+      UNODB_ASSERT_TRUE(std::ranges::equal(seen_[0], first));
+      UNODB_ASSERT_TRUE(std::ranges::equal(seen_[1], second));
+    } else {
+      UNODB_ASSERT_EQ(first, seen_[0]);
+      UNODB_ASSERT_EQ(second, seen_[1]);
+    }
+  }
+
+ private:
+  /// Whether a seen value must be copied out of its leaf.
+  static constexpr bool value_is_view =
+      std::is_same_v<value_type, unodb::value_view>;
+
+  /// The recorded values, in call order.
+  std::vector<
+      std::conditional_t<value_is_view, std::vector<std::byte>, value_type>>
+      seen_;
+};
+#endif  // NDEBUG
+
 // ===================================================================
 // UpsertTest — typed test fixture parameterized over all db types.
 // ===================================================================
@@ -1302,9 +1344,6 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, EraseAfterConcurrentRemove) {
 // point.
 #ifndef NDEBUG
 UNODB_TYPED_TEST(UpsertConcurrencyTest, EraseRetriesWhenRemoveWriteGuardFails) {
-  using value_type = typename TypeParam::value_type;
-  static constexpr bool value_is_view =
-      std::is_same_v<value_type, unodb::value_view>;
   auto& db = this->verifier.get_db();
   // Three keys keep key's I4 above min_size for both removals, so T2 changes
   // it in place without write-locking the parent, and T1 fails at the I4's
@@ -1323,11 +1362,7 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, EraseRetriesWhenRemoveWriteGuardFails) {
     UNODB_ASSERT_TRUE(db.insert(sib2, v0));
   }
 
-  // What each of T1's lambda calls saw.  Outside the closure, because upsert
-  // copies fn into every attempt.
-  std::vector<
-      std::conditional_t<value_is_view, std::vector<std::byte>, value_type>>
-      seen;
+  seen_values<TypeParam> seen;
 
   // Arm sync point inside remove_or_choose_subtree's VIS/leaf terminal
   // delete path.  T1 pauses before its write guards and the captured_ver
@@ -1356,10 +1391,7 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, EraseRetriesWhenRemoveWriteGuardFails) {
   auto t1 = unodb::qsbr_thread([&] {
     const unodb::quiescent_state_on_scope_exit q{};
     std::ignore = db.upsert(key, v1, [&seen](auto& v) {
-      if constexpr (value_is_view)
-        seen.emplace_back(v.begin(), v.end());
-      else
-        seen.push_back(v);
+      seen.record(v);
       return unodb::upsert_action::erase;
     });
   });
@@ -1369,14 +1401,7 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, EraseRetriesWhenRemoveWriteGuardFails) {
   unodb::this_thread().qsbr_resume();
 
   // The first attempt, and the retry after the failed write-guard upgrade.
-  UNODB_ASSERT_EQ(2U, seen.size());
-  if constexpr (value_is_view) {
-    UNODB_ASSERT_TRUE(std::ranges::equal(seen[0], v0));
-    UNODB_ASSERT_TRUE(std::ranges::equal(seen[1], v1));
-  } else {
-    UNODB_ASSERT_EQ(v0, seen[0]);
-    UNODB_ASSERT_EQ(v1, seen[1]);
-  }
+  seen.assert_saw(v0, v1);
 
   // Post: the retry erased key and left both siblings alone.
   with_qsbr<TypeParam>(
@@ -1390,13 +1415,19 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, EraseRetriesWhenRemoveWriteGuardFails) {
 // Contract Verification — concurrency (IDs C2, C5, C6)
 // ===================================================================
 
-// ID-C2: Lambda's second invocation receives a different value.
+// ID-C2: Lambda's second invocation receives a different value.  T1 parks
+// inside its first lambda call, after it has seen v0.  T2 updates the key to
+// v1, which moves the version T1 checks after the lambda returns, so T1
+// restarts and its second call sees v1.
 #ifndef NDEBUG
 UNODB_TYPED_TEST(UpsertConcurrencyTest, LambdaSeesDifferentValues) {
+  constexpr bool value_is_view =
+      std::is_same_v<typename TypeParam::value_type, unodb::value_view>;
   auto& db = this->verifier.get_db();
   const auto key = this->verifier.coerce_key(20);
   const auto sibling_key = this->verifier.coerce_key(55);
   auto v0 = unodb::test::get_test_value<TypeParam>(0);
+  auto v1 = unodb::test::get_test_value<TypeParam>(1);
 
   // Pre-insert
   {
@@ -1406,36 +1437,45 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, LambdaSeesDifferentValues) {
         db.insert(sibling_key, unodb::test::get_test_value<TypeParam>(2)));
   }
 
-  std::atomic<int> lambda_call_count{0};
+  // Fired only from T1's lambda, so T1 parks inside its first call.
+  unodb::detail::sync_point in_t1_fn;
+  seen_values<TypeParam> seen;
 
-  const sync_point_guard guard{unodb::detail::sync_after_upsert_dup_found};
-  unodb::detail::sync_after_upsert_dup_found.arm([&]() {
-    unodb::detail::sync_after_upsert_dup_found.disarm();
+  in_t1_fn.arm([&]() {
+    in_t1_fn.disarm();
     unodb::detail::thread_syncs[0].notify();
     unodb::detail::thread_syncs[1].wait();
   });
 
   unodb::this_thread().qsbr_pause();
 
-  // T2: modify the value between T1's lambda invocations
+  // T2: update the key to v1 while T1 is parked inside its lambda.  update
+  // stores the lambda's v for the u64 value and upsert's own argument for
+  // value_view, so both are v1.
   auto t2 = unodb::qsbr_thread([&] {
     unodb::detail::thread_syncs[0].wait();
     const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.upsert(key, v0, increment_fn);
+    std::ignore = db.upsert(key, v1, [v1](auto& v) noexcept {
+      v = v1;
+      return unodb::upsert_action::update;
+    });
     unodb::detail::thread_syncs[1].notify();
   });
 
   auto t1 = unodb::qsbr_thread([&] {
     const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.upsert(key, v0, [&lambda_call_count](auto& v) {
-      lambda_call_count.fetch_add(1, std::memory_order_relaxed);
-      if constexpr (std::is_arithmetic_v<
-                        std::remove_reference_t<decltype(v)>>) {
-        return unodb::upsert_action::update;
-      } else {
-        (void)v;
+    std::ignore = db.upsert(key, v0, [&seen, &in_t1_fn](auto& v) {
+      seen.record(v);
+      unodb::detail::sync(in_t1_fn);
+      // The action picks T1's restart site.  value_view keeps, so it restarts
+      // at the leaf keep arm's parent unlock; an update would instead store
+      // upsert's own v0 over T2's v1.  The u64 value updates, so it restarts
+      // at the value-in-slot write-guard upgrade; a keep would restart at the
+      // node unlock instead and still pass.
+      if constexpr (value_is_view)
         return unodb::upsert_action::keep;
-      }
+      else
+        return unodb::upsert_action::update;
     });
   });
 
@@ -1443,10 +1483,8 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, LambdaSeesDifferentValues) {
   t2.join();
   unodb::this_thread().qsbr_resume();
 
-  // Post: lambda was called at least once
-  UNODB_ASSERT_TRUE(lambda_call_count.load() >= 1);
-  const unodb::quiescent_state_on_scope_exit q{};
-  UNODB_ASSERT_TRUE(TypeParam::key_found(db.get(key)));
+  seen.assert_saw(v0, v1);
+  ASSERT_VALUE_FOR_KEY(TypeParam, db, key, v1);
 }
 #endif  // NDEBUG
 
@@ -1492,25 +1530,34 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, StatsCounterIncrements) {
 }
 #endif  // UNODB_DETAIL_WITH_STATS
 
-// ID-C6: Value committed even when parent RCS fails after write_guard.
+// ID-C6: Value committed even when parent RCS fails after write_guard.  Only
+// key_view_u64val_olc_db reaches that path: T1 commits its value-in-slot
+// update under the node write guard, and the parent unlock it then ignores
+// fails.  The leaf types keep, so for them the test pins only that a change
+// above T1's parent does not restart a dup-found upsert.
 #ifndef NDEBUG
 UNODB_TYPED_TEST(UpsertConcurrencyTest, ParentRcsFailAfterCommit) {
   auto& db = this->verifier.get_db();
   const auto key = this->verifier.coerce_key(40);
   const auto sibling_key = this->verifier.coerce_key(41);
-  const auto t2_key = this->verifier.coerce_key(42);
+  // Diverges from key at byte 6, so it splits the root: the I4 holding key
+  // and sibling_key moves under a new root I4.
+  const auto upper_key = this->verifier.coerce_key(0x128);
+  // Another byte-6 sibling, so T2's insert changes only that new root I4.
+  const auto t2_key = this->verifier.coerce_key(0x228);
   auto v0 = unodb::test::get_test_value<TypeParam>(0);
 
-  // Pre-insert key under a parent node
+  // Pre-insert key under a parent node, with a root I4 above that parent
   {
     const unodb::quiescent_state_on_scope_exit q{};
     UNODB_ASSERT_TRUE(db.insert(key, v0));
     UNODB_ASSERT_TRUE(
         db.insert(sibling_key, unodb::test::get_test_value<TypeParam>(1)));
+    UNODB_ASSERT_TRUE(
+        db.insert(upper_key, unodb::test::get_test_value<TypeParam>(3)));
   }
 
-  // T1 upserts key. After dup found, T2 modifies parent to
-  // invalidate parent RCS, testing that value commit survives.
+  // T1 upserts key and parks after dup found while T2 inserts t2_key.
   const sync_point_guard guard{unodb::detail::sync_after_upsert_dup_found};
   unodb::detail::sync_after_upsert_dup_found.arm([&]() {
     unodb::detail::sync_after_upsert_dup_found.disarm();
@@ -1520,10 +1567,11 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, ParentRcsFailAfterCommit) {
 
   unodb::this_thread().qsbr_pause();
 
+  bool t2_inserted = false;
   auto t2 = unodb::qsbr_thread([&] {
     unodb::detail::thread_syncs[0].wait();
     const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.insert(t2_key, unodb::test::get_test_value<TypeParam>(2));
+    t2_inserted = db.insert(t2_key, unodb::test::get_test_value<TypeParam>(2));
     unodb::detail::thread_syncs[1].notify();
   });
 
@@ -1535,8 +1583,11 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, ParentRcsFailAfterCommit) {
   t1.join();
   t2.join();
   unodb::this_thread().qsbr_resume();
+  // A failed insert would leave the root I4 unchanged.
+  UNODB_ASSERT_TRUE(t2_inserted);
 
-  // Post: the upsert's write persists (committed before parent RCS check)
+  // Post: key is present; for the u64 value, the increment T1 made under its
+  // node write guard persists despite the failed parent unlock.
   const unodb::quiescent_state_on_scope_exit q{};
   const auto result = db.get(key);
   UNODB_ASSERT_TRUE(TypeParam::key_found(result));
