@@ -43,7 +43,8 @@ namespace detail {
 /// OLC allocator with QSBR-based deferred reclamation (defined in qsbr.cpp).
 extern const allocator_type olc_default_allocator;
 
-/// Sync point: fires after chain locked, before acquiring cut_point_parent.
+/// Sync point: fires in try_chain_cut after Step 2, before Step 3 extends the
+/// chain where needed and acquires the cut-point parent.
 UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wunknown-warning-option")
 UNODB_DETAIL_DISABLE_CLANG_WARNING("-Wunique-object-duplication")
 inline sync_point sync_after_chain_locked;
@@ -1129,9 +1130,15 @@ class olc_db final {
   ///
   /// Locks the chain bottom-up, then atomically disconnects the entire chain
   /// from its parent (the "cut point") in a single child-pointer update.
-  /// If a concurrent modification invalidates a chain node during locking,
-  /// the cut point is adjusted downward.  If the cut-point parent's version
-  /// has changed, the operation restarts without modifying the tree.
+  /// Chain nodes are locked at the versions the downward pass read, up to the
+  /// first whose version moved.  From there each node is read at its current
+  /// version and must still lead to the node below it: a one-child I4 joins
+  /// the chain, and the first other node becomes the cut-point parent, so a
+  /// chain node that gained a child moves the cut point down.  The operation
+  /// restarts without modifying the tree if a node it re-reads is obsolete or
+  /// no longer leads to the node below it, if the cut-point parent must shrink
+  /// and its own parent has changed, or if the root pointer it would rewrite no
+  /// longer points to stk[0].
   /// After the cut, the cut-point parent is shrunk or collapsed as needed
   /// to maintain well-formedness (no single-child I4 except during chain
   /// insert).  Disconnected nodes are reclaimed via QSBR.
@@ -4992,17 +4999,11 @@ olc_db<Key, Value, HeapTag>::try_chain_cut(
 
     for (std::size_t i = stk_n - 2; i + 1 > chain_top && i < stk_n; --i) {
       const auto& entry = stk[i];
-      auto rcs = node_ptr_lock(entry.node).rehydrate_read_lock(entry.version);
-      if (UNODB_DETAIL_UNLIKELY(!rcs.check())) {
-        rcs = node_ptr_lock(entry.node).try_read_lock();
-        if (UNODB_DETAIL_UNLIKELY(rcs.must_restart())) break;
-        const auto etype = entry.node.type();
-        const auto ecount =
-            entry.node.template ptr<inode_type*>()->get_children_count();
-        if (UNODB_DETAIL_UNLIKELY(!rcs.check())) break;
-        if (!(etype == node_type::I4 && ecount == 1)) break;
-      }
-      optimistic_lock::write_guard wg{std::move(rcs)};
+      // A node whose version moved since the downward pass fails the upgrade.
+      // It and the chain nodes above it are left to Step 3, which checks that
+      // each still leads to the node below it before locking it.
+      optimistic_lock::write_guard wg{
+          node_ptr_lock(entry.node).rehydrate_read_lock(entry.version)};
       if (UNODB_DETAIL_UNLIKELY(wg.must_restart())) break;
       chain_guards.push_back(std::move(wg));
       cut_level = i;
@@ -5014,13 +5015,23 @@ olc_db<Key, Value, HeapTag>::try_chain_cut(
 
   detail::sync(detail::sync_after_chain_locked);
 
+  // Write-lock the root pointer if it still points to stk[0].  The descent
+  // read that link only at stk[0]'s descent version, which a prefix split of
+  // stk[0] moves without obsoleting it, while it installs a new root above.
+  const auto lock_root_pointer_to_stk0 =
+      [this, &stk]() noexcept -> optimistic_lock::write_guard {
+    auto rcs = root_pointer_lock.try_read_lock();
+    if (UNODB_DETAIL_UNLIKELY(rcs.must_restart())) return {};
+    // The upgrade below fails if the root pointer was written since this read.
+    if (UNODB_DETAIL_UNLIKELY(root.load() != stk[0].node)) return {};
+    return optimistic_lock::write_guard{std::move(rcs)};
+  };
+
   // --- Step 3: Acquire the cut_point_parent ---
   if (chain_top < stk_n) {
     for (;;) {
       if (cut_level == 0) {
-        auto rcs = root_pointer_lock.try_read_lock();
-        if (UNODB_DETAIL_UNLIKELY(rcs.must_restart())) return {};
-        cpp_guard = optimistic_lock::write_guard{std::move(rcs)};
+        cpp_guard = lock_root_pointer_to_stk0();
         if (UNODB_DETAIL_UNLIKELY(cpp_guard.must_restart())) return {};
         break;
       }
@@ -5038,9 +5049,10 @@ olc_db<Key, Value, HeapTag>::try_chain_cut(
       if (pcp == nullptr || pcp->load() != stk[cut_level].node)
         return {};  // Child gone, restart.
 
-      // LCOV_EXCL_START — Case B: a chain_bottom that was multi-child during
-      // the downward pass became single-child due to a concurrent
-      // remove.  Extend the chain by locking it.
+      // Case B: pe is a one-child I4 that still leads to stk[cut_level]: a
+      // chain node that Step 2 did not lock, whether or not its version moved,
+      // or a node that a concurrent remove left with one child.  Extend the
+      // chain by locking it.
       if (ptype == node_type::I4 && pcount == 1) {
         optimistic_lock::write_guard wg{std::move(rcs)};
         if (UNODB_DETAIL_UNLIKELY(wg.must_restart())) continue;
@@ -5048,7 +5060,6 @@ olc_db<Key, Value, HeapTag>::try_chain_cut(
         --cut_level;
         continue;
       }
-      // LCOV_EXCL_STOP
       cpp_guard = optimistic_lock::write_guard{std::move(rcs)};
       if (UNODB_DETAIL_UNLIKELY(cpp_guard.must_restart())) continue;
       break;
@@ -5087,9 +5098,7 @@ olc_db<Key, Value, HeapTag>::try_chain_cut(
         gp_guard = optimistic_lock::write_guard{std::move(gp_rcs)};
         if (UNODB_DETAIL_UNLIKELY(gp_guard.must_restart())) return {};
       } else {
-        auto rcs = root_pointer_lock.try_read_lock();
-        if (UNODB_DETAIL_UNLIKELY(rcs.must_restart())) return {};
-        gp_guard = optimistic_lock::write_guard{std::move(rcs)};
+        gp_guard = lock_root_pointer_to_stk0();
         if (UNODB_DETAIL_UNLIKELY(gp_guard.must_restart())) return {};
       }
     }

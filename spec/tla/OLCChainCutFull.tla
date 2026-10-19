@@ -14,10 +14,12 @@
 \*   P4: Cascading Case B — gp also single-child, cut_level reaches 0 (root)
 \*   P5: Root as CPP — set root=nullptr (tree emptied)
 \*   P6: Grandparent acquisition fails — restart
-\*   P7: Case C — child pointer gone, restart
 \*
 \* Concurrent inserter can add children to parent or gp (breaking Case B,
-\* preventing shrink, etc.)
+\* preventing shrink, etc.).  No other remove runs, and no insert replaces a
+\* child link or installs a new root above gp, so the links the code checks in
+\* Step 3 always hold, and the root pointer it checks before rewriting the root
+\* always targets gp here.
 
 EXTENDS Integers
 
