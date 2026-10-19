@@ -30,7 +30,6 @@
 #include "sync.hpp"
 #include "sync_point_test_utils.hpp"
 #include "test_utils.hpp"
-#include "thread_sync.hpp"
 #endif
 
 // MSVC SA C26496 false-positive on variables written via non-const reference.
@@ -46,7 +45,7 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 namespace {
 
 #ifndef NDEBUG
-using unodb::test::sync_point_guard;
+using unodb::test::run_parked_interleaving;
 #endif
 
 // ===================================================================
@@ -833,32 +832,16 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, OlcRestart) {
   }
 
   // Arm sync point to force upgrade failure on first attempt
-  const sync_point_guard guard{unodb::detail::sync_after_upsert_dup_found};
-  unodb::detail::sync_after_upsert_dup_found.arm([&]() {
-    unodb::detail::sync_after_upsert_dup_found.disarm();
-    unodb::detail::thread_syncs[0].notify();
-    unodb::detail::thread_syncs[1].wait();
-  });
-
-  unodb::this_thread().qsbr_pause();
-
-  // T2: modify the node to invalidate T1's version
-  auto t2 = unodb::qsbr_thread([&] {
-    unodb::detail::thread_syncs[0].wait();
-    const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.insert(other_key, v1);
-    unodb::detail::thread_syncs[1].notify();
-  });
-
-  // T1: upsert that will hit the sync point and restart
-  auto t1 = unodb::qsbr_thread([&] {
-    const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.upsert(key, v1, increment_fn);
-  });
-
-  t1.join();
-  t2.join();
-  unodb::this_thread().qsbr_resume();
+  const auto hits = run_parked_interleaving(
+      unodb::detail::sync_after_upsert_dup_found,
+      // T1: upsert that will hit the sync point and restart
+      [&] { std::ignore = db.upsert(key, v1, increment_fn); },
+      // T2: modify the node to invalidate T1's version
+      [&] { std::ignore = db.insert(other_key, v1); });
+  // T1's park and its retry: T2's insert never reaches the point but moves
+  // the lock T1 rechecks after it (the leaf's parent, or the I4 holding a
+  // packed value).
+  UNODB_ASSERT_EQ(2U, hits);
 
   // Post: get(k) has the updated value
   const unodb::quiescent_state_on_scope_exit q{};
@@ -970,31 +953,16 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, CasDuringGrowth) {
   auto gv = unodb::test::get_test_value<TypeParam>(4);
 
   // Arm sync point: T1 pauses at dup-found, T2 triggers I4→I16
-  const sync_point_guard guard{unodb::detail::sync_after_upsert_dup_found};
-  unodb::detail::sync_after_upsert_dup_found.arm([&]() {
-    unodb::detail::sync_after_upsert_dup_found.disarm();
-    unodb::detail::thread_syncs[0].notify();
-    unodb::detail::thread_syncs[1].wait();
-  });
-
-  unodb::this_thread().qsbr_pause();
-
-  auto t2 = unodb::qsbr_thread([&] {
-    unodb::detail::thread_syncs[0].wait();
-    const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.insert(growth_key, gv);
-    unodb::detail::thread_syncs[1].notify();
-  });
-
-  auto t1 = unodb::qsbr_thread([&] {
-    const unodb::quiescent_state_on_scope_exit q{};
-    auto v = unodb::test::get_test_value<TypeParam>(9);
-    std::ignore = db.upsert(upsert_key, v, increment_fn);
-  });
-
-  t1.join();
-  t2.join();
-  unodb::this_thread().qsbr_resume();
+  const auto hits = run_parked_interleaving(
+      unodb::detail::sync_after_upsert_dup_found,
+      [&] {
+        auto v = unodb::test::get_test_value<TypeParam>(9);
+        std::ignore = db.upsert(upsert_key, v, increment_fn);
+      },
+      [&] { std::ignore = db.insert(growth_key, gv); });
+  // T1's park and its retry through the I16: T2's insert grows the I4 off
+  // this point, and T1's recheck of the obsoleted I4 fails.
+  UNODB_ASSERT_EQ(2U, hits);
 
   const unodb::quiescent_state_on_scope_exit q{};
   UNODB_ASSERT_TRUE(TypeParam::key_found(db.get(upsert_key)));
@@ -1024,30 +992,13 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, CasKeyRemoved) {
   }
 
   // T1 finds duplicate, pauses. T2 removes the key.
-  const sync_point_guard guard{unodb::detail::sync_after_upsert_dup_found};
-  unodb::detail::sync_after_upsert_dup_found.arm([&]() {
-    unodb::detail::sync_after_upsert_dup_found.disarm();
-    unodb::detail::thread_syncs[0].notify();
-    unodb::detail::thread_syncs[1].wait();
-  });
-
-  unodb::this_thread().qsbr_pause();
-
-  auto t2 = unodb::qsbr_thread([&] {
-    unodb::detail::thread_syncs[0].wait();
-    const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.remove(key);
-    unodb::detail::thread_syncs[1].notify();
-  });
-
-  auto t1 = unodb::qsbr_thread([&] {
-    const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.upsert(key, v1, increment_fn);
-  });
-
-  t1.join();
-  t2.join();
-  unodb::this_thread().qsbr_resume();
+  const auto hits = run_parked_interleaving(
+      unodb::detail::sync_after_upsert_dup_found,
+      [&] { std::ignore = db.upsert(key, v1, increment_fn); },
+      [&] { std::ignore = db.remove(key); });
+  // T1's park only: T2's remove never reaches the point, and T1's retry
+  // finds the key gone and takes the insert path.
+  UNODB_ASSERT_EQ(1U, hits);
 
   // Post: T1 re-inserts after restart, key present with upsert's default value.
   const unodb::quiescent_state_on_scope_exit q{};
@@ -1249,32 +1200,15 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, ConcurrentEraseXErase) {
   }
 
   // Use sync point: first eraser pauses after lambda returns erase
-  const sync_point_guard guard{unodb::detail::sync_before_remove_write_guard};
-  unodb::detail::sync_before_remove_write_guard.arm([&]() {
-    unodb::detail::sync_before_remove_write_guard.disarm();
-    unodb::detail::thread_syncs[0].notify();
-    unodb::detail::thread_syncs[1].wait();
-  });
-
-  unodb::this_thread().qsbr_pause();
-
-  // T2: also tries to erase the same key
-  auto t2 = unodb::qsbr_thread([&] {
-    unodb::detail::thread_syncs[0].wait();
-    const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.upsert(key, v1, erase_fn);
-    unodb::detail::thread_syncs[1].notify();
-  });
-
-  // T1: upsert with erase, hits sync point
-  auto t1 = unodb::qsbr_thread([&] {
-    const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.upsert(key, v1, erase_fn);
-  });
-
-  t1.join();
-  t2.join();
-  unodb::this_thread().qsbr_resume();
+  const auto hits = run_parked_interleaving(
+      unodb::detail::sync_before_remove_write_guard,
+      // T1: upsert with erase, hits sync point
+      [&] { std::ignore = db.upsert(key, v1, erase_fn); },
+      // T2: also tries to erase the same key
+      [&] { std::ignore = db.upsert(key, v1, erase_fn); });
+  // T1's park and T2's erase passing the same point; T1's write-guard upgrade
+  // then fails, and its retry finds the key gone and inserts.
+  UNODB_ASSERT_EQ(2U, hits);
 
   // Post: one erased, other took insert path → key present
   const unodb::quiescent_state_on_scope_exit q{};
@@ -1301,31 +1235,14 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, EraseAfterConcurrentRemove) {
   }
 
   // T1 pauses after erase lambda returns, T2 removes the key
-  const sync_point_guard guard{unodb::detail::sync_before_remove_write_guard};
-  unodb::detail::sync_before_remove_write_guard.arm([&]() {
-    unodb::detail::sync_before_remove_write_guard.disarm();
-    unodb::detail::thread_syncs[0].notify();
-    unodb::detail::thread_syncs[1].wait();
-  });
-
-  unodb::this_thread().qsbr_pause();
-
-  auto t2 = unodb::qsbr_thread([&] {
-    unodb::detail::thread_syncs[0].wait();
-    const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.remove(key);
-    unodb::detail::thread_syncs[1].notify();
-  });
-
-  // T1: upsert(erase) → pauses → T2 removes → T1 restarts → insert path
-  auto t1 = unodb::qsbr_thread([&] {
-    const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.upsert(key, v1, erase_fn);
-  });
-
-  t1.join();
-  t2.join();
-  unodb::this_thread().qsbr_resume();
+  const auto hits = run_parked_interleaving(
+      unodb::detail::sync_before_remove_write_guard,
+      // T1: upsert(erase) → pauses → T2 removes → T1 restarts → insert path
+      [&] { std::ignore = db.upsert(key, v1, erase_fn); },
+      [&] { std::ignore = db.remove(key); });
+  // T1's park and T2's remove passing the same point; T1's write-guard upgrade
+  // then fails, and its retry finds the key gone and inserts.
+  UNODB_ASSERT_EQ(2U, hits);
 
   // Post: T1 took insert path, key present with T1's insert value
   const unodb::quiescent_state_on_scope_exit q{};
@@ -1366,38 +1283,26 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, EraseRetriesWhenRemoveWriteGuardFails) {
   // Arm sync point inside remove_or_choose_subtree's VIS/leaf terminal
   // delete path.  T1 pauses before its write guards and the captured_ver
   // check.
-  const sync_point_guard guard{unodb::detail::sync_before_remove_write_guard};
-  unodb::detail::sync_before_remove_write_guard.arm([&]() {
-    unodb::detail::sync_before_remove_write_guard.disarm();
-    unodb::detail::thread_syncs[0].notify();
-    unodb::detail::thread_syncs[1].wait();
-  });
-
-  unodb::this_thread().qsbr_pause();
-
-  // T2: modify the target key while T1 is paused.
-  auto t2 = unodb::qsbr_thread([&] {
-    unodb::detail::thread_syncs[0].wait();
-    const unodb::quiescent_state_on_scope_exit q{};
-    // Remove and reinsert with a different value to bump the version.
-    std::ignore = db.remove(key);
-    std::ignore = db.insert(key, v1);
-    unodb::detail::thread_syncs[1].notify();
-  });
-
-  // T1: upsert with erase lambda.  Its node write-guard upgrade fails, and
-  // the retry runs the lambda again for the re-inserted value.
-  auto t1 = unodb::qsbr_thread([&] {
-    const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.upsert(key, v1, [&seen](auto& v) {
-      seen.record(v);
-      return unodb::upsert_action::erase;
-    });
-  });
-
-  t1.join();
-  t2.join();
-  unodb::this_thread().qsbr_resume();
+  const auto hits = run_parked_interleaving(
+      unodb::detail::sync_before_remove_write_guard,
+      // T1: upsert with erase lambda.  Its node write-guard upgrade fails, and
+      // the retry runs the lambda again for the re-inserted value.
+      [&] {
+        std::ignore = db.upsert(key, v1, [&seen](auto& v) {
+          seen.record(v);
+          return unodb::upsert_action::erase;
+        });
+      },
+      // T2: modify the target key while T1 is paused.
+      [&] {
+        // Remove and reinsert with a different value to bump the version.
+        std::ignore = db.remove(key);
+        std::ignore = db.insert(key, v1);
+      });
+  // T1's park, T2's remove, and T1's erase retry: T1's node write-guard
+  // upgrade fails on the version T2's remove and reinsert moved; T2's
+  // reinsert never reaches the point.
+  UNODB_ASSERT_EQ(3U, hits);
 
   // The first attempt, and the retry after the failed write-guard upgrade.
   seen.assert_saw(v0, v1);
@@ -1440,47 +1345,36 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, LambdaSeesDifferentValues) {
   unodb::detail::sync_point in_t1_fn;
   seen_values<TypeParam> seen;
 
-  in_t1_fn.arm([&]() {
-    in_t1_fn.disarm();
-    unodb::detail::thread_syncs[0].notify();
-    unodb::detail::thread_syncs[1].wait();
-  });
-
-  unodb::this_thread().qsbr_pause();
-
-  // T2: update the key to v1 while T1 is parked inside its lambda.  update
-  // stores the lambda's v for the u64 value and upsert's own argument for
-  // value_view, so both are v1.
-  auto t2 = unodb::qsbr_thread([&] {
-    unodb::detail::thread_syncs[0].wait();
-    const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.upsert(key, v1, [v1](auto& v) noexcept {
-      v = v1;
-      return unodb::upsert_action::update;
-    });
-    unodb::detail::thread_syncs[1].notify();
-  });
-
-  auto t1 = unodb::qsbr_thread([&] {
-    const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.upsert(key, v0, [&seen, &in_t1_fn](auto& v) {
-      seen.record(v);
-      unodb::detail::sync(in_t1_fn);
-      // The action picks T1's restart site.  value_view keeps, so it restarts
-      // at the leaf keep arm's parent unlock; an update would instead store
-      // upsert's own v0 over T2's v1.  The u64 value updates, so it restarts
-      // at the value-in-slot write-guard upgrade; a keep would restart at the
-      // node unlock instead and still pass.
-      if constexpr (value_is_view)
-        return unodb::upsert_action::keep;
-      else
-        return unodb::upsert_action::update;
-    });
-  });
-
-  t1.join();
-  t2.join();
-  unodb::this_thread().qsbr_resume();
+  const auto hits = run_parked_interleaving(
+      in_t1_fn,
+      [&] {
+        std::ignore = db.upsert(key, v0, [&seen, &in_t1_fn](auto& v) {
+          seen.record(v);
+          unodb::detail::sync(in_t1_fn);
+          // The action picks T1's restart site.  value_view keeps, so it
+          // restarts at the leaf keep arm's parent unlock; an update would
+          // instead store upsert's own v0 over T2's v1.  The u64 value updates,
+          // so it restarts at the value-in-slot write-guard upgrade; a keep
+          // would restart at the node unlock instead and still pass.
+          if constexpr (value_is_view)
+            return unodb::upsert_action::keep;
+          else
+            return unodb::upsert_action::update;
+        });
+      },
+      // T2: update the key to v1 while T1 is parked inside its lambda.
+      // update stores the lambda's v for the u64 value and upsert's own
+      // argument for value_view, so both are v1.
+      [&] {
+        std::ignore = db.upsert(key, v1, [v1](auto& v) noexcept {
+          v = v1;
+          return unodb::upsert_action::update;
+        });
+      });
+  // T1's park in its first lambda call and its second call: T2's update fails
+  // T1's post-lambda unlock (leaf) or write-guard upgrade (value in slot), and
+  // only T1's lambda fires the point.
+  UNODB_ASSERT_EQ(2U, hits);
 
   seen.assert_saw(v0, v1);
   ASSERT_VALUE_FOR_KEY(TypeParam, db, key, v1);
@@ -1560,35 +1454,24 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, ParentRcsFailAfterCommit) {
   // value-in-slot arm checks the parent before the lambda, so T2's change
   // would restart a T1 parked any earlier.
   unodb::detail::sync_point in_t1_fn;
-  in_t1_fn.arm([&]() {
-    in_t1_fn.disarm();
-    unodb::detail::thread_syncs[0].notify();
-    unodb::detail::thread_syncs[1].wait();
-  });
-
-  unodb::this_thread().qsbr_pause();
-
   bool t2_inserted = false;
-  auto t2 = unodb::qsbr_thread([&] {
-    unodb::detail::thread_syncs[0].wait();
-    const unodb::quiescent_state_on_scope_exit q{};
-    t2_inserted = db.insert(t2_key, unodb::test::get_test_value<TypeParam>(2));
-    unodb::detail::thread_syncs[1].notify();
-  });
-
-  auto t1 = unodb::qsbr_thread([&] {
-    const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.upsert(key, v0, [&in_t1_fn](auto& v) {
-      unodb::detail::sync(in_t1_fn);
-      return increment_fn(v);
-    });
-  });
-
-  t1.join();
-  t2.join();
-  unodb::this_thread().qsbr_resume();
+  const auto hits = run_parked_interleaving(
+      in_t1_fn,
+      [&] {
+        std::ignore = db.upsert(key, v0, [&in_t1_fn](auto& v) {
+          unodb::detail::sync(in_t1_fn);
+          return increment_fn(v);
+        });
+      },
+      [&] {
+        t2_inserted =
+            db.insert(t2_key, unodb::test::get_test_value<TypeParam>(2));
+      });
   // A failed insert would leave the root I4 unchanged.
   UNODB_ASSERT_TRUE(t2_inserted);
+  // T1's one lambda call: T2's insert changes only the root I4 above the
+  // inode T1 rechecks, so T1 commits or keeps without restarting.
+  UNODB_ASSERT_EQ(1U, hits);
 
   // Post: key is present; for the u64 value, the increment T1 made under its
   // node write guard persists despite the failed parent unlock.
