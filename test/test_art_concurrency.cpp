@@ -653,12 +653,14 @@ template <class Db, class T2Op>
 
 /// Insert \a key_a and \a sibs into a \a Db, remove \a key_a with T1 parked
 /// once at \a point while T2 inserts \a t2_key, and check that \a t2_key and
-/// every sibling survive with their own values and \a key_a is gone.
+/// every sibling survive with their own values and \a key_a is gone, then run
+/// \a post_check on the tree if given.
 template <class Db>
 void assert_remove_keeps_other_keys(unodb::detail::sync_point& point,
                                     unodb::key_view key_a,
                                     std::span<const unodb::key_view> sibs,
-                                    unodb::key_view t2_key) {
+                                    unodb::key_view t2_key,
+                                    void (*post_check)(const Db&) = nullptr) {
   // One value per key, so that a lookup that reaches another key's keyless
   // leaf or packed value finds the wrong value: test value 0 for key_a, 1 for
   // t2_key, and i + 2 for sibs[i].
@@ -685,6 +687,7 @@ void assert_remove_keeps_other_keys(unodb::detail::sync_point& point,
   for (std::size_t i = 0; i < sibs.size(); ++i)
     ASSERT_VALUE_FOR_KEY(Db, db, sibs[i], val(i + 2));
   UNODB_ASSERT_FALSE(db.get(key_a).has_value());
+  if (post_check != nullptr) post_check(db);
 }
 
 /// Fixture of the remove-descent tests.
@@ -810,8 +813,9 @@ UNODB_TYPED_TEST(OLCRemoveDescentVsSplit, SplitChainTopBelowInodeKeepsSibling) {
 // Key constraint: T2 must only access nodes that T1 does NOT hold
 // write guards on at the sync point.
 //
-// At SP1 (sync_after_chain_locked): T1 holds chain_bottom (ng),
-//   all chain nodes on stack (chain_guards), and leaf (lg).
+// At SP1 (sync_after_chain_locked): T1 holds chain_bottom (ng), the
+//   chain nodes Step 2 locked at their descent versions (chain_guards), and
+//   leaf (lg).
 //   The cut_point_parent is NOT locked.
 //
 // At SP2 (sync_between_chain_locks): T1 holds chain_bottom (ng),
@@ -1080,6 +1084,108 @@ UNODB_TEST(OLCChainCutInterleaved, ABAOnChainNode) {
   UNODB_ASSERT_FALSE(db.get(key_a).has_value());
   UNODB_ASSERT_TRUE(db.get(sib).has_value());
   UNODB_ASSERT_FALSE(db.get(t2_key).has_value());
+}
+
+// ===================================================================
+// Chain cut vs. a concurrent split that moves a node the cut will lock or
+// unlink without obsoleting it.  The cut must check every link it relies on:
+// that each chain node still leads to the node below it, and that the root
+// pointer still points to the topmost node it rewrites.
+// ===================================================================
+
+/// CL1: T1 removes key_a and parks in Step 2 holding only chain[3].  T2
+/// inserts a key that splits chain[1]'s prefix, which puts a new I4 between
+/// chain[0] and chain[1].  chain[0]'s version moved but it is still a
+/// one-child I4, so T1 must see that it no longer leads to chain[1] instead of
+/// cutting the new I4.
+UNODB_TEST(OLCChainCutVsSplit, SplitBelowChainTop) {
+  constexpr auto X = unodb::test_data::chain_key_filler;
+  unodb::key_encoder enc;
+  std::array<std::byte, 34> buf_a{};
+  std::array<std::byte, 34> buf_sib{};
+  std::array<std::byte, 34> buf_t2{};
+  const auto key_a = copy_key(make_key_34(enc, 0x10, X, 0x01), buf_a);
+  const auto sib = copy_key(make_key_34(enc, 0x20, X, 0x01), buf_sib);
+  const auto t2_key = copy_key(
+      make_key_34(enc, 0x10, chain_key_filler_second_byte_changed, 0x01),
+      buf_t2);
+  assert_remove_keeps_other_keys<unodb::test::key_view_olc_db>(
+      unodb::detail::sync_between_chain_locks, key_a, std::array{sib}, t2_key);
+}
+
+/// CL2: CL1 without the sibling, so chain[0] is the root.  T1 would cut from
+/// the root pointer after accepting chain[0], and must still see that chain[0]
+/// no longer leads to chain[1].
+UNODB_TEST(OLCChainCutVsSplit, SplitBelowRootChainTop) {
+  constexpr auto X = unodb::test_data::chain_key_filler;
+  unodb::key_encoder enc;
+  std::array<std::byte, 34> buf_a{};
+  std::array<std::byte, 34> buf_t2{};
+  const auto key_a = copy_key(make_key_34(enc, 0x10, X, 0x01), buf_a);
+  const auto t2_key = copy_key(
+      make_key_34(enc, 0x10, chain_key_filler_second_byte_changed, 0x01),
+      buf_t2);
+  assert_remove_keeps_other_keys<unodb::test::key_view_olc_db>(
+      unodb::detail::sync_between_chain_locks, key_a, {}, t2_key);
+}
+
+/// CL3: key_a's chain is the whole tree.  T1 removes key_a and parks in
+/// Step 2.  T2 inserts a key that differs in the first byte, which splits
+/// chain[0]'s prefix and installs a new root I4 above it.  chain[0] still
+/// leads to chain[1], so T1 must see that the root pointer no longer points to
+/// chain[0] instead of clearing it.
+UNODB_TEST(OLCChainCutVsSplit, RootSplitAboveChainTop) {
+  constexpr auto X = unodb::test_data::chain_key_filler;
+  unodb::key_encoder enc;
+  std::array<std::byte, 34> buf_a{};
+  std::array<std::byte, 34> buf_t2{};
+  const auto key_a = copy_key(make_key_34(enc, 0x10, X, 0x01), buf_a);
+  const auto t2_key = copy_key(make_key_34(enc, 0x20, X, 0x01), buf_t2);
+  assert_remove_keeps_other_keys<unodb::test::key_view_olc_db>(
+      unodb::detail::sync_between_chain_locks, key_a, {}, t2_key);
+}
+
+/// CL4: the root is an I16 at its minimum size whose one-byte prefix key_a's
+/// chain hangs below, so cutting that chain shrinks the root.  T1 removes key_a
+/// and parks after Step 2.  T2 inserts a key that differs in the first byte,
+/// which splits the I16's prefix and installs a new root I4 above it.  T1 must
+/// see that the root pointer no longer points to the I16 instead of replacing
+/// the new root with the shrunk I16.
+UNODB_TEST(OLCChainCutVsSplit, RootSplitAboveShrinkingCutPointParent) {
+  unodb::key_encoder enc;
+  std::array<std::byte, 26> buf_a{};
+  std::array<std::byte, 1> buf_t2{};
+  constexpr std::uint8_t tag = 0x10;
+  const auto key_a = copy_key(make_key_26(enc, tag, 0x01), buf_a);
+  const auto t2_key = copy_key(make_short_key(enc, 0x20), buf_t2);
+  // Two-byte siblings below the root's one-byte prefix tag, beside key_a's
+  // chain at chain_key_filler_byte, make the root an I16 at its minimum size.
+  // Their second bytes follow the filler byte, so that none of them is a prefix
+  // of key_a.
+  using inode_16 =
+      unodb::detail::olc_inode_16<unodb::key_view, unodb::value_view>;
+  constexpr std::size_t sib_count = inode_16::min_size - 1U;
+  std::array<std::array<std::byte, 2>, sib_count> buf_sibs{};
+  std::array<unodb::key_view, sib_count> sibs{};
+  for (std::size_t i = 0; i < sibs.size(); ++i) {
+    sibs[i] = copy_key(enc.reset()
+                           .encode(tag)
+                           .encode(static_cast<std::uint8_t>(
+                               unodb::test_data::chain_key_filler_byte + 1 + i))
+                           .get_key_view(),
+                       buf_sibs[i]);
+  }
+
+  assert_remove_keeps_other_keys<unodb::test::key_view_olc_db>(
+      unodb::detail::sync_after_chain_locked, key_a, sibs, t2_key,
+      []([[maybe_unused]] const unodb::test::key_view_olc_db& db) {
+#ifdef UNODB_DETAIL_WITH_STATS
+        // T1's retry after Step 4.1's restart shrinks the I16 once, below the
+        // new root.
+        UNODB_ASSERT_EQ(1U,
+                        db.get_shrinking_inode_count<unodb::node_type::I16>());
+#endif
+      });
 }
 
 #endif  // NDEBUG

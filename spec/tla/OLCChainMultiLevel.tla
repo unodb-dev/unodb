@@ -6,13 +6,14 @@
 \* chain0 has 1 child (chain1). chain1 has 1 child (leaf).
 \*
 \* Remover: locks chain1, then chain0 (bottom-up), then evaluates parent.
-\* Inserter: can add a child to chain0 OR chain1, breaking membership.
+\* Inserter: can add a child to chain0 OR chain1, breaking membership.  No
+\* other remove runs, and no insert replaces a child link, so the chain links
+\* the code checks in Step 3 always hold here.
 \*
 \* Key scenarios exercised:
 \* - cut_level moves DOWN: insert breaks chain0 after chain1 locked
 \* - cut_level stays: both chain nodes lock successfully
 \* - Case A on parent: normal cut
-\* - Case C on parent: child pointer gone (concurrent remove of chain0)
 \*
 \* Verifies: cut only proceeds with correct locks and valid state.
 
@@ -65,7 +66,7 @@ Init ==
 -----------------------------------------------------------------------------
 \* REMOVER: bottom-up chain locking, then CPP evaluation
 
-\* Step 2a: Lock chain1 (bottom of chain)
+\* Lock chain1 (bottom of chain), which the code holds from the descent.
 RemoverLockC1 ==
     /\ rpc = "idle"
     /\ c1_ver % 2 = 0 /\ c1_count = 1  \* chain membership precondition
@@ -76,7 +77,10 @@ RemoverLockC1 ==
     /\ UNCHANGED <<p_count, p_has_c0, p_ver, c0_count, c0_ver, c1_count,
                    r_c0_locked, r_pver, r_p_has_c0, ipc, i_target, i_ver>>
 
-\* Step 2b: Try to lock chain0 (revalidation with precondition)
+\* Lock chain0 as a chain member.  The code does this in Step 2 only at
+\* chain0's descent version; once that has moved, Step 3 Case B does it at
+\* the current version if chain0 is still a one-child I4 leading to chain1.
+\* With no descent versions or child links here, both reduce to this action.
 RemoverLockC0_OK ==
     /\ rpc = "lock_c0"
     /\ c0_ver % 2 = 0 /\ c0_count = 1  \* precondition holds
@@ -87,8 +91,8 @@ RemoverLockC0_OK ==
     /\ UNCHANGED <<p_count, p_has_c0, p_ver, c0_count, c1_count, c1_ver,
                    r_c1_locked, r_pver, r_p_has_c0, ipc, i_target, i_ver>>
 
-\* Step 2b: chain0 precondition FAILS (count != 1 or version odd)
-\* cut_level stays at 1 — chain0 becomes the cut_point_parent
+\* chain0 is not a lockable one-child I4 (count != 1 or version odd):
+\* Step 3 takes it as the cut_point_parent, so cut_level stays at 1.
 RemoverLockC0_Fail ==
     /\ rpc = "lock_c0"
     /\ (c0_ver % 2 = 1 \/ c0_count # 1)  \* precondition fails
