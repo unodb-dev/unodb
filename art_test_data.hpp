@@ -129,14 +129,19 @@ static_assert(too_long_view_length >
 inline constexpr std::array<std::string_view, 8> encoded_text_keys{
     "", "a", "abba", "banana", "camel", "yellow", "ostritch", "zebra"};
 
+/// Byte that every byte of \ref chain_key_filler repeats.
+inline constexpr std::uint8_t chain_key_filler_byte = 0x42;
+
 /// Filler word giving consecutive key bytes a shared pattern, forcing
 /// key-prefix chains: keys sharing more than key_prefix_capacity (7) bytes
 /// need a chain of internal nodes because the dispatch byte after the stored
-/// prefix is the same for all of them. Only the sharing matters, not the
-/// value: the zero words in \ref make_key_18 and \ref make_key_26 force chains
-/// the same way. 0x42 keeps filler bytes apart from those zero words and from
-/// \ref chain_key_filler_alt in a dump.
-inline constexpr auto chain_key_filler = std::uint64_t{0x4242424242424242ULL};
+/// prefix is the same for all of them. The zero words in \ref make_key_18 and
+/// \ref make_key_26 force chains the same way. 0x42 keeps filler bytes apart
+/// from those zero words and from \ref chain_key_filler_alt in a dump. The
+/// OLCRemoveDescentVsSplit tests rely on all of its bytes being equal and
+/// restrict its value; see there.
+inline constexpr auto chain_key_filler =
+    std::uint64_t{0x0101'0101'0101'0101ULL * chain_key_filler_byte};
 
 /// A second filler word, for keys that must diverge from \ref
 /// chain_key_filler at the first byte of the corresponding key word.

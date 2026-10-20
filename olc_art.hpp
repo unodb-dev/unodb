@@ -55,6 +55,15 @@ inline sync_point sync_between_chain_locks;
 /// and min_size read, before write guard acquisition.
 inline sync_point sync_before_remove_write_guard;
 
+/// Sync point: fires in try_remove_key_view after it has checked the root
+/// pointer, before it read-locks the root node.
+inline sync_point sync_before_remove_root_read;
+
+/// Sync point: fires in remove_or_choose_subtree before it read-locks the
+/// child for the key byte: an inode it descends to or a leaf it checks for
+/// removal.
+inline sync_point sync_before_remove_child_read;
+
 /// Sync point: fires in add_or_choose_subtree before write guard acquisition
 /// during node growth (I4→I16 etc.).
 inline sync_point sync_before_insert_grow_guard;
@@ -2218,6 +2227,7 @@ template <typename Key, typename Value, typename HeapTag, class INode>
     if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return {};
   }
 
+  detail::sync(detail::sync_before_remove_child_read);
   auto& child_lock{node_ptr_lock(*child)};
   *child_critical_section = child_lock.try_read_lock();
   if (UNODB_DETAIL_UNLIKELY(child_critical_section->must_restart())) return {};
@@ -3675,6 +3685,7 @@ olc_db<Key, Value, HeapTag>::try_remove_key_view(
 
   if (UNODB_DETAIL_UNLIKELY(node == nullptr)) return false;
 
+  detail::sync(detail::sync_before_remove_root_read);
   auto node_critical_section = node_ptr_lock(node).try_read_lock();
   if (UNODB_DETAIL_UNLIKELY(node_critical_section.must_restart())) {
     // LCOV_EXCL_START
@@ -3841,6 +3852,11 @@ olc_db<Key, Value, HeapTag>::try_remove_key_view(
       auto ccs = node_ptr_lock(cv).try_read_lock();
       if (UNODB_DETAIL_UNLIKELY(ccs.must_restart())) return {};
 
+      // The first chain node of a run was read after its parent's last check,
+      // and a prefix split in between moves it to a new depth without
+      // obsoleting it.  Check the parent before dropping it.
+      if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
+        return {};
       parent_critical_section = std::move(node_critical_section);
       node = cv;
       node_in_parent = cp;
@@ -3848,6 +3864,9 @@ olc_db<Key, Value, HeapTag>::try_remove_key_view(
       node_type = cv.type();
       ++depth;
       remaining_key.shift_right(1);
+      // Each later exit validates the new parent again before it returns or
+      // writes, so this check only restarts early, before reading the child's
+      // prefix.
       if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) return {};
       continue;
     }

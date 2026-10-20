@@ -28,6 +28,7 @@
 
 #ifndef NDEBUG
 #include <type_traits>
+#include <utility>
 
 #include "art_internal_impl.hpp"
 #include "node_type.hpp"
@@ -528,6 +529,259 @@ UNODB_TYPED_TEST(ARTChainConcurrencyTest, DISABLED_ChainStressTest) {
 }
 // LCOV_EXCL_STOP
 
+#ifndef NDEBUG
+
+// Key construction helpers whose every use is debug-only; see
+// art_test_data.hpp for the encoded key shapes. They sit inside this guard so
+// that NDEBUG builds do not trip clang-tidy's misc-unused-using-decls; the
+// helpers also used unconditionally are declared with the group above.
+using unodb::test_data::make_key_26;
+using unodb::test_data::make_key_34;
+// The namespace ASSERT_VALUE_FOR_KEY expands against.
+namespace detail = unodb::test::detail;
+
+// ===================================================================
+// Remove descent vs. a concurrent prefix split of the first chain node of a
+// run, below the root pointer or below a non-chain inode.  The descent reads
+// that node's version only after its last check of the node's parent, and the
+// split moves the node to a new depth without obsoleting it, so the descent
+// must check the parent again before it walks on.  Every byte the stale walk
+// reads above the bottom node is chain_key_filler_byte, so it matches each
+// prefix and dispatch byte down there.  In the root-chain tests that includes
+// the tag: the split empties the chain top's prefix, so the walk dispatches it
+// on the tag.  With another tag it would find no child there and restart on
+// the root pointer check, and the tests would pass without the fix.
+// ===================================================================
+
+/// Tag that sets T2's key apart from key_a's in the root-chain tests.
+constexpr std::uint8_t root_chain_t2_tag = 0x20;
+
+/// Tag of key_a and T2's key in the below-inode tests, under a root that
+/// dispatches on it.
+constexpr std::uint8_t below_inode_tag = 0x10;
+
+/// Last byte of key_a, and of the sibling that a walk short of key_a's depth
+/// reaches instead.
+constexpr std::uint8_t key_a_last_byte = 0x01;
+
+// The filler byte must differ from root_chain_t2_tag, or key_a and T2's key
+// are equal in the root-chain tests, and from key_a_last_byte, or key_a is a
+// prefix of its sibling.
+static_assert(unodb::test_data::chain_key_filler_byte != root_chain_t2_tag &&
+                  unodb::test_data::chain_key_filler_byte != key_a_last_byte,
+              "key_a must differ from T2's key and must not be a prefix of "
+              "its sibling");
+
+/// chain_key_filler with its second byte changed, for keys that must diverge
+/// from chain_key_filler at the second byte of the corresponding key word.
+constexpr auto chain_key_filler_second_byte_changed =
+    unodb::test_data::chain_key_filler ^
+    std::uint64_t{0x0001'0000'0000'0000ULL};
+
+/// Encode a 33-byte key: \a tag, \a word1, two chain_key_fillers, and
+/// chain_key_filler with its last byte replaced by \a last.  Below a root
+/// that dispatches on the tag, its chain starts with a seven-byte prefix.
+[[nodiscard]] unodb::key_view make_key_33(unodb::key_encoder& enc
+                                          UNODB_DETAIL_LIFETIMEBOUND,
+                                          std::uint8_t tag, std::uint64_t word1,
+                                          std::uint8_t last) {
+  constexpr auto X = unodb::test_data::chain_key_filler;
+  return enc.reset()
+      .encode(tag)
+      .encode(word1)
+      .encode(X)
+      .encode(X)
+      .encode((X & ~std::uint64_t{0xFF}) | last)
+      .get_key_view();
+}
+
+/// Encode a 35-byte key: \a tag, four chain_key_fillers, chain_key_filler_byte
+/// and key_a_last_byte.  It extends key_a by filler bytes before key_a's last
+/// byte, one for a 34-byte key_a and two for a 33-byte one, so that a walk that
+/// many bytes short reaches it with one key byte left.
+[[nodiscard]] unodb::key_view make_key_35(unodb::key_encoder& enc
+                                          UNODB_DETAIL_LIFETIMEBOUND,
+                                          std::uint8_t tag) {
+  constexpr auto X = unodb::test_data::chain_key_filler;
+  return enc.reset()
+      .encode(tag)
+      .encode(X)
+      .encode(X)
+      .encode(X)
+      .encode(X)
+      .encode(unodb::test_data::chain_key_filler_byte)
+      .encode(key_a_last_byte)
+      .get_key_view();
+}
+
+/// Run T1's remove(\a removed) parked once at \a point while T2 runs \a t2_op.
+/// \return Whether T1 removed \a removed, and \a t2_op's result.
+template <class Db, class T2Op>
+[[nodiscard]] std::pair<bool, bool> remove_parked_during(
+    Db& db, unodb::detail::sync_point& point, unodb::key_view removed,
+    T2Op t2_op) {
+  const sync_point_guard guard{point};
+  point.arm([&point]() {
+    point.disarm();  // one-shot
+    unodb::detail::thread_syncs[0].notify();
+    unodb::detail::thread_syncs[1].wait();
+  });
+
+  unodb::this_thread().qsbr_pause();
+
+  bool t2_ok = false;
+  auto t2 = unodb::qsbr_thread([&] {
+    unodb::detail::thread_syncs[0].wait();
+    const unodb::quiescent_state_on_scope_exit q{};
+    t2_ok = t2_op();
+    unodb::detail::thread_syncs[1].notify();
+  });
+
+  bool removed_ok = false;
+  auto t1 = unodb::qsbr_thread([&] {
+    const unodb::quiescent_state_on_scope_exit q{};
+    removed_ok = db.remove(removed);
+  });
+
+  t1.join();
+  t2.join();
+  unodb::this_thread().qsbr_resume();
+  unodb::this_thread().quiescent();
+
+  return {removed_ok, t2_ok};
+}
+
+/// Insert \a key_a and \a sibs into a \a Db, remove \a key_a with T1 parked
+/// once at \a point while T2 inserts \a t2_key, and check that \a t2_key and
+/// every sibling survive with their own values and \a key_a is gone.
+template <class Db>
+void assert_remove_keeps_other_keys(unodb::detail::sync_point& point,
+                                    unodb::key_view key_a,
+                                    std::span<const unodb::key_view> sibs,
+                                    unodb::key_view t2_key) {
+  // One value per key, so that a lookup that reaches another key's keyless
+  // leaf or packed value finds the wrong value: test value 0 for key_a, 1 for
+  // t2_key, and i + 2 for sibs[i].
+  UNODB_DETAIL_ASSERT(sibs.size() + 2 <=
+                      std::min(unodb::test_data::test_values.size(),
+                               unodb::test_data::test_values_u64.size()));
+  const auto val = [](std::size_t i) {
+    return unodb::test::get_test_value<Db>(i);
+  };
+
+  Db db;
+  UNODB_ASSERT_TRUE(db.insert(key_a, val(0)));
+  for (std::size_t i = 0; i < sibs.size(); ++i)
+    UNODB_ASSERT_TRUE(db.insert(sibs[i], val(i + 2)));
+
+  const auto [removed, inserted] = remove_parked_during(
+      db, point, key_a, [&] { return db.insert(t2_key, val(1)); });
+  UNODB_ASSERT_TRUE(removed);
+  UNODB_ASSERT_TRUE(inserted);
+  const unodb::quiescent_state_on_scope_exit q{};
+  // The surviving keys first: a wrong remove can leave obsoleted nodes linked,
+  // which a lookup of key_a would then walk.
+  ASSERT_VALUE_FOR_KEY(Db, db, t2_key, val(1));
+  for (std::size_t i = 0; i < sibs.size(); ++i)
+    ASSERT_VALUE_FOR_KEY(Db, db, sibs[i], val(i + 2));
+  UNODB_ASSERT_FALSE(db.get(key_a).has_value());
+}
+
+/// Fixture of the remove-descent tests.
+template <class Db>
+class OLCRemoveDescentVsSplit : public ::testing::Test {};
+
+/// The OLC key_view databases without a heap, which
+/// assert_remove_keeps_other_keys() default-constructs.  The stale walk of each
+/// KeepsSibling test ends at the sibling's keyless leaf in the first and at its
+/// packed value in the second, which reach the chain cut through different
+/// arms.
+using OLCKeyViewTypes = ::testing::Types<unodb::test::key_view_olc_db,
+                                         unodb::test::key_view_u64val_olc_db>;
+
+UNODB_TYPED_TEST_SUITE(OLCRemoveDescentVsSplit, OLCKeyViewTypes)
+
+/// key_a's chain is the whole tree, and its top's prefix is the tag.  T1
+/// removes key_a and parks after checking the root pointer, before reading the
+/// chain top.  T2 inserts a key with another tag, which splits that prefix and
+/// installs a new root above the chain top, so T1 would walk the chain one
+/// byte short and miss key_a at the bottom node.  The tag must be
+/// chain_key_filler_byte; see the section comment.
+UNODB_TYPED_TEST(OLCRemoveDescentVsSplit, SplitRootChainTopRemovesKey) {
+  constexpr auto X = unodb::test_data::chain_key_filler;
+  constexpr auto tag = unodb::test_data::chain_key_filler_byte;
+  unodb::key_encoder enc;
+  std::array<std::byte, 34> buf_a{};
+  std::array<std::byte, 34> buf_t2{};
+  const auto key_a = copy_key(make_key_34(enc, tag, X, key_a_last_byte), buf_a);
+  const auto t2_key =
+      copy_key(make_key_34(enc, root_chain_t2_tag, X, 0x01), buf_t2);
+  assert_remove_keeps_other_keys<TypeParam>(
+      unodb::detail::sync_before_remove_root_read, key_a, {}, t2_key);
+}
+
+/// SplitRootChainTopRemovesKey with a sibling that T1's walk one byte short
+/// would reach instead of key_a, and remove.
+UNODB_TYPED_TEST(OLCRemoveDescentVsSplit, SplitRootChainTopKeepsSibling) {
+  constexpr auto X = unodb::test_data::chain_key_filler;
+  constexpr auto tag = unodb::test_data::chain_key_filler_byte;
+  unodb::key_encoder enc;
+  std::array<std::byte, 34> buf_a{};
+  std::array<std::byte, 35> buf_sib{};
+  std::array<std::byte, 34> buf_t2{};
+  const auto key_a = copy_key(make_key_34(enc, tag, X, key_a_last_byte), buf_a);
+  const auto sib = copy_key(make_key_35(enc, tag), buf_sib);
+  const auto t2_key =
+      copy_key(make_key_34(enc, root_chain_t2_tag, X, 0x01), buf_t2);
+  assert_remove_keeps_other_keys<TypeParam>(
+      unodb::detail::sync_before_remove_root_read, key_a, std::array{sib},
+      t2_key);
+}
+
+/// Root holds a one-byte key and key_a's chain, whose top's prefix is
+/// seven bytes long.  T1 removes key_a and parks after checking the root,
+/// before reading the chain top.  T2 inserts a key that differs in the chain
+/// top's second prefix byte, which splits it, so T1 would walk the chain two
+/// bytes short and miss key_a at the bottom node.
+UNODB_TYPED_TEST(OLCRemoveDescentVsSplit, SplitChainTopBelowInodeRemovesKey) {
+  constexpr auto X = unodb::test_data::chain_key_filler;
+  unodb::key_encoder enc;
+  std::array<std::byte, 33> buf_a{};
+  std::array<std::byte, 1> buf_sib{};
+  std::array<std::byte, 33> buf_t2{};
+  const auto key_a =
+      copy_key(make_key_33(enc, below_inode_tag, X, key_a_last_byte), buf_a);
+  const auto sib = copy_key(make_short_key(enc, 0x20), buf_sib);
+  const auto t2_key =
+      copy_key(make_key_33(enc, below_inode_tag,
+                           chain_key_filler_second_byte_changed, 0x01),
+               buf_t2);
+  assert_remove_keeps_other_keys<TypeParam>(
+      unodb::detail::sync_before_remove_child_read, key_a, std::array{sib},
+      t2_key);
+}
+
+/// SplitChainTopBelowInodeRemovesKey with a second sibling that T1's walk two
+/// bytes short would reach instead of key_a, and remove.
+UNODB_TYPED_TEST(OLCRemoveDescentVsSplit, SplitChainTopBelowInodeKeepsSibling) {
+  constexpr auto X = unodb::test_data::chain_key_filler;
+  unodb::key_encoder enc;
+  std::array<std::byte, 33> buf_a{};
+  std::array<std::byte, 1> buf_sib1{};
+  std::array<std::byte, 35> buf_sib2{};
+  std::array<std::byte, 33> buf_t2{};
+  const auto key_a =
+      copy_key(make_key_33(enc, below_inode_tag, X, key_a_last_byte), buf_a);
+  const std::array sibs{copy_key(make_short_key(enc, 0x20), buf_sib1),
+                        copy_key(make_key_35(enc, below_inode_tag), buf_sib2)};
+  const auto t2_key =
+      copy_key(make_key_33(enc, below_inode_tag,
+                           chain_key_filler_second_byte_changed, 0x01),
+               buf_t2);
+  assert_remove_keeps_other_keys<TypeParam>(
+      unodb::detail::sync_before_remove_child_read, key_a, sibs, t2_key);
+}
+
 // ===================================================================
 // Dangling chain bug test.
 //
@@ -548,15 +802,6 @@ UNODB_TYPED_TEST(ARTChainConcurrencyTest, DISABLED_ChainStressTest) {
 // obsoleted chain head.
 // Fix: T1 must handle the dangling chain correctly.
 // ===================================================================
-
-#ifndef NDEBUG
-
-// Key construction helpers whose every use is debug-only; see
-// art_test_data.hpp for the encoded key shapes. They sit inside this guard so
-// that NDEBUG builds do not trip clang-tidy's misc-unused-using-decls; the
-// helpers also used unconditionally are declared with the group above.
-using unodb::test_data::make_key_26;
-using unodb::test_data::make_key_34;
 
 // ===================================================================
 // Concurrent chain cut tests with explicit interleavings.
