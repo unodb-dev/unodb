@@ -45,8 +45,9 @@ VARIABLES
     rbpc,           \* idle|lock_cb|eval_shared|validate_shared|
                     \* upgrade_shared|eval_parent|cut|done|restart
     rb_cb_locked,
-    rb_s_locked,    \* TRUE if shared_node locked as chain member (BUG path)
-    rb_cached_ver,
+    rb_s_locked,    \* TRUE while B holds shared_node's write lock
+    rb_s_cached_ver,  \* shared_node's version at B's last read of it
+    rb_p_cached_ver,  \* parent's version at B's last read of it
     rb_chain_includes_shared,  \* TRUE if chain identification included shared_node
 
     \* Inserter/Remover A: can insert or remove key A's VIS entry
@@ -54,7 +55,7 @@ VARIABLES
     a_op            \* "insert" or "remove"
 
 vars == <<p_ver, p_count, s_ver, s_has_vis, s_has_child_b, cb_ver,
-          rbpc, rb_cb_locked, rb_s_locked, rb_cached_ver,
+          rbpc, rb_cb_locked, rb_s_locked, rb_s_cached_ver, rb_p_cached_ver,
           rb_chain_includes_shared,
           apc, a_op>>
 
@@ -79,7 +80,8 @@ Init ==
     /\ cb_ver = 0
     /\ rbpc = "idle"
     /\ rb_cb_locked = FALSE /\ rb_s_locked = FALSE
-    /\ rb_cached_ver = 0 /\ rb_chain_includes_shared = FALSE
+    /\ rb_s_cached_ver = 0 /\ rb_p_cached_ver = 0
+    /\ rb_chain_includes_shared = FALSE
     /\ apc = "idle" /\ a_op = "remove"
 
 -----------------------------------------------------------------------------
@@ -94,72 +96,73 @@ RBLockCB ==
     /\ rb_cb_locked' = TRUE
     /\ rbpc' = "eval_shared"
     /\ UNCHANGED <<p_ver, p_count, s_ver, s_has_vis, s_has_child_b,
-                   rb_s_locked, rb_cached_ver, rb_chain_includes_shared,
-                   apc, a_op>>
+                   rb_s_locked, rb_s_cached_ver, rb_p_cached_ver,
+                   rb_chain_includes_shared, apc, a_op>>
 
 \* Evaluate shared_node for chain membership
 RBEvalShared ==
     /\ rbpc = "eval_shared"
-    /\ rb_cached_ver' = s_ver
+    /\ rb_s_cached_ver' = s_ver
     /\ rbpc' = "validate_shared"
     /\ UNCHANGED <<p_ver, p_count, s_ver, s_has_vis, s_has_child_b, cb_ver,
-                   rb_cb_locked, rb_s_locked, rb_chain_includes_shared,
-                   apc, a_op>>
+                   rb_cb_locked, rb_s_locked, rb_p_cached_ver,
+                   rb_chain_includes_shared, apc, a_op>>
 
-\* Validate and check chain membership
+\* Validate and check chain membership.  A chain member (count=1: only
+\* chain_B, no VIS) is safe to include in the cut; otherwise key A's VIS entry
+\* makes shared_node the cut-point parent, which the cut writes.  Either way,
+\* lock it next.
 RBValidateShared ==
     /\ rbpc = "validate_shared"
-    /\ IF s_ver = rb_cached_ver /\ s_ver % 2 = 0
+    /\ IF s_ver = rb_s_cached_ver /\ s_ver % 2 = 0
        THEN \* Version valid — check chain membership using CORRECT count
-            IF IsChainMember
-            THEN \* shared_node IS a chain member (count=1)
-                 \* This means only chain_B exists, no VIS → safe to include
-                 /\ rb_chain_includes_shared' = TRUE
-                 /\ rbpc' = "upgrade_shared"
-            ELSE \* shared_node is NOT a chain member (count>=2)
-                 \* VIS entry present → shared_node is the CPP boundary
-                 /\ rb_chain_includes_shared' = FALSE
-                 /\ rbpc' = "eval_parent_as_cpp"
+            /\ rb_chain_includes_shared' = IsChainMember
+            /\ rbpc' = "upgrade_shared"
        ELSE \* Version changed — re-read
             /\ rbpc' = "eval_shared"
             /\ UNCHANGED rb_chain_includes_shared
     /\ UNCHANGED <<p_ver, p_count, s_ver, s_has_vis, s_has_child_b, cb_ver,
-                   rb_cb_locked, rb_s_locked, rb_cached_ver, apc, a_op>>
+                   rb_cb_locked, rb_s_locked, rb_s_cached_ver, rb_p_cached_ver,
+                   apc, a_op>>
 
-\* Upgrade shared_node to write (chain member path)
+\* Upgrade shared_node to write at the version B validated, as a chain member
+\* or as the cut-point parent
 RBUpgradeShared ==
     /\ rbpc = "upgrade_shared"
-    /\ IF s_ver = rb_cached_ver /\ s_ver % 2 = 0
+    /\ IF s_ver = rb_s_cached_ver /\ s_ver % 2 = 0
        THEN /\ s_ver' = s_ver + 1
             /\ rb_s_locked' = TRUE
-            /\ rbpc' = "eval_parent_as_cpp"
+            /\ rbpc' = "eval_parent"
        ELSE /\ rbpc' = "eval_shared"  \* retry
             /\ UNCHANGED <<s_ver, rb_s_locked>>
     /\ UNCHANGED <<p_ver, p_count, s_has_vis, s_has_child_b, cb_ver,
-                   rb_cb_locked, rb_cached_ver, rb_chain_includes_shared,
-                   apc, a_op>>
+                   rb_cb_locked, rb_s_cached_ver, rb_p_cached_ver,
+                   rb_chain_includes_shared, apc, a_op>>
 
-\* Evaluate parent as CPP (shared_node is either chain member or CPP itself)
-RBEvalParentAsCPP ==
-    /\ rbpc = "eval_parent_as_cpp"
-    /\ rb_cached_ver' = p_ver
+\* Evaluate the parent: the cut-point parent if shared_node is a chain member,
+\* else the grandparent that Step 4.1 locks because the two-child shared_node
+\* needs shrinking; try_collapse_i4 then keeps shared_node, whose remaining
+\* entry is key A's packed value
+RBEvalParent ==
+    /\ rbpc = "eval_parent"
+    /\ rb_p_cached_ver' = p_ver
     /\ rbpc' = "validate_parent"
     /\ UNCHANGED <<p_ver, p_count, s_ver, s_has_vis, s_has_child_b, cb_ver,
-                   rb_cb_locked, rb_s_locked, rb_chain_includes_shared,
-                   apc, a_op>>
+                   rb_cb_locked, rb_s_locked, rb_s_cached_ver,
+                   rb_chain_includes_shared, apc, a_op>>
 
 \* Only B writes p_ver, so the ELSE branch never fires.  Its re-read is Step
 \* 3's for a cut-point parent; for the grandparent that Step 4.1 locks, the
 \* code instead restarts the remove if the version moved since the descent.
 RBValidateParent ==
     /\ rbpc = "validate_parent"
-    /\ IF p_ver = rb_cached_ver /\ p_ver % 2 = 0
-       THEN /\ p_ver' = p_ver + 1   \* lock parent as CPP
+    /\ IF p_ver = rb_p_cached_ver /\ p_ver % 2 = 0
+       THEN /\ p_ver' = p_ver + 1   \* lock parent
             /\ rbpc' = "cut"
-       ELSE /\ rbpc' = "eval_parent_as_cpp"
+       ELSE /\ rbpc' = "eval_parent"
             /\ UNCHANGED p_ver
     /\ UNCHANGED <<p_count, s_ver, s_has_vis, s_has_child_b, cb_ver,
-                   rb_cb_locked, rb_s_locked, rb_cached_ver,
+                   rb_cb_locked, rb_s_locked, rb_s_cached_ver, rb_p_cached_ver,
                    rb_chain_includes_shared, apc, a_op>>
 
 \* CUT
@@ -175,15 +178,14 @@ RBCut ==
             /\ UNCHANGED s_has_vis       \* VIS entry lost if it existed!
        ELSE \* Cut only chain_B: remove chain_B from shared_node
             /\ s_has_child_b' = FALSE
-            /\ IF rb_s_locked
-               THEN s_ver' = s_ver + 1   \* unlock shared (was locked as CPP? no...)
-               ELSE s_ver' = s_ver        \* shared wasn't locked
-            /\ p_ver' = p_ver + 1        \* unlock parent (CPP)
+            /\ s_ver' = s_ver + 1        \* unlock cut-point parent
+            /\ p_ver' = p_ver + 1        \* unlock parent (grandparent)
             /\ cb_ver' = OBSOLETE
             /\ UNCHANGED <<p_count, s_has_vis>>
     /\ rb_cb_locked' = FALSE /\ rb_s_locked' = FALSE
     /\ rbpc' = "done"
-    /\ UNCHANGED <<rb_cached_ver, rb_chain_includes_shared, apc, a_op>>
+    /\ UNCHANGED <<rb_s_cached_ver, rb_p_cached_ver, rb_chain_includes_shared,
+                   apc, a_op>>
 
 RBRestart ==
     /\ rbpc = "restart"
@@ -192,13 +194,14 @@ RBRestart ==
     /\ rb_cb_locked' = FALSE /\ rb_s_locked' = FALSE
     /\ rbpc' = "idle"
     /\ UNCHANGED <<p_ver, p_count, s_has_vis, s_has_child_b,
-                   rb_cached_ver, rb_chain_includes_shared, apc, a_op>>
+                   rb_s_cached_ver, rb_p_cached_ver, rb_chain_includes_shared,
+                   apc, a_op>>
 
 RBDone ==
     /\ rbpc = "done"
     /\ rbpc' = "idle"
     /\ UNCHANGED <<p_ver, p_count, s_ver, s_has_vis, s_has_child_b, cb_ver,
-                   rb_cb_locked, rb_s_locked, rb_cached_ver,
+                   rb_cb_locked, rb_s_locked, rb_s_cached_ver, rb_p_cached_ver,
                    rb_chain_includes_shared, apc, a_op>>
 
 -----------------------------------------------------------------------------
@@ -212,8 +215,8 @@ AChoose ==
         /\ a_op' = op
     /\ apc' = "lock_s"
     /\ UNCHANGED <<p_ver, p_count, s_ver, s_has_vis, s_has_child_b, cb_ver,
-                   rbpc, rb_cb_locked, rb_s_locked, rb_cached_ver,
-                   rb_chain_includes_shared>>
+                   rbpc, rb_cb_locked, rb_s_locked, rb_s_cached_ver,
+                   rb_p_cached_ver, rb_chain_includes_shared>>
 
 ALockS ==
     /\ apc = "lock_s"
@@ -221,8 +224,8 @@ ALockS ==
     /\ s_ver' = s_ver + 1
     /\ apc' = "write"
     /\ UNCHANGED <<p_ver, p_count, s_has_vis, s_has_child_b, cb_ver,
-                   rbpc, rb_cb_locked, rb_s_locked, rb_cached_ver,
-                   rb_chain_includes_shared, a_op>>
+                   rbpc, rb_cb_locked, rb_s_locked, rb_s_cached_ver,
+                   rb_p_cached_ver, rb_chain_includes_shared, a_op>>
 
 AWrite ==
     /\ apc = "write"
@@ -231,21 +234,21 @@ AWrite ==
        ELSE s_has_vis' = FALSE
     /\ apc' = "unlock"
     /\ UNCHANGED <<p_ver, p_count, s_ver, s_has_child_b, cb_ver,
-                   rbpc, rb_cb_locked, rb_s_locked, rb_cached_ver,
-                   rb_chain_includes_shared, a_op>>
+                   rbpc, rb_cb_locked, rb_s_locked, rb_s_cached_ver,
+                   rb_p_cached_ver, rb_chain_includes_shared, a_op>>
 
 AUnlock ==
     /\ apc = "unlock"
     /\ s_ver' = s_ver + 1
     /\ apc' = "idle"
     /\ UNCHANGED <<p_ver, p_count, s_has_vis, s_has_child_b, cb_ver,
-                   rbpc, rb_cb_locked, rb_s_locked, rb_cached_ver,
-                   rb_chain_includes_shared, a_op>>
+                   rbpc, rb_cb_locked, rb_s_locked, rb_s_cached_ver,
+                   rb_p_cached_ver, rb_chain_includes_shared, a_op>>
 
 -----------------------------------------------------------------------------
 Step ==
     \/ RBLockCB \/ RBEvalShared \/ RBValidateShared \/ RBUpgradeShared
-    \/ RBEvalParentAsCPP \/ RBValidateParent \/ RBCut \/ RBRestart \/ RBDone
+    \/ RBEvalParent \/ RBValidateParent \/ RBCut \/ RBRestart \/ RBDone
     \/ AChoose \/ ALockS \/ AWrite \/ AUnlock
 
 Spec == Init /\ [][Step]_vars
@@ -263,14 +266,15 @@ StateConstraint ==
 NoDataLoss ==
     (rbpc = "cut" /\ rb_chain_includes_shared) => ~s_has_vis
 
-\* Chain membership was correctly evaluated: if shared_node is included
-\* AND we reach cut, the VIS entry must have been absent when we validated.
-\* (The OLC version check ensures our read was consistent.)
-\* NOTE: In this model, this reduces to the same predicate as NoDataLoss
-\* because the single-point-in-time abstraction conflates validation and cut.
-\* A richer model with separate validation/cut steps would distinguish them.
+\* The membership decision B validated still holds when it cuts.
 ChainMembershipCorrect ==
-    (rbpc = "cut" /\ rb_chain_includes_shared) => ~s_has_vis
+    rbpc = "cut" => (rb_chain_includes_shared = IsChainMember)
+
+\* B cuts with shared_node write-locked at the version it last read, on both
+\* paths, so key A's insert or remove cannot land between that read and the
+\* cut.
+SharedLockedAtCut ==
+    rbpc = "cut" => (rb_s_locked /\ s_ver = rb_s_cached_ver + 1)
 
 \* Well-formedness: parent count stays valid
 WellFormedness == p_count >= 1
@@ -280,20 +284,19 @@ WellFormedness == p_count >= 1
 
 BuggyRBValidateShared ==
     /\ rbpc = "validate_shared"
-    /\ IF s_ver = rb_cached_ver /\ s_ver % 2 = 0
-       THEN IF BuggyIsChainMember    \* <-- THE BUG: ignores VIS entry
-            THEN /\ rb_chain_includes_shared' = TRUE
-                 /\ rbpc' = "upgrade_shared"
-            ELSE /\ rb_chain_includes_shared' = FALSE
-                 /\ rbpc' = "eval_parent_as_cpp"
+    /\ IF s_ver = rb_s_cached_ver /\ s_ver % 2 = 0
+       THEN \* <-- THE BUG: BuggyIsChainMember ignores the VIS entry
+            /\ rb_chain_includes_shared' = BuggyIsChainMember
+            /\ rbpc' = "upgrade_shared"
        ELSE /\ rbpc' = "eval_shared"
             /\ UNCHANGED rb_chain_includes_shared
     /\ UNCHANGED <<p_ver, p_count, s_ver, s_has_vis, s_has_child_b, cb_ver,
-                   rb_cb_locked, rb_s_locked, rb_cached_ver, apc, a_op>>
+                   rb_cb_locked, rb_s_locked, rb_s_cached_ver, rb_p_cached_ver,
+                   apc, a_op>>
 
 BuggyStep ==
     \/ RBLockCB \/ RBEvalShared \/ BuggyRBValidateShared \/ RBUpgradeShared
-    \/ RBEvalParentAsCPP \/ RBValidateParent \/ RBCut \/ RBRestart \/ RBDone
+    \/ RBEvalParent \/ RBValidateParent \/ RBCut \/ RBRestart \/ RBDone
     \/ AChoose \/ ALockS \/ AWrite \/ AUnlock
 
 BuggySpec == Init /\ [][BuggyStep]_vars
