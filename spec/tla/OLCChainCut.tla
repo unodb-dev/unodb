@@ -2,7 +2,21 @@
 (* OLC (Optimistic Lock Coupling) chain-cut protocol.
    Models a remover thread cutting a child node from a parent in a B+-tree
    with optimistic lock coupling, and a concurrent inserter that can target
-   the parent or grandparent node.
+   the parent or grandparent node.  Children are counted, not ordered, so a
+   cut at an index that a concurrent insert shifted looks the same here as a
+   cut of the chain; Stage 9 (OLCChainMultiLevel) models such an index.  Cut
+   makes no write into the grandparent: it leaves the shrunk parent linked as
+   a one-child node, as when try_collapse_i4 declines, so neither a correct
+   collapse nor one through a shifted slot of the parent in the grandparent
+   is modeled.  ValidateParent restarts on a moved parent.  So does the code
+   when chain_bottom is the only chain node, since its caller locks the
+   parent at the version the descent read; when the chain extends onto the
+   stack, the code's Step 3 instead re-reads a moved parent at its current
+   version and proceeds.  LockParent then locks the parent at whatever
+   version it has, so an insert after ValidateParent still reaches Cut, as it
+   does on that path once a failed lock upgrade re-reads the parent.
+   AcquireGP tests only whether the grandparent is write-locked, which it
+   never is here, not the version change the code checks.
 
    Fix M1: RemoverLockedImpliesChainSingle replaces trivially-true ChainLockValid.
    Fix M4: Grandparent node added to model Step 4.1 acquisition. *)

@@ -1105,8 +1105,6 @@ class olc_db final {
   /// Stack entry for key_view remove traversal.
   struct remove_entry {
     detail::olc_node_ptr node;
-    std::uint8_t
-        child_i{};       // child index within this node we descended through
     std::byte key_byte;  // dispatch byte used to descend FROM this node
     version_tag_type version;
     in_critical_section<detail::olc_node_ptr>* slot{nullptr};
@@ -3852,7 +3850,7 @@ olc_db<Key, Value, HeapTag>::try_remove_key_view(
       }
 
       // Chain child is not a leaf — push and descend.
-      stk.push_back({node, ci, remaining_key[0], node_critical_section.get(),
+      stk.push_back({node, remaining_key[0], node_critical_section.get(),
                      node_in_parent});
       ++stk_n;
 
@@ -3883,7 +3881,6 @@ olc_db<Key, Value, HeapTag>::try_remove_key_view(
     // the critical sections (it may move them into write guards).
     const auto pre_version = node_critical_section.get();
     const auto pre_key_byte = remaining_key[0];
-    const auto [pre_ci, pre_cp]{inode->find_child(node_type, remaining_key[0])};
 
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26494)
     in_critical_section<detail::olc_node_ptr>* child_in_parent;
@@ -3907,10 +3904,8 @@ olc_db<Key, Value, HeapTag>::try_remove_key_view(
     if (child_in_parent == nullptr) return true;
 
     // Push stack entry for the non-chain node we just traversed.
-    if (pre_cp != nullptr) {
-      stk.push_back({node, pre_ci, pre_key_byte, pre_version, node_in_parent});
-      ++stk_n;
-    }
+    stk.push_back({node, pre_key_byte, pre_version, node_in_parent});
+    ++stk_n;
 
     parent_critical_section = std::move(node_critical_section);
     node = child;
@@ -4966,7 +4961,6 @@ olc_db<Key, Value, HeapTag>::try_chain_cut(
   // Parameters are self-documenting; chain_bottom is NOT on the stack.
   //
   // Stack entry semantics (same as iterator):
-  //   stk[i].child_i  = child index within stk[i] for descent
   //   stk[i].key_byte = dispatch byte used FROM stk[i] to stk[i+1]
   // ============================================================
 
@@ -5111,10 +5105,15 @@ olc_db<Key, Value, HeapTag>::try_chain_cut(
     const auto& cpe = stk[cpp_idx];
     auto* const cpi{cpe.node.template ptr<inode_type*>()};
     const auto cpt = cpe.node.type();
-
-    const std::uint8_t del_ci = (chain_top >= stk_n)
-                                    ? stk[cpp_idx].child_i
-                                    : stk[cut_level - 1].child_i;
+    // The chain's child index, looked up under cpp_guard: a concurrent insert
+    // or remove here may have shifted it since the downward pass.  cpp_guard
+    // locks the version under which the chain's link was checked, so the key
+    // byte still leads to it.
+    const auto [del_ci, del_child]{cpi->find_child(cpt, cpe.key_byte)};
+    UNODB_DETAIL_ASSERT(del_child != nullptr);
+    UNODB_DETAIL_ASSERT(
+        del_child->load() ==
+        (cut_level < stk_n ? stk[cut_level].node : chain_bottom));
 
     if (!needs_shrink) {
       cpi->remove_child_entry(cpt, del_ci);

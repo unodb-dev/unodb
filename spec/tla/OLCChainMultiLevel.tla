@@ -8,7 +8,15 @@
 \* Remover: locks chain1, then chain0 (bottom-up), then evaluates parent.
 \* Inserter: can add a child to chain0 OR chain1, breaking membership.  No
 \* other remove runs, and no insert replaces a child link, so the chain links
-\* the code checks in Step 3 always hold here.
+\* the code checks in Step 3 always hold here.  c0_c1_idx tracks chain1's
+\* slot among chain0's children: the cut_level-moves-DOWN insert below moves
+\* chain1 to the second slot whenever the new key byte sorts before chain1's.
+\* A partial cut must cut at chain1's slot as of the version at which the
+\* remover locks chain0 (CutAtChainIndex).  With CutAtDescentIndex, as in
+\* OLCChainMultiLevel_BugDemo.cfg, it cuts at the slot the descent read, as
+\* the code did before it looked the slot up again under that lock, and
+\* violates CutAtChainIndex.  No insert targets parent, so the full cut's
+\* slot there cannot shift.
 \*
 \* Key scenarios exercised:
 \* - cut_level moves DOWN: insert breaks chain0 after chain1 locked
@@ -19,7 +27,9 @@
 
 EXTENDS Integers
 
-CONSTANTS MaxVersion
+CONSTANTS
+    MaxVersion,
+    CutAtDescentIndex  \* TRUE: cut at the descent's slot (the pre-fix code)
 
 VARIABLES
     \* Parent node
@@ -30,6 +40,7 @@ VARIABLES
     \* Chain node 0 (top of chain, child of parent)
     c0_count,   \* 1 or 2
     c0_ver,
+    c0_c1_idx,  \* chain1's slot among chain0's children
 
     \* Chain node 1 (bottom of chain, child of chain0)
     c1_count,   \* 1 (always — leaf is implicit)
@@ -43,24 +54,25 @@ VARIABLES
     r_c0_locked,\* holds write lock on chain0
     r_pver,     \* cached parent version
     r_p_has_c0, \* cached: parent has chain0?
+    r_cut_idx,  \* chain1's slot in chain0 that a partial cut removes
 
     \* Inserter state
     ipc,        \* idle|lock|write|unlock|done
     i_target,   \* "c0" or "c1"
     i_ver       \* cached version of target for lock
 
-vars == <<p_count, p_has_c0, p_ver, c0_count, c0_ver, c1_count, c1_ver,
-          rpc, r_cut_level, r_c1_locked, r_c0_locked, r_pver, r_p_has_c0,
-          ipc, i_target, i_ver>>
+vars == <<p_count, p_has_c0, p_ver, c0_count, c0_ver, c0_c1_idx, c1_count,
+          c1_ver, rpc, r_cut_level, r_c1_locked, r_c0_locked, r_pver,
+          r_p_has_c0, r_cut_idx, ipc, i_target, i_ver>>
 
 -----------------------------------------------------------------------------
 Init ==
     /\ p_count = 2 /\ p_has_c0 = TRUE /\ p_ver = 0
-    /\ c0_count = 1 /\ c0_ver = 0
+    /\ c0_count = 1 /\ c0_ver = 0 /\ c0_c1_idx = 0
     /\ c1_count = 1 /\ c1_ver = 0
     /\ rpc = "idle" /\ r_cut_level = 0
     /\ r_c1_locked = FALSE /\ r_c0_locked = FALSE
-    /\ r_pver = 0 /\ r_p_has_c0 = FALSE
+    /\ r_pver = 0 /\ r_p_has_c0 = FALSE /\ r_cut_idx = 0
     /\ ipc = "idle" /\ i_target = "c0" /\ i_ver = 0
 
 -----------------------------------------------------------------------------
@@ -73,9 +85,11 @@ RemoverLockC1 ==
     /\ c1_ver' = c1_ver + 1             \* lock
     /\ r_c1_locked' = TRUE
     /\ r_cut_level' = 1                 \* initially cut from chain1
+    /\ r_cut_idx' = c0_c1_idx           \* the slot the descent read
     /\ rpc' = "lock_c0"
     /\ UNCHANGED <<p_count, p_has_c0, p_ver, c0_count, c0_ver, c1_count,
-                   r_c0_locked, r_pver, r_p_has_c0, ipc, i_target, i_ver>>
+                   r_c0_locked, r_pver, r_p_has_c0, ipc, i_target, i_ver,
+                   c0_c1_idx>>
 
 \* Lock chain0 as a chain member.  The code does this in Step 2 only at
 \* chain0's descent version; once that has moved, Step 3 Case B does it at
@@ -89,7 +103,8 @@ RemoverLockC0_OK ==
     /\ r_cut_level' = 0                 \* cut from chain0 (full chain)
     /\ rpc' = "read_parent"
     /\ UNCHANGED <<p_count, p_has_c0, p_ver, c0_count, c1_count, c1_ver,
-                   r_c1_locked, r_pver, r_p_has_c0, ipc, i_target, i_ver>>
+                   r_c1_locked, r_pver, r_p_has_c0, ipc, i_target, i_ver,
+                   c0_c1_idx, r_cut_idx>>
 
 \* chain0 is not a lockable one-child I4 (count != 1 or version odd):
 \* Step 3 takes it as the cut_point_parent, so cut_level stays at 1.
@@ -99,15 +114,18 @@ RemoverLockC0_Fail ==
     /\ r_cut_level' = 1                   \* cut only chain1
     /\ rpc' = "read_c0_as_cpp"            \* chain0 is now CPP
     /\ UNCHANGED <<p_count, p_has_c0, p_ver, c0_count, c0_ver, c1_count, c1_ver,
-                   r_c1_locked, r_c0_locked, r_pver, r_p_has_c0, ipc, i_target, i_ver>>
+                   r_c1_locked, r_c0_locked, r_pver, r_p_has_c0, ipc, i_target,
+                   i_ver, c0_c1_idx, r_cut_idx>>
 
 \* Step 3 (when chain0 is CPP): read chain0 state
 RemoverReadC0AsCPP ==
     /\ rpc = "read_c0_as_cpp"
     /\ r_pver' = c0_ver                  \* reuse r_pver for c0's version
+    /\ r_cut_idx' = IF CutAtDescentIndex THEN r_cut_idx ELSE c0_c1_idx
     /\ rpc' = "validate_c0_cpp"
     /\ UNCHANGED <<p_count, p_has_c0, p_ver, c0_count, c0_ver, c1_count, c1_ver,
-                   r_cut_level, r_c1_locked, r_c0_locked, r_p_has_c0, ipc, i_target, i_ver>>
+                   r_cut_level, r_c1_locked, r_c0_locked, r_p_has_c0, ipc,
+                   i_target, i_ver, c0_c1_idx>>
 
 \* Validate chain0 as CPP and upgrade
 RemoverValidateC0CPP ==
@@ -119,7 +137,8 @@ RemoverValidateC0CPP ==
        ELSE /\ rpc' = "restart"          \* version changed
             /\ UNCHANGED <<c0_ver, r_c0_locked>>
     /\ UNCHANGED <<p_count, p_has_c0, p_ver, c0_count, c1_count, c1_ver,
-                   r_cut_level, r_c1_locked, r_pver, r_p_has_c0, ipc, i_target, i_ver>>
+                   r_cut_level, r_c1_locked, r_pver, r_p_has_c0, ipc, i_target,
+                   i_ver, c0_c1_idx, r_cut_idx>>
 
 \* Step 3 (when parent is CPP): read parent state
 RemoverReadParent ==
@@ -128,7 +147,8 @@ RemoverReadParent ==
     /\ r_p_has_c0' = p_has_c0
     /\ rpc' = "validate_parent"
     /\ UNCHANGED <<p_count, p_has_c0, p_ver, c0_count, c0_ver, c1_count, c1_ver,
-                   r_cut_level, r_c1_locked, r_c0_locked, ipc, i_target, i_ver>>
+                   r_cut_level, r_c1_locked, r_c0_locked, ipc, i_target, i_ver,
+                   c0_c1_idx, r_cut_idx>>
 
 \* Validate parent and upgrade
 RemoverValidateParent ==
@@ -140,7 +160,7 @@ RemoverValidateParent ==
        ELSE rpc' = "read_parent"         \* stale
     /\ UNCHANGED <<p_count, p_has_c0, p_ver, c0_count, c0_ver, c1_count, c1_ver,
                    r_cut_level, r_c1_locked, r_c0_locked, r_pver, r_p_has_c0,
-                   ipc, i_target, i_ver>>
+                   ipc, i_target, i_ver, c0_c1_idx, r_cut_idx>>
 
 RemoverUpgradeParent ==
     /\ rpc = "upgrade_parent"
@@ -151,7 +171,7 @@ RemoverUpgradeParent ==
             /\ UNCHANGED p_ver
     /\ UNCHANGED <<p_count, p_has_c0, c0_count, c0_ver, c1_count, c1_ver,
                    r_cut_level, r_c1_locked, r_c0_locked, r_pver, r_p_has_c0,
-                   ipc, i_target, i_ver>>
+                   ipc, i_target, i_ver, c0_c1_idx, r_cut_idx>>
 
 \* Step 4: Cut (point of no return)
 RemoverCut ==
@@ -172,7 +192,8 @@ RemoverCut ==
     /\ r_c0_locked' = FALSE
     /\ r_c1_locked' = FALSE
     /\ rpc' = "done"
-    /\ UNCHANGED <<r_cut_level, r_pver, r_p_has_c0, ipc, i_target, i_ver>>
+    /\ UNCHANGED <<r_cut_level, r_pver, r_p_has_c0, ipc, i_target, i_ver,
+                   c0_c1_idx, r_cut_idx>>
 
 RemoverRestart ==
     /\ rpc = "restart"
@@ -181,7 +202,8 @@ RemoverRestart ==
     /\ r_c1_locked' = FALSE /\ r_c0_locked' = FALSE
     /\ rpc' = "idle"
     /\ UNCHANGED <<p_count, p_has_c0, p_ver, c0_count, c1_count,
-                   r_cut_level, r_pver, r_p_has_c0, ipc, i_target, i_ver>>
+                   r_cut_level, r_pver, r_p_has_c0, ipc, i_target, i_ver,
+                   c0_c1_idx, r_cut_idx>>
 
 -----------------------------------------------------------------------------
 \* INSERTER: adds a child to chain0 or chain1 (breaking chain membership)
@@ -195,7 +217,7 @@ InsertChoose ==
     /\ ipc' = "lock"
     /\ UNCHANGED <<p_count, p_has_c0, p_ver, c0_count, c0_ver, c1_count, c1_ver,
                    rpc, r_cut_level, r_c1_locked, r_c0_locked, r_pver, r_p_has_c0,
-                   i_ver>>
+                   i_ver, c0_c1_idx, r_cut_idx>>
 
 InsertLock ==
     /\ ipc = "lock"
@@ -209,19 +231,21 @@ InsertLock ==
     /\ ipc' = "write"
     /\ UNCHANGED <<p_count, p_has_c0, p_ver, c0_count, c1_count,
                    rpc, r_cut_level, r_c1_locked, r_c0_locked, r_pver, r_p_has_c0,
-                   i_target, i_ver>>
+                   i_target, i_ver, c0_c1_idx, r_cut_idx>>
 
 InsertWrite ==
     /\ ipc = "write"
     /\ IF i_target = "c0"
        THEN /\ c0_count' = c0_count + 1
+            \* The new key byte sorts before or after chain1's.
+            /\ c0_c1_idx' \in {c0_c1_idx, c0_c1_idx + 1}
             /\ UNCHANGED c1_count
        ELSE /\ c1_count' = c1_count + 1
-            /\ UNCHANGED c0_count
+            /\ UNCHANGED <<c0_count, c0_c1_idx>>
     /\ ipc' = "unlock"
     /\ UNCHANGED <<p_count, p_has_c0, p_ver, c0_ver, c1_ver,
                    rpc, r_cut_level, r_c1_locked, r_c0_locked, r_pver, r_p_has_c0,
-                   i_target, i_ver>>
+                   i_target, i_ver, r_cut_idx>>
 
 InsertUnlock ==
     /\ ipc = "unlock"
@@ -233,14 +257,14 @@ InsertUnlock ==
     /\ ipc' = "done"
     /\ UNCHANGED <<p_count, p_has_c0, p_ver, c0_count, c1_count,
                    rpc, r_cut_level, r_c1_locked, r_c0_locked, r_pver, r_p_has_c0,
-                   i_target, i_ver>>
+                   i_target, i_ver, c0_c1_idx, r_cut_idx>>
 
 InsertDone ==
     /\ ipc = "done"
     /\ ipc' = "idle"
     /\ UNCHANGED <<p_count, p_has_c0, p_ver, c0_count, c0_ver, c1_count, c1_ver,
                    rpc, r_cut_level, r_c1_locked, r_c0_locked, r_pver, r_p_has_c0,
-                   i_target, i_ver>>
+                   i_target, i_ver, c0_c1_idx, r_cut_idx>>
 
 -----------------------------------------------------------------------------
 Step ==
@@ -277,5 +301,9 @@ WellFormedness ==
 \* Partial cut correctness: if cut_level=1, chain0 is CPP (locked by remover)
 PartialCutValid ==
     (rpc = "cut" /\ r_cut_level = 1) => r_c0_locked
+
+\* A partial cut removes chain1, not a sibling an insert moved into its slot.
+CutAtChainIndex ==
+    (rpc = "cut" /\ r_cut_level = 1) => r_cut_idx = c0_c1_idx
 
 =============================================================================
