@@ -1564,7 +1564,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, CollapseToInodeAllowed) {
 // These confirm the chain depth and that insert/remove work correctly
 // on these key patterns before we add concurrency.
 
-// CT1/CT3 tree: 26-byte keys, 3 chain levels after removing B.
+// CT1/CT3 chain: 26-byte keys, 3 chain levels on A's path.  CT3 also
+// inserts and removes B first, which leaves A's chain as CT1 builds it.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ConcurrentTestTree26Byte) {
   unodb::test::tree_verifier<TypeParam> verifier;
   unodb::key_encoder enc;

@@ -9,7 +9,8 @@
 \*
 \* Paths exercised:
 \*   P1: Normal cut — parent is CPP, no shrink needed
-\*   P2: Parent needs shrink — acquire gp as grandparent, collapse
+\*   P2: Parent needs shrink — acquire gp as grandparent, then leave the
+\*       parent with one child, as when try_collapse_i4 declines
 \*   P3: Case B — parent became single-child, chain extends up
 \*   P4: Cascading Case B — gp also single-child, cut_level reaches 0 (root)
 \*   P5: Root as CPP — set root=nullptr (tree emptied)
@@ -19,7 +20,14 @@
 \* preventing shrink, etc.).  No other remove runs, and no insert replaces a
 \* child link or installs a new root above gp, so the links the code checks in
 \* Step 3 always hold, and the root pointer it checks before rewriting the root
-\* always targets gp here.
+\* always targets gp here.  Children are counted, not ordered, so a cut at an
+\* index that a concurrent insert shifted looks the same here as a cut of the
+\* chain; Stage 9 models such an index.  RCut never replaces a shrinking
+\* cut-point parent in its own parent (gp at P2, the root pointer at P3): it
+\* leaves it with one child, as when try_collapse_i4 declines, so neither a
+\* collapse nor, at P2, one through a shifted slot of the parent in gp is
+\* modeled, and P6 restarts only on a write-locked gp, not on the version
+\* change the code checks.
 
 EXTENDS Integers
 

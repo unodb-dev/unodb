@@ -20,7 +20,12 @@
 \* 1. Correct count (VIS-aware): chain identification stops at shared_node
 \* 2. Buggy count (VIS-invisible): chain identification incorrectly
 \*    includes shared_node → data loss
-\* 3. Concurrent insert/remove of key A while key B is being removed
+\* 3. Concurrent insert/remove of key A while key B is being removed.
+\*    shared_node's children are booleans, not ordered, so this model cannot
+\*    tell a cut of chain_B from a cut at an index that key A's insert
+\*    shifted before B's last read of shared_node.  B then locks shared_node
+\*    at the version it read, so no later write can shift the index before
+\*    the cut.
 
 EXTENDS Integers
 
