@@ -1009,16 +1009,18 @@ UNODB_TEST(OLCChainCutInterleaved, ConcurrentRemoveOfSibling) {
 
   unodb::this_thread().qsbr_pause();
 
+  bool sib_removed = false;
   auto t2 = unodb::qsbr_thread([&] {
     unodb::detail::thread_syncs[0].wait();
     const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.remove(sib);
+    sib_removed = db.remove(sib);
     unodb::detail::thread_syncs[1].notify();
   });
 
+  bool key_a_removed = false;
   auto t1 = unodb::qsbr_thread([&] {
     const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.remove(key_a);
+    key_a_removed = db.remove(key_a);
   });
 
   t1.join();
@@ -1026,6 +1028,8 @@ UNODB_TEST(OLCChainCutInterleaved, ConcurrentRemoveOfSibling) {
   unodb::this_thread().qsbr_resume();
   unodb::this_thread().quiescent();
 
+  UNODB_ASSERT_TRUE(key_a_removed);
+  UNODB_ASSERT_TRUE(sib_removed);
   const unodb::quiescent_state_on_scope_exit q{};
   UNODB_ASSERT_FALSE(db.get(key_a).has_value());
   UNODB_ASSERT_FALSE(db.get(sib).has_value());
