@@ -271,9 +271,10 @@ inline constexpr auto chain_key_filler_alt =
 }
 
 /// Encode a 34-byte key (uint8 + uint64 v1 + filler uint64 × 3 + uint8).
-/// Two keys sharing tag and v1 share 33 bytes → four chain levels after the
-/// sibling removal; pass `chain_key_filler` as v1 for the shared chain and
-/// `chain_key_filler_alt` for a key diverging at the first chain level.
+/// Two keys sharing tag and v1 share 33 bytes: four single-child chain levels
+/// above the inode that branches on byte 33 = bottom. Pass `chain_key_filler`
+/// as v1 for the shared chain and `chain_key_filler_alt` for a key that
+/// diverges at byte 1, which gives the topmost chain level a second child.
 [[nodiscard]] inline unodb::key_view make_key_34(unodb::key_encoder& enc
                                                  UNODB_DETAIL_LIFETIMEBOUND,
                                                  std::uint8_t tag,
