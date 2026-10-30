@@ -1586,7 +1586,8 @@ UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ConcurrentTestTree26Byte) {
   verifier.check_present_values();
 }
 
-// CT2/CT4 tree: 34-byte keys, 4 chain levels after removing B.
+// CT2/CT4 chain: 34-byte keys, 4 chain levels on A's path.  CT4 also
+// inserts and removes B first, which leaves A's chain as CT2 builds it.
 // Also verify that inserting a key diverging at chain[0] works.
 UNODB_TYPED_TEST(ARTKeyViewFullChainTest, ConcurrentTestTree34Byte) {
   unodb::test::tree_verifier<TypeParam> verifier;

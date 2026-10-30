@@ -890,73 +890,32 @@ UNODB_TEST(OLCChainCutInterleaved, ConcurrentInsertIntoCutPointParent) {
   UNODB_ASSERT_TRUE(db.get(new_key).has_value());
 }
 
-// CT2: T1 removes A (chain cut).  T2 inserts a key that modifies
-// chain[0] (splits its prefix) between the first and second chain
-// lock in Step 2.
-UNODB_TEST(OLCChainCutInterleaved, ConcurrentInsertIntoMidChain) {
-  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
-  constexpr auto val_bytes = std::array<std::byte, 1>{std::byte{0x42}};
-  const auto val = unodb::value_view{val_bytes};
-
-  db_type db;
-  unodb::key_encoder enc;
-
-  // 34-byte keys: tag(1) + 4×uint64(32) + bottom(1).
-  // A,B share 33 bytes → 4 chain levels after removing B.
-  // At SP2: T1 holds chain[2] (stk[3]) + chain_bottom + leaf.
-  // chain[0], chain[1], Root-I4 are all unlocked.
-  // T2 targets chain[0] (different v1) — only needs Root-I4 + chain[0].
+/// Remove key_a, a 34-byte key whose chain (chain[0] to chain[3] and the chain
+/// bottom) sits below Root-I4 beside a sibling 0x20, while T2 inserts the key
+/// with tag 0x10, first key word \a t2_v1 and key_a's remaining bytes.
+/// chain[0]'s prefix is empty, so \a t2_v1's first byte is chain[0]'s dispatch
+/// byte and its second byte is chain[1]'s first prefix byte.  T1 parks in
+/// Step 2 holding chain[3] (stk[4]), the chain bottom and the leaf; chain[0] to
+/// chain[2] and Root-I4 are unlocked.
+void cut_34_byte_chain_during_insert(std::uint64_t t2_v1) {
   constexpr auto X = unodb::test_data::chain_key_filler;
-  constexpr auto Z = unodb::test_data::chain_key_filler_alt;
-
+  unodb::key_encoder enc;
   std::array<std::byte, 34> buf_a{};
-  std::array<std::byte, 34> buf_b{};
   std::array<std::byte, 34> buf_sib{};
   std::array<std::byte, 34> buf_t2{};
   const auto key_a = copy_key(make_key_34(enc, 0x10, X, 0x01), buf_a);
-  const auto key_b = copy_key(make_key_34(enc, 0x10, X, 0x02), buf_b);
   const auto sib = copy_key(make_key_34(enc, 0x20, X, 0x01), buf_sib);
-  const auto t2_key = copy_key(make_key_34(enc, 0x10, Z, 0x01), buf_t2);
+  const auto t2_key = copy_key(make_key_34(enc, 0x10, t2_v1, 0x01), buf_t2);
+  assert_remove_keeps_other_keys<unodb::test::key_view_olc_db>(
+      unodb::detail::sync_between_chain_locks, key_a, std::array{sib}, t2_key);
+}
 
-  UNODB_ASSERT_TRUE(db.insert(key_a, val));
-  UNODB_ASSERT_TRUE(db.insert(key_b, val));
-  UNODB_ASSERT_TRUE(db.insert(sib, val));
-  {
-    const unodb::quiescent_state_on_scope_exit q{};
-    UNODB_ASSERT_TRUE(db.remove(key_b));
-  }
-
-  // Arm SP2 AFTER setup remove.
-  const sync_point_guard guard{unodb::detail::sync_between_chain_locks};
-  unodb::detail::sync_between_chain_locks.arm([&]() {
-    unodb::detail::sync_between_chain_locks.disarm();  // fire only once
-    unodb::detail::thread_syncs[2].notify();
-    unodb::detail::thread_syncs[3].wait();
-  });
-
-  unodb::this_thread().qsbr_pause();
-
-  auto t2 = unodb::qsbr_thread([&] {
-    unodb::detail::thread_syncs[2].wait();
-    const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.insert(t2_key, val);
-    unodb::detail::thread_syncs[3].notify();
-  });
-
-  auto t1 = unodb::qsbr_thread([&] {
-    const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.remove(key_a);
-  });
-
-  t1.join();
-  t2.join();
-  unodb::this_thread().qsbr_resume();
-  unodb::this_thread().quiescent();
-
-  const unodb::quiescent_state_on_scope_exit q{};
-  UNODB_ASSERT_FALSE(db.get(key_a).has_value());
-  UNODB_ASSERT_TRUE(db.get(sib).has_value());
-  UNODB_ASSERT_TRUE(db.get(t2_key).has_value());
+/// CT2: T1 removes A (chain cut).  T2's key sorts after key_a's chain in
+/// chain[0], which Step 2 therefore fails to lock at its descent version.
+/// T1's Step 3 takes chain[0], now two-child, as the cut-point parent at its
+/// new version.
+UNODB_TEST(OLCChainCutInterleaved, ConcurrentInsertIntoMidChain) {
+  cut_34_byte_chain_during_insert(unodb::test_data::chain_key_filler_alt);
 }
 
 // CT3: T1 removes A (chain cut).  T2 removes the sibling.
@@ -1093,24 +1052,13 @@ UNODB_TEST(OLCChainCutInterleaved, ABAOnChainNode) {
 // pointer still points to the topmost node it rewrites.
 // ===================================================================
 
-/// CL1: T1 removes key_a and parks in Step 2 holding only chain[3].  T2
-/// inserts a key that splits chain[1]'s prefix, which puts a new I4 between
-/// chain[0] and chain[1].  chain[0]'s version moved but it is still a
-/// one-child I4, so T1 must see that it no longer leads to chain[1] instead of
-/// cutting the new I4.
+/// CL1: T1 removes key_a and parks in Step 2 holding chain[3] and the nodes
+/// below it.  T2 inserts a key that splits chain[1]'s prefix, which puts a new
+/// I4 between chain[0] and chain[1].  chain[0]'s version moved but it is still
+/// a one-child I4, so T1 must see that it no longer leads to chain[1] instead
+/// of cutting the new I4.
 UNODB_TEST(OLCChainCutVsSplit, SplitBelowChainTop) {
-  constexpr auto X = unodb::test_data::chain_key_filler;
-  unodb::key_encoder enc;
-  std::array<std::byte, 34> buf_a{};
-  std::array<std::byte, 34> buf_sib{};
-  std::array<std::byte, 34> buf_t2{};
-  const auto key_a = copy_key(make_key_34(enc, 0x10, X, 0x01), buf_a);
-  const auto sib = copy_key(make_key_34(enc, 0x20, X, 0x01), buf_sib);
-  const auto t2_key = copy_key(
-      make_key_34(enc, 0x10, chain_key_filler_second_byte_changed, 0x01),
-      buf_t2);
-  assert_remove_keeps_other_keys<unodb::test::key_view_olc_db>(
-      unodb::detail::sync_between_chain_locks, key_a, std::array{sib}, t2_key);
+  cut_34_byte_chain_during_insert(chain_key_filler_second_byte_changed);
 }
 
 /// CL2: CL1 without the sibling, so chain[0] is the root.  T1 would cut from
