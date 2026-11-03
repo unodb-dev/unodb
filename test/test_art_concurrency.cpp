@@ -1877,10 +1877,8 @@ template <unodb::node_type ExpectedType, bool Forward>
 void run_torn_read_scan_test() {
   using db_type = unodb::olc_db<unodb::key_view, std::uint64_t>;
   using inode_type = torn_read_inode_type<ExpectedType>;
-  // Zero packs to the nullptr bit pattern in value-in-slot mode, so the I256
-  // restart scan can detect the filled slots only through the value bitmask
-  // (is_value_in_slot()).  I48 occupancy lives in child_indexes, so its
-  // scenarios are value-agnostic.
+  // Each key hangs below the root in its own chain I4, so every occupied root
+  // slot holds a node pointer, and neither scan depends on the value.
   constexpr std::uint64_t val = 0;
 
   // Seeding exactly min_size children makes the root ExpectedType.
