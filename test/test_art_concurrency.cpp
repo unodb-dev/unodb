@@ -1595,22 +1595,25 @@ UNODB_TEST(OLCRemoveChooseSubtree, ConcurrentLeafReplacement) {
 
   unodb::this_thread().qsbr_pause();
 
+  bool t2_removed = false;
+  bool t2_reinserted = false;
   auto t2 = unodb::qsbr_thread([&] {
     unodb::detail::thread_syncs[0].wait();
     {
       const unodb::quiescent_state_on_scope_exit q{};
-      std::ignore = db.remove(key_a);
+      t2_removed = db.remove(key_a);
     }
     {
       const unodb::quiescent_state_on_scope_exit q{};
-      std::ignore = db.insert(key_a, val2);
+      t2_reinserted = db.insert(key_a, val2);
     }
     unodb::detail::thread_syncs[1].notify();
   });
 
+  bool t1_removed = false;
   auto t1 = unodb::qsbr_thread([&] {
     const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.remove(key_a);
+    t1_removed = db.remove(key_a);
   });
 
   t1.join();
@@ -1618,14 +1621,14 @@ UNODB_TEST(OLCRemoveChooseSubtree, ConcurrentLeafReplacement) {
   unodb::this_thread().qsbr_resume();
   unodb::this_thread().quiescent();
 
-  // key_a may or may not exist depending on who won the race.
-  // The important thing is no crash, no hang, no corruption.
+  UNODB_ASSERT_TRUE(t2_removed);
+  UNODB_ASSERT_TRUE(t2_reinserted);
+  // T1 restarts, and its retry removes T2's re-inserted key_a.
+  UNODB_ASSERT_TRUE(t1_removed);
   const unodb::quiescent_state_on_scope_exit q2{};
-  if (const auto r = db.get(key_a); r.has_value()) {
-    UNODB_ASSERT_TRUE(std::ranges::equal(*r, val2));  // LCOV_EXCL_LINE
-  }
   UNODB_ASSERT_TRUE(db.get(key_b).has_value());
   UNODB_ASSERT_TRUE(db.get(key_c).has_value());
+  UNODB_ASSERT_FALSE(db.get(key_a).has_value());
 }
 
 // ===================================================================
