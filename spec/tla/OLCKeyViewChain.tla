@@ -148,6 +148,9 @@ RBEvalParentAsCPP ==
                    rb_cb_locked, rb_s_locked, rb_chain_includes_shared,
                    apc, a_op>>
 
+\* Only B writes p_ver, so the ELSE branch never fires.  Its re-read is Step
+\* 3's for a cut-point parent; for the grandparent that Step 4.1 locks, the
+\* code instead restarts the remove if the version moved since the descent.
 RBValidateParent ==
     /\ rbpc = "validate_parent"
     /\ IF p_ver = rb_cached_ver /\ p_ver % 2 = 0
