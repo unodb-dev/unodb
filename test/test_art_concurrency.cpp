@@ -1562,8 +1562,9 @@ UNODB_TEST(OLCRemoveChooseSubtree, ConcurrentRemoveFromMinSizeI4) {
 }
 
 // RT3: T1 removes key_a.  T2 replaces key_a's leaf by removing and
-// re-inserting it with a different value.  T1's child version check
-// should detect the change.
+// re-inserting it with a different value.  T2's remove and re-insert both
+// write-lock the I4 above the leaf, so T1's node write-guard upgrade fails
+// before its child write guard is tried, and T1 restarts.
 UNODB_TEST(OLCRemoveChooseSubtree, ConcurrentLeafReplacement) {
   using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
   constexpr auto val_bytes1 = std::array<std::byte, 1>{std::byte{0x42}};
