@@ -45,7 +45,6 @@ UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
 
 namespace {
 
-namespace detail = unodb::test::detail;
 #ifndef NDEBUG
 using unodb::test::sync_point_guard;
 #endif
