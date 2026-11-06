@@ -130,13 +130,9 @@ void do_assert_result_eq(const Db& db, typename Db::key_type key,
   const testing::ScopedTrace trace(file, line, msg.str());
   const auto result = db.get(key);
   if (!Db::key_found(result)) {
-    // LCOV_EXCL_START
-    std::cerr << "db.get did not find ";
-    unodb::detail::dump_key(std::cerr, key);
-    std::cerr << '\n';
-    db.dump(std::cerr);
-    FAIL();
-    // LCOV_EXCL_STOP
+    std::ostringstream dump;
+    db.dump(dump);
+    FAIL() << "db.get did not find " << msg.str() << '\n' << dump.str();
   }
   assert_value_eq<Db>(result, expected);
 }
@@ -157,9 +153,15 @@ void assert_result_eq(const Db& db, typename Db::key_type key,
 
 }  // namespace detail
 
-#define ASSERT_VALUE_FOR_KEY(DbType, test_db, key, expected)              \
-  ::unodb::test::detail::assert_result_eq<DbType>(test_db, key, expected, \
-                                                  __FILE__, __LINE__)
+/// Assert that \a test_db maps \a key to \a expected, comparing the bytes of a
+/// unodb::value_view and other value types with `==`.  A miss also dumps the
+/// tree.  On unodb::olc_db, the lookup ends with a quiescent state of the
+/// calling thread.  Like a Google Test `ASSERT_*` macro, a failure returns from
+/// the enclosing function, which must therefore return `void`.
+#define ASSERT_VALUE_FOR_KEY(DbType, test_db, key, expected)                  \
+  UNODB_ASSERT_NO_FATAL_FAILURE(                                              \
+      ::unodb::test::detail::assert_result_eq<DbType>(test_db, key, expected, \
+                                                      __FILE__, __LINE__))
 
 /// Utility class supporting verification of the system under test.
 ///

@@ -4,12 +4,15 @@
 #include "global.hpp"  // IWYU pragma: keep
 
 // IWYU pragma: no_include <array>
+// IWYU pragma: no_include <span>
 // IWYU pragma: no_include <string>
 
 #include <cstdint>
 #include <stdexcept>
 #include <tuple>
 
+#include <gmock/gmock.h>
+#include <gtest/gtest-spi.h>
 #include <gtest/gtest.h>
 
 #include "art_common.hpp"
@@ -1040,6 +1043,75 @@ UNODB_TYPED_TEST(ARTCorrectnessTest, TwoInstances) {
   v1.check_present_values();
 
   second_thread.join();
+}
+
+/// Check that \a db maps key 1 to \a expected, then set \a ran_on, which only
+/// a passed check reaches.
+// Not noexcept: under --gtest_throw_on_failure a failed check throws.
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
+void check_key_1(const unodb::test::u64_db& db, unodb::value_view expected,
+                 bool& ran_on) {
+  ASSERT_VALUE_FOR_KEY(unodb::test::u64_db, db, 1, expected);
+  ran_on = true;
+}
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+/// A passed ASSERT_VALUE_FOR_KEY lets its caller run on.
+UNODB_TEST(AssertValueForKey, PassedCheckLetsCallerRunOn) {
+  unodb::test::u64_db db;
+  UNODB_ASSERT_TRUE(db.insert(1, test_values[0]));
+  bool ran_on = false;
+  check_key_1(db, test_values[0], ran_on);
+  UNODB_ASSERT_TRUE(ran_on);
+}
+
+/// Check that check_key_1(\a db, \a expected), whose check fails, ends without
+/// setting its flag and reports two fatal failures, which it intercepts into
+/// \a failures.
+void assert_check_key_1_ends_caller(const unodb::test::u64_db& db,
+                                    unodb::value_view expected,
+                                    testing::TestPartResultArray& failures) {
+  bool ran_on = false;
+  // Intercepted failures still trap or throw under these flags.
+  const auto break_on_failure = GTEST_FLAG_GET(break_on_failure);
+  const auto throw_on_failure = GTEST_FLAG_GET(throw_on_failure);
+  GTEST_FLAG_SET(break_on_failure, false);
+  GTEST_FLAG_SET(throw_on_failure, false);
+  {
+    const testing::ScopedFakeTestPartResultReporter reporter{
+        testing::ScopedFakeTestPartResultReporter::
+            INTERCEPT_ONLY_CURRENT_THREAD,
+        &failures};
+    check_key_1(db, expected, ran_on);
+  }
+  GTEST_FLAG_SET(break_on_failure, break_on_failure);
+  GTEST_FLAG_SET(throw_on_failure, throw_on_failure);
+  UNODB_ASSERT_FALSE(ran_on);
+  // The failed check, then ASSERT_NO_FATAL_FAILURE's own failure.
+  UNODB_ASSERT_EQ(failures.size(), 2);
+  UNODB_ASSERT_TRUE(failures.GetTestPartResult(0).fatally_failed());
+  UNODB_ASSERT_TRUE(failures.GetTestPartResult(1).fatally_failed());
+}
+
+/// An ASSERT_VALUE_FOR_KEY that finds the wrong value ends its caller.
+UNODB_TEST(AssertValueForKey, WrongValueEndsCaller) {
+  unodb::test::u64_db db;
+  UNODB_ASSERT_TRUE(db.insert(1, test_values[0]));
+  testing::TestPartResultArray failures;
+  assert_check_key_1_ends_caller(db, test_values[1], failures);
+}
+
+/// An ASSERT_VALUE_FOR_KEY that does not find the key ends its caller, and its
+/// failure message carries the tree dump.
+UNODB_TEST(AssertValueForKey, MissEndsCaller) {
+  unodb::test::u64_db db;
+  UNODB_ASSERT_TRUE(db.insert(2, test_values[0]));
+  testing::TestPartResultArray failures;
+  UNODB_ASSERT_NO_FATAL_FAILURE(
+      assert_check_key_1_ends_caller(db, test_values[0], failures));
+  const auto* const message = failures.GetTestPartResult(0).message();
+  UNODB_ASSERT_THAT(message, ::testing::HasSubstr("db.get did not find"));
+  UNODB_ASSERT_THAT(message, ::testing::HasSubstr("db dump"));
 }
 
 }  // namespace
