@@ -537,8 +537,6 @@ UNODB_TYPED_TEST(ARTChainConcurrencyTest, DISABLED_ChainStressTest) {
 // helpers also used unconditionally are declared with the group above.
 using unodb::test_data::make_key_26;
 using unodb::test_data::make_key_34;
-// The namespace ASSERT_VALUE_FOR_KEY expands against.
-namespace detail = unodb::test::detail;
 
 // ===================================================================
 // Remove descent vs. a concurrent prefix split of the first chain node of a

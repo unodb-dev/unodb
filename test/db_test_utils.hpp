@@ -157,8 +157,9 @@ void assert_result_eq(const Db& db, typename Db::key_type key,
 
 }  // namespace detail
 
-#define ASSERT_VALUE_FOR_KEY(DbType, test_db, key, expected) \
-  detail::assert_result_eq<DbType>(test_db, key, expected, __FILE__, __LINE__)
+#define ASSERT_VALUE_FOR_KEY(DbType, test_db, key, expected)              \
+  ::unodb::test::detail::assert_result_eq<DbType>(test_db, key, expected, \
+                                                  __FILE__, __LINE__)
 
 /// Utility class supporting verification of the system under test.
 ///
