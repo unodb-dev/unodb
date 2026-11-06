@@ -161,6 +161,16 @@
     UNODB_DETAIL_RESTORE_MSVC_WARNINGS()                  \
   } while (0)
 
+/// Wrapper for Google Test `ASSERT_NO_FATAL_FAILURE` macro.
+#define UNODB_ASSERT_NO_FATAL_FAILURE(statement) \
+  do {                                           \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)      \
+    UNODB_DETAIL_DISABLE_MSVC_WARNING(26818)     \
+    ASSERT_NO_FATAL_FAILURE(statement);          \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()         \
+    UNODB_DETAIL_RESTORE_MSVC_WARNINGS()         \
+  } while (0)
+
 /// Wrapper for Google Test `ASSERT_NO_THROW` macro.
 #define UNODB_ASSERT_NO_THROW(statement)     \
   do {                                       \
