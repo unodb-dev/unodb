@@ -1306,11 +1306,14 @@ using key_prefix_size = std::uint8_t;
 /// Maximum number of bytes in key prefix.
 static constexpr key_prefix_size key_prefix_capacity = 7;
 
-/// Key prefix snapshot for iterator use.
+/// Key prefix bytes and length, copied from a `key_prefix` in one load.
 ///
 /// Exposes a `key_view` over internal data that was atomically copied from
 /// a `key_prefix`. Direct use of `key_prefix` is not possible because:
-/// (a) thread safety concerns; and (b) `key_view` is a non-owned view.
+/// (a) its word is rewritten in place while OLC readers may be loading it (an
+/// I4 collapse prepends to the surviving inode's prefix, and a prefix split
+/// cuts the split node's), so a reader that loads the length and the bytes
+/// separately can pair two versions; and (b) `key_view` is a non-owned view.
 union [[nodiscard]] key_prefix_snapshot {
   // TODO(thompsonbry) Can this be replaced by [using
   // key_prefix_snapshot = key_prefix<std::uint64_t,
@@ -1496,10 +1499,11 @@ union [[nodiscard]] key_prefix {
 
   /// Return atomic snapshot of prefix data.
   ///
-  /// \return Snapshot for consistent access in OLC iterators
+  /// \return Prefix bytes and length from one load
   ///
-  /// \note Required when consistent view of prefix state is needed, e.g., for
-  /// OLC iterator to verify RCS validity after obtaining data.
+  /// \note Required whenever an OLC reader uses the prefix length together
+  /// with the prefix bytes or the shared length, as every OLC descent and
+  /// iterator does.
   [[nodiscard]] constexpr key_prefix_snapshot get_snapshot() const noexcept {
     return key_prefix_snapshot(u64);
   }

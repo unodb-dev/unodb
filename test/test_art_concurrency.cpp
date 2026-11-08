@@ -2048,6 +2048,75 @@ UNODB_TEST(OLCIteratorTornRead, I256LastObservesAllSlotsEmpty) {
   run_torn_read_last_test<unodb::node_type::I256>();
 }
 
+// ===================================================================
+// Torn key-prefix read: an I4 collapse lengthens the surviving inode's key
+// prefix in place, so a descent must take its prefix length and prefix bytes
+// from one read.
+// ===================================================================
+
+/// T1's duplicate insert of 0x100 parks at the I4 below Root-I4, once it has
+/// read the length of that I4's key prefix, while T2's remove of 1 collapses
+/// Root-I4 into it, prepending Root-I4's six-byte prefix and the I4's dispatch
+/// byte.  T1 must take the shared length from the prefix it read, not from
+/// the merged one: clamped at the merged length 7, that gives 6, above the
+/// length 0 T1 read, and trips the assert that the two agree before T1 can
+/// restart on the collapse.
+UNODB_TEST(OLCTornPrefixRead, CollapseAfterInsertReadsPrefix) {
+  using db_type = unodb::olc_db<std::uint64_t, unodb::value_view>;
+  // The values of 1, 0x100 and 0x101.
+  constexpr auto vals = distinct_values<3>();
+
+  db_type db;
+  // Root-I4, prefix 00 x 6, holds 1's leaf at 0x00 and, at 0x01, an I4 with an
+  // empty prefix that holds 0x100 and 0x101.
+  UNODB_ASSERT_TRUE(db.insert(1, vals[0]));
+  UNODB_ASSERT_TRUE(db.insert(0x100, vals[1]));
+  UNODB_ASSERT_TRUE(db.insert(0x101, vals[2]));
+
+  // Declared before the guard so the guard disarms the hook before the counter
+  // it captures dies.
+  unsigned hits = 0;
+  const sync_point_guard guard{unodb::detail::sync_after_prefix_length_load};
+  unodb::detail::sync_after_prefix_length_load.arm([&hits]() {
+    // Hit 1 is Root-I4.  Park only at the I4 below it, so the retry runs on.
+    if (++hits != 2) return;
+    unodb::detail::thread_syncs[0].notify();
+    unodb::detail::thread_syncs[1].wait();
+  });
+
+  unodb::this_thread().qsbr_pause();
+
+  bool removed = false;
+  auto t2 = unodb::qsbr_thread([&] {
+    unodb::detail::thread_syncs[0].wait();
+    const unodb::quiescent_state_on_scope_exit q{};
+    removed = db.remove(1);
+    unodb::detail::thread_syncs[1].notify();
+  });
+
+  bool inserted = true;
+  auto t1 = unodb::qsbr_thread([&] {
+    const unodb::quiescent_state_on_scope_exit q{};
+    inserted = db.insert(0x100, vals[1]);
+  });
+
+  t1.join();
+  t2.join();
+  unodb::this_thread().qsbr_resume();
+  unodb::this_thread().quiescent();
+
+  UNODB_ASSERT_TRUE(removed);
+  UNODB_ASSERT_FALSE(inserted);
+  // Root-I4 and the I4 below it, T2's pass through Root-I4 in its remove,
+  // then T1's retry from that I4, now the root, after the obsolete Root-I4
+  // failed its check.
+  UNODB_ASSERT_EQ(4U, hits);
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_FALSE(db.get(1).has_value());
+  ASSERT_VALUE_FOR_KEY(db_type, db, 0x100, vals[1]);
+  ASSERT_VALUE_FOR_KEY(db_type, db, 0x101, vals[2]);
+}
+
 #endif  // NDEBUG
 
 }  // namespace
