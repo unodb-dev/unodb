@@ -43,7 +43,7 @@ function(ADD_TEST_TARGET TARGET)
   target_link_libraries("${TARGET}"
     PRIVATE unodb_qsbr unodb_test GTest::gtest_main)
   set_clang_tidy_options("${TARGET}" "${DO_CLANG_TIDY_TESTS}")
-  add_sanitized_test(NAME "${TARGET}" COMMAND "${TARGET}")
+  add_unodb_test(NAME "${TARGET}" COMMAND "${TARGET}")
 endfunction()
 
 function(ADD_DB_TEST_TARGET TARGET)
@@ -66,7 +66,7 @@ common_target_properties(test_fault_injection)
 target_link_libraries(test_fault_injection
   PRIVATE unodb_util Threads::Threads GTest::gtest_main ${Boost_LIBRARIES})
 set_clang_tidy_options(test_fault_injection "${DO_CLANG_TIDY_TESTS}")
-add_sanitized_test(NAME test_fault_injection COMMAND test_fault_injection)
+add_unodb_test(NAME test_fault_injection COMMAND test_fault_injection)
 
 add_db_test_target(test_art)
 target_compile_options(test_art PRIVATE "$<${is_msvc}:/bigobj>")
@@ -115,7 +115,7 @@ target_compile_options(test_olc_no_qsbr PRIVATE
   "$<${is_x86_64_any_msvc}:$<IF:${has_avx2},/arch:AVX2,/arch:AVX>>"
   "$<${is_not_windows_x86_64}:$<IF:${has_avx2},-mavx2,-msse4.1>>")
 target_link_libraries(test_olc_no_qsbr PRIVATE unodb_util Threads::Threads)
-add_test(NAME test_olc_no_qsbr COMMAND test_olc_no_qsbr)
+add_unodb_test(NAME test_olc_no_qsbr COMMAND test_olc_no_qsbr)
 
 if(COVERAGE)
   add_custom_target(tests_for_coverage ctest
