@@ -279,7 +279,11 @@ Google Test and DeepState fuzzer are used for testing. For DeepState, both LLVM
 libfuzzer and built-in fuzzer are supported.
 
 To run the tests, do `ctest`. It is also useful to run tests in parallel with
-e.g. `ctest -j10`. For verbose test output add `-V`.
+e.g. `ctest -j10`. For verbose test output add `-V`. ctest fails any test that
+runs longer than `TEST_TIMEOUT` seconds (a CMake cache variable, 1500 by
+default), so a deadlocked concurrency test fails instead of hanging the run.
+This per-test limit overrides `ctest --timeout`; to change it for slow
+configurations, re-configure with `-DTEST_TIMEOUT=<seconds>`.
 
 Benchmarks can also serve as tests, especially under debug build and under
 sanitizers or Valgrind. For that, there is a CMake target `quick_benchmarks`,

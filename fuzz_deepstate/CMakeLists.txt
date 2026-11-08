@@ -38,7 +38,7 @@ function(ADD_FUZZ_DEEPSTATE_TARGET ID)
 
   add_executable(${TEST_NAME} "${TEST_NAME}.cpp")
   common_deepstate_target_properties(${TEST_NAME})
-  add_sanitized_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME}
+  add_unodb_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME}
     ${DEEPSTATE_2S_OPTIONS} 2)
 
   add_custom_target(${TEST_2S} DEPENDS ${TEST_NAME}
@@ -75,7 +75,7 @@ function(ADD_FUZZ_DEEPSTATE_TARGET ID)
 
     add_executable(${TEST_NAME} "${SOURCE_NAME}")
     common_deepstate_target_properties(${TEST_NAME} WITH_LIBFUZZER)
-    add_sanitized_test(NAME ${TEST_NAME} COMMAND ${INVOCATION}
+    add_unodb_test(NAME ${TEST_NAME} COMMAND ${INVOCATION}
       "-max_total_time=2")
 
     add_custom_target(${TEST_2S} DEPENDS ${TEST_NAME}

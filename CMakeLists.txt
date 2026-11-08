@@ -877,25 +877,60 @@ if(TESTS)
   target_link_libraries(unodb_test PUBLIC unodb_util)
   target_link_libraries(unodb_test PRIVATE ${Boost_LIBRARIES})
 
-  function(add_sanitized_test)
-    cmake_parse_arguments(AST "" "NAME" "COMMAND" ${ARGN})
-    add_test(NAME "${AST_NAME}" COMMAND ${AST_COMMAND})
+  # Some concurrency tests can fail only by deadlocking, and ctest sets no
+  # timeout by default.  The slowest CI test takes under 400 seconds.
+  set(TEST_TIMEOUT "1500" CACHE STRING
+    "Seconds after which ctest stops a test and fails it")
+  # ctest reads 0, or a value without a leading number, as no limit at all.
+  if(NOT TEST_TIMEOUT MATCHES "^[1-9][0-9]*$")
+    message(FATAL_ERROR
+      "TEST_TIMEOUT must be a positive whole number of seconds")
+  endif()
+
+  # Register every ctest test through this function: it is the only place a
+  # test gets its TEST_TIMEOUT limit.  assert_tests_use_add_unodb_test() fails
+  # configuration for a plain add_test() in test/ or fuzz_deepstate/; call it
+  # for any other directory that registers tests.
+  function(add_unodb_test)
+    cmake_parse_arguments(AUT "" "NAME" "COMMAND" ${ARGN})
+    add_test(NAME "${AUT_NAME}" COMMAND ${AUT_COMMAND})
+    set_property(TEST "${AUT_NAME}" PROPERTY TIMEOUT "${TEST_TIMEOUT}")
+    set_property(DIRECTORY APPEND PROPERTY UNODB_TESTS "${AUT_NAME}")
     # Set Sanitizer environment on a sanitizer-less build too, if using clang
     # 11 and DeepState is built, because it enables sanitizers itself. clang 11
     # handling is to workaround
     # https://github.com/llvm/llvm-project/issues/55785 on Ubuntu 22.04.
     if(SANITIZE_ADDRESS OR SANITIZE_THREAD OR SANITIZE_UB
         OR (TARGET deepstate AND is_clang11))
-      set_property(TEST "${AST_NAME}" APPEND PROPERTY ENVIRONMENT
+      set_property(TEST "${AUT_NAME}" APPEND PROPERTY ENVIRONMENT
         "${SANITIZER_ENV}")
     endif()
   endfunction()
 
+  # Fail configuration for any test in directory dir that add_unodb_test() did
+  # not register.  CMake before 3.28 cannot read another directory's test
+  # properties, so compare the directory's tests with the ones add_unodb_test()
+  # registered there: a same-named test in another directory does not count.
+  function(assert_tests_use_add_unodb_test dir)
+    get_directory_property(dir_tests DIRECTORY "${dir}" TESTS)
+    get_directory_property(unodb_tests DIRECTORY "${dir}" UNODB_TESTS)
+    foreach(dir_test IN LISTS dir_tests)
+      if(NOT dir_test IN_LIST unodb_tests)
+        message(FATAL_ERROR
+          "${dir_test} has no TIMEOUT: register it with add_unodb_test()")
+      endif()
+    endforeach()
+  endfunction()
+
   if(TARGET deepstate)
     add_subdirectory(fuzz_deepstate)
+    assert_tests_use_add_unodb_test(fuzz_deepstate)
     add_dependencies(valgrind valgrind_deepstate)
   endif()
   add_subdirectory(test)
+  assert_tests_use_add_unodb_test(test)
+else()
+  set(TEST_TIMEOUT NOTFOUND)
 endif()
 
 if(BENCHMARKS)
@@ -922,6 +957,7 @@ message(STATUS "AVX2: ${AVX2}")
 message(STATUS "SPINLOCK_LOOP: ${SPINLOCK_LOOP}")
 message(STATUS "STATS: ${STATS}")
 message(STATUS "TESTS: ${TESTS}")
+message(STATUS "TEST_TIMEOUT: ${TEST_TIMEOUT}")
 message(STATUS "BENCHMARKS: ${BENCHMARKS}")
 message(STATUS "MAINTAINER_MODE: ${MAINTAINER_MODE}")
 message(STATUS "COVERAGE: ${COVERAGE}")
