@@ -1354,13 +1354,18 @@ union [[nodiscard]] key_prefix_snapshot {
     return f.key_prefix_length;
   }
 
-  /// Return shared prefix length with shifted key.
+  /// Return the number of leading bytes, at most length(), in which this
+  /// prefix equals \a shifted_key_u64.
   ///
-  /// Computes bytes in common between this prefix and the next 64 bits (max)
-  /// of the shifted key from which leading matched bytes have been discarded.
+  /// For a key_view key shorter than length(), the comparison runs into
+  /// get_u64()'s zero padding. If the key matches up to its end, the count is
+  /// at least size(), and more when the padding matches zero prefix bytes.
+  /// Check that the count is below size() before indexing the key at it, and
+  /// that length() is at most size() before shifting the key by length().
   ///
-  /// \param shifted_key_u64 Shifted key value to compare against
-  /// \return Number of common bytes
+  /// \param shifted_key_u64 get_u64() of the key after shift_right() past the
+  ///   matched bytes
+  /// \return Number of leading bytes in common
   [[nodiscard]] constexpr auto get_shared_length(
       std::uint64_t shifted_key_u64) const noexcept {
     return shared_len(shifted_key_u64, u64, length());
@@ -1461,19 +1466,29 @@ union [[nodiscard]] key_prefix {
   /// Destructor.
   ~key_prefix() noexcept = default;
 
-  /// Return shared prefix length with shifted key.
+  /// Return the std::uint64_t overload's count for \a shifted_key.get_u64().
   ///
-  /// \param shifted_key Shifted key to compare
-  /// \return Number of common bytes
+  /// \param shifted_key Key shifted past matched bytes
+  /// \return Number of leading bytes in common
   [[nodiscard]] constexpr auto get_shared_length(
       ArtKey shifted_key) const noexcept {
     return get_shared_length(shifted_key.get_u64());
   }
 
-  /// Return shared prefix length with raw key value.
+  /// Return the number of leading bytes in which this prefix equals
+  /// \a shifted_key_u64, with key_prefix_snapshot::get_shared_length()'s caveat
+  /// about short key_view keys.
   ///
-  /// \param shifted_key_u64 Shifted key as 64-bit integer
-  /// \return Number of common bytes
+  /// The prefix bytes and length() are loaded separately. Under OLC a
+  /// concurrent prefix rewrite can land between those loads, or between them
+  /// and a length() the caller loaded, so the count need not match any single
+  /// prefix state or stay within the caller's length(). A reader that uses the
+  /// count with a length() must take both from one get_snapshot().
+  ///
+  /// \param shifted_key_u64 get_u64() of the key after shift_right() past the
+  ///   matched bytes
+  /// \return Number of leading bytes in common, at most the length() this call
+  ///   loads
   [[nodiscard]] constexpr auto get_shared_length(
       std::uint64_t shifted_key_u64) const noexcept {
     return shared_len(shifted_key_u64, u64, length());

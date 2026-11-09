@@ -193,12 +193,12 @@ struct [[nodiscard]] basic_art_key final {
   }
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
-  /// Return first 64 bits (max) of encoded key.
+  /// Return first 64 bits of encoded key.
   ///
   /// Used by prefix compression logic to identify bytes in common between an
   /// art_key and an inode having some key_prefix.
   ///
-  /// \return First 64 bits of key
+  /// \return First 64 bits of key, zero-padded if key is shorter
   [[nodiscard, gnu::pure]] constexpr std::uint64_t get_u64() const noexcept {
     if constexpr (std::is_same_v<KeyType, key_view>) {
       return unodb::detail::get_u64(key);
