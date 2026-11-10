@@ -34,6 +34,7 @@
 #include "node_type.hpp"
 #include "sync.hpp"
 #include "sync_point_test_utils.hpp"
+#include "test_tuple_heap.hpp"
 #include "thread_sync.hpp"
 using unodb::test::sync_point_guard;
 #endif
@@ -718,10 +719,12 @@ template <class Db>
 class OLCRemoveDescentVsSplit : public ::testing::Test {};
 
 /// The OLC key_view databases without a heap, which
-/// assert_remove_keeps_other_keys() default-constructs.  The stale walk of each
-/// KeepsSibling test ends at the sibling's keyless leaf in the first and at its
-/// packed value in the second, which reach the chain cut through different
-/// arms.
+/// assert_remove_keeps_other_keys() and assert_step_reseeks_to_current_key()
+/// default-construct.  The stale walk of each KeepsSibling test ends at the
+/// sibling's keyless leaf in the first and at its packed value in the second,
+/// which reach the chain cut through different arms, and an iterator step
+/// re-seeks to a keyless leaf in the first and to a packed value in the
+/// second.
 using OLCKeyViewTypes = ::testing::Types<unodb::test::key_view_olc_db,
                                          unodb::test::key_view_u64val_olc_db>;
 
@@ -806,6 +809,347 @@ UNODB_TYPED_TEST(OLCRemoveDescentVsSplit, SplitChainTopBelowInodeKeepsSibling) {
                buf_t2);
   assert_remove_keeps_other_keys<TypeParam>(
       unodb::detail::sync_before_remove_child_read, key_a, sibs, t2_key);
+}
+
+// ===================================================================
+// Iterator step vs. a concurrent write.  When next() or prior() fails its
+// step, it re-seeks to the current key.  The step has already written its
+// target's key prefix and dispatch bytes into the iterator's key buffer by
+// then, so the key it re-seeks to cannot be a view of that buffer.
+// ===================================================================
+
+/// Run T1's \a op parked at the second hit of \a point, after it has
+/// validated the first node on its path, while T2 removes \a removed.
+/// \return Whether T2 removed \a removed.
+template <class Db, class Op>
+[[nodiscard]] bool parked_at_second_node(Db& db,
+                                         unodb::detail::sync_point& point,
+                                         const Op& op,
+                                         typename Db::key_type removed) {
+  const sync_point_guard guard{point};
+  unsigned hits = 0;
+  point.arm([&hits]() {
+    if (++hits != 2) return;
+    unodb::detail::thread_syncs[0].notify();
+    unodb::detail::thread_syncs[1].wait();
+  });
+
+  unodb::this_thread().qsbr_pause();
+
+  bool removed_ok = false;
+  auto t2 = unodb::qsbr_thread([&] {
+    unodb::detail::thread_syncs[0].wait();
+    const unodb::quiescent_state_on_scope_exit q{};
+    removed_ok = db.remove(removed);
+    unodb::detail::thread_syncs[1].notify();
+  });
+
+  auto t1 = unodb::qsbr_thread([&] {
+    const unodb::quiescent_state_on_scope_exit q{};
+    op();
+  });
+
+  t1.join();
+  t2.join();
+  unodb::this_thread().qsbr_resume();
+  unodb::this_thread().quiescent();
+
+  return removed_ok;
+}
+
+/// The bytes of \a key.
+[[nodiscard]] std::vector<std::byte> key_bytes(unodb::key_view key) {
+  return {key.begin(), key.end()};
+}
+
+/// Keys, each as its bytes.
+using key_list = std::vector<std::vector<std::byte>>;
+
+/// The keys that scan_from(\a from) visits in \a db, in visiting order.
+template <class Db>
+[[nodiscard]] key_list keys_scanned_from(Db& db, unodb::key_view from,
+                                         bool fwd) {
+  key_list keys;
+  db.scan_from(
+      from,
+      [&keys](const auto& v) {
+        keys.push_back(key_bytes(v.get_key().view()));
+        return false;
+      },
+      fwd);
+  return keys;
+}
+
+/// The bytes of the step keys, 01 20 CC 01 05, 01 20 CC 01 06 and
+/// 01 20 CC 01 07: an I4 holds them at 01 below the I4 with prefix CC that
+/// Root-I4 holds at 20.
+constexpr std::array step_key_s_bytes{std::byte{0x01}, std::byte{0x20},
+                                      std::byte{0xCC}, std::byte{0x01},
+                                      std::byte{0x05}};
+/// See step_key_s_bytes.
+constexpr std::array step_key_t_bytes{std::byte{0x01}, std::byte{0x20},
+                                      std::byte{0xCC}, std::byte{0x01},
+                                      std::byte{0x06}};
+/// See step_key_s_bytes.
+constexpr std::array step_key_x_bytes{std::byte{0x01}, std::byte{0x20},
+                                      std::byte{0xCC}, std::byte{0x01},
+                                      std::byte{0x07}};
+/// The bytes of SR1's start key, 01 10 AA BB EE.
+constexpr std::array sr1_from_bytes{std::byte{0x01}, std::byte{0x10},
+                                    std::byte{0xAA}, std::byte{0xBB},
+                                    std::byte{0xEE}};
+/// The bytes of SR1's last key, 01 20 CC 02 07.
+constexpr std::array sr1_u_bytes{std::byte{0x01}, std::byte{0x20},
+                                 std::byte{0xCC}, std::byte{0x02},
+                                 std::byte{0x07}};
+/// The bytes of SR2's start key, 01 30 AA BB 00.
+constexpr std::array sr2_from_bytes{std::byte{0x01}, std::byte{0x30},
+                                    std::byte{0xAA}, std::byte{0xBB},
+                                    std::byte{0x00}};
+/// The bytes of SR2's last key, 01 20 CC 00 07.
+constexpr std::array sr2_u_bytes{std::byte{0x01}, std::byte{0x20},
+                                 std::byte{0xCC}, std::byte{0x00},
+                                 std::byte{0x07}};
+
+/// The size of the step tests' keys before padding.
+constexpr std::size_t unpadded_key_size = step_key_s_bytes.size();
+
+/// The size the padded step tests pad their keys to: over the inline capacity
+/// of the buffers that hold, copy and encode keys, so that those buffers grow.
+constexpr std::size_t padded_key_size = 300;
+static_assert(padded_key_size > unodb::detail::INITIAL_BUFFER_CAPACITY);
+
+/// \a head padded with zero bytes to \a size bytes.
+[[nodiscard]] std::vector<std::byte> padded_key(unodb::key_view head,
+                                                std::size_t size) {
+  std::vector<std::byte> key(size);
+  std::ranges::copy(head, key.begin());
+  return key;
+}
+
+/// Insert \a from_key, the three step keys and \a u_key, each padded to
+/// \a key_size bytes, into a \a Db.  Scan from \a from_key, forward if \a fwd,
+/// with the first step parked at the step keys' I4 while T2 removes
+/// step_key_x_bytes, and check that the scan visits \a from_key, the two other
+/// step keys in scan order, and \a u_key.
+///
+/// The step descends from Root-I4 through the I4 with prefix CC and parks at
+/// the step keys' I4.  T2's remove moves that I4's version, so the step fails
+/// after it has written 01 20 CC 01 over \a from_key's first four bytes.
+template <class Db>
+void assert_step_reseeks_to_current_key(unodb::key_view from_key,
+                                        unodb::key_view u_key, bool fwd,
+                                        std::size_t key_size) {
+  const auto from = padded_key(from_key, key_size);
+  const auto s_key = padded_key(unodb::key_view{step_key_s_bytes}, key_size);
+  const auto t_key = padded_key(unodb::key_view{step_key_t_bytes}, key_size);
+  const auto x_key = padded_key(unodb::key_view{step_key_x_bytes}, key_size);
+  const auto u = padded_key(u_key, key_size);
+
+  Db db;
+  UNODB_ASSERT_TRUE(
+      db.insert(unodb::key_view{from}, unodb::test::get_test_value<Db>(0)));
+  UNODB_ASSERT_TRUE(
+      db.insert(unodb::key_view{s_key}, unodb::test::get_test_value<Db>(1)));
+  UNODB_ASSERT_TRUE(
+      db.insert(unodb::key_view{t_key}, unodb::test::get_test_value<Db>(2)));
+  UNODB_ASSERT_TRUE(
+      db.insert(unodb::key_view{x_key}, unodb::test::get_test_value<Db>(3)));
+  UNODB_ASSERT_TRUE(
+      db.insert(unodb::key_view{u}, unodb::test::get_test_value<Db>(4)));
+
+  key_list keys;
+  UNODB_ASSERT_TRUE(parked_at_second_node(
+      db, unodb::detail::sync_in_scan_after_parent_unlock,
+      [&] { keys = keys_scanned_from(db, unodb::key_view{from}, fwd); },
+      unodb::key_view{x_key}));
+  const auto expected =
+      fwd ? key_list{from, s_key, t_key, u} : key_list{from, t_key, s_key, u};
+  UNODB_ASSERT_EQ(keys, expected);
+}
+
+/// Fixture of the iterator step tests.
+template <class Db>
+class OLCIteratorStepRestart : public ::testing::Test {};
+
+UNODB_TYPED_TEST_SUITE(OLCIteratorStepRestart, OLCKeyViewTypes)
+
+/// SR1: Root-I4, prefix 01, holds at 10 an I4 with prefix AA BB that holds
+/// 01 10 AA BB EE, and at 20 the I4 with prefix CC, which holds the I4 of
+/// step_key_s_bytes at 01 and 01 20 CC 02 07 at 02.  next() from
+/// 01 10 AA BB EE takes Root-I4's 20.  A re-seek to 01 20 CC 01 EE would
+/// find no EE in the parked I4 and land on 01 20 CC 02 07.
+UNODB_TYPED_TEST(OLCIteratorStepRestart, NextReseeksToCurrentKey) {
+  assert_step_reseeks_to_current_key<TypeParam>(unodb::key_view{sr1_from_bytes},
+                                                unodb::key_view{sr1_u_bytes},
+                                                true, unpadded_key_size);
+}
+
+/// SR2: mirror of SR1 for prior().  Root-I4 holds the I4 with prefix CC at 20
+/// and an I4 with prefix AA BB that holds 01 30 AA BB 00 at 30.  The I4 with
+/// prefix CC holds 01 20 CC 00 07 at 00, so the I4 of step_key_s_bytes is its
+/// right-most child.  prior() from 01 30 AA BB 00 takes Root-I4's 20.  A
+/// re-seek to 01 20 CC 01 00 would find no key at or below 00 in the parked
+/// I4 and land on 01 20 CC 00 07.
+UNODB_TYPED_TEST(OLCIteratorStepRestart, PriorReseeksToCurrentKey) {
+  assert_step_reseeks_to_current_key<TypeParam>(unodb::key_view{sr2_from_bytes},
+                                                unodb::key_view{sr2_u_bytes},
+                                                false, unpadded_key_size);
+}
+
+/// SR1 with its keys padded to padded_key_size bytes, so that the key the
+/// step saves outgrows the inline capacity of the buffer it is saved into.
+UNODB_TYPED_TEST(OLCIteratorStepRestart, NextReseeksToCurrentPaddedKey) {
+  assert_step_reseeks_to_current_key<TypeParam>(unodb::key_view{sr1_from_bytes},
+                                                unodb::key_view{sr1_u_bytes},
+                                                true, padded_key_size);
+}
+
+/// SR2 with its keys padded as NextReseeksToCurrentPaddedKey pads SR1's.
+UNODB_TYPED_TEST(OLCIteratorStepRestart, PriorReseeksToCurrentPaddedKey) {
+  assert_step_reseeks_to_current_key<TypeParam>(unodb::key_view{sr2_from_bytes},
+                                                unodb::key_view{sr2_u_bytes},
+                                                false, padded_key_size);
+}
+
+/// A TestHeap whose extract_key() encodes the key into the buffer it gets, as
+/// the TupleHeap contract's main case does, rather than return a view of its
+/// own storage, so that a view of that buffer dies with it.
+class EncodingTestHeap {
+ public:
+  /// Register \a key for \a id, as unodb::test::TestHeap::add_tuple() does.
+  void add_tuple(std::uint64_t id, unodb::key_view key) {
+    heap_.add_tuple(id, key);
+  }
+
+  /// Encode the key of \a id into \a buf.
+  [[nodiscard]] unodb::key_view extract_key(std::uint64_t id,
+                                            unodb::key_encoder& buf) const {
+    ++extract_count_;
+    return buf.reset().append_bytes(heap_.extract_key(id, buf)).get_key_view();
+  }
+
+  /// The number of extract_key() calls so far.
+  [[nodiscard]] std::size_t extract_count() const noexcept {
+    return extract_count_;
+  }
+
+ private:
+  /// The registered keys.
+  unodb::test::TestHeap heap_;
+  /// See extract_count().  Not atomic, because only iterators call
+  /// extract_key(), and each test scans from one thread.
+  mutable std::size_t extract_count_{0};
+};
+
+/// Run the test of \a from_key and \a u_key, forward if \a fwd, as
+/// assert_step_reseeks_to_current_key() does, on a heap tree whose heap is an
+/// EncodingTestHeap.  Each key is padded to padded_key_size bytes, so that the
+/// buffer it is encoded into outgrows its inline storage, and a re-seek key
+/// that outlives that buffer reads freed memory.  The scan reads only values,
+/// so the failed step's re-seek must be its only heap read.
+void assert_heap_step_reseeks_to_current_key(unodb::key_view from_key,
+                                             unodb::key_view u_key, bool fwd) {
+  using db_type =
+      unodb::olc_db<unodb::key_view, std::uint64_t, EncodingTestHeap>;
+  // In the order of their tuple ids 0 to 4: the start key, the three step
+  // keys, and the last key.
+  const std::array keys{
+      padded_key(from_key, padded_key_size),
+      padded_key(unodb::key_view{step_key_s_bytes}, padded_key_size),
+      padded_key(unodb::key_view{step_key_t_bytes}, padded_key_size),
+      padded_key(unodb::key_view{step_key_x_bytes}, padded_key_size),
+      padded_key(u_key, padded_key_size)};
+
+  EncodingTestHeap heap;
+  db_type db{heap};
+  for (std::uint64_t id = 0; id < keys.size(); ++id) {
+    heap.add_tuple(id, keys[id]);
+    UNODB_ASSERT_TRUE(db.insert(unodb::key_view{keys[id]}, id));
+  }
+
+  std::vector<std::uint64_t> ids;
+  UNODB_ASSERT_TRUE(parked_at_second_node(
+      db, unodb::detail::sync_in_scan_after_parent_unlock,
+      [&] {
+        db.scan_from(
+            unodb::key_view{keys[0]},
+            [&ids](const auto& v) {
+              ids.push_back(v.get_value());
+              return false;
+            },
+            fwd);
+      },
+      unodb::key_view{keys[3]}));
+  const auto expected = fwd ? std::vector<std::uint64_t>{0, 1, 2, 4}
+                            : std::vector<std::uint64_t>{0, 2, 1, 4};
+  UNODB_ASSERT_EQ(ids, expected);
+  UNODB_ASSERT_EQ(1U, heap.extract_count());
+}
+
+/// SR3: SR1 on a heap tree.
+UNODB_TEST(OLCIteratorStepRestartHeap, NextReseeksToCurrentKey) {
+  assert_heap_step_reseeks_to_current_key(unodb::key_view{sr1_from_bytes},
+                                          unodb::key_view{sr1_u_bytes}, true);
+}
+
+/// SR4: SR2 on a heap tree.
+UNODB_TEST(OLCIteratorStepRestartHeap, PriorReseeksToCurrentKey) {
+  assert_heap_step_reseeks_to_current_key(unodb::key_view{sr2_from_bytes},
+                                          unodb::key_view{sr2_u_bytes}, false);
+}
+
+/// The u64 step keys, 0x200105, 0x200106 and 0x200107: an I4 holds them at
+/// 01 below the I4 that Root-I4, whose prefix is five zero bytes, holds at 20.
+constexpr std::array<std::uint64_t, 3> u64_step_keys{0x200105, 0x200106,
+                                                     0x200107};
+
+/// Run the test of \a from_key and \a u_key, forward if \a fwd, as
+/// assert_step_reseeks_to_current_key() does, on a u64_olc_db with the u64
+/// step keys.  Such a tree re-seeks to the key of the leaf it was on, which
+/// the step cannot change.  The test covers reseek_key()'s read of that key,
+/// which only a failed step makes.
+void assert_u64_step_reseeks_to_current_key(std::uint64_t from_key,
+                                            std::uint64_t u_key, bool fwd) {
+  using db_type = unodb::test::u64_olc_db;
+  const auto [s_key, t_key, x_key] = u64_step_keys;
+  const std::array keys{from_key, s_key, t_key, x_key, u_key};
+
+  db_type db;
+  for (std::size_t i = 0; i < keys.size(); ++i) {
+    UNODB_ASSERT_TRUE(
+        db.insert(keys[i], unodb::test::get_test_value<db_type>(i)));
+  }
+
+  std::vector<std::uint64_t> visited;
+  UNODB_ASSERT_TRUE(parked_at_second_node(
+      db, unodb::detail::sync_in_scan_after_parent_unlock,
+      [&] {
+        db.scan_from(
+            from_key,
+            [&visited](const auto& v) {
+              visited.push_back(decode(v.get_key()));
+              return false;
+            },
+            fwd);
+      },
+      x_key));
+  const auto expected =
+      fwd ? std::vector<std::uint64_t>{from_key, s_key, t_key, u_key}
+          : std::vector<std::uint64_t>{from_key, t_key, s_key, u_key};
+  UNODB_ASSERT_EQ(visited, expected);
+}
+
+/// SR5: SR1 on a u64 tree.  Root-I4 holds 0x100000 at 10, and at 20 an I4
+/// that holds the I4 of the u64 step keys at 01 and 0x200207 at 02.
+UNODB_TEST(OLCIteratorStepRestartU64, NextReseeksToCurrentKey) {
+  assert_u64_step_reseeks_to_current_key(0x100000, 0x200207, true);
+}
+
+/// SR6: SR2 on a u64 tree.  Root-I4 holds 0x300000 at 30, and at 20 an I4
+/// that holds 0x200007 at 00 and the I4 of the u64 step keys at 01.
+UNODB_TEST(OLCIteratorStepRestartU64, PriorReseeksToCurrentKey) {
+  assert_u64_step_reseeks_to_current_key(0x300000, 0x200007, false);
 }
 
 // ===================================================================

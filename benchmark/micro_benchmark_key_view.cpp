@@ -361,6 +361,10 @@ BENCHMARK_CAPTURE(chain_remove<OLC>, kl16, gen_kl16)->Apply(kl_sizes);
 BENCHMARK_CAPTURE(chain_remove<OLC>, kl64, gen_kl64)->Apply(kl_sizes);
 BENCHMARK_CAPTURE(chain_remove<OLC>, kl256, gen_kl256)->Apply(kl_sizes);
 
+BENCHMARK_CAPTURE(chain_scan<OLC>, kl16, gen_kl16)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_scan<OLC>, kl64, gen_kl64)->Apply(kl_sizes);
+BENCHMARK_CAPTURE(chain_scan<OLC>, kl256, gen_kl256)->Apply(kl_sizes);
+
 // Registration: kv vs u64 comparison (100B values)
 
 BENCHMARK(kv_vs_u64_insert<DB>)->Apply(u64_sizes);
