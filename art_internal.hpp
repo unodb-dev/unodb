@@ -636,6 +636,28 @@ class key_buffer {
     off += n;
   }
 
+  /// Replace the contents with a copy of those of \a src.
+  ///
+  /// Contents of up to detail::INITIAL_BUFFER_CAPACITY bytes are copied in
+  /// whole chunks of a fixed size, which compile to a few moves where a copy
+  /// of variable size is a call: an OLC iterator makes this copy on every
+  /// step.  The last chunk may copy bytes past the end of the contents, but
+  /// not past the end of either buffer, whose capacity is never below that
+  /// size.
+  void assign_from(const key_buffer& src) {
+    const auto n = src.off;
+    if (UNODB_DETAIL_LIKELY(n <= detail::INITIAL_BUFFER_CAPACITY)) {
+      for (std::size_t i = 0; i < n; i += copy_chunk_size)
+        std::memcpy(buf + i, src.buf + i, copy_chunk_size);
+    } else {
+      // Not ensure_available(): growing must neither copy the old contents
+      // nor lose them if it throws.
+      if (n > cap) unodb::detail::ensure_capacity(buf, cap, 0, n);
+      std::memcpy(buf, src.buf, n);
+    }
+    off = n;
+  }
+
   UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
 
   /// Pop \a n bytes from end of buffer.
@@ -658,6 +680,10 @@ class key_buffer {
   void ensure_capacity(size_t min_capacity) {
     unodb::detail::ensure_capacity(buf, cap, off, min_capacity);
   }
+
+  /// The size of the chunks in which assign_from() copies.
+  static constexpr std::size_t copy_chunk_size = 32;
+  static_assert(detail::INITIAL_BUFFER_CAPACITY % copy_chunk_size == 0);
 
   /// Initial internal buffer avoiding heap allocation.
   std::byte ibuf[detail::INITIAL_BUFFER_CAPACITY];

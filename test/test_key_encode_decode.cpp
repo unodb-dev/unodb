@@ -34,6 +34,10 @@
 #include "gtest_utils.hpp"
 #include "portability_builtins.hpp"
 
+#ifndef NDEBUG
+#include "test_utils.hpp"
+#endif
+
 namespace {
 
 /// Test suite for key encoding, decoding, and the lexicographic
@@ -652,6 +656,45 @@ UNODB_TEST(ARTKeyEncodeDecodeTest, AppendSpanConstByteC0001) {
   do_encode_bytes_test(std::span<const std::byte>(test_data_6));
   do_encode_bytes_test(std::span<const std::byte>(test_data_7));
 }
+
+/// key_buffer::assign_from() copies contents of each length around its
+/// 32-byte chunks and the inline capacity, from and into buffers that are
+/// inline or have grown past it.
+UNODB_TEST(KeyBufferTest, AssignFromCopiesContents) {
+  unodb::detail::key_buffer src;
+  unodb::detail::key_buffer dst;
+  // Not a std::vector: an empty one's data() may be null, and push() passes
+  // it to memcpy, which must not get a null pointer even to copy nothing.
+  std::array<std::byte, 300> storage{};
+  for (const std::size_t n :
+       {0U, 1U, 31U, 32U, 33U, 255U, 256U, 257U, 300U, 40U}) {
+    const std::span<std::byte> bytes{storage.data(), n};
+    for (std::size_t i = 0; i < n; ++i)
+      bytes[i] = static_cast<std::byte>(i + n);
+    src.reset();
+    src.push(unodb::key_view{bytes});
+    dst.assign_from(src);
+    UNODB_EXPECT_TRUE(std::ranges::equal(dst.get_key_view(), bytes)) << n;
+  }
+}
+
+#ifndef NDEBUG
+
+/// key_buffer::assign_from() leaves the destination's contents as they were
+/// if growing it to hold contents over the inline capacity fails.
+UNODB_TEST(KeyBufferTest, AssignFromKeepsContentsOnBadAlloc) {
+  const std::vector<std::byte> kept(40, std::byte{0x2A});
+  const std::vector<std::byte> grown(300, std::byte{0x55});
+  unodb::detail::key_buffer src;
+  src.push(unodb::key_view{grown});
+  unodb::detail::key_buffer dst;
+  dst.push(unodb::key_view{kept});
+  UNODB_ASSERT_TRUE(
+      unodb::test::throws_bad_alloc(1, [&] { dst.assign_from(src); }));
+  UNODB_ASSERT_TRUE(std::ranges::equal(dst.get_key_view(), kept));
+}
+
+#endif  // !NDEBUG
 
 //
 // Encoding of text fields (optionally truncated to maxlen and padded

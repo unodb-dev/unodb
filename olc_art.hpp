@@ -79,6 +79,12 @@ inline sync_point sync_after_upsert_dup_found;
 /// seek, after it reads an inode's key prefix length and before it compares the
 /// prefix with the key.
 inline sync_point sync_after_prefix_length_load;
+
+/// Sync point: fires in olc_db::iterator::try_left_most_traversal() and
+/// olc_db::iterator::try_right_most_traversal() after a node is read-locked
+/// and its parent's read lock is released, before the node's key prefix is
+/// read.  Fires once per node on the descent, the first node first.
+inline sync_point sync_in_scan_after_parent_unlock;
 UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 
@@ -738,8 +744,8 @@ class olc_db final {
     /// Advance the iterator to the next entry, emptying the stack — leaving
     /// the iterator !valid(), i.e. at `end()` — when there is none.
     ///
-    /// A failed attempt may modify the stack, so next() re-seeks to the
-    /// previously read key to recover.
+    /// A failed attempt may modify the stack and `keybuf_`, so next()
+    /// re-seeks to the key that reseek_key() returns.
     ///
     /// \return `false` if an optimistic read failed and the caller must
     /// recover as next() does.
@@ -748,8 +754,8 @@ class olc_db final {
     /// Step the iterator to the previous entry, emptying the stack — leaving
     /// the iterator !valid(), i.e. at `end()` — when there is none.
     ///
-    /// A failed attempt may modify the stack, so prior() re-seeks to the
-    /// previously read key to recover.
+    /// A failed attempt may modify the stack and `keybuf_`, so prior()
+    /// re-seeks to the key that reseek_key() returns.
     ///
     /// \return `false` if an optimistic read failed and the caller must
     /// recover as prior() does.
@@ -796,6 +802,40 @@ class olc_db final {
     /// Core logic invoked from retry loop.
     [[nodiscard]] bool try_seek(art_key_type search_key, bool& match, bool fwd);
 
+    /// Copy the current key out of `keybuf_` into `reseek_key_buf_`, for
+    /// reseek_key() to return if the step that follows fails.
+    ///
+    /// A step writes its target's key prefix and dispatch bytes into
+    /// `keybuf_`, and may reallocate it, before checks that can still fail, so
+    /// the copy must precede the step.  Only `full_key_in_inode_path` needs
+    /// it, and otherwise this does nothing: reseek_key() then reads the key
+    /// from the heap or the leaf, which the step does not change.
+    ///
+    /// \pre The iterator is positioned on an entry.
+    void save_reseek_key() noexcept(
+        !detail::olc_art_policy<Key, Value, HeapTag>::full_key_in_inode_path) {
+      // Not a requires-clause: clang before 15 instantiates a constrained
+      // member on an explicit instantiation of the class whose arguments
+      // fail the constraint, and reseek_key_buf_ has no assign_from() then.
+      if constexpr (detail::olc_art_policy<Key, Value,
+                                           HeapTag>::full_key_in_inode_path)
+        reseek_key_buf_.assign_from(keybuf_);
+    }
+
+    /// The key for next() or prior() to re-seek to after its step failed.
+    ///
+    /// Under `full_key_in_inode_path`, this is the copy that save_reseek_key()
+    /// made before the step.  In heap mode, the key is extracted into
+    /// `reseek_key_buf_` only now, so that a step that succeeds reads nothing
+    /// from the heap.  Otherwise it is the key of \a node's leaf.
+    ///
+    /// \param node The entry the iterator was positioned on before the step
+    ///
+    /// \return The key, valid until the next save_reseek_key() or
+    /// reseek_key() call
+    [[nodiscard]] art_key_type reseek_key(detail::olc_node_ptr node) noexcept(
+        !art_policy::has_heap);
+
     /// The outer db instance.
     olc_db& db_;
 
@@ -829,6 +869,18 @@ class olc_db final {
         detail::olc_art_policy<Key, Value, HeapTag>::has_heap, key_encoder,
         empty_key_buf>
         get_key_buf_{};
+
+    /// The key that save_reseek_key() saves, or in heap mode that
+    /// reseek_key() extracts.  A member, so that the key outlives
+    /// reseek_key() and the buffer keeps its capacity from one step to the
+    /// next.
+    UNODB_DETAIL_NO_UNIQUE_ADDRESS std::conditional_t<
+        detail::olc_art_policy<Key, Value, HeapTag>::full_key_in_inode_path,
+        detail::key_buffer,
+        std::conditional_t<
+            detail::olc_art_policy<Key, Value, HeapTag>::has_heap, key_encoder,
+            empty_key_buf>>
+        reseek_key_buf_{};
   };  // class iterator
 
   //
@@ -4107,26 +4159,33 @@ bool olc_db<Key, Value, HeapTag>::iterator::try_last() {
   return try_right_most_traversal(node, parent_critical_section);
 }
 
+UNODB_DETAIL_DISABLE_GCC_WARNING("-Wsuggest-attribute=pure")
+template <typename Key, typename Value, typename HeapTag>
+typename olc_db<Key, Value, HeapTag>::art_key_type
+olc_db<Key, Value, HeapTag>::iterator::reseek_key(
+    detail::olc_node_ptr node) noexcept(!art_policy::has_heap) {
+  if constexpr (art_policy::full_key_in_inode_path) {
+    return art_key_type{reseek_key_buf_.get_key_view()};
+  } else if constexpr (art_policy::has_heap) {
+    // The packed value is a copy that the step could not change.
+    const auto value_id = art_policy::unpack_value(node);
+    return art_key_type{
+        db_.heap_.heap.extract_key(value_id, reseek_key_buf_.reset())};
+  } else {
+    UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
+    return node.template ptr<leaf_type*>()->get_key();
+  }
+}
+UNODB_DETAIL_RESTORE_GCC_WARNINGS()
+
 template <typename Key, typename Value, typename HeapTag>
 typename olc_db<Key, Value, HeapTag>::iterator&
 olc_db<Key, Value, HeapTag>::iterator::next() {
   const auto node = current_node();
   if (node != nullptr || (!empty() && top().is_packed_value)) {
-    const art_key_type akey{[&]() noexcept -> art_key_type {
-      if constexpr (art_policy::full_key_in_inode_path) {
-        return art_key_type{keybuf_.get_key_view()};
-      } else if constexpr (art_policy::has_heap) {
-        // Heap mode: recover key from the heap using the packed value.
-        const auto value_id = art_policy::unpack_value(node);
-        key_encoder key_buf;
-        const auto kv = db_.heap_.heap.extract_key(value_id, key_buf);
-        return art_key_type{kv};
-      } else {
-        UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
-        return node.template ptr<leaf_type*>()->get_key();
-      }
-    }()};
+    save_reseek_key();
     if (UNODB_DETAIL_LIKELY(try_next())) return *this;
+    const art_key_type akey{reseek_key(node)};
     while (true) {
       bool match{};
       // seek to the current key (or its successor).
@@ -4203,21 +4262,9 @@ typename olc_db<Key, Value, HeapTag>::iterator&
 olc_db<Key, Value, HeapTag>::iterator::prior() {
   const auto node = current_node();
   if (node != nullptr || (!empty() && top().is_packed_value)) {
-    const art_key_type akey{[&]() noexcept -> art_key_type {
-      if constexpr (art_policy::full_key_in_inode_path) {
-        return art_key_type{keybuf_.get_key_view()};
-      } else if constexpr (art_policy::has_heap) {
-        // Heap mode: recover key from the heap using the packed value.
-        const auto value_id = art_policy::unpack_value(node);
-        key_encoder key_buf;
-        const auto kv = db_.heap_.heap.extract_key(value_id, key_buf);
-        return art_key_type{kv};
-      } else {
-        UNODB_DETAIL_ASSERT(node.type() == node_type::LEAF);
-        return node.template ptr<leaf_type*>()->get_key();
-      }
-    }()};
+    save_reseek_key();
     if (UNODB_DETAIL_LIKELY(try_prior())) return *this;
+    const art_key_type akey{reseek_key(node)};
     while (true) {
       bool match{};
       // seek to the current key (or its predecessor)
@@ -4676,6 +4723,7 @@ bool olc_db<Key, Value, HeapTag>::iterator::try_left_most_traversal(
       return false;  // LCOV_EXCL_LINE
     if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
       return false;  // LCOV_EXCL_LINE
+    detail::sync(detail::sync_in_scan_after_parent_unlock);
     const auto node_type = node.type();
     if (node_type == node_type::LEAF) {
       push_leaf(node, node_critical_section);
@@ -4723,6 +4771,7 @@ bool olc_db<Key, Value, HeapTag>::iterator::try_right_most_traversal(
       return false;  // LCOV_EXCL_LINE
     if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
       return false;  // LCOV_EXCL_LINE
+    detail::sync(detail::sync_in_scan_after_parent_unlock);
     const auto node_type = node.type();
     if (node_type == node_type::LEAF) {
       push_leaf(node, node_critical_section);
