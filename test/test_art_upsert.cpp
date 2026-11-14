@@ -1556,10 +1556,12 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, ParentRcsFailAfterCommit) {
         db.insert(upper_key, unodb::test::get_test_value<TypeParam>(3)));
   }
 
-  // T1 upserts key and parks after dup found while T2 inserts t2_key.
-  const sync_point_guard guard{unodb::detail::sync_after_upsert_dup_found};
-  unodb::detail::sync_after_upsert_dup_found.arm([&]() {
-    unodb::detail::sync_after_upsert_dup_found.disarm();
+  // T1 upserts key and parks inside its lambda while T2 inserts t2_key.  The
+  // value-in-slot arm checks the parent before the lambda, so T2's change
+  // would restart a T1 parked any earlier.
+  unodb::detail::sync_point in_t1_fn;
+  in_t1_fn.arm([&]() {
+    in_t1_fn.disarm();
     unodb::detail::thread_syncs[0].notify();
     unodb::detail::thread_syncs[1].wait();
   });
@@ -1576,7 +1578,10 @@ UNODB_TYPED_TEST(UpsertConcurrencyTest, ParentRcsFailAfterCommit) {
 
   auto t1 = unodb::qsbr_thread([&] {
     const unodb::quiescent_state_on_scope_exit q{};
-    std::ignore = db.upsert(key, v0, increment_fn);
+    std::ignore = db.upsert(key, v0, [&in_t1_fn](auto& v) {
+      unodb::detail::sync(in_t1_fn);
+      return increment_fn(v);
+    });
   });
 
   t1.join();

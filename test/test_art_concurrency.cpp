@@ -819,13 +819,10 @@ UNODB_TYPED_TEST(OLCRemoveDescentVsSplit, SplitChainTopBelowInodeKeepsSibling) {
 // ===================================================================
 
 /// Run T1's \a op parked at the second hit of \a point, after it has
-/// validated the first node on its path, while T2 removes \a removed.
-/// \return Whether T2 removed \a removed.
-template <class Db, class Op>
-[[nodiscard]] bool parked_at_second_node(Db& db,
-                                         unodb::detail::sync_point& point,
-                                         const Op& op,
-                                         typename Db::key_type removed) {
+/// validated the first node on its path, while T2 runs \a interleaved.
+template <class Op, class Interleaved>
+void parked_at_second_node(unodb::detail::sync_point& point, const Op& op,
+                           const Interleaved& interleaved) {
   const sync_point_guard guard{point};
   unsigned hits = 0;
   point.arm([&hits]() {
@@ -836,11 +833,10 @@ template <class Db, class Op>
 
   unodb::this_thread().qsbr_pause();
 
-  bool removed_ok = false;
   auto t2 = unodb::qsbr_thread([&] {
     unodb::detail::thread_syncs[0].wait();
     const unodb::quiescent_state_on_scope_exit q{};
-    removed_ok = db.remove(removed);
+    interleaved();
     unodb::detail::thread_syncs[1].notify();
   });
 
@@ -853,7 +849,18 @@ template <class Db, class Op>
   t2.join();
   unodb::this_thread().qsbr_resume();
   unodb::this_thread().quiescent();
+}
 
+/// Run T1's \a op parked at the second hit of \a point, after it has
+/// validated the first node on its path, while T2 removes \a removed.
+/// \return Whether T2 removed \a removed.
+template <class Db, class Op>
+[[nodiscard]] bool parked_at_second_node(Db& db,
+                                         unodb::detail::sync_point& point,
+                                         const Op& op,
+                                         typename Db::key_type removed) {
+  bool removed_ok = false;
+  parked_at_second_node(point, op, [&] { removed_ok = db.remove(removed); });
   return removed_ok;
 }
 
@@ -1548,6 +1555,129 @@ UNODB_TEST(OLCChainCutVsSplit, RootSplitAboveShrinkingCutPointParent) {
                         db.get_shrinking_inode_count<unodb::node_type::I16>());
 #endif
       });
+}
+
+// ===================================================================
+// I4 collapse or prefix split vs. an upsert of a value-in-slot key.  Both
+// rewrite a node's prefix in place, and try_upsert checks the parent before it
+// read-locks the next node, so after a rewrite in between the upsert locks the
+// node at its rewritten version, and only the parent shows the rewrite.  These
+// tests park the upsert in that gap.
+// ===================================================================
+
+/// The tree of the value-in-slot upsert tests.
+using vis_upsert_db = unodb::test::key_view_u64val_olc_db;
+
+/// Run an upsert of \a new_key with value 4 on \a db, parked at the top of its
+/// descent step at the node below Root-I4, after checking Root-I4, while T2
+/// runs \a interleaved, which rewrites that node's prefix so that \a new_key
+/// now reaches another key's value slot.  Check that the upsert reached that
+/// slot once and restarted there without calling its lambda, and that its
+/// retry inserted \a new_key.  Call it through UNODB_ASSERT_NO_FATAL_FAILURE.
+template <class Interleaved>
+void assert_upsert_restarts_before_lambda(vis_upsert_db& db,
+                                          unodb::key_view new_key,
+                                          const Interleaved& interleaved) {
+  unsigned dup_found_hits = 0;
+  // Declared after the counter, so that it disarms the hook first.
+  const sync_point_guard dup_found_guard{
+      unodb::detail::sync_after_upsert_dup_found};
+  unodb::detail::sync_after_upsert_dup_found.arm(
+      [&dup_found_hits]() noexcept { ++dup_found_hits; });
+  unsigned fn_calls = 0;
+  bool inserted = false;
+  parked_at_second_node(
+      unodb::detail::sync_in_upsert_before_node_lock,
+      [&] {
+        inserted = db.upsert(new_key, 4, [&fn_calls](std::uint64_t&) {
+          ++fn_calls;
+          return unodb::upsert_action::keep;
+        });
+      },
+      interleaved);
+  // The upsert reached the other key's slot once, through the rewritten
+  // prefix, and restarted there; its retry inserts without finding a
+  // duplicate.
+  UNODB_ASSERT_EQ(1U, dup_found_hits);
+  UNODB_ASSERT_EQ(0U, fn_calls);
+  UNODB_ASSERT_TRUE(inserted);
+  ASSERT_VALUE_FOR_KEY(vis_upsert_db, db, new_key, 4);
+}
+
+/// UC1: on olc_db<key_view, std::uint64_t>, Root-I4 with an empty prefix
+/// holds, at 05, an I4 with an empty prefix and the values of 05 07 and 05 08
+/// in its slots, and at 10 a 26-byte key's chain.  T1 upserts 05 05 07 while
+/// T2 removes the 26-byte key, whose chain cut collapses Root-I4 into that I4.
+/// Its prefix becomes 05, so T1's remaining key 05 07 reaches 05 07's slot.
+/// T1 must restart on the obsolete Root-I4 instead of running its lambda on
+/// 05 07's value.
+UNODB_TEST(OLCI4CollapseVsUpsert, RestartsBeforeLambda) {
+  constexpr std::array key_a{std::byte{0x05}, std::byte{0x07}};
+  constexpr std::array key_b{std::byte{0x05}, std::byte{0x08}};
+  constexpr std::array new_key{std::byte{0x05}, std::byte{0x05},
+                               std::byte{0x07}};
+
+  vis_upsert_db db;
+  unodb::key_encoder enc;
+  std::array<std::byte, 26> buf_chain{};
+  const auto chain_key = copy_key(make_key_26(enc, 0x10, 0x01), buf_chain);
+  UNODB_ASSERT_TRUE(db.insert(unodb::key_view{key_a}, 1));
+  UNODB_ASSERT_TRUE(db.insert(unodb::key_view{key_b}, 2));
+  UNODB_ASSERT_TRUE(db.insert(chain_key, 3));
+
+  // MSVC's analysis misses the write in the lambda below.
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
+  bool removed = false;
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+  UNODB_ASSERT_NO_FATAL_FAILURE(assert_upsert_restarts_before_lambda(
+      db, unodb::key_view{new_key}, [&] { removed = db.remove(chain_key); }));
+  UNODB_ASSERT_TRUE(removed);
+
+  ASSERT_VALUE_FOR_KEY(vis_upsert_db, db, unodb::key_view{key_a}, 1);
+  ASSERT_VALUE_FOR_KEY(vis_upsert_db, db, unodb::key_view{key_b}, 2);
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_FALSE(db.get(chain_key).has_value());
+}
+
+/// US1: on olc_db<key_view, std::uint64_t>, Root-I4 with an empty prefix
+/// holds, at 05, an I4 with prefix 01 02 and the values of 05 01 02 07 and
+/// 05 01 02 08 in its slots, and at 10 a 26-byte key's chain.  T1 upserts
+/// 05 02 07 while T2 inserts 05 03 07, which splits that I4's prefix at its
+/// first byte: a new I4 at 05 holds it at 01, and its prefix becomes 02, so
+/// T1's remaining key 02 07 reaches 05 01 02 07's slot.  T1 must restart on
+/// Root-I4, whose slot T2 rewrote, instead of running its lambda on
+/// 05 01 02 07's value.
+UNODB_TEST(OLCPrefixSplitVsUpsert, RestartsBeforeLambda) {
+  constexpr std::array key_a{std::byte{0x05}, std::byte{0x01}, std::byte{0x02},
+                             std::byte{0x07}};
+  constexpr std::array key_b{std::byte{0x05}, std::byte{0x01}, std::byte{0x02},
+                             std::byte{0x08}};
+  constexpr std::array new_key{std::byte{0x05}, std::byte{0x02},
+                               std::byte{0x07}};
+  constexpr std::array split_key{std::byte{0x05}, std::byte{0x03},
+                                 std::byte{0x07}};
+
+  vis_upsert_db db;
+  unodb::key_encoder enc;
+  std::array<std::byte, 26> buf_chain{};
+  const auto chain_key = copy_key(make_key_26(enc, 0x10, 0x01), buf_chain);
+  UNODB_ASSERT_TRUE(db.insert(unodb::key_view{key_a}, 1));
+  UNODB_ASSERT_TRUE(db.insert(unodb::key_view{key_b}, 2));
+  UNODB_ASSERT_TRUE(db.insert(chain_key, 3));
+
+  // MSVC's analysis misses the write in the lambda below.
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
+  bool split_inserted = false;
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+  UNODB_ASSERT_NO_FATAL_FAILURE(assert_upsert_restarts_before_lambda(
+      db, unodb::key_view{new_key},
+      [&] { split_inserted = db.insert(unodb::key_view{split_key}, 5); }));
+  UNODB_ASSERT_TRUE(split_inserted);
+
+  ASSERT_VALUE_FOR_KEY(vis_upsert_db, db, unodb::key_view{key_a}, 1);
+  ASSERT_VALUE_FOR_KEY(vis_upsert_db, db, unodb::key_view{key_b}, 2);
+  ASSERT_VALUE_FOR_KEY(vis_upsert_db, db, unodb::key_view{split_key}, 5);
+  ASSERT_VALUE_FOR_KEY(vis_upsert_db, db, chain_key, 3);
 }
 
 #endif  // NDEBUG
