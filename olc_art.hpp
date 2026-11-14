@@ -80,6 +80,11 @@ inline sync_point sync_after_upsert_dup_found;
 /// prefix with the key.
 inline sync_point sync_after_prefix_length_load;
 
+/// Sync point: fires in try_upsert at the top of each descent step, after the
+/// parent's check and before the node is read-locked.  Fires once per node on
+/// the path, the root first.
+inline sync_point sync_in_upsert_before_node_lock;
+
 /// Sync point: fires in olc_db::iterator::try_left_most_traversal() and
 /// olc_db::iterator::try_right_most_traversal() after a node is read-locked
 /// and its parent's read lock is released, before the node's key prefix is
@@ -3062,6 +3067,7 @@ olc_db<Key, Value, HeapTag>::try_upsert(
   }
 
   while (true) {
+    detail::sync(detail::sync_in_upsert_before_node_lock);
     auto node_critical_section = node_ptr_lock(node).try_read_lock();
     if (UNODB_DETAIL_UNLIKELY(node_critical_section.must_restart())) return {};
 
@@ -3417,6 +3423,15 @@ olc_db<Key, Value, HeapTag>::try_upsert(
         auto local = art_policy::unpack_value(child_in_parent->load());
         detail::sync(detail::sync_after_upsert_dup_found);
         if (!node_critical_section.check()) return {};
+        // The descent checked the parent before read-locking this node.  An
+        // I4 collapse that merged the parent into this node, or a prefix
+        // split that moved this node below a new I4, rewrites its prefix in
+        // place without obsoleting it, so one in between shows only on the
+        // parent's version.  So does a collapse after the lock, as it does not
+        // move the survivor's version.  Either way match_key_prefix() may have
+        // matched at the old depth.  Validate the parent before fn sees what
+        // may be another key's value, as the leaf duplicate arms do.
+        if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) return {};
         const auto action = fn(local);
         UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
         switch (action) {
