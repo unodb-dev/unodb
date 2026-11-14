@@ -80,6 +80,15 @@ inline sync_point sync_after_upsert_dup_found;
 /// prefix with the key.
 inline sync_point sync_after_prefix_length_load;
 
+/// Sync point: fires in try_insert, try_upsert and try_remove_key_view before
+/// the descent reads an inode's key prefix.  Fires once per inode on the path,
+/// the root first.
+inline sync_point sync_before_prefix_load;
+
+/// Sync point: fires in try_upsert_erase's key_view descent before it reads an
+/// inode's key prefix.  Fires once per inode on the path, the root first.
+inline sync_point sync_in_upsert_erase_before_prefix_load;
+
 /// Sync point: fires in try_upsert at the top of each descent step, after the
 /// parent's check and before the node is read-locked.  Fires once per node on
 /// the path, the root first.
@@ -90,6 +99,11 @@ inline sync_point sync_in_upsert_before_node_lock;
 /// and its parent's read lock is released, before the node's key prefix is
 /// read.  Fires once per node on the descent, the first node first.
 inline sync_point sync_in_scan_after_parent_unlock;
+
+/// Sync point: fires in olc_db::iterator::try_seek() after a node is
+/// read-locked and its parent checked, before the node's key prefix is read.
+/// Fires once per inode on the seek path, the root first.
+inline sync_point sync_in_seek_before_prefix_load;
 UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 UNODB_DETAIL_RESTORE_CLANG_WARNINGS()
 
@@ -1158,6 +1172,46 @@ class olc_db final {
     const auto length{prefix.length()};
     detail::sync(detail::sync_after_prefix_length_load);
     return {prefix, length, prefix.get_shared_length(remaining_key.get_u64())};
+  }
+
+  /// Whether \a remaining_key matches an inode's key prefix up to the key's own
+  /// end, so that the key ends inside or at the end of that prefix, or is
+  /// empty.
+  /// \a shared_length is that prefix's prefix_match::shared_length, which then
+  /// reaches at least the key's size.  A key that mismatches the prefix before
+  /// its end does not qualify, however short it is.  A fixed-width key never
+  /// ends in a prefix.
+  [[nodiscard]] static constexpr bool key_matches_prefix_to_end(
+      [[maybe_unused]] art_key_type remaining_key,
+      [[maybe_unused]] unsigned shared_length) noexcept {
+    if constexpr (std::is_same_v<Key, key_view>) {
+      return remaining_key.size() <= shared_length;
+    } else {
+      return false;
+    }
+  }
+
+  /// Whether an insert or upsert descent must restart because
+  /// key_matches_prefix_to_end() holds for \a remaining_key and an inode's key
+  /// prefix, \a shared_length being that prefix's prefix_match::shared_length.
+  ///
+  /// Keys are prefix-free, so the key ends there only if the inode's prefix
+  /// was rewritten in place after the descent checked the parent, leaving the
+  /// descent at the inode's old depth: an I4 collapse lengthened it and
+  /// obsoleted the parent, or a prefix split shortened it and write-locked the
+  /// parent.  If both versions held, the key is a strict prefix of every key
+  /// below the inode: a caller error, which this asserts on.
+  [[nodiscard]] static constexpr bool must_restart_on_key_ending_in_prefix(
+      art_key_type remaining_key, unsigned shared_length,
+      const optimistic_lock::read_critical_section& parent_critical_section,
+      const optimistic_lock::read_critical_section&
+          node_critical_section) noexcept {
+    if (key_matches_prefix_to_end(remaining_key, shared_length) &&
+        (!parent_critical_section.check() || !node_critical_section.check()))
+      return true;
+    UNODB_DETAIL_ASSERT(
+        !key_matches_prefix_to_end(remaining_key, shared_length));
+    return false;
   }
 
   [[nodiscard]] try_get_result_type try_get(art_key_type k) const noexcept;
@@ -2606,9 +2660,12 @@ olc_db<Key, Value, HeapTag>::try_get(art_key_type k) const noexcept {
     const auto [key_prefix, key_prefix_length, shared_key_prefix_length] =
         match_key_prefix(*inode, remaining_key);
 
-    if (shared_key_prefix_length < key_prefix_length) {
+    // A key that mismatches this node's prefix, or a key_view key that ends
+    // inside or at the end of it, is not stored.
+    if (shared_key_prefix_length < key_prefix_length ||
+        key_matches_prefix_to_end(remaining_key, shared_key_prefix_length)) {
       if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
-        return {};  // LCOV_EXCL_LINE
+        return {};
       return std::make_optional<get_result>(std::nullopt);
     }
 
@@ -2838,8 +2895,13 @@ olc_db<Key, Value, HeapTag>::try_insert(
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
 
     auto* const inode{node.template ptr<inode_type*>()};
+    detail::sync(detail::sync_before_prefix_load);
     const auto [key_prefix, key_prefix_length, shared_prefix_length] =
         match_key_prefix(*inode, remaining_key);
+    if (UNODB_DETAIL_UNLIKELY(must_restart_on_key_ending_in_prefix(
+            remaining_key, shared_prefix_length, parent_critical_section,
+            node_critical_section)))
+      return {};
 
     if (shared_prefix_length < key_prefix_length) {
       if constexpr (art_policy::full_key_in_inode_path ||
@@ -3298,8 +3360,13 @@ olc_db<Key, Value, HeapTag>::try_upsert(
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
 
     auto* const inode{node.template ptr<inode_type*>()};
+    detail::sync(detail::sync_before_prefix_load);
     const auto [key_prefix, key_prefix_length, shared_prefix_length] =
         match_key_prefix(*inode, remaining_key);
+    if (UNODB_DETAIL_UNLIKELY(must_restart_on_key_ending_in_prefix(
+            remaining_key, shared_prefix_length, parent_critical_section,
+            node_critical_section)))
+      return {};
 
     if (shared_prefix_length < key_prefix_length) {
       // Key absent — prefix mismatch means we need to split.
@@ -3589,13 +3656,17 @@ olc_db<Key, Value, HeapTag>::try_upsert_erase(art_key_type k,
       UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
 
       auto* const inode{node.template ptr<inode_type*>()};
+      detail::sync(detail::sync_in_upsert_erase_before_prefix_load);
       const auto [key_prefix, key_prefix_length, shared_prefix_length] =
           match_key_prefix(*inode, remaining_key);
 
-      if (shared_prefix_length < key_prefix_length) {
-        // Key absent → restart.
-        return {};  // LCOV_EXCL_LINE
-      }
+      // A mismatch, or a key that ends inside or at the end of this node's
+      // prefix, means that the key has gone since the lambda saw it, or that
+      // an I4 collapse or a prefix split rewrote this node's prefix in place
+      // after the descent checked its parent.  Restart.
+      if (shared_prefix_length < key_prefix_length ||
+          key_matches_prefix_to_end(remaining_key, shared_prefix_length))
+        return {};
 
       UNODB_DETAIL_ASSERT(shared_prefix_length == key_prefix_length);
       remaining_key.shift_right(key_prefix_length);
@@ -3839,18 +3910,26 @@ olc_db<Key, Value, HeapTag>::try_remove_key_view(
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
 
     auto* const inode{node.template ptr<inode_type*>()};
+    detail::sync(detail::sync_before_prefix_load);
     const auto [key_prefix, key_prefix_length, shared_prefix_length] =
         match_key_prefix(*inode, remaining_key);
 
-    if (shared_prefix_length < key_prefix_length) {
+    // A key that mismatches this node's prefix, or that ends inside or at the
+    // end of it, is not stored.  The descent also gets here with a stored key
+    // if an I4 collapse or a prefix split rewrote this node's prefix in place
+    // after the descent checked its parent.  Either moved the parent's
+    // version, so the descent restarts.
+    if (shared_prefix_length < key_prefix_length ||
+        key_matches_prefix_to_end(remaining_key, shared_prefix_length)) {
       if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
-        return {};  // LCOV_EXCL_LINE
+        return {};
       if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
-        return {};  // LCOV_EXCL_LINE
+        return {};
       return false;
     }
 
     UNODB_DETAIL_ASSERT(shared_prefix_length == key_prefix_length);
+
     depth += key_prefix_length;
     remaining_key.shift_right(key_prefix_length);
 
@@ -4353,7 +4432,7 @@ typename olc_db<Key, Value, HeapTag>::iterator&
 olc_db<Key, Value, HeapTag>::iterator::seek(art_key_type search_key,
                                             bool& match, bool fwd) {
   while (!try_seek(search_key, match, fwd)) {
-    unodb::spin_wait_loop_body();  // LCOV_EXCL_LINE
+    unodb::spin_wait_loop_body();
   }
   return *this;
 }
@@ -4465,8 +4544,28 @@ bool olc_db<Key, Value, HeapTag>::iterator::try_seek(art_key_type search_key,
     }
     UNODB_DETAIL_ASSERT(node_type != node_type::LEAF);
     auto* const inode{node.template ptr<inode_type*>()};  // some internal node.
+    detail::sync(detail::sync_in_seek_before_prefix_load);
     const auto [key_prefix, key_prefix_length, shared_length] =
         match_key_prefix(*inode, remaining_key);
+    // The key matches this node's prefix up to the key's end, or a dispatch
+    // byte used it up, so it is a proper prefix of every key under this node:
+    // the left-most leaf is GTE, its predecessor LTE.  An I4 collapse that
+    // lengthened the prefix, or a prefix split that shortened it, after this
+    // seek checked the parent also gets here, with a key that need not be a
+    // prefix of this node's keys.  Both move the parent's version, so the
+    // traversal's parent check then restarts the seek.
+    if (UNODB_DETAIL_UNLIKELY(
+            key_matches_prefix_to_end(remaining_key, shared_length))) {
+      if (fwd) {
+        return unlock_and_return(
+            node_critical_section,
+            try_left_most_traversal(node, parent_critical_section));
+      }
+      return unlock_and_return(
+                 node_critical_section,
+                 try_left_most_traversal(node, parent_critical_section)) &&
+             try_prior();
+    }
     if (shared_length < key_prefix_length) {
       // We have visited an internal node whose prefix is longer than
       // the bytes in the key that we need to match.  To figure out
@@ -4509,21 +4608,6 @@ bool olc_db<Key, Value, HeapTag>::iterator::try_seek(art_key_type search_key,
           try_right_most_traversal(node, parent_critical_section));
     }
     remaining_key.shift_right(key_prefix_length);
-    // Key fully consumed by prefix — search key is a proper prefix of
-    // all keys under this inode.  Leftmost leaf is GTE, prior is LTE.
-    if constexpr (std::is_same_v<Key, key_view>) {
-      if (UNODB_DETAIL_UNLIKELY(remaining_key.size() == 0)) {
-        if (fwd) {
-          return unlock_and_return(
-              node_critical_section,
-              try_left_most_traversal(node, parent_critical_section));
-        }
-        return unlock_and_return(
-                   node_critical_section,
-                   try_left_most_traversal(node, parent_critical_section)) &&
-               try_prior();
-      }
-    }
     const auto res = inode->find_child(node_type, remaining_key[0]);
     if (res.second == nullptr) {
       // We are on a key byte during the descent that is not mapped by
@@ -4725,10 +4809,8 @@ bool olc_db<Key, Value, HeapTag>::iterator::try_left_most_traversal(
     optimistic_lock::read_critical_section& parent_critical_section) {
   // A check() is required before acting on [node] by taking the lock.
   if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) {
-    // LCOV_EXCL_START
     spin_wait_loop_body();
     return {};
-    // LCOV_EXCL_STOP
   }
   while (true) {
     UNODB_DETAIL_ASSERT(node != nullptr);

@@ -387,6 +387,78 @@ UNODB_TYPED_TEST(ARTConcurrencyTest,
   return copy_key(make_key(enc, tag, v), buf);
 }
 
+/// The bytes of short_key_a: 07 00 07.
+constexpr std::array short_key_a_bytes{std::byte{0x07}, std::byte{0x00},
+                                       std::byte{0x07}};
+/// The bytes of short_key_b: 07 00 08.
+constexpr std::array short_key_b_bytes{std::byte{0x07}, std::byte{0x00},
+                                       std::byte{0x08}};
+/// A key of the tree that insert_short_key_pair() builds.
+constexpr unodb::key_view short_key_a{short_key_a_bytes};
+/// A key of the tree that insert_short_key_pair() builds.
+constexpr unodb::key_view short_key_b{short_key_b_bytes};
+
+/// Insert short_key_a and short_key_b with \a vals[0] and \a vals[1]: one I4
+/// with prefix 07 00 over them.  Call it through UNODB_ASSERT_NO_FATAL_FAILURE.
+// Not noexcept: under --gtest_throw_on_failure a failed check throws.
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
+template <class Db, class Values>
+void insert_short_key_pair(Db& db, const Values& vals) {
+  UNODB_ASSERT_TRUE(db.insert(short_key_a, vals[0]));
+  UNODB_ASSERT_TRUE(db.insert(short_key_b, vals[1]));
+}
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+/// The bytes of short_sib: 07 01.
+constexpr std::array short_sib_bytes{std::byte{0x07}, std::byte{0x01}};
+/// A key of the tree that insert_short_collapse_tree() builds.
+constexpr unodb::key_view short_sib{short_sib_bytes};
+
+/// Insert short_key_a, short_key_b and short_sib with \a vals in that order.
+/// Root-I4, prefix 07, then holds at 0x00 an I4 with an empty prefix over
+/// short_key_a and short_key_b, and at 0x01 short_sib's leaf.  Removing
+/// short_sib collapses Root-I4 into that I4, whose prefix becomes 07 00, longer
+/// than the one byte of short_key_a left below Root-I4.  Call it through
+/// UNODB_ASSERT_NO_FATAL_FAILURE.
+// Not noexcept: under --gtest_throw_on_failure a failed check throws.
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
+template <class Db, class Values>
+void insert_short_collapse_tree(Db& db, const Values& vals) {
+  UNODB_ASSERT_NO_FATAL_FAILURE(insert_short_key_pair(db, vals));
+  UNODB_ASSERT_TRUE(db.insert(short_sib, vals[2]));
+}
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+/// The database type of the tests on insert_short_key_pair()'s and
+/// insert_short_collapse_tree()'s trees.
+using short_collapse_db = unodb::test::key_view_olc_db;
+
+/// short_key_a's, short_key_b's and short_sib's values.
+constexpr auto short_collapse_vals = distinct_values<3>();
+
+/// The bytes of \a key.
+[[nodiscard]] std::vector<std::byte> key_bytes(unodb::key_view key) {
+  return {key.begin(), key.end()};
+}
+
+/// Keys, each as its bytes.
+using key_list = std::vector<std::vector<std::byte>>;
+
+/// The keys that scan_from(\a from) visits in \a db, in visiting order.
+template <class Db>
+[[nodiscard]] key_list keys_scanned_from(Db& db, unodb::key_view from,
+                                         bool fwd) {
+  key_list keys;
+  db.scan_from(
+      from,
+      [&keys](const auto& v) {
+        keys.push_back(key_bytes(v.get_key().view()));
+        return false;
+      },
+      fwd);
+  return keys;
+}
+
 /// Chain concurrency tests reuse ARTConcurrencyTest for QSBR setup and
 /// parallel_test.  Thread functions access the db via verifier->get_db().
 template <class Db>
@@ -862,29 +934,6 @@ template <class Db, class Op>
   bool removed_ok = false;
   parked_at_second_node(point, op, [&] { removed_ok = db.remove(removed); });
   return removed_ok;
-}
-
-/// The bytes of \a key.
-[[nodiscard]] std::vector<std::byte> key_bytes(unodb::key_view key) {
-  return {key.begin(), key.end()};
-}
-
-/// Keys, each as its bytes.
-using key_list = std::vector<std::vector<std::byte>>;
-
-/// The keys that scan_from(\a from) visits in \a db, in visiting order.
-template <class Db>
-[[nodiscard]] key_list keys_scanned_from(Db& db, unodb::key_view from,
-                                         bool fwd) {
-  key_list keys;
-  db.scan_from(
-      from,
-      [&keys](const auto& v) {
-        keys.push_back(key_bytes(v.get_key().view()));
-        return false;
-      },
-      fwd);
-  return keys;
 }
 
 /// The bytes of the step keys, 01 20 CC 01 05, 01 20 CC 01 06 and
@@ -1558,6 +1607,198 @@ UNODB_TEST(OLCChainCutVsSplit, RootSplitAboveShrinkingCutPointParent) {
 }
 
 // ===================================================================
+// I4 collapse vs. a short key.  A collapse lengthens the surviving inode's
+// prefix in place, so a descent at the old depth can find its remaining key
+// ending inside the merged prefix.  It must restart on the collapse instead of
+// shifting the key past its end.
+// ===================================================================
+
+/// Build insert_short_collapse_tree()'s tree in \a db, run \a op parked at the
+/// second hit of \a point while T2 removes short_sib, and check that T2
+/// removed it.  Call it through UNODB_ASSERT_NO_FATAL_FAILURE.
+template <class Op>
+void park_during_short_sib_remove(short_collapse_db& db,
+                                  unodb::detail::sync_point& point,
+                                  const Op& op) {
+  UNODB_ASSERT_NO_FATAL_FAILURE(
+      insert_short_collapse_tree(db, short_collapse_vals));
+  UNODB_ASSERT_TRUE(parked_at_second_node(db, point, op, short_sib));
+}
+
+/// Check that \a db keeps \a bystander with \a bystander_val and no longer
+/// holds short_sib.  Call it through UNODB_ASSERT_NO_FATAL_FAILURE.
+void assert_short_sib_collapse_bystanders(
+    const short_collapse_db& db, unodb::key_view bystander = short_key_b,
+    unodb::value_view bystander_val = short_collapse_vals[1]) {
+  const unodb::quiescent_state_on_scope_exit q{};
+  ASSERT_VALUE_FOR_KEY(short_collapse_db, db, bystander, bystander_val);
+  UNODB_ASSERT_FALSE(db.get(short_sib).has_value());
+}
+
+/// SK2: T1's remove(short_key_a) parks at the I4 below Root-I4 while T2's
+/// removal of short_sib collapses Root-I4 into it.
+UNODB_TEST(OLCI4CollapseVsShortKey, RemoveRestarts) {
+  short_collapse_db db;
+  // MSVC's analysis misses the write in the lambda below.
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
+  bool key_a_removed = false;
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+  UNODB_ASSERT_NO_FATAL_FAILURE(park_during_short_sib_remove(
+      db, unodb::detail::sync_before_prefix_load,
+      [&] { key_a_removed = db.remove(short_key_a); }));
+  UNODB_ASSERT_TRUE(key_a_removed);
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_FALSE(db.get(short_key_a).has_value());
+  UNODB_ASSERT_NO_FATAL_FAILURE(assert_short_sib_collapse_bystanders(db));
+}
+
+/// SK3: as SK2, with T1 inserting short_key_a again.
+UNODB_TEST(OLCI4CollapseVsShortKey, InsertRestarts) {
+  short_collapse_db db;
+  // MSVC's analysis misses the write in the lambda below.
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
+  bool inserted = true;
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+  UNODB_ASSERT_NO_FATAL_FAILURE(park_during_short_sib_remove(
+      db, unodb::detail::sync_before_prefix_load,
+      [&] { inserted = db.insert(short_key_a, short_collapse_vals[0]); }));
+  UNODB_ASSERT_FALSE(inserted);
+
+  ASSERT_VALUE_FOR_KEY(short_collapse_db, db, short_key_a,
+                       short_collapse_vals[0]);
+  UNODB_ASSERT_NO_FATAL_FAILURE(assert_short_sib_collapse_bystanders(db));
+}
+
+/// SK4: as SK2, with T1 upserting short_key_a and keeping its value.
+UNODB_TEST(OLCI4CollapseVsShortKey, UpsertRestarts) {
+  short_collapse_db db;
+  // MSVC's analysis misses the writes in the lambdas below.
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
+  bool inserted = true;
+  unsigned fn_calls = 0;
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+  UNODB_ASSERT_NO_FATAL_FAILURE(park_during_short_sib_remove(
+      db, unodb::detail::sync_before_prefix_load, [&] {
+        inserted = db.upsert(short_key_a, short_collapse_vals[0],
+                             [&fn_calls](unodb::value_view&) {
+                               ++fn_calls;
+                               return unodb::upsert_action::keep;
+                             });
+      }));
+  UNODB_ASSERT_FALSE(inserted);
+  // T1 parks before it reaches the leaf, so only its retry runs the lambda.
+  UNODB_ASSERT_EQ(1U, fn_calls);
+
+  ASSERT_VALUE_FOR_KEY(short_collapse_db, db, short_key_a,
+                       short_collapse_vals[0]);
+  UNODB_ASSERT_NO_FATAL_FAILURE(assert_short_sib_collapse_bystanders(db));
+}
+
+/// SK5: as SK2, with T1 upserting short_key_a and erasing it.  T1 parks in
+/// the erase's own descent.
+UNODB_TEST(OLCI4CollapseVsShortKey, UpsertEraseRestarts) {
+  short_collapse_db db;
+  // MSVC's analysis misses the writes in the lambdas below.
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
+  bool inserted = true;
+  unsigned fn_calls = 0;
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+  UNODB_ASSERT_NO_FATAL_FAILURE(park_during_short_sib_remove(
+      db, unodb::detail::sync_in_upsert_erase_before_prefix_load, [&] {
+        inserted = db.upsert(short_key_a, short_collapse_vals[0],
+                             [&fn_calls](unodb::value_view&) {
+                               ++fn_calls;
+                               return unodb::upsert_action::erase;
+                             });
+      }));
+  UNODB_ASSERT_FALSE(inserted);
+  // T1 parks after the lambda returns erase, and its retry runs it again.
+  UNODB_ASSERT_EQ(2U, fn_calls);
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_FALSE(db.get(short_key_a).has_value());
+  UNODB_ASSERT_NO_FATAL_FAILURE(assert_short_sib_collapse_bystanders(db));
+}
+
+/// SK6: as SK2, with T1 scanning forward from short_key_a.  T1 parks in the
+/// scan's seek.
+UNODB_TEST(OLCI4CollapseVsShortKey, SeekForwardRestarts) {
+  short_collapse_db db;
+  key_list keys;
+  UNODB_ASSERT_NO_FATAL_FAILURE(park_during_short_sib_remove(
+      db, unodb::detail::sync_in_seek_before_prefix_load,
+      [&] { keys = keys_scanned_from(db, short_key_a, true); }));
+  UNODB_ASSERT_EQ(keys,
+                  (key_list{key_bytes(short_key_a), key_bytes(short_key_b)}));
+
+  ASSERT_VALUE_FOR_KEY(short_collapse_db, db, short_key_a,
+                       short_collapse_vals[0]);
+  UNODB_ASSERT_NO_FATAL_FAILURE(assert_short_sib_collapse_bystanders(db));
+}
+
+/// SK7: as SK6, with T1 scanning in reverse.
+UNODB_TEST(OLCI4CollapseVsShortKey, SeekReverseRestarts) {
+  short_collapse_db db;
+  key_list keys;
+  UNODB_ASSERT_NO_FATAL_FAILURE(park_during_short_sib_remove(
+      db, unodb::detail::sync_in_seek_before_prefix_load,
+      [&] { keys = keys_scanned_from(db, short_key_a, false); }));
+  UNODB_ASSERT_EQ(keys, (key_list{key_bytes(short_key_a)}));
+
+  ASSERT_VALUE_FOR_KEY(short_collapse_db, db, short_key_a,
+                       short_collapse_vals[0]);
+  UNODB_ASSERT_NO_FATAL_FAILURE(assert_short_sib_collapse_bystanders(db));
+}
+
+/// SK8: as SK5, with T1 upserting short_key_b and erasing it.  The merged
+/// prefix 07 00 mismatches T1's remaining key 08, so T1 restarts from the
+/// erase descent's prefix-mismatch arm, and its retry calls the lambda again.
+UNODB_TEST(OLCI4CollapseVsShortKey, UpsertEraseMismatchRestarts) {
+  short_collapse_db db;
+  // MSVC's analysis misses the writes in the lambdas below.
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
+  bool inserted = true;
+  unsigned fn_calls = 0;
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+  UNODB_ASSERT_NO_FATAL_FAILURE(park_during_short_sib_remove(
+      db, unodb::detail::sync_in_upsert_erase_before_prefix_load, [&] {
+        inserted = db.upsert(short_key_b, short_collapse_vals[1],
+                             [&fn_calls](unodb::value_view&) {
+                               ++fn_calls;
+                               return unodb::upsert_action::erase;
+                             });
+      }));
+  UNODB_ASSERT_FALSE(inserted);
+  UNODB_ASSERT_EQ(2U, fn_calls);
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_FALSE(db.get(short_key_b).has_value());
+  UNODB_ASSERT_NO_FATAL_FAILURE(assert_short_sib_collapse_bystanders(
+      db, short_key_a, short_collapse_vals[0]));
+}
+
+/// SK9: as SK2, with T1 removing short_key_b.  The merged prefix 07 00
+/// mismatches T1's remaining key 08, so T1 restarts from the prefix-mismatch
+/// arm's parent unlock on the obsolete Root-I4.
+UNODB_TEST(OLCI4CollapseVsShortKey, RemoveMismatchRestarts) {
+  short_collapse_db db;
+  // MSVC's analysis misses the write in the lambda below.
+  UNODB_DETAIL_DISABLE_MSVC_WARNING(26496)
+  bool removed = false;
+  UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+  UNODB_ASSERT_NO_FATAL_FAILURE(
+      park_during_short_sib_remove(db, unodb::detail::sync_before_prefix_load,
+                                   [&] { removed = db.remove(short_key_b); }));
+  UNODB_ASSERT_TRUE(removed);
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_FALSE(db.get(short_key_b).has_value());
+  UNODB_ASSERT_NO_FATAL_FAILURE(assert_short_sib_collapse_bystanders(
+      db, short_key_a, short_collapse_vals[0]));
+}
+
+// ===================================================================
 // I4 collapse or prefix split vs. an upsert of a value-in-slot key.  Both
 // rewrite a node's prefix in place, and try_upsert checks the parent before it
 // read-locks the next node, so after a rewrite in between the upsert locks the
@@ -1920,6 +2161,311 @@ UNODB_TEST(OLCChainCut, DISABLED_DeepChainStressHeavy) {
   const int cores = static_cast<int>(std::thread::hardware_concurrency());
   deep_chain_stress(cores, 100000, 10);
 }
+
+// ===================================================================
+// A key that ends inside an inode's key prefix is a strict prefix of every
+// key below that inode, so it is not stored.  A descent must report it absent
+// without shifting the key past its end.
+// ===================================================================
+
+/// Check that \a misses(db, key) holds for keys that end inside or exactly at
+/// the end of insert_short_key_pair()'s I4 prefix, and for one that Root-I4's
+/// dispatch byte uses up above insert_short_collapse_tree()'s empty-prefix I4,
+/// and that every key keeps its own value.  Call it through
+/// UNODB_ASSERT_NO_FATAL_FAILURE.
+template <class Misses>
+void assert_strict_prefix_keys_miss(const Misses& misses) {
+  const auto& vals = short_collapse_vals;
+  short_collapse_db db;
+  UNODB_ASSERT_NO_FATAL_FAILURE(insert_short_key_pair(db, vals));
+  short_collapse_db collapse_db;
+  UNODB_ASSERT_NO_FATAL_FAILURE(insert_short_collapse_tree(collapse_db, vals));
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  // Ends inside the I4's two-byte prefix, and exactly at its end.
+  UNODB_ASSERT_TRUE(misses(db, short_key_a.first(1)));
+  UNODB_ASSERT_TRUE(misses(db, short_key_a.first(2)));
+  ASSERT_VALUE_FOR_KEY(short_collapse_db, db, short_key_a, vals[0]);
+  ASSERT_VALUE_FOR_KEY(short_collapse_db, db, short_key_b, vals[1]);
+  // Root-I4's dispatch byte 00 uses up 07 00, above the empty-prefix I4.  The
+  // byte after it in short_key_a's buffer, 07, is mapped there, so a descent
+  // that read it would reach short_key_a.
+  UNODB_ASSERT_TRUE(misses(collapse_db, short_key_a.first(2)));
+  ASSERT_VALUE_FOR_KEY(short_collapse_db, collapse_db, short_key_a, vals[0]);
+  ASSERT_VALUE_FOR_KEY(short_collapse_db, collapse_db, short_key_b, vals[1]);
+  ASSERT_VALUE_FOR_KEY(short_collapse_db, collapse_db, short_sib, vals[2]);
+}
+
+/// assert_strict_prefix_keys_miss() with get().
+UNODB_TEST(OLCKeyEndsInPrefix, GetMisses) {
+  UNODB_ASSERT_NO_FATAL_FAILURE(assert_strict_prefix_keys_miss(
+      [](auto& db, unodb::key_view key) { return !db.get(key).has_value(); }));
+}
+
+/// assert_strict_prefix_keys_miss() with remove().
+UNODB_TEST(OLCKeyEndsInPrefix, RemoveMisses) {
+  UNODB_ASSERT_NO_FATAL_FAILURE(assert_strict_prefix_keys_miss(
+      [](auto& db, unodb::key_view key) { return !db.remove(key); }));
+}
+
+#ifndef NDEBUG
+
+/// In insert_short_key_pair()'s tree, run remove(\a key) parked at its first
+/// sync_before_prefix_load hit, at the I4, while T2 inserts 07 00 09.  T2
+/// write-locks the I4 but only read-locks the root pointer, so the remove's
+/// unlock of the root pointer succeeds and that of the I4 fails.  Check that
+/// the remove misses after one restart, that T2 inserted, and that every key
+/// keeps its own value.  Call it through UNODB_ASSERT_NO_FATAL_FAILURE.
+void assert_remove_restarts_on_node_write(unodb::key_view key) {
+  // short_key_a's, short_key_b's and t2_key's values.
+  constexpr auto vals = distinct_values<3>();
+  constexpr std::array t2_key_bytes{std::byte{0x07}, std::byte{0x00},
+                                    std::byte{0x09}};
+  const unodb::key_view t2_key{t2_key_bytes};
+
+  short_collapse_db db;
+  UNODB_ASSERT_NO_FATAL_FAILURE(insert_short_key_pair(db, vals));
+
+  // Fires once per remove attempt.  T2's insert does not fire it.
+  const sync_point_guard attempts_guard{
+      unodb::detail::sync_before_remove_root_read};
+  unsigned remove_attempts = 0;
+  unodb::detail::sync_before_remove_root_read.arm(
+      [&remove_attempts]() noexcept { ++remove_attempts; });
+  const auto [removed, inserted] =
+      remove_parked_during(db, unodb::detail::sync_before_prefix_load, key,
+                           [&] { return db.insert(t2_key, vals[2]); });
+  UNODB_ASSERT_FALSE(removed);
+  UNODB_ASSERT_TRUE(inserted);
+  UNODB_ASSERT_EQ(2U, remove_attempts);
+
+  ASSERT_VALUE_FOR_KEY(short_collapse_db, db, short_key_a, vals[0]);
+  ASSERT_VALUE_FOR_KEY(short_collapse_db, db, short_key_b, vals[1]);
+  ASSERT_VALUE_FOR_KEY(short_collapse_db, db, t2_key, vals[2]);
+}
+
+/// assert_remove_restarts_on_node_write() with a key that ends inside the
+/// I4's prefix.
+UNODB_TEST(OLCKeyEndsInPrefix, RemoveRestartsOnNodeWrite) {
+  UNODB_ASSERT_NO_FATAL_FAILURE(
+      assert_remove_restarts_on_node_write(short_key_a.first(1)));
+}
+
+/// assert_remove_restarts_on_node_write() with a key that mismatches the I4's
+/// prefix: 07 01 07.
+UNODB_TEST(OLCPrefixMismatch, RemoveRestartsOnNodeWrite) {
+  constexpr std::array mismatch_bytes{std::byte{0x07}, std::byte{0x01},
+                                      std::byte{0x07}};
+  UNODB_ASSERT_NO_FATAL_FAILURE(
+      assert_remove_restarts_on_node_write(unodb::key_view{mismatch_bytes}));
+}
+
+#endif  // NDEBUG
+
+/// scan_from() a key that ends inside an I4's prefix, where the prefix byte
+/// past the key is zero, or exactly at the prefix's end.  The key precedes
+/// every key below the I4, so a forward scan visits them all and a reverse
+/// scan visits none.
+UNODB_TEST(OLCKeyEndsInPrefix, ScanFromZeroPaddedKey) {
+  // short_key_a's and short_key_b's values.
+  constexpr auto vals = distinct_values<2>();
+
+  short_collapse_db db;
+  UNODB_ASSERT_NO_FATAL_FAILURE(insert_short_key_pair(db, vals));
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  for (const auto len : {1U, 2U}) {
+    const auto from = short_key_a.first(len);
+    UNODB_ASSERT_EQ(keys_scanned_from(db, from, true),
+                    (key_list{key_bytes(short_key_a), key_bytes(short_key_b)}));
+    UNODB_ASSERT_TRUE(keys_scanned_from(db, from, false).empty());
+  }
+}
+
+/// As ScanFromZeroPaddedKey, with a key that ends before a non-zero prefix
+/// byte.  The byte past the key in its buffer is above that prefix byte, so a
+/// seek that compared it would order the key after every key below the I4.
+UNODB_TEST(OLCKeyEndsInPrefix, ScanFromKeyEndingBeforePrefixByte) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  constexpr auto vals = distinct_values<2>();
+  constexpr std::array key_a{std::byte{0x41}, std::byte{0x42}, std::byte{0x00}};
+  constexpr std::array key_b{std::byte{0x41}, std::byte{0x42}, std::byte{0x01}};
+  constexpr std::array from_buf{std::byte{0x41}, std::byte{0x43}};
+
+  db_type db;
+  // One I4 with prefix 41 42 over key_a and key_b.
+  UNODB_ASSERT_TRUE(db.insert(unodb::key_view{key_a}, vals[0]));
+  UNODB_ASSERT_TRUE(db.insert(unodb::key_view{key_b}, vals[1]));
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  const auto from = unodb::key_view{from_buf}.first(1);
+  UNODB_ASSERT_EQ(keys_scanned_from(db, from, true),
+                  (key_list{key_bytes(unodb::key_view{key_a}),
+                            key_bytes(unodb::key_view{key_b})}));
+  UNODB_ASSERT_TRUE(keys_scanned_from(db, from, false).empty());
+}
+
+/// As ScanFromKeyEndingBeforePrefixByte, with a key that ends at Root-I4's
+/// dispatch byte for an I4 with a non-empty prefix.
+UNODB_TEST(OLCKeyEndsInPrefix, ScanFromKeyEndingAtDispatchByte) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  constexpr auto vals = distinct_values<3>();
+  constexpr std::array key_a{std::byte{0x07}, std::byte{0x41}, std::byte{0x42},
+                             std::byte{0x00}};
+  constexpr std::array key_b{std::byte{0x07}, std::byte{0x41}, std::byte{0x42},
+                             std::byte{0x01}};
+  constexpr std::array key_c{std::byte{0x08}, std::byte{0x00}};
+  constexpr std::array from_buf{std::byte{0x07}, std::byte{0x43}};
+
+  db_type db;
+  // Root-I4 with an empty prefix holds, at 07, an I4 with prefix 41 42 over
+  // key_a and key_b, and at 08 key_c.
+  UNODB_ASSERT_TRUE(db.insert(unodb::key_view{key_a}, vals[0]));
+  UNODB_ASSERT_TRUE(db.insert(unodb::key_view{key_b}, vals[1]));
+  UNODB_ASSERT_TRUE(db.insert(unodb::key_view{key_c}, vals[2]));
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  const auto from = unodb::key_view{from_buf}.first(1);
+  UNODB_ASSERT_EQ(keys_scanned_from(db, from, true),
+                  (key_list{key_bytes(unodb::key_view{key_a}),
+                            key_bytes(unodb::key_view{key_b}),
+                            key_bytes(unodb::key_view{key_c})}));
+  UNODB_ASSERT_TRUE(keys_scanned_from(db, from, false).empty());
+}
+
+/// get(), remove() and scan_from() of keys of the three shapes above, each
+/// below an I4 that has smaller siblings, so that a reverse scan must climb
+/// from the I4's left-most leaf to its predecessor.  get() and remove() must
+/// miss and keep every key with its own value.  Root-I4, with an empty prefix,
+/// holds 06 00, at 07 an I4 with prefix 00 00 over 07 00 00 07 and 07 00 00 08,
+/// and at 08 an I4 with prefix 41 42 over 08 41 42 00 and 08 41 42 01.  Call it
+/// through UNODB_ASSERT_NO_FATAL_FAILURE.
+template <class Db>
+void assert_strict_prefix_misses_and_scans_to_siblings() {
+  constexpr std::array key_0{std::byte{0x06}, std::byte{0x00}};
+  constexpr std::array key_1{std::byte{0x07}, std::byte{0x00}, std::byte{0x00},
+                             std::byte{0x07}};
+  constexpr std::array key_2{std::byte{0x07}, std::byte{0x00}, std::byte{0x00},
+                             std::byte{0x08}};
+  constexpr std::array key_3{std::byte{0x08}, std::byte{0x41}, std::byte{0x42},
+                             std::byte{0x00}};
+  constexpr std::array key_4{std::byte{0x08}, std::byte{0x41}, std::byte{0x42},
+                             std::byte{0x01}};
+  // A seek that read the byte past 08 or 08 41 in this buffer would order the
+  // key after the I4 at 08.
+  constexpr std::array past_42_buf{std::byte{0x08}, std::byte{0x41},
+                                   std::byte{0x43}};
+
+  const std::array keys{unodb::key_view{key_0}, unodb::key_view{key_1},
+                        unodb::key_view{key_2}, unodb::key_view{key_3},
+                        unodb::key_view{key_4}};
+  // One value per key, so that a get() that reaches another key's keyless
+  // leaf or packed value finds the wrong value.
+  const auto val = [](std::size_t i) {
+    return unodb::test::get_test_value<Db>(i);
+  };
+
+  Db db;
+  for (std::size_t i = 0; i < keys.size(); ++i)
+    UNODB_ASSERT_TRUE(db.insert(keys[i], val(i)));
+  const auto bytes_0 = key_bytes(keys[0]);
+  const auto bytes_1 = key_bytes(keys[1]);
+  const auto bytes_2 = key_bytes(keys[2]);
+  const auto bytes_3 = key_bytes(keys[3]);
+  const auto bytes_4 = key_bytes(keys[4]);
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  // Below the zero prefix: 07, used up by Root-I4's dispatch byte, 07 00,
+  // which ends inside the prefix, and 07 00 00, which ends at its end.
+  for (const auto len : {1U, 2U, 3U}) {
+    const auto from = unodb::key_view{key_1}.first(len);
+    UNODB_ASSERT_FALSE(db.get(from).has_value());
+    UNODB_ASSERT_FALSE(db.remove(from));
+    UNODB_ASSERT_EQ(keys_scanned_from(db, from, true),
+                    (key_list{bytes_1, bytes_2, bytes_3, bytes_4}));
+    UNODB_ASSERT_EQ(keys_scanned_from(db, from, false), (key_list{bytes_0}));
+  }
+  // Below the non-zero prefix: 08, used up by the dispatch byte, 08 41, which
+  // ends before the prefix byte 42, and 08 41 42, which ends at its end.
+  for (const auto from : {unodb::key_view{past_42_buf}.first(1),
+                          unodb::key_view{past_42_buf}.first(2),
+                          unodb::key_view{key_4}.first(3)}) {
+    UNODB_ASSERT_FALSE(db.get(from).has_value());
+    UNODB_ASSERT_FALSE(db.remove(from));
+    UNODB_ASSERT_EQ(keys_scanned_from(db, from, true),
+                    (key_list{bytes_3, bytes_4}));
+    UNODB_ASSERT_EQ(keys_scanned_from(db, from, false),
+                    (key_list{bytes_2, bytes_1, bytes_0}));
+  }
+  for (std::size_t i = 0; i < keys.size(); ++i)
+    ASSERT_VALUE_FOR_KEY(Db, db, keys[i], val(i));
+}
+
+/// assert_strict_prefix_misses_and_scans_to_siblings() on a keyless-leaf Db.
+UNODB_TEST(OLCKeyEndsInPrefix, StrictPrefixMissesAndScansToSiblings) {
+  UNODB_ASSERT_NO_FATAL_FAILURE(
+      assert_strict_prefix_misses_and_scans_to_siblings<
+          unodb::test::key_view_olc_db>());
+}
+
+/// assert_strict_prefix_misses_and_scans_to_siblings() on a value-in-slot Db.
+UNODB_TEST(OLCKeyEndsInPrefix,
+           StrictPrefixMissesAndScansToSiblingsValueInSlot) {
+  UNODB_ASSERT_NO_FATAL_FAILURE(
+      assert_strict_prefix_misses_and_scans_to_siblings<
+          unodb::test::key_view_u64val_olc_db>());
+}
+
+#ifndef NDEBUG
+
+/// In a \a Db holding 07 42 07 with \a val_a and 07 42 08 with \a val_b,
+/// insert and upsert two strict prefixes of both keys and expect each write
+/// to fail the prefix-free key assert: 07 42, which ends exactly at the end of
+/// their I4's prefix 07 42, and 07, which ends before its non-zero byte 42.
+/// The byte past each key in its buffer, 09 or 43, is not the tree's, so a
+/// write that did not assert would store the key under it.
+template <class Db>
+void assert_write_of_strict_prefix_key_dies(typename Db::value_type val_a,
+                                            typename Db::value_type val_b) {
+  constexpr std::array key_a{std::byte{0x07}, std::byte{0x42}, std::byte{0x07}};
+  constexpr std::array key_b{std::byte{0x07}, std::byte{0x42}, std::byte{0x08}};
+  constexpr std::array at_end_buf{std::byte{0x07}, std::byte{0x42},
+                                  std::byte{0x09}};
+  constexpr std::array before_byte_buf{std::byte{0x07}, std::byte{0x43}};
+
+  Db db;
+  UNODB_ASSERT_TRUE(db.insert(unodb::key_view{key_a}, val_a));
+  UNODB_ASSERT_TRUE(db.insert(unodb::key_view{key_b}, val_b));
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  for (const auto key : {unodb::key_view{at_end_buf}.first(2),
+                         unodb::key_view{before_byte_buf}.first(1)}) {
+    UNODB_ASSERT_DEATH(
+        { std::ignore = db.insert(key, val_a); },
+        "!key_matches_prefix_to_end\\(remaining_key, shared_length\\)");
+    UNODB_ASSERT_DEATH(
+        {
+          std::ignore = db.upsert(
+              key, val_a, [](auto&) { return unodb::upsert_action::keep; });
+        },
+        "!key_matches_prefix_to_end\\(remaining_key, shared_length\\)");
+  }
+}
+
+/// assert_write_of_strict_prefix_key_dies() on a keyless-leaf Db.
+UNODB_TEST(OLCKeyEndsInPrefixDeathTest, WriteOfStrictPrefixKeyDies) {
+  constexpr auto vals = distinct_values<2>();
+  assert_write_of_strict_prefix_key_dies<unodb::test::key_view_olc_db>(vals[0],
+                                                                       vals[1]);
+}
+
+/// assert_write_of_strict_prefix_key_dies() on a value-in-slot Db.
+UNODB_TEST(OLCKeyEndsInPrefixDeathTest, WriteOfStrictPrefixKeyDiesValueInSlot) {
+  assert_write_of_strict_prefix_key_dies<unodb::test::key_view_u64val_olc_db>(
+      1, 2);
+}
+
+#endif  // NDEBUG
 
 // ===================================================================
 // RT tests: verify remove_or_choose_subtree OLC guards under
