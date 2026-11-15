@@ -127,9 +127,11 @@
 /// A read critical section (RCS) is created by
 /// unodb::optimistic_lock::try_read_lock(), which will either spin until the
 /// lock is not write-locked, or will return immediately if the lock goes to the
-/// obsolete state.
+/// obsolete state.  unodb::optimistic_lock::try_read_lock_no_wait() does not
+/// spin: for a write-locked lock it returns at once the same must-restart RCS
+/// as for an obsolete one.
 ///
-/// The obsolete state must be checked for by calling
+/// Whether the factory could read-lock must be checked for by calling
 /// unodb::optimistic_lock::read_critical_section::must_restart() immediately
 /// after creating the RCS.
 ///
@@ -429,10 +431,11 @@ class [[nodiscard]] optimistic_lock final {
   /// Instances are non-copyable and only movable with the move constructor.
   ///
   /// There are three different states for an RCS:
-  /// 1. The lock was in obsolete state when the RCS was returned by
-  ///    optimistic_lock::try_read_lock(). This must always be checked for after
-  ///    the RCS has been created with a read_critical_section::must_restart()
-  ///    call.
+  /// 1. The factory could not read-lock and returned an RCS that must not be
+  ///    used: optimistic_lock::try_read_lock() does so for an obsolete lock,
+  ///    optimistic_lock::try_read_lock_no_wait() for an obsolete or
+  ///    write-locked one. This must always be checked for after the RCS has
+  ///    been created with a read_critical_section::must_restart() call.
   /// 2. The RCS was acquired and no newer write-locking has been detected for
   ///    the underlying lock.
   /// 3. The RCS was unlocked or the underlying lock has been write-locked since
@@ -454,7 +457,8 @@ class [[nodiscard]] optimistic_lock final {
     read_critical_section() noexcept = default;
 
     /// Construct an RCS for \a lock_ read-locked at specific \a version_. Users
-    /// should not call this directly. Use optimistic_lock::try_read_lock() or
+    /// should not call this directly. Use optimistic_lock::try_read_lock(),
+    /// optimistic_lock::try_read_lock_no_wait() or
     /// optimistic_lock::rehydrate_read_lock() instead.
     // TODO(laurynas): hide this constructor from users with C++ access rules.
     read_critical_section(optimistic_lock& lock_,
@@ -490,13 +494,12 @@ class [[nodiscard]] optimistic_lock final {
       return *this;
     }
 
-    /// Check whether this RCS was not constructed on an obsolete lock, must
-    /// be called first thing after creating the RCS. In the case of failed
-    /// check this RCS may only be destructed or another RCS may be
+    /// Check whether this RCS's factory could not read-lock (state 1 above);
+    /// must be called first thing after creating the RCS. In the case of
+    /// failed check this RCS may only be destructed or another RCS may be
     /// move-assigned to it.
     ///
-    /// \retval true if the lock was obsolete at the time that the RCS was
-    /// obtained.
+    /// \retval true if the factory could not read-lock.
     [[nodiscard]] bool must_restart() const noexcept {
       return UNODB_DETAIL_UNLIKELY(lock == nullptr);
     }
@@ -506,8 +509,7 @@ class [[nodiscard]] optimistic_lock final {
     /// to it.
     ///
     /// \pre read_critical_section::must_restart must have returned false on
-    /// this RCS to check whether it was not created on a lock in obsolete
-    /// state.
+    /// this RCS, to check that it was read-locked.
     ///
     /// \retval true The underlying lock is at the same version it was at the
     /// RCS creation time, all read protected data is consistent.
@@ -533,8 +535,7 @@ class [[nodiscard]] optimistic_lock final {
     /// another RCS may be move-assigned to it.
     ///
     /// \pre read_critical_section::must_restart must have returned false on
-    /// this RCS to check whether it was not created on a lock in obsolete
-    /// state.
+    /// this RCS, to check that it was read-locked.
     ///
     /// \retval true The underlying lock is at the same version it was at the
     /// RCS creation time, all read protected data is consistent.
@@ -710,6 +711,23 @@ class [[nodiscard]] optimistic_lock final {
       spin_wait_loop_body();
       // LCOV_EXCL_STOP
     }
+  }
+
+  /// Acquire and return an optimistic_lock::read_critical_section for this
+  /// lock, like try_read_lock(), but without waiting: if the lock is
+  /// write-locked, return at once an RCS in the obsolete state, as for an
+  /// obsolete lock.  A writer that already holds write locks uses this to lock
+  /// one more node.  Waiting there could deadlock against a writer that holds
+  /// that node and waits for one of the caller's locks.
+  ///
+  /// \note read_critical_section::must_restart must be called before the first
+  /// protected data access, and the caller must restart if it returns true.
+  [[nodiscard]] read_critical_section try_read_lock_no_wait() noexcept {
+    const auto current_version = version.load_acquire();
+    if (UNODB_DETAIL_UNLIKELY(!current_version.is_free()))
+      return read_critical_section{};
+    inc_read_lock_count();
+    return read_critical_section{*this, current_version};
   }
 
   /// Create an optimistic_lock::read_critical_section using a previously saved

@@ -51,6 +51,24 @@ function(ADD_DB_TEST_TARGET TARGET)
   target_link_libraries("${TARGET}" PRIVATE unodb db_test_utils)
 endfunction()
 
+# Rerun TARGET's tests that FILTER selects, which intercept failures on purpose,
+# under each gtest flag that traps or throws on any failure, intercepted or not,
+# so that an interception without intercepted_failure_guard fails there.  An
+# empty selection fails too.  Google Test before 1.18 ignores
+# GTEST_FAIL_IF_NO_TEST_SELECTED, but answers the equivalent
+# --gtest_fail_if_no_test_selected with its help text and a pass.
+# CONFIGURATIONS restricts the reruns as add_test()'s does.
+function(ADD_INTERCEPTED_FAILURE_RERUNS TARGET FILTER)
+  cmake_parse_arguments(AIFR "" "" "CONFIGURATIONS" ${ARGN})
+  foreach(flag IN ITEMS break throw)
+    add_unodb_test(NAME "${TARGET}_intercepted_failure_${flag}"
+      COMMAND "${TARGET}" "--gtest_filter=${FILTER}"
+      "--gtest_${flag}_on_failure" CONFIGURATIONS ${AIFR_CONFIGURATIONS})
+    set_property(TEST "${TARGET}_intercepted_failure_${flag}" APPEND PROPERTY
+      ENVIRONMENT GTEST_FAIL_IF_NO_TEST_SELECTED=1)
+  endforeach()
+endfunction()
+
 add_test_target(test_qsbr_ptr)
 add_test_target(test_qsbr)
 target_link_libraries(test_qsbr PRIVATE qsbr_test_utils)
@@ -70,18 +88,7 @@ add_unodb_test(NAME test_fault_injection COMMAND test_fault_injection)
 
 add_db_test_target(test_art)
 target_compile_options(test_art PRIVATE "$<${is_msvc}:/bigobj>")
-# Rerun the tests that intercept failures on purpose under each gtest flag that
-# traps or throws on any failure, intercepted or not, so that an interception
-# without intercepted_failure_guard fails here.  An empty selection fails too.
-# Google Test before 1.18 ignores GTEST_FAIL_IF_NO_TEST_SELECTED, but answers
-# the equivalent --gtest_fail_if_no_test_selected with its help text and a pass.
-foreach(flag IN ITEMS break throw)
-  add_unodb_test(NAME "test_art_intercepted_failure_${flag}"
-    COMMAND test_art "--gtest_filter=AssertValueForKey.*"
-    "--gtest_${flag}_on_failure")
-  set_property(TEST "test_art_intercepted_failure_${flag}" APPEND PROPERTY
-    ENVIRONMENT GTEST_FAIL_IF_NO_TEST_SELECTED=1)
-endforeach()
+add_intercepted_failure_reruns(test_art "AssertValueForKey.*")
 
 add_db_test_target(test_art_bulk_load)
 target_link_libraries(test_art_bulk_load PRIVATE qsbr_test_utils)
@@ -93,6 +100,18 @@ add_db_test_target(test_art_iter)
 add_db_test_target(test_art_scan)
 add_db_test_target(test_art_concurrency)
 target_compile_options(test_art_concurrency PRIVATE "$<${is_msvc}:/bigobj>")
+# Its tests that intercept failures are debug-only, so a configuration whose
+# default flags define NDEBUG would select none of them.  An empty build type
+# defines no NDEBUG.
+get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+string(TOUPPER "${CMAKE_BUILD_TYPE}" build_type_upper)
+if(is_multi_config)
+  add_intercepted_failure_reruns(test_art_concurrency
+    "RunParkedUntilReleased.*" CONFIGURATIONS Debug)
+elseif(NOT build_type_upper MATCHES "^(RELEASE|RELWITHDEBINFO|MINSIZEREL)$")
+  add_intercepted_failure_reruns(test_art_concurrency
+    "RunParkedUntilReleased.*")
+endif()
 add_db_test_target(test_art_upsert)
 target_compile_options(test_art_upsert PRIVATE "$<${is_msvc}:/bigobj>")
 add_db_test_target(test_art_allocator)

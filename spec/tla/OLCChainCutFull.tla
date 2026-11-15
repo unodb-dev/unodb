@@ -9,8 +9,9 @@
 \*
 \* Paths exercised:
 \*   P1: Normal cut — parent is CPP, no shrink needed
-\*   P2: Parent needs shrink — acquire gp as grandparent, then leave the
-\*       parent with one child, as when try_collapse_i4 declines
+\*   P2: Parent needs shrink — acquire gp as grandparent, as the code does
+\*       only to replace the parent in it, or skip gp, as when can_collapse()
+\*       rejects the merge; either way leave the parent with one child
 \*   P3: Case B — parent became single-child, chain extends up
 \*   P4: Cascading Case B — gp also single-child, cut_level reaches 0 (root)
 \*   P5: Root as CPP — set root=nullptr (tree emptied)
@@ -24,10 +25,10 @@
 \* index that a concurrent insert shifted looks the same here as a cut of the
 \* chain; Stage 9 models such an index.  RCut never replaces a shrinking
 \* cut-point parent in its own parent (gp at P2, the root pointer at P3): it
-\* leaves it with one child, as when try_collapse_i4 declines, so neither a
-\* collapse nor, at P2, one through a shifted slot of the parent in gp is
-\* modeled, and P6 restarts only on a write-locked gp, not on the version
-\* change the code checks.
+\* leaves it with one child, as when can_collapse() rejects the merge, so
+\* neither a collapse nor, at P2, one through a shifted slot of the parent in
+\* gp is modeled, and P6 restarts only on a write-locked gp, not on the
+\* version change the code checks.
 
 EXTENDS Integers
 
@@ -58,7 +59,7 @@ VARIABLES
     r_parent_locked,
     r_gp_locked,
     r_cpp_locked,   \* TRUE when CPP write guard held
-    r_needs_shrink, \* TRUE if CPP needs shrink after cut
+    r_replaces_cpp, \* TRUE if the cut replaces CPP in its parent, locked first
     r_cached_ver,   \* cached version for current CPP evaluation
 
     \* Inserter state
@@ -68,7 +69,7 @@ VARIABLES
 vars == <<root_ver, root_child, gp_count, gp_child, gp_ver,
           p_count, p_child, p_ver, c_ver,
           rpc, r_cut_level, r_chain_locked, r_parent_locked, r_gp_locked,
-          r_cpp_locked, r_needs_shrink, r_cached_ver,
+          r_cpp_locked, r_replaces_cpp, r_cached_ver,
           ipc, i_target>>
 
 UNCHANGED_inserter == UNCHANGED <<ipc, i_target>>
@@ -84,7 +85,7 @@ Init ==
     /\ rpc = "idle"
     /\ r_cut_level = 3 /\ r_chain_locked = FALSE
     /\ r_parent_locked = FALSE /\ r_gp_locked = FALSE
-    /\ r_cpp_locked = FALSE /\ r_needs_shrink = FALSE /\ r_cached_ver = 0
+    /\ r_cpp_locked = FALSE /\ r_replaces_cpp = FALSE /\ r_cached_ver = 0
     /\ ipc = "idle" /\ i_target = "parent"
 
 -----------------------------------------------------------------------------
@@ -103,7 +104,7 @@ RLockChain ==
     /\ UNCHANGED <<root_ver, root_child, gp_count, gp_child, gp_ver,
                    p_count, p_child, p_ver,
                    r_parent_locked, r_gp_locked, r_cpp_locked,
-                   r_needs_shrink, r_cached_ver, ipc, i_target>>
+                   r_replaces_cpp, r_cached_ver, ipc, i_target>>
 
 \* Step 3: Evaluate parent as CPP candidate
 REvalParent ==
@@ -113,7 +114,7 @@ REvalParent ==
     /\ UNCHANGED <<root_ver, root_child, gp_count, gp_child, gp_ver,
                    p_count, p_child, p_ver, c_ver,
                    r_cut_level, r_chain_locked, r_parent_locked, r_gp_locked,
-                   r_cpp_locked, r_needs_shrink, ipc, i_target>>
+                   r_cpp_locked, r_replaces_cpp, ipc, i_target>>
 
 RValidateParent ==
     /\ rpc = "validate_parent"
@@ -127,7 +128,7 @@ RValidateParent ==
     /\ UNCHANGED <<root_ver, root_child, gp_count, gp_child, gp_ver,
                    p_count, p_child, p_ver, c_ver,
                    r_cut_level, r_chain_locked, r_parent_locked, r_gp_locked,
-                   r_cpp_locked, r_needs_shrink, r_cached_ver, ipc, i_target>>
+                   r_cpp_locked, r_replaces_cpp, r_cached_ver, ipc, i_target>>
 
 \* Case A: lock parent as CPP
 RUpgradeParent ==
@@ -142,7 +143,7 @@ RUpgradeParent ==
     /\ UNCHANGED <<root_ver, root_child, gp_count, gp_child, gp_ver,
                    p_count, p_child, c_ver,
                    r_chain_locked, r_parent_locked, r_gp_locked,
-                   r_needs_shrink, r_cached_ver, ipc, i_target>>
+                   r_replaces_cpp, r_cached_ver, ipc, i_target>>
 
 \* Case B: parent became single-child → lock it as chain member, eval gp
 RCaseBParent ==
@@ -156,7 +157,7 @@ RCaseBParent ==
     /\ UNCHANGED <<root_ver, root_child, gp_count, gp_child, gp_ver,
                    p_count, p_child, c_ver,
                    r_cut_level, r_chain_locked, r_gp_locked,
-                   r_cpp_locked, r_needs_shrink, r_cached_ver, ipc, i_target>>
+                   r_cpp_locked, r_replaces_cpp, r_cached_ver, ipc, i_target>>
 
 \* Evaluate gp as CPP (after Case B on parent)
 REvalGP ==
@@ -166,7 +167,7 @@ REvalGP ==
     /\ UNCHANGED <<root_ver, root_child, gp_count, gp_child, gp_ver,
                    p_count, p_child, p_ver, c_ver,
                    r_cut_level, r_chain_locked, r_parent_locked, r_gp_locked,
-                   r_cpp_locked, r_needs_shrink, ipc, i_target>>
+                   r_cpp_locked, r_replaces_cpp, ipc, i_target>>
 
 RValidateGP ==
     /\ rpc = "validate_gp"
@@ -180,7 +181,7 @@ RValidateGP ==
     /\ UNCHANGED <<root_ver, root_child, gp_count, gp_child, gp_ver,
                    p_count, p_child, p_ver, c_ver,
                    r_cut_level, r_chain_locked, r_parent_locked, r_gp_locked,
-                   r_cpp_locked, r_needs_shrink, r_cached_ver, ipc, i_target>>
+                   r_cpp_locked, r_replaces_cpp, r_cached_ver, ipc, i_target>>
 
 \* Case A at gp: lock gp as CPP
 RUpgradeGP ==
@@ -195,7 +196,7 @@ RUpgradeGP ==
     /\ UNCHANGED <<root_ver, root_child, gp_count, gp_child,
                    p_count, p_child, p_ver, c_ver,
                    r_chain_locked, r_parent_locked, r_gp_locked,
-                   r_needs_shrink, r_cached_ver, ipc, i_target>>
+                   r_replaces_cpp, r_cached_ver, ipc, i_target>>
 
 \* Cascading Case B: gp also single-child → lock gp, go to root
 RCaseBGP ==
@@ -209,7 +210,7 @@ RCaseBGP ==
     /\ UNCHANGED <<root_ver, root_child, gp_count, gp_child,
                    p_count, p_child, p_ver, c_ver,
                    r_cut_level, r_chain_locked, r_parent_locked,
-                   r_cpp_locked, r_needs_shrink, r_cached_ver, ipc, i_target>>
+                   r_cpp_locked, r_replaces_cpp, r_cached_ver, ipc, i_target>>
 
 \* Root as CPP (cut_level = 0)
 RAcquireRoot ==
@@ -224,15 +225,18 @@ RAcquireRoot ==
     /\ UNCHANGED <<root_child, gp_count, gp_child, gp_ver,
                    p_count, p_child, p_ver, c_ver,
                    r_chain_locked, r_parent_locked, r_gp_locked,
-                   r_needs_shrink, r_cached_ver, ipc, i_target>>
+                   r_replaces_cpp, r_cached_ver, ipc, i_target>>
 
-\* Check if CPP needs shrink (only for non-root CPP)
+\* Decide whether the cut replaces CPP in its parent (only for non-root CPP)
 RCheckShrink ==
     /\ rpc = "check_shrink"
-    /\ IF r_cut_level = 2
-       THEN r_needs_shrink' = (p_count <= 2)   \* I4 with 2 children → collapse after cut
-       ELSE r_needs_shrink' = (gp_count <= 2)  \* gp is CPP
-    /\ IF r_needs_shrink'
+    /\ LET undersized == IF r_cut_level = 2
+                         THEN p_count <= 2   \* I4 with 2 children
+                         ELSE gp_count <= 2  \* gp is CPP
+       \* An undersized CPP is replaced in its parent, or, when
+       \* can_collapse() rejects the merge, left in place.
+       IN r_replaces_cpp' \in IF undersized THEN {TRUE, FALSE} ELSE {FALSE}
+    /\ IF r_replaces_cpp'
        THEN rpc' = "acquire_gp_for_shrink"
        ELSE rpc' = "cut"
     /\ UNCHANGED <<root_ver, root_child, gp_count, gp_child, gp_ver,
@@ -255,7 +259,7 @@ RAcquireGPForShrink_Parent ==
     /\ UNCHANGED <<root_ver, root_child, gp_count, gp_child,
                    p_count, p_child, p_ver, c_ver,
                    r_cut_level, r_chain_locked, r_parent_locked,
-                   r_cpp_locked, r_needs_shrink, r_cached_ver, ipc, i_target>>
+                   r_cpp_locked, r_replaces_cpp, r_cached_ver, ipc, i_target>>
 
 RAcquireGPForShrink_GP ==
     /\ rpc = "acquire_gp_for_shrink"
@@ -269,7 +273,7 @@ RAcquireGPForShrink_GP ==
     /\ UNCHANGED <<root_child, gp_count, gp_child, gp_ver,
                    p_count, p_child, p_ver, c_ver,
                    r_cut_level, r_chain_locked, r_parent_locked, r_gp_locked,
-                   r_needs_shrink, r_cached_ver, ipc, i_target>>
+                   r_replaces_cpp, r_cached_ver, ipc, i_target>>
 
 \* CUT — point of no return
 RCut ==
@@ -285,7 +289,7 @@ RCut ==
             /\ gp_child' = FALSE
             /\ gp_count' = gp_count - 1
             /\ gp_ver' = gp_ver + 1     \* unlock gp
-            /\ root_ver' = IF r_needs_shrink THEN root_ver + 1 ELSE root_ver
+            /\ root_ver' = IF r_replaces_cpp THEN root_ver + 1 ELSE root_ver
             /\ p_ver' = OBSOLETE         \* obsolete parent
             /\ c_ver' = OBSOLETE         \* obsolete chain
             /\ UNCHANGED <<root_child, p_count, p_child>>
@@ -302,7 +306,7 @@ RCut ==
     /\ r_chain_locked' = FALSE /\ r_parent_locked' = FALSE
     /\ r_gp_locked' = FALSE /\ r_cpp_locked' = FALSE
     /\ rpc' = "done"
-    /\ UNCHANGED <<r_cut_level, r_needs_shrink, r_cached_ver, ipc, i_target>>
+    /\ UNCHANGED <<r_cut_level, r_replaces_cpp, r_cached_ver, ipc, i_target>>
 
 \* Restart: release all held locks
 RRestart ==
@@ -312,14 +316,14 @@ RRestart ==
     /\ gp_ver' = IF r_gp_locked THEN gp_ver + 1 ELSE gp_ver
     /\ root_ver' = IF r_cpp_locked /\ r_cut_level = 0
                       THEN root_ver + 1
-                   ELSE IF r_needs_shrink /\ r_cut_level = 1
+                   ELSE IF r_replaces_cpp /\ r_cut_level = 1
                       THEN root_ver + 1
                    ELSE root_ver
     /\ r_chain_locked' = FALSE /\ r_parent_locked' = FALSE
     /\ r_gp_locked' = FALSE /\ r_cpp_locked' = FALSE
     /\ rpc' = "idle"
     /\ UNCHANGED <<root_child, gp_count, gp_child, p_count, p_child,
-                   r_cut_level, r_needs_shrink, r_cached_ver, ipc, i_target>>
+                   r_cut_level, r_replaces_cpp, r_cached_ver, ipc, i_target>>
 
 RDone ==
     /\ rpc = "done"
@@ -327,7 +331,7 @@ RDone ==
     /\ UNCHANGED <<root_ver, root_child, gp_count, gp_child, gp_ver,
                    p_count, p_child, p_ver, c_ver,
                    r_cut_level, r_chain_locked, r_parent_locked, r_gp_locked,
-                   r_cpp_locked, r_needs_shrink, r_cached_ver, ipc, i_target>>
+                   r_cpp_locked, r_replaces_cpp, r_cached_ver, ipc, i_target>>
 
 -----------------------------------------------------------------------------
 \* INSERTER: can add children to parent or gp (prevents Case B, prevents shrink)
@@ -342,7 +346,7 @@ IChoose ==
     /\ UNCHANGED <<root_ver, root_child, gp_count, gp_child, gp_ver,
                    p_count, p_child, p_ver, c_ver,
                    rpc, r_cut_level, r_chain_locked, r_parent_locked, r_gp_locked,
-                   r_cpp_locked, r_needs_shrink, r_cached_ver>>
+                   r_cpp_locked, r_replaces_cpp, r_cached_ver>>
 
 ILock ==
     /\ ipc = "lock"
@@ -356,7 +360,7 @@ ILock ==
     /\ ipc' = "write"
     /\ UNCHANGED <<root_ver, root_child, gp_count, gp_child, p_count, p_child, c_ver,
                    rpc, r_cut_level, r_chain_locked, r_parent_locked, r_gp_locked,
-                   r_cpp_locked, r_needs_shrink, r_cached_ver, i_target>>
+                   r_cpp_locked, r_replaces_cpp, r_cached_ver, i_target>>
 
 IWrite ==
     /\ ipc = "write"
@@ -366,7 +370,7 @@ IWrite ==
     /\ ipc' = "unlock"
     /\ UNCHANGED <<root_ver, root_child, gp_child, gp_ver, p_child, p_ver, c_ver,
                    rpc, r_cut_level, r_chain_locked, r_parent_locked, r_gp_locked,
-                   r_cpp_locked, r_needs_shrink, r_cached_ver, i_target>>
+                   r_cpp_locked, r_replaces_cpp, r_cached_ver, i_target>>
 
 IUnlock ==
     /\ ipc = "unlock"
@@ -376,7 +380,7 @@ IUnlock ==
     /\ ipc' = "idle"
     /\ UNCHANGED <<root_ver, root_child, gp_count, gp_child, p_count, p_child, c_ver,
                    rpc, r_cut_level, r_chain_locked, r_parent_locked, r_gp_locked,
-                   r_cpp_locked, r_needs_shrink, r_cached_ver, i_target>>
+                   r_cpp_locked, r_replaces_cpp, r_cached_ver, i_target>>
 
 -----------------------------------------------------------------------------
 Step ==

@@ -2700,11 +2700,22 @@ class basic_inode_4
     init(key_byte, child);
   }
 
+  /// Index of the child that removing child \a child_to_delete leaves in a
+  /// min-size I4.
+  ///
+  /// \param child_to_delete Index of the child to remove (0 or 1)
+  [[nodiscard]] static constexpr std::uint8_t other_child_index(
+      std::uint8_t child_to_delete) noexcept {
+    // NOLINTNEXTLINE(readability-simplify-boolean-expr)
+    UNODB_DETAIL_ASSERT(child_to_delete == 0 || child_to_delete == 1);
+    return (child_to_delete == 0) ? 1U : 0U;
+  }
+
   /// Check if collapsing this min-size I4 would overflow the prefix.
   [[nodiscard]] constexpr bool can_collapse(
       std::uint8_t child_to_delete) const noexcept {
     UNODB_DETAIL_ASSERT(this->is_min_size());
-    const std::uint8_t child_to_leave = (child_to_delete == 0) ? 1U : 0U;
+    const std::uint8_t child_to_leave = other_child_index(child_to_delete);
     const auto child_ptr = children[child_to_leave].load();
     if constexpr (ArtPolicy::can_eliminate_leaf) {
       if (is_value_in_slot(child_to_leave)) return false;
@@ -3026,8 +3037,7 @@ class basic_inode_4
       std::uint8_t child_to_delete,
       UNODB_DETAIL_NO_STATS_CONST db_type& db_instance) noexcept {
     UNODB_DETAIL_ASSERT(this->is_min_size());
-    // NOLINTNEXTLINE(readability-simplify-boolean-expr)
-    UNODB_DETAIL_ASSERT(child_to_delete == 0 || child_to_delete == 1);
+    const std::uint8_t child_to_leave = other_child_index(child_to_delete);
 
     if constexpr (!ArtPolicy::can_eliminate_leaf) {
       auto* const child_to_delete_ptr{
@@ -3036,7 +3046,6 @@ class basic_inode_4
                                                          db_instance)};
     }
 
-    const std::uint8_t child_to_leave = (child_to_delete == 0) ? 1U : 0U;
     const auto child_to_leave_ptr = children[child_to_leave].load();
     UNODB_DETAIL_DISABLE_MSVC_WARNING(26814)
     const bool remaining_is_value =

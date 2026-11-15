@@ -3,7 +3,7 @@
 (* Stage 12: ART Tree Structure Maintenance                                *)
 (*                                                                         *)
 (* Verifies sequential correctness of insert/remove on an ART tree,        *)
-(* focusing on chain nodes and try_collapse_i4.                            *)
+(* focusing on chain nodes and I4 collapse.                                *)
 (*                                                                         *)
 (* Key encoding: path from root spells the key. Each node contributes      *)
 (* prefix bytes, then 1 dispatch byte selects a child. Terminal node's     *)
