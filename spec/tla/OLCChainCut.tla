@@ -6,15 +6,18 @@
    cut at an index that a concurrent insert shifted looks the same here as a
    cut of the chain; Stage 9 (OLCChainMultiLevel) models such an index.  Cut
    makes no write into the grandparent: it leaves the shrunk parent linked as
-   a one-child node, as when try_collapse_i4 declines, so neither a correct
-   collapse nor one through a shifted slot of the parent in the grandparent
-   is modeled.  ValidateParent restarts on a moved parent.  So does the code
-   when chain_bottom is the only chain node, since its caller locks the
-   parent at the version the descent read; when the chain extends onto the
-   stack, the code's Step 3 instead re-reads a moved parent at its current
-   version and proceeds.  LockParent then locks the parent at whatever
-   version it has, so an insert after ValidateParent still reaches Cut, as it
-   does on that path once a failed lock upgrade re-reads the parent.
+   a one-child node, as when can_collapse() rejects the merge, so neither a
+   correct collapse nor one through a shifted slot of the parent in the
+   grandparent is modeled.  ValidateParent restarts on a moved parent.  So
+   does the code when chain_bottom is the only chain node, since its caller
+   locks the parent at the version the descent read; when the chain extends
+   onto the stack, the code's Step 3 instead re-reads a moved parent at its
+   current version and proceeds.  LockParent then locks the parent at
+   whatever version it has, so an insert after ValidateParent still reaches
+   Cut, as it does on that path once a failed lock upgrade re-reads the
+   parent.  The code locks the grandparent only to replace the parent in it,
+   after a collapse or a shrink, so a parent that will shrink takes AcquireGP
+   or, as when can_collapse() rejects the merge, goes straight to Cut.
    AcquireGP tests only whether the grandparent is write-locked, which it
    never is here, not the version change the code checks.
 
@@ -104,12 +107,12 @@ LockParent ==
     /\ p_ver % 2 = 0          \* parent not already locked
     /\ p_ver' = p_ver + 1     \* lock parent (make odd)
     /\ IF p_count = 2
-       THEN rpc' = "acquire_gp"   \* parent will shrink, need grandparent
+       THEN rpc' \in {"acquire_gp", "cut"}  \* parent will shrink
        ELSE rpc' = "cut"          \* no shrink needed, proceed to cut
     /\ UNCHANGED <<r_chain_locked, r_p_ver_snap, r_gp_ver_snap, p_count, c_count,
                    gp_ver, gp_child, ipc, i_target>>
 
-(* Step 4.1: Acquire grandparent lock (needed when parent will shrink) *)
+(* Step 4.1: Acquire grandparent lock, which the code takes only to replace the shrinking parent in it *)
 AcquireGP ==
     /\ rpc = "acquire_gp"
     /\ IF gp_ver % 2 = 0

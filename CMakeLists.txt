@@ -890,10 +890,16 @@ if(TESTS)
   # Register every ctest test through this function: it is the only place a
   # test gets its TEST_TIMEOUT limit.  assert_tests_use_add_unodb_test() fails
   # configuration for a plain add_test() in test/ or fuzz_deepstate/; call it
-  # for any other directory that registers tests.
+  # for any other directory that registers tests.  CONFIGURATIONS restricts the
+  # test as add_test()'s does.
   function(add_unodb_test)
-    cmake_parse_arguments(AUT "" "NAME" "COMMAND" ${ARGN})
-    add_test(NAME "${AUT_NAME}" COMMAND ${AUT_COMMAND})
+    cmake_parse_arguments(AUT "" "NAME" "COMMAND;CONFIGURATIONS" ${ARGN})
+    if(AUT_CONFIGURATIONS)
+      add_test(NAME "${AUT_NAME}" COMMAND ${AUT_COMMAND}
+        CONFIGURATIONS ${AUT_CONFIGURATIONS})
+    else()
+      add_test(NAME "${AUT_NAME}" COMMAND ${AUT_COMMAND})
+    endif()
     set_property(TEST "${AUT_NAME}" PROPERTY TIMEOUT "${TEST_TIMEOUT}")
     set_property(DIRECTORY APPEND PROPERTY UNODB_TESTS "${AUT_NAME}")
     # Set Sanitizer environment on a sanitizer-less build too, if using clang

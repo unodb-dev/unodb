@@ -27,8 +27,11 @@
 #include "qsbr_test_utils.hpp"
 
 #ifndef NDEBUG
+#include <optional>
 #include <type_traits>
 #include <utility>
+
+#include <gtest/gtest-spi.h>
 
 #include "art_internal_impl.hpp"
 #include "node_type.hpp"
@@ -1245,10 +1248,10 @@ UNODB_TEST(OLCIteratorStepRestartU64, PriorReseeksToCurrentKey) {
 //   stk[stk_n-1] (chain_guards[0]), and leaf (lg).
 //   All other stack entries are NOT locked.
 //
-// Tree setup uses 26-byte keys (CT1/CT1b/CT3, 3 chain levels), a lone 33-byte
-// key (CT1c/CT1d, 3 chain levels) or 34-byte keys (CT2/CT2b/CT4, 4 chain
-// levels) to ensure enough chain depth that pg locks a deep chain node, not
-// the cut_point_parent.
+// Tree setup uses 26-byte keys (CT1/CT1b/CT3/CT3b, 3 chain levels), a lone
+// 33-byte key (CT1c/CT1d, 3 chain levels) or 34-byte keys (CT2/CT2b/CT4, 4
+// chain levels) to ensure enough chain depth that pg locks a deep chain node,
+// not the cut_point_parent.
 // ===================================================================
 
 /// Remove key_a's chain from below Root-I4, which also holds a sibling 0x20,
@@ -1383,32 +1386,117 @@ UNODB_TEST(OLCChainCutInterleaved, ConcurrentInsertShiftsMidChainCutIndex) {
   cut_34_byte_chain_during_insert(below_filler);
 }
 
-// CT3: T1 removes A (chain cut).  T2 removes the sibling.
-UNODB_TEST(OLCChainCutInterleaved, ConcurrentRemoveOfSibling) {
-  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
-  constexpr auto val_bytes = std::array<std::byte, 1>{std::byte{0x42}};
-  const auto val = unodb::value_view{val_bytes};
+/// Encode the KeySize-byte chain test key with \a tag and last byte \a last
+/// into \a buf: make_key_26(), or make_key_34() with chain_key_filler.
+/// \tparam KeySize Key length, 26 or 34
+template <std::size_t KeySize>
+[[nodiscard]] unodb::key_view make_deep_chain_key(unodb::key_encoder& enc,
+                                                  std::uint8_t tag,
+                                                  std::uint8_t last,
+                                                  std::span<std::byte> buf
+                                                  UNODB_DETAIL_LIFETIMEBOUND) {
+  static_assert(KeySize == 26 || KeySize == 34);
+  if constexpr (KeySize == 26) {
+    return copy_key(make_key_26(enc, tag, last), buf);
+  } else {
+    return copy_key(
+        make_key_34(enc, tag, unodb::test_data::chain_key_filler, last), buf);
+  }
+}
 
-  db_type db;
+/// key_a and key_b of the chain tests: make_deep_chain_key() keys with tag
+/// 0x10 that differ only in their last bytes, 0x01 and 0x02.  The views point
+/// into this struct, so it is neither copied nor moved.
+/// \tparam KeySize Key length, 26 or 34
+template <std::size_t KeySize>
+struct chain_key_pair {
+  chain_key_pair() = default;
+  ~chain_key_pair() = default;
+  chain_key_pair(const chain_key_pair&) = delete;
+  chain_key_pair& operator=(const chain_key_pair&) = delete;
+  chain_key_pair(chain_key_pair&&) = delete;
+  chain_key_pair& operator=(chain_key_pair&&) = delete;
+
+  /// key_a's bytes.
+  std::array<std::byte, KeySize> buf_a{};
+  /// key_b's bytes.
+  std::array<std::byte, KeySize> buf_b{};
+  /// Encoder of both keys.
   unodb::key_encoder enc;
+  /// The key whose chain the test cuts or collapses into.
+  unodb::key_view key_a{make_deep_chain_key<KeySize>(enc, 0x10, 0x01, buf_a)};
+  /// The key that setup inserts and removes beside key_a.
+  unodb::key_view key_b{make_deep_chain_key<KeySize>(enc, 0x10, 0x02, buf_b)};
+};
 
-  std::array<std::byte, 26> buf_a{};
-  std::array<std::byte, 26> buf_b{};
-  const auto key_a = copy_key(make_key_26(enc, 0x10, 0x01), buf_a);
-  const auto key_b = copy_key(make_key_26(enc, 0x10, 0x02), buf_b);
-  // Use a short (1-byte) sibling so that when T2 removes it, the
-  // Root-I4 goes to 1 child but prefix merge overflows (0+1+7 > 7),
-  // preventing collapse.  Root-I4 stays alive with a new version.
-  std::array<std::byte, 1> buf_sib{};
-  const auto sib = copy_key(make_short_key(enc, 0x20), buf_sib);
+/// chain_key_pair's keys and a sibling with tag 0x20, which setup inserts
+/// beside key_a's chain below Root-I4: the one-byte key 0x20, or the
+/// make_deep_chain_key() key with last byte 0x01.  sib points into this
+/// struct, so it is neither copied nor moved.
+/// \tparam KeySize Length of key_a and key_b, 26 or 34
+/// \tparam SibSize Length of sib, 1 or KeySize
+template <std::size_t KeySize, std::size_t SibSize>
+struct chain_keys_beside_sib : chain_key_pair<KeySize> {
+  static_assert(SibSize == 1 || SibSize == KeySize);
 
+  /// sib's bytes.
+  std::array<std::byte, SibSize> buf_sib{};
+  /// The sibling of key_a's chain.
+  unodb::key_view sib{make_sib()};
+
+ private:
+  /// Encode sib into buf_sib.
+  [[nodiscard]] unodb::key_view make_sib() {
+    if constexpr (SibSize == 1) {
+      return copy_key(make_short_key(this->enc, 0x20), buf_sib);
+    } else {
+      return make_deep_chain_key<KeySize>(this->enc, 0x20, 0x01, buf_sib);
+    }
+  }
+};
+
+/// Insert \a key_a and \a key_b with \a val and each of \a sibs with its
+/// value in \a sib_vals, then remove \a key_b.  Call it through
+/// UNODB_ASSERT_NO_FATAL_FAILURE: a failed check returns only from here.
+template <class Db, class Value>
+void insert_chain_beside(
+    Db& db, unodb::key_view key_a, unodb::key_view key_b,
+    std::span<const unodb::key_view> sibs, Value val,
+    std::type_identity_t<std::span<const Value>> sib_vals) {
+  UNODB_ASSERT_EQ(sibs.size(), sib_vals.size());
   UNODB_ASSERT_TRUE(db.insert(key_a, val));
   UNODB_ASSERT_TRUE(db.insert(key_b, val));
-  UNODB_ASSERT_TRUE(db.insert(sib, val));
-  {
-    const unodb::quiescent_state_on_scope_exit q{};
-    UNODB_ASSERT_TRUE(db.remove(key_b));
-  }
+  for (std::size_t i = 0; i < sibs.size(); ++i)
+    UNODB_ASSERT_TRUE(db.insert(sibs[i], sib_vals[i]));
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_TRUE(db.remove(key_b));
+}
+
+/// Insert \a key_a, \a key_b and \a sibs, all with \a val, then remove
+/// \a key_b.  Call it through UNODB_ASSERT_NO_FATAL_FAILURE.
+template <class Db, class Value>
+void insert_chain_beside(Db& db, unodb::key_view key_a, unodb::key_view key_b,
+                         std::span<const unodb::key_view> sibs, Value val) {
+  const std::vector<Value> sib_vals(sibs.size(), val);
+  insert_chain_beside(db, key_a, key_b, sibs, val, sib_vals);
+}
+
+// CT3: T1 removes A (chain cut).  T2 removes the sibling, which leaves the
+// cut-point parent Root-I4 with one child and a new version.  T1's Step 3
+// then extends the chain through Root-I4 (Case B) and cuts from the root.
+// The sibling is a one-byte key whose value sits in Root-I4's slot, so its
+// removal neither collapses Root-I4 nor locks chain[0], which T1 holds.  On a
+// leaf-backed db the removal would need chain[0]'s lock to collapse Root-I4
+// into it, so it would restart until T1 resumes, which T1 does only after the
+// removal returns; SiblingRemoveRestarts resumes T1 from that restart instead.
+UNODB_TEST(OLCChainCutInterleaved, ConcurrentRemoveOfSibling) {
+  using db_type = unodb::olc_db<unodb::key_view, std::uint64_t>;
+  constexpr std::uint64_t val{0x42};
+
+  db_type db;
+  const chain_keys_beside_sib<26, 1> keys{};
+  UNODB_ASSERT_NO_FATAL_FAILURE(insert_chain_beside(db, keys.key_a, keys.key_b,
+                                                    std::array{keys.sib}, val));
 
   const sync_point_guard guard{unodb::detail::sync_after_chain_locked};
   unodb::detail::sync_after_chain_locked.arm([&]() {
@@ -1423,14 +1511,14 @@ UNODB_TEST(OLCChainCutInterleaved, ConcurrentRemoveOfSibling) {
   auto t2 = unodb::qsbr_thread([&] {
     unodb::detail::thread_syncs[0].wait();
     const unodb::quiescent_state_on_scope_exit q{};
-    sib_removed = db.remove(sib);
+    sib_removed = db.remove(keys.sib);
     unodb::detail::thread_syncs[1].notify();
   });
 
   bool key_a_removed = false;
   auto t1 = unodb::qsbr_thread([&] {
     const unodb::quiescent_state_on_scope_exit q{};
-    key_a_removed = db.remove(key_a);
+    key_a_removed = db.remove(keys.key_a);
   });
 
   t1.join();
@@ -1441,9 +1529,70 @@ UNODB_TEST(OLCChainCutInterleaved, ConcurrentRemoveOfSibling) {
   UNODB_ASSERT_TRUE(key_a_removed);
   UNODB_ASSERT_TRUE(sib_removed);
   const unodb::quiescent_state_on_scope_exit q{};
-  UNODB_ASSERT_FALSE(db.get(key_a).has_value());
-  UNODB_ASSERT_FALSE(db.get(sib).has_value());
+  UNODB_ASSERT_FALSE(db.get(keys.key_a).has_value());
+  UNODB_ASSERT_FALSE(db.get(keys.sib).has_value());
   UNODB_ASSERT_TRUE(db.empty());
+}
+
+/// CT3b: T1 removes A (chain cut).  T2 inserts a fifth child into the full
+/// cut-point parent Root-I4, which grows it into an I16 and obsoletes it.
+/// T1's Step 3 finds Root-I4 obsolete and restarts.
+UNODB_TEST(OLCChainCutInterleaved, ConcurrentGrowthOfCutPointParent) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  // key_a's and key_b's value, then one per sibling: the grown I16 and the I4
+  // that replaces it copy the siblings' key bytes and children, and a
+  // misaligned copy sends one sibling's lookup to another's keyless leaf.
+  constexpr auto vals = distinct_values<5>();
+
+  db_type db;
+  unodb::key_encoder enc;
+
+  const chain_key_pair<26> keys{};
+  // One-byte siblings sit directly in Root-I4, filling it with chain[0].
+  std::array<std::array<std::byte, 1>, 4> buf_sibs{};
+  const std::array<unodb::key_view, 4> sibs{
+      copy_key(make_short_key(enc, 0x20), buf_sibs[0]),
+      copy_key(make_short_key(enc, 0x30), buf_sibs[1]),
+      copy_key(make_short_key(enc, 0x40), buf_sibs[2]),
+      copy_key(make_short_key(enc, 0x50), buf_sibs[3])};
+  UNODB_ASSERT_NO_FATAL_FAILURE(insert_chain_beside(
+      db, keys.key_a, keys.key_b, std::span{sibs}.first<3>(), vals[0],
+      std::span{vals}.subspan<1, 3>()));
+
+  const sync_point_guard guard{unodb::detail::sync_after_chain_locked};
+  unodb::detail::sync_after_chain_locked.arm([&]() {
+    unodb::detail::sync_after_chain_locked.disarm();  // one-shot
+    unodb::detail::thread_syncs[0].notify();
+    unodb::detail::thread_syncs[1].wait();
+  });
+
+  unodb::this_thread().qsbr_pause();
+
+  bool sib_inserted = false;
+  auto t2 = unodb::qsbr_thread([&] {
+    unodb::detail::thread_syncs[0].wait();
+    const unodb::quiescent_state_on_scope_exit q{};
+    sib_inserted = db.insert(sibs[3], vals[4]);
+    unodb::detail::thread_syncs[1].notify();
+  });
+
+  bool key_a_removed = false;
+  auto t1 = unodb::qsbr_thread([&] {
+    const unodb::quiescent_state_on_scope_exit q{};
+    key_a_removed = db.remove(keys.key_a);
+  });
+
+  t1.join();
+  t2.join();
+  unodb::this_thread().qsbr_resume();
+  unodb::this_thread().quiescent();
+
+  UNODB_ASSERT_TRUE(key_a_removed);
+  UNODB_ASSERT_TRUE(sib_inserted);
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_FALSE(db.get(keys.key_a).has_value());
+  for (std::size_t i = 0; i < sibs.size(); ++i)
+    ASSERT_VALUE_FOR_KEY(db_type, db, sibs[i], vals[i + 1]);
 }
 
 // CT4: ABA on chain node.  T2 inserts then removes a key that
@@ -1607,6 +1756,184 @@ UNODB_TEST(OLCChainCutVsSplit, RootSplitAboveShrinkingCutPointParent) {
 }
 
 // ===================================================================
+// I4 collapse vs. concurrent get.  Collapsing an I4 prepends its prefix
+// and dispatch byte to the surviving child's key prefix.  A get that has
+// validated the I4 and read-locked that child would read the merged prefix
+// at the old depth, so the collapse must write-lock the child to make the
+// get fail its version check.
+// ===================================================================
+
+/// Look \a key up in \a db and copy the value found, if any: its value_view
+/// lives only until the caller's quiescent state.
+template <class Db>
+[[nodiscard]] std::optional<std::vector<std::byte>> get_value_copy(
+    const Db& db, typename Db::key_type key) {
+  const auto r = db.get(key);
+  if (!r.has_value()) return {};
+  return std::vector<std::byte>{r->begin(), r->end()};
+}
+
+/// CG1: Root-I4 holds a one-byte sibling and chain[0].  T1's get(key_a) parks
+/// at chain[0] while T2 removes the sibling, which collapses Root-I4 into
+/// chain[0] in remove_or_choose_subtree.
+UNODB_TEST(OLCI4CollapseVsGet, SiblingRemoveCollapse) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  // key_a's value, then sib's.
+  constexpr auto vals = distinct_values<2>();
+
+  db_type db;
+  const chain_keys_beside_sib<26, 1> keys{};
+  UNODB_ASSERT_NO_FATAL_FAILURE(
+      insert_chain_beside(db, keys.key_a, keys.key_b, std::array{keys.sib},
+                          vals[0], std::span{vals}.subspan<1, 1>()));
+
+  std::optional<std::vector<std::byte>> found;
+  const bool removed = parked_at_second_node(
+      db, unodb::detail::sync_in_get_after_parent_unlock,
+      [&] { found = get_value_copy(db, keys.key_a); }, keys.sib);
+  UNODB_ASSERT_EQ(found,
+                  (std::vector<std::byte>{vals[0].begin(), vals[0].end()}));
+  UNODB_ASSERT_TRUE(removed);
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  ASSERT_VALUE_FOR_KEY(db_type, db, keys.key_a, vals[0]);
+  UNODB_ASSERT_FALSE(db.get(keys.sib).has_value());
+}
+
+/// CG2: Root-I4 holds two chains.  T1's get(sib) parks at the sibling chain's
+/// top while T2 removes key_a, whose chain cut collapses Root-I4 into that
+/// top in collapse_i4.
+UNODB_TEST(OLCI4CollapseVsGet, ChainCutCollapse) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  // key_a's value, then sib's.
+  constexpr auto vals = distinct_values<2>();
+
+  db_type db;
+  const chain_keys_beside_sib<26, 26> keys{};
+  UNODB_ASSERT_NO_FATAL_FAILURE(
+      insert_chain_beside(db, keys.key_a, keys.key_b, std::array{keys.sib},
+                          vals[0], std::span{vals}.subspan<1, 1>()));
+
+  std::optional<std::vector<std::byte>> found;
+  const bool removed = parked_at_second_node(
+      db, unodb::detail::sync_in_get_after_parent_unlock,
+      [&] { found = get_value_copy(db, keys.sib); }, keys.key_a);
+  UNODB_ASSERT_EQ(found,
+                  (std::vector<std::byte>{vals[1].begin(), vals[1].end()}));
+  UNODB_ASSERT_TRUE(removed);
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_FALSE(db.get(keys.key_a).has_value());
+  ASSERT_VALUE_FOR_KEY(db_type, db, keys.sib, vals[1]);
+}
+
+/// CG3: CG1 on a fixed-width tree.  Root-I4, prefix 00 x 6, holds 1's leaf at
+/// 0x00 and, at 0x01, an I4 with an empty prefix over 0x100 and 0x101.  T1's
+/// get(0x100) parks at that I4 while T2's remove(1) collapses Root-I4 into it.
+UNODB_TEST(OLCI4CollapseVsGet, FixedWidthSiblingRemoveCollapse) {
+  using db_type = unodb::olc_db<std::uint64_t, unodb::value_view>;
+  // The values of 1, 0x100 and 0x101.
+  constexpr auto vals = distinct_values<3>();
+
+  db_type db;
+  UNODB_ASSERT_TRUE(db.insert(1, vals[0]));
+  UNODB_ASSERT_TRUE(db.insert(0x100, vals[1]));
+  UNODB_ASSERT_TRUE(db.insert(0x101, vals[2]));
+
+  std::optional<std::vector<std::byte>> found;
+  const bool removed = parked_at_second_node(
+      db, unodb::detail::sync_in_get_after_parent_unlock,
+      [&] { found = get_value_copy(db, 0x100); }, 1);
+  UNODB_ASSERT_EQ(found,
+                  (std::vector<std::byte>{vals[1].begin(), vals[1].end()}));
+  UNODB_ASSERT_TRUE(removed);
+
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_FALSE(db.get(1).has_value());
+  ASSERT_VALUE_FOR_KEY(db_type, db, 0x100, vals[1]);
+  ASSERT_VALUE_FOR_KEY(db_type, db, 0x101, vals[2]);
+}
+
+/// What T1's scan saw first: whether the iterator was valid, and a copy of its
+/// key and value.
+struct first_entry {
+  /// Whether the iterator was valid.
+  bool valid{false};
+  /// The entry's key bytes.
+  std::vector<std::byte> key;
+  /// The entry's value bytes.
+  std::vector<std::byte> val;
+};
+
+/// Record \a it's current entry into \a out.
+template <class Iterator>
+void record_first_entry(const Iterator& it, first_entry& out) {
+  out.valid = it.valid();
+  if (!out.valid) return;
+  const auto key = it.get_key().view();
+  out.key.assign(key.begin(), key.end());
+  const auto val = it.get_val();
+  out.val.assign(val.begin(), val.end());
+}
+
+/// CS1: CG1's tree.  T1's first() parks at chain[0] while T2 removes the
+/// sibling, collapsing Root-I4 into chain[0].  T1 must still return key_a.
+UNODB_TEST(OLCI4CollapseVsScan, SiblingRemoveCollapse) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  // key_a's value, then sib's.
+  constexpr auto vals = distinct_values<2>();
+
+  db_type db;
+  const chain_keys_beside_sib<26, 1> keys{};
+  UNODB_ASSERT_NO_FATAL_FAILURE(
+      insert_chain_beside(db, keys.key_a, keys.key_b, std::array{keys.sib},
+                          vals[0], std::span{vals}.subspan<1, 1>()));
+
+  first_entry seen;
+  const bool removed = parked_at_second_node(
+      db, unodb::detail::sync_in_scan_after_parent_unlock,
+      [&] {
+        auto it = db.test_only_iterator();
+        it.first();
+        record_first_entry(it, seen);
+      },
+      keys.sib);
+  UNODB_ASSERT_TRUE(removed);
+  UNODB_ASSERT_TRUE(seen.valid);
+  UNODB_ASSERT_TRUE(std::ranges::equal(seen.key, keys.key_a));
+  UNODB_ASSERT_TRUE(std::ranges::equal(seen.val, vals[0]));
+}
+
+/// CS2: CG2's tree.  T1's last() parks at the sibling chain's top while T2
+/// removes key_a, whose chain cut collapses Root-I4 into that top.  T1 must
+/// still return sib.
+UNODB_TEST(OLCI4CollapseVsScan, ChainCutCollapse) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  // key_a's value, then sib's.
+  constexpr auto vals = distinct_values<2>();
+
+  db_type db;
+  const chain_keys_beside_sib<26, 26> keys{};
+  UNODB_ASSERT_NO_FATAL_FAILURE(
+      insert_chain_beside(db, keys.key_a, keys.key_b, std::array{keys.sib},
+                          vals[0], std::span{vals}.subspan<1, 1>()));
+
+  first_entry seen;
+  const bool removed = parked_at_second_node(
+      db, unodb::detail::sync_in_scan_after_parent_unlock,
+      [&] {
+        auto it = db.test_only_iterator();
+        it.last();
+        record_first_entry(it, seen);
+      },
+      keys.key_a);
+  UNODB_ASSERT_TRUE(removed);
+  UNODB_ASSERT_TRUE(seen.valid);
+  UNODB_ASSERT_TRUE(std::ranges::equal(seen.key, keys.sib));
+  UNODB_ASSERT_TRUE(std::ranges::equal(seen.val, vals[1]));
+}
+
+// ===================================================================
 // I4 collapse vs. a short key.  A collapse lengthens the surviving inode's
 // prefix in place, so a descent at the old depth can find its remaining key
 // ending inside the merged prefix.  It must restart on the collapse instead of
@@ -1635,8 +1962,24 @@ void assert_short_sib_collapse_bystanders(
   UNODB_ASSERT_FALSE(db.get(short_sib).has_value());
 }
 
-/// SK2: T1's remove(short_key_a) parks at the I4 below Root-I4 while T2's
+/// SK1: T1's get(short_key_a) parks at the I4 below Root-I4 while T2's
 /// removal of short_sib collapses Root-I4 into it.
+UNODB_TEST(OLCI4CollapseVsShortKey, GetRestarts) {
+  short_collapse_db db;
+  std::optional<std::vector<std::byte>> found;
+  UNODB_ASSERT_NO_FATAL_FAILURE(park_during_short_sib_remove(
+      db, unodb::detail::sync_in_get_after_parent_unlock,
+      [&] { found = get_value_copy(db, short_key_a); }));
+  UNODB_ASSERT_EQ(found,
+                  (std::vector<std::byte>{short_collapse_vals[0].begin(),
+                                          short_collapse_vals[0].end()}));
+
+  ASSERT_VALUE_FOR_KEY(short_collapse_db, db, short_key_a,
+                       short_collapse_vals[0]);
+  UNODB_ASSERT_NO_FATAL_FAILURE(assert_short_sib_collapse_bystanders(db));
+}
+
+/// SK2: as SK1, with T1 removing short_key_a.
 UNODB_TEST(OLCI4CollapseVsShortKey, RemoveRestarts) {
   short_collapse_db db;
   // MSVC's analysis misses the write in the lambda below.
@@ -1653,7 +1996,7 @@ UNODB_TEST(OLCI4CollapseVsShortKey, RemoveRestarts) {
   UNODB_ASSERT_NO_FATAL_FAILURE(assert_short_sib_collapse_bystanders(db));
 }
 
-/// SK3: as SK2, with T1 inserting short_key_a again.
+/// SK3: as SK1, with T1 inserting short_key_a again.
 UNODB_TEST(OLCI4CollapseVsShortKey, InsertRestarts) {
   short_collapse_db db;
   // MSVC's analysis misses the write in the lambda below.
@@ -1670,7 +2013,7 @@ UNODB_TEST(OLCI4CollapseVsShortKey, InsertRestarts) {
   UNODB_ASSERT_NO_FATAL_FAILURE(assert_short_sib_collapse_bystanders(db));
 }
 
-/// SK4: as SK2, with T1 upserting short_key_a and keeping its value.
+/// SK4: as SK1, with T1 upserting short_key_a and keeping its value.
 UNODB_TEST(OLCI4CollapseVsShortKey, UpsertRestarts) {
   short_collapse_db db;
   // MSVC's analysis misses the writes in the lambdas below.
@@ -1695,7 +2038,7 @@ UNODB_TEST(OLCI4CollapseVsShortKey, UpsertRestarts) {
   UNODB_ASSERT_NO_FATAL_FAILURE(assert_short_sib_collapse_bystanders(db));
 }
 
-/// SK5: as SK2, with T1 upserting short_key_a and erasing it.  T1 parks in
+/// SK5: as SK1, with T1 upserting short_key_a and erasing it.  T1 parks in
 /// the erase's own descent.
 UNODB_TEST(OLCI4CollapseVsShortKey, UpsertEraseRestarts) {
   short_collapse_db db;
@@ -1721,7 +2064,7 @@ UNODB_TEST(OLCI4CollapseVsShortKey, UpsertEraseRestarts) {
   UNODB_ASSERT_NO_FATAL_FAILURE(assert_short_sib_collapse_bystanders(db));
 }
 
-/// SK6: as SK2, with T1 scanning forward from short_key_a.  T1 parks in the
+/// SK6: as SK1, with T1 scanning forward from short_key_a.  T1 parks in the
 /// scan's seek.
 UNODB_TEST(OLCI4CollapseVsShortKey, SeekForwardRestarts) {
   short_collapse_db db;
@@ -1919,6 +2262,445 @@ UNODB_TEST(OLCPrefixSplitVsUpsert, RestartsBeforeLambda) {
   ASSERT_VALUE_FOR_KEY(vis_upsert_db, db, unodb::key_view{key_b}, 2);
   ASSERT_VALUE_FOR_KEY(vis_upsert_db, db, unodb::key_view{split_key}, 5);
   ASSERT_VALUE_FOR_KEY(vis_upsert_db, db, chain_key, 3);
+}
+
+// ===================================================================
+// I4 collapse vs. a writer that holds the surviving child.  A collapse
+// write-locks a surviving inode without waiting and restarts if it is held,
+// because the holder may be waiting for one of the collapsing writer's locks.
+// Here the holder is a chain cut parked after Step 2, which holds its whole
+// chain.  It cannot finish until it is resumed, so the collapsing writer
+// resumes it from a later sync point and waits for it to return.  A collapse
+// that waited for the survivor instead would never reach that sync point, so
+// NW1 and NW2 would deadlock until the ctest timeout fails them.
+// ===================================================================
+
+/// Run \a parked parked at the first hit of \a park_point while \a interleaved
+/// runs.  \a interleaved resumes \a parked at its own \a ReleaseHit-th hit of
+/// \a release_point and then waits there for \a parked to return; if
+/// \a interleaved returns first, \a parked resumes then.  Each callable runs
+/// in a quiescent-state scope on its own QSBR thread.  If \a parked returns
+/// without parking, the test fails instead of hanging: both points are
+/// disarmed and \a interleaved then runs without a park.
+/// \return The hit counts of \a park_point and \a release_point: both
+/// threads' hits, or only \a parked's if the park was missed.
+template <unsigned ReleaseHit, class Parked, class Interleaved>
+[[nodiscard]] std::pair<unsigned, unsigned> run_parked_until_released(
+    unodb::detail::sync_point& park_point,
+    unodb::detail::sync_point& release_point, const Parked& parked,
+    const Interleaved& interleaved) {
+  unsigned park_hits = 0;
+  unsigned release_hits = 0;
+  unsigned interleaved_release_hits = 0;
+  bool parked_reached = false;
+  bool released = false;
+  std::thread::id parked_id;
+  unodb::detail::thread_sync park_sync;
+  unodb::detail::thread_sync resume_sync;
+  unodb::detail::thread_sync return_sync;
+  const sync_point_guard park_guard{park_point};
+  const sync_point_guard release_guard{release_point};
+  park_point.arm([&park_hits, &parked_reached, &park_sync, &resume_sync] {
+    if (++park_hits != 1) return;
+    parked_reached = true;
+    park_sync.notify();
+    resume_sync.wait();
+  });
+  // parked_id is written before parked() runs, and the interleaved thread
+  // hits release_point only after the park, so this read races with nothing.
+  // A release on the parked thread's own hit would wait for itself.
+  release_point.arm([&release_hits, &interleaved_release_hits, &parked_id,
+                     &released, &resume_sync, &return_sync] {
+    ++release_hits;
+    if (std::this_thread::get_id() == parked_id) return;
+    if (++interleaved_release_hits != ReleaseHit) return;
+    released = true;
+    resume_sync.notify();
+    return_sync.wait();
+  });
+
+  unodb::this_thread().qsbr_pause();
+  auto interleaved_thread =
+      unodb::qsbr_thread([&interleaved, &released, &park_sync, &resume_sync] {
+        park_sync.wait();
+        {
+          const unodb::quiescent_state_on_scope_exit q{};
+          interleaved();
+        }
+        if (!released) resume_sync.notify();
+      });
+  auto parked_thread =
+      unodb::qsbr_thread([&parked, &parked_id, &released, &return_sync] {
+        parked_id = std::this_thread::get_id();
+        {
+          const unodb::quiescent_state_on_scope_exit q{};
+          parked();
+        }
+        if (released) return_sync.notify();
+      });
+  parked_thread.join();
+  // Only the park hook writes parked_reached, on the parked thread, so this
+  // read races with nothing; park_hits may still be counting interleaved hits.
+  if (!parked_reached) {
+    // The interleaved thread is still waiting for the park.  Disarm first, so
+    // that it cannot park or wait in a release, and consume its resume_sync
+    // notify, so that every sync ends reset, as ~thread_sync asserts.
+    park_point.disarm();
+    release_point.disarm();
+    park_sync.notify();
+    resume_sync.wait();
+  }
+  interleaved_thread.join();
+  unodb::this_thread().qsbr_resume();
+  unodb::this_thread().quiescent();
+  // Reported only now: under --gtest_throw_on_failure the report throws, and
+  // unwinding past a joinable thread would terminate the run before the
+  // exception could reach a handler.
+  if (!parked_reached) ADD_FAILURE() << "parked returned before its park";
+  return {park_hits, release_hits};
+}
+
+/// A parked operation that never reaches its park point must fail the test
+/// rather than leave the interleaved thread waiting for the park forever.
+UNODB_TEST(RunParkedUntilReleased, MissedParkFailsInsteadOfHanging) {
+  bool interleaved_ran = false;
+  EXPECT_NONFATAL_FAILURE(
+      {
+        const unodb::test::intercepted_failure_guard guard;
+        // Only parked's hits are counted after a miss, none here; this test
+        // checks the failure.
+        std::ignore = run_parked_until_released<1>(
+            unodb::detail::sync_after_chain_locked,
+            unodb::detail::sync_between_chain_locks, []() noexcept {},
+            [&interleaved_ran]() noexcept { interleaved_ran = true; });
+      },
+      "returned before its park");
+  UNODB_ASSERT_TRUE(interleaved_ran);
+}
+
+/// The parked operation's own hits of the release point must not release it,
+/// or it would wait there for itself to return.
+UNODB_TEST(RunParkedUntilReleased, OwnReleaseHitDoesNotRelease) {
+  const auto [park_hits, release_hits] = run_parked_until_released<1>(
+      unodb::detail::sync_after_chain_locked,
+      unodb::detail::sync_between_chain_locks,
+      [] {
+        unodb::detail::sync_after_chain_locked.hit();
+        unodb::detail::sync_between_chain_locks.hit();
+      },
+      []() noexcept {});
+  UNODB_ASSERT_EQ(1U, park_hits);
+  UNODB_ASSERT_EQ(1U, release_hits);
+}
+
+/// NW1: Root-I4 holds chain[0] and a one-byte sibling leaf.  T1's chain cut
+/// of key_a parks holding chain[0].  T2's removal of the sibling would
+/// collapse Root-I4 into chain[0], so it fails to lock chain[0] and restarts;
+/// its retry resumes T1.  T1 cannot collapse Root-I4 into the keyless sibling
+/// leaf, so T2's pending write guards fail and its next retry cuts the
+/// remaining one-child chain from the root.
+UNODB_TEST(OLCI4CollapseVsHeldSurvivor, SiblingRemoveRestarts) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  constexpr auto val_bytes = std::array<std::byte, 1>{std::byte{0x42}};
+  const auto val = unodb::value_view{val_bytes};
+
+  db_type db;
+  const chain_keys_beside_sib<26, 1> keys{};
+  UNODB_ASSERT_NO_FATAL_FAILURE(insert_chain_beside(db, keys.key_a, keys.key_b,
+                                                    std::array{keys.sib}, val));
+
+  bool key_a_removed = false;
+  bool sib_removed = false;
+  const auto [chain_hits, remove_hits] = run_parked_until_released<2>(
+      unodb::detail::sync_after_chain_locked,
+      unodb::detail::sync_before_remove_write_guard,
+      [&] { key_a_removed = db.remove(keys.key_a); },
+      [&] { sib_removed = db.remove(keys.sib); });
+  // T1's park, and T2's last retry, which cuts the one-child chain.
+  UNODB_ASSERT_EQ(2U, chain_hits);
+  // T2's first attempt, and the retry after it failed to lock chain[0].
+  UNODB_ASSERT_EQ(2U, remove_hits);
+  UNODB_ASSERT_TRUE(key_a_removed);
+  UNODB_ASSERT_TRUE(sib_removed);
+  UNODB_ASSERT_TRUE(db.empty());
+}
+
+/// NW2: Root-I4 holds two four-level chains.  T1's chain cut of key_a parks
+/// holding its chain, top included.  T2's chain cut of sib would collapse
+/// Root-I4 into T1's chain top, so it fails to lock it and restarts; its retry
+/// resumes T1 in Step 2, before it locks its own chain top.
+UNODB_TEST(OLCI4CollapseVsHeldSurvivor, ChainCutRestarts) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  constexpr auto val_bytes = std::array<std::byte, 1>{std::byte{0x42}};
+  const auto val = unodb::value_view{val_bytes};
+
+  db_type db;
+  const chain_keys_beside_sib<34, 34> keys{};
+  UNODB_ASSERT_NO_FATAL_FAILURE(insert_chain_beside(db, keys.key_a, keys.key_b,
+                                                    std::array{keys.sib}, val));
+
+  bool key_a_removed = false;
+  bool sib_removed = false;
+  const auto [chain_hits, between_hits] = run_parked_until_released<2>(
+      unodb::detail::sync_after_chain_locked,
+      unodb::detail::sync_between_chain_locks,
+      [&] { key_a_removed = db.remove(keys.key_a); },
+      [&] { sib_removed = db.remove(keys.sib); });
+  // T1, T2's first attempt, T2's retry after it failed to lock T1's chain
+  // top (T2's second between hit releases T1 here), and T2's next retry: T1
+  // collapsed Root-I4 into T2's chain top, so T2's Step 3 restarts on it.
+  UNODB_ASSERT_EQ(4U, chain_hits);
+  UNODB_ASSERT_EQ(4U, between_hits);
+  UNODB_ASSERT_TRUE(key_a_removed);
+  UNODB_ASSERT_TRUE(sib_removed);
+  UNODB_ASSERT_TRUE(db.empty());
+}
+
+/// NW3: Root-I4, with a one-byte prefix, holds key_a's chain top (seven-byte
+/// prefix) and a two-byte sibling leaf.  T1's chain cut of key_a parks holding
+/// that chain top.  Removing the sibling would merge 1 + 1 + 7 > 7 prefix
+/// bytes, so Root-I4 keeps its one child: T2 does not lock T1's chain top, and
+/// finishes without restarting.
+UNODB_TEST(OLCI4CollapseVsHeldSurvivor, OverflowingMergeSkipsSurvivorLock) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  constexpr auto val_bytes = std::array<std::byte, 1>{std::byte{0x42}};
+  const auto val = unodb::value_view{val_bytes};
+
+  db_type db;
+  unodb::key_encoder enc;
+
+  const chain_key_pair<26> keys{};
+  std::array<std::byte, 2> buf_sib{};
+  const auto sib = copy_key(enc.reset()
+                                .encode(std::uint8_t{0x10})
+                                .encode(std::uint8_t{0x43})
+                                .get_key_view(),
+                            buf_sib);
+  UNODB_ASSERT_NO_FATAL_FAILURE(
+      insert_chain_beside(db, keys.key_a, keys.key_b, std::array{sib}, val));
+
+  bool key_a_removed = false;
+  bool sib_removed = false;
+  const auto [chain_hits, remove_hits] = run_parked_until_released<2>(
+      unodb::detail::sync_after_chain_locked,
+      unodb::detail::sync_before_remove_write_guard,
+      [&] { key_a_removed = db.remove(keys.key_a); },
+      [&] { sib_removed = db.remove(sib); });
+  // T1's park only: T2 leaves Root-I4 with one child, so T1's Step 3 extends
+  // the chain through it.
+  UNODB_ASSERT_EQ(1U, chain_hits);
+  // T2's only attempt: no restart, so no release.
+  UNODB_ASSERT_EQ(1U, remove_hits);
+  UNODB_ASSERT_TRUE(key_a_removed);
+  UNODB_ASSERT_TRUE(sib_removed);
+  UNODB_ASSERT_TRUE(db.empty());
+}
+
+/// NW4: Root-I4 holds key_a's chain and a 33-byte sibling's chain, whose top,
+/// built from depth 1, keeps a seven-byte prefix.  T1's chain cut of the
+/// sibling parks holding that top.  T2's chain cut of key_a would merge
+/// 0 + 1 + 7 > 7 prefix bytes, so Root-I4 keeps its one child: T2 does not
+/// lock T1's chain top, and finishes without restarting.
+UNODB_TEST(OLCI4CollapseVsHeldSurvivor,
+           ChainCutOverflowingMergeSkipsSurvivorLock) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  constexpr auto val_bytes = std::array<std::byte, 1>{std::byte{0x42}};
+  const auto val = unodb::value_view{val_bytes};
+
+  db_type db;
+  unodb::key_encoder enc;
+
+  constexpr auto X = unodb::test_data::chain_key_filler;
+  const chain_key_pair<34> keys{};
+  std::array<std::byte, 33> buf_sib{};
+  const auto sib = copy_key(
+      make_key_33(enc, 0x20, X, unodb::test_data::chain_key_filler_byte),
+      buf_sib);
+
+  UNODB_ASSERT_NO_FATAL_FAILURE(
+      insert_chain_beside(db, keys.key_a, keys.key_b, std::array{sib}, val));
+
+  bool sib_removed = false;
+  bool key_a_removed = false;
+  const auto [chain_hits, between_hits] = run_parked_until_released<2>(
+      unodb::detail::sync_after_chain_locked,
+      unodb::detail::sync_between_chain_locks,
+      [&] { sib_removed = db.remove(sib); },
+      [&] { key_a_removed = db.remove(keys.key_a); });
+  // T1's park and T2's only attempt; T2 never reaches the release hit.  T1
+  // then extends its chain through the one-child Root-I4 and cuts from the
+  // root.
+  UNODB_ASSERT_EQ(2U, chain_hits);
+  UNODB_ASSERT_EQ(2U, between_hits);
+  UNODB_ASSERT_TRUE(sib_removed);
+  UNODB_ASSERT_TRUE(key_a_removed);
+  UNODB_ASSERT_TRUE(db.empty());
+}
+
+/// Encode a 27-byte key: tag 0x10, \a byte1, three filler words, then \a last.
+/// Keys that differ at \a byte1 hang below one inode that branches on byte 1,
+/// each in its own chain whose top has an empty prefix, so removing one
+/// collapses that inode into the other's chain top.
+[[nodiscard]] unodb::key_view make_key_27(unodb::key_encoder& enc
+                                          UNODB_DETAIL_LIFETIMEBOUND,
+                                          std::uint8_t byte1,
+                                          std::uint8_t last) {
+  constexpr auto X = unodb::test_data::chain_key_filler;
+  return enc.reset()
+      .encode(std::uint8_t{0x10})
+      .encode(byte1)
+      .encode(X)
+      .encode(X)
+      .encode(X)
+      .encode(last)
+      .get_key_view();
+}
+
+/// NW1 below the root: the I4 that Root-I4 holds at byte 0x10 holds key_a's
+/// chain and a two-byte sibling leaf.  T2's removal of the sibling fails to
+/// lock T1's held chain top, as in NW1, and restarts.  T1 cannot collapse the
+/// I4 into the keyless sibling leaf, so it does not lock Root-I4 and does not
+/// restart on T2's release of it.
+UNODB_TEST(OLCI4CollapseVsHeldSurvivor, SiblingRemoveBelowRootRestarts) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  // key_a's value, then sib's and root_sib's.
+  constexpr auto vals = distinct_values<3>();
+
+  db_type db;
+  unodb::key_encoder enc;
+
+  std::array<std::byte, 27> buf_a{};
+  std::array<std::byte, 27> buf_b{};
+  const auto key_a = copy_key(make_key_27(enc, 0x01, 0x01), buf_a);
+  const auto key_b = copy_key(make_key_27(enc, 0x01, 0x02), buf_b);
+  std::array<std::byte, 2> buf_sib{};
+  const auto sib = copy_key(enc.reset()
+                                .encode(std::uint8_t{0x10})
+                                .encode(std::uint8_t{0x20})
+                                .get_key_view(),
+                            buf_sib);
+  std::array<std::byte, 1> buf_root_sib{};
+  const auto root_sib = copy_key(make_short_key(enc, 0x30), buf_root_sib);
+  UNODB_ASSERT_NO_FATAL_FAILURE(
+      insert_chain_beside(db, key_a, key_b, std::array{sib, root_sib}, vals[0],
+                          std::span{vals}.subspan<1, 2>()));
+
+  bool key_a_removed = false;
+  bool sib_removed = false;
+  const auto [chain_hits, remove_hits] = run_parked_until_released<2>(
+      unodb::detail::sync_after_chain_locked,
+      unodb::detail::sync_before_remove_write_guard,
+      [&] { key_a_removed = db.remove(key_a); },
+      [&] { sib_removed = db.remove(sib); });
+  // T1's park, and T2's last retry, which cuts the one-child chain.
+  UNODB_ASSERT_EQ(2U, chain_hits);
+  // T2's first attempt, and the retry after it failed to lock the chain top.
+  UNODB_ASSERT_EQ(2U, remove_hits);
+  UNODB_ASSERT_TRUE(key_a_removed);
+  UNODB_ASSERT_TRUE(sib_removed);
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_FALSE(db.get(key_a).has_value());
+  UNODB_ASSERT_FALSE(db.get(sib).has_value());
+  ASSERT_VALUE_FOR_KEY(db_type, db, root_sib, vals[2]);
+}
+
+/// NW2 below the root: the I4 that Root-I4 holds at byte 0x10 holds two
+/// chains.  T2's chain cut of sib fails to lock T1's held chain top, as in
+/// NW2, and restarts without having locked Root-I4, so T1 does not restart on
+/// Root-I4 when it resumes.
+UNODB_TEST(OLCI4CollapseVsHeldSurvivor, ChainCutBelowRootRestarts) {
+  using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
+  // key_a's value, then sib's and root_sib's.
+  constexpr auto vals = distinct_values<3>();
+
+  db_type db;
+  unodb::key_encoder enc;
+
+  std::array<std::byte, 27> buf_a{};
+  std::array<std::byte, 27> buf_b{};
+  std::array<std::byte, 27> buf_sib{};
+  const auto key_a = copy_key(make_key_27(enc, 0x01, 0x01), buf_a);
+  const auto key_b = copy_key(make_key_27(enc, 0x01, 0x02), buf_b);
+  const auto sib = copy_key(make_key_27(enc, 0x02, 0x01), buf_sib);
+  std::array<std::byte, 1> buf_root_sib{};
+  const auto root_sib = copy_key(make_short_key(enc, 0x20), buf_root_sib);
+  UNODB_ASSERT_NO_FATAL_FAILURE(
+      insert_chain_beside(db, key_a, key_b, std::array{sib, root_sib}, vals[0],
+                          std::span{vals}.subspan<1, 2>()));
+
+  bool key_a_removed = false;
+  bool sib_removed = false;
+  const auto [chain_hits, between_hits] = run_parked_until_released<2>(
+      unodb::detail::sync_after_chain_locked,
+      unodb::detail::sync_between_chain_locks,
+      [&] { key_a_removed = db.remove(key_a); },
+      [&] { sib_removed = db.remove(sib); });
+  // As in NW2: T1, T2's first attempt, T2's retry (which releases T1), and
+  // T2's next retry after T1 collapsed the I4 into T2's chain top.
+  UNODB_ASSERT_EQ(4U, chain_hits);
+  UNODB_ASSERT_EQ(4U, between_hits);
+  UNODB_ASSERT_TRUE(key_a_removed);
+  UNODB_ASSERT_TRUE(sib_removed);
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_FALSE(db.get(key_a).has_value());
+  UNODB_ASSERT_FALSE(db.get(sib).has_value());
+  ASSERT_VALUE_FOR_KEY(db_type, db, root_sib, vals[2]);
+}
+
+/// After a chain cut whose I4 cut-point parent collapses has removed its key,
+/// the root I4 and sib's four-node chain are all that is left.
+// Not noexcept: under --gtest_throw_on_failure a failed check throws.
+UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
+void assert_collapse_retry_left_five_i4s(
+    [[maybe_unused]] const unodb::test::key_view_olc_db& db) {
+#ifdef UNODB_DETAIL_WITH_STATS
+  // A retry that removed the entry without collapsing would leave six.
+  UNODB_ASSERT_EQ(5U, db.get_node_counts()[unodb::as_i<unodb::node_type::I4>]);
+#endif
+}
+UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+/// CL5: CL4 with an I4 cut-point parent that collapses.  The root is an I4
+/// with prefix 0x10 that holds key_a's chain and sib's at byte 1, each chain
+/// top with an empty prefix, so cutting key_a's chain collapses the root into
+/// sib's chain top.  T1 removes key_a and parks after Step 2.  T2 inserts a
+/// one-byte key that splits the root's prefix and installs a new root I4
+/// above it.  T1's Step 4.1 locks the survivor and must then see that the root
+/// pointer no longer points to the old root, release the survivor and retry
+/// below the new root, instead of replacing the new root with sib's chain top.
+UNODB_TEST(OLCChainCutVsSplit, RootSplitAboveCollapsingCutPointParent) {
+  unodb::key_encoder enc;
+  std::array<std::byte, 27> buf_a{};
+  std::array<std::byte, 27> buf_sib{};
+  std::array<std::byte, 1> buf_t2{};
+  const auto key_a = copy_key(make_key_27(enc, 0x01, 0x01), buf_a);
+  const std::array sibs{copy_key(make_key_27(enc, 0x02, 0x01), buf_sib)};
+  const auto t2_key = copy_key(make_short_key(enc, 0x20), buf_t2);
+  assert_remove_keeps_other_keys<unodb::test::key_view_olc_db>(
+      unodb::detail::sync_after_chain_locked, key_a, sibs, t2_key,
+      t2_action::insert, assert_collapse_retry_left_five_i4s);
+}
+
+/// CL6: CL5 one level down: Root-I4 holds the collapsing I4 at byte 0x10 and a
+/// one-byte sibling 0x20.  T2 inserts the one-byte key 0x05 into Root-I4,
+/// which moves Root-I4's version and shifts the collapsing I4's entry to the
+/// next slot.  T1's Step 4.1 locks the survivor and must then see that Root-I4
+/// moved, release the survivor and retry, instead of writing sib's chain top
+/// into the slot that now holds T2's key.  T2's key must sort before 0x10, or
+/// the stale slot would still hold the collapsing I4's entry.
+UNODB_TEST(OLCChainCutVsSplit, GrandparentInsertAboveCollapsingCutPointParent) {
+  unodb::key_encoder enc;
+  std::array<std::byte, 27> buf_a{};
+  std::array<std::byte, 27> buf_sib{};
+  std::array<std::byte, 1> buf_root_sib{};
+  std::array<std::byte, 1> buf_t2{};
+  const auto key_a = copy_key(make_key_27(enc, 0x01, 0x01), buf_a);
+  const std::array sibs{copy_key(make_key_27(enc, 0x02, 0x01), buf_sib),
+                        copy_key(make_short_key(enc, 0x20), buf_root_sib)};
+  const auto t2_key = copy_key(make_short_key(enc, 0x05), buf_t2);
+  assert_remove_keeps_other_keys<unodb::test::key_view_olc_db>(
+      unodb::detail::sync_after_chain_locked, key_a, sibs, t2_key,
+      t2_action::insert, assert_collapse_retry_left_five_i4s);
 }
 
 #endif  // NDEBUG

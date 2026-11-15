@@ -130,24 +130,24 @@ RBValidateShared ==
                    rb_cb_locked, rb_s_locked, rb_s_cached_ver, rb_p_cached_ver,
                    apc, a_op>>
 
-\* Upgrade shared_node to write at the version B validated, as a chain member
-\* or as the cut-point parent
+\* Upgrade shared_node to write at the version B validated.  A chain member
+\* goes on to its cut-point parent.  Otherwise shared_node is the cut-point
+\* parent and the cut follows at once: can_collapse() rejects key A's packed
+\* value, so Step 4.1 locks neither a survivor nor the grandparent, and Step
+\* 4.2 only calls remove_child_entry() on shared_node.
 RBUpgradeShared ==
     /\ rbpc = "upgrade_shared"
     /\ IF s_ver = rb_s_cached_ver /\ s_ver % 2 = 0
        THEN /\ s_ver' = s_ver + 1
             /\ rb_s_locked' = TRUE
-            /\ rbpc' = "eval_parent"
+            /\ rbpc' = IF rb_chain_includes_shared THEN "eval_parent" ELSE "cut"
        ELSE /\ rbpc' = "eval_shared"  \* retry
             /\ UNCHANGED <<s_ver, rb_s_locked>>
     /\ UNCHANGED <<p_ver, p_count, s_has_vis, s_has_child_b, cb_ver,
                    rb_cb_locked, rb_s_cached_ver, rb_p_cached_ver,
                    rb_chain_includes_shared, apc, a_op>>
 
-\* Evaluate the parent: the cut-point parent if shared_node is a chain member,
-\* else the grandparent that Step 4.1 locks because the two-child shared_node
-\* needs shrinking; try_collapse_i4 then keeps shared_node, whose remaining
-\* entry is key A's packed value
+\* Evaluate the cut-point parent of a chain that includes shared_node
 RBEvalParent ==
     /\ rbpc = "eval_parent"
     /\ rb_p_cached_ver' = p_ver
@@ -157,8 +157,7 @@ RBEvalParent ==
                    rb_chain_includes_shared, apc, a_op>>
 
 \* Only B writes p_ver, so the ELSE branch never fires.  Its re-read is Step
-\* 3's for a cut-point parent; for the grandparent that Step 4.1 locks, the
-\* code instead restarts the remove if the version moved since the descent.
+\* 3's.
 RBValidateParent ==
     /\ rbpc = "validate_parent"
     /\ IF p_ver = rb_p_cached_ver /\ p_ver % 2 = 0
@@ -184,9 +183,8 @@ RBCut ==
        ELSE \* Cut only chain_B: remove chain_B from shared_node
             /\ s_has_child_b' = FALSE
             /\ s_ver' = s_ver + 1        \* unlock cut-point parent
-            /\ p_ver' = p_ver + 1        \* unlock parent (grandparent)
             /\ cb_ver' = OBSOLETE
-            /\ UNCHANGED <<p_count, s_has_vis>>
+            /\ UNCHANGED <<p_ver, p_count, s_has_vis>>
     /\ rb_cb_locked' = FALSE /\ rb_s_locked' = FALSE
     /\ rbpc' = "done"
     /\ UNCHANGED <<rb_s_cached_ver, rb_p_cached_ver, rb_chain_includes_shared,

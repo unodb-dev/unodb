@@ -278,9 +278,9 @@ namespace unodb::test {
 ///     { const unodb::test::intercepted_failure_guard guard; stmt; }, substr);
 /// \endcode
 /// Rerun each test that intercepts a failure under this guard with
-/// `--gtest_break_on_failure` and with `--gtest_throw_on_failure`, as
-/// test/CMakeLists.txt does for test_art's: every other run passes without the
-/// guard.
+/// `--gtest_break_on_failure` and with `--gtest_throw_on_failure`, through
+/// add_intercepted_failure_reruns() in test/CMakeLists.txt: every other run
+/// passes without the guard.
 class [[nodiscard]] intercepted_failure_guard final {
  public:
   /// Save both flags and clear them.

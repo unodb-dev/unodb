@@ -94,6 +94,11 @@ inline sync_point sync_in_upsert_erase_before_prefix_load;
 /// the path, the root first.
 inline sync_point sync_in_upsert_before_node_lock;
 
+/// Sync point: fires in try_get after a node is read-locked and its parent's
+/// read lock is released, before the node's key prefix is read.  Fires once
+/// per node on the lookup path, the root first.
+inline sync_point sync_in_get_after_parent_unlock;
+
 /// Sync point: fires in olc_db::iterator::try_left_most_traversal() and
 /// olc_db::iterator::try_right_most_traversal() after a node is read-locked
 /// and its parent's read lock is released, before the node's key prefix is
@@ -292,7 +297,7 @@ class olc_db final {
   /// Construct empty OLC ART index backed by a tuple heap for key retrieval.
   template <typename H = HeapTag>
     requires(has_heap && std::is_same_v<H, HeapTag>)
-  // cppcheck-suppress uninitMemberVar  // false positive: try_collapse_i4 is
+  // cppcheck-suppress uninitMemberVar  // false positive: collapse_i4 is
   //   a member function, not a variable.
   constexpr explicit olc_db(const H& heap) noexcept : heap_{heap} {}
 
@@ -1197,8 +1202,9 @@ class olc_db final {
   ///
   /// Keys are prefix-free, so the key ends there only if the inode's prefix
   /// was rewritten in place after the descent checked the parent, leaving the
-  /// descent at the inode's old depth: an I4 collapse lengthened it and
-  /// obsoleted the parent, or a prefix split shortened it and write-locked the
+  /// descent at the inode's old depth.  An I4 collapse lengthens it and moves
+  /// the inode's version, or obsoletes the parent if it finished before the
+  /// inode was read-locked.  A prefix split shortens it and write-locks the
   /// parent.  If both versions held, the key is a strict prefix of every key
   /// below the inode: a caller error, which this asserts on.
   [[nodiscard]] static constexpr bool must_restart_on_key_ending_in_prefix(
@@ -1277,9 +1283,12 @@ class olc_db final {
   /// the chain, and the first other node becomes the cut-point parent, so a
   /// chain node that gained a child moves the cut point down.  The operation
   /// restarts without modifying the tree if a node it re-reads is obsolete or
-  /// no longer leads to the node below it, if the cut-point parent must shrink
-  /// and its own parent has changed, or if the root pointer it would rewrite no
-  /// longer points to stk[0].
+  /// no longer leads to the node below it, if it would replace the cut-point
+  /// parent in its own parent and that parent has changed, if the root pointer
+  /// it would rewrite no longer points to stk[0], or if the cut-point parent is
+  /// an I4 that will collapse and the inode it would leave cannot be
+  /// write-locked without waiting, since waiting could deadlock against another
+  /// chain cut that holds it.
   /// After the cut, the cut-point parent is shrunk or collapsed as needed
   /// to maintain well-formedness (no single-child I4 except during chain
   /// insert).  Disconnected nodes are reclaimed via QSBR.
@@ -1290,14 +1299,30 @@ class olc_db final {
       optimistic_lock::write_guard leaf_guard, remove_stack_type& stk,
       std::size_t stk_n);
 
-  /// Collapse an I4 after removing one of its two children.
-  /// Removes del_ci, checks prefix overflow, and if the merge fits,
-  /// promotes the remaining child into *slot (or root if slot==nullptr).
-  /// Returns true if the I4 was collapsed and reclaimed.
-  [[nodiscard]] bool try_collapse_i4(
-      detail::olc_node_ptr i4_node, std::uint8_t del_ci,
-      in_critical_section<detail::olc_node_ptr>* slot,
-      optimistic_lock::write_guard& guard);
+  /// Collapse an I4 after removing one of its two children: remove del_ci,
+  /// promote the remaining child into *slot (or root if slot==nullptr), and
+  /// reclaim the I4.  Serves only try_chain_cut, which runs only for key_view
+  /// keys.  There the required can_collapse(del_ci) rejects a packed-value or
+  /// keyless-leaf survivor, so the survivor is an inode.  The merge rewrites
+  /// that inode's key prefix, so \a remaining_guard must hold its write lock.
+  void collapse_i4(detail::olc_node_ptr i4_node, std::uint8_t del_ci,
+                   in_critical_section<detail::olc_node_ptr>* slot,
+                   optimistic_lock::write_guard& guard,
+                   const optimistic_lock::write_guard& remaining_guard);
+
+  /// Write-lock, without waiting, the child that removing \a child_to_delete
+  /// from \a i4 leaves, if it is an inode: collapsing \a i4 prepends its
+  /// prefix to that child's prefix.  Waiting could deadlock against a writer
+  /// that holds that child and waits for one of the caller's locks.
+  /// \pre The caller holds \a i4's write lock, \a i4 has exactly two
+  /// children, and the child left is not a packed value.
+  /// \param i4 The I4 to collapse
+  /// \param child_to_delete Index of the child to remove (0 or 1)
+  /// \param guard Receives the write guard; stays inactive for a leaf
+  /// \return false if the caller must restart
+  [[nodiscard]] static bool try_write_lock_i4_survivor(
+      inode_4& i4, std::uint8_t child_to_delete,
+      optimistic_lock::write_guard& guard) noexcept;
 
   /// Single-pass removal for fixed-width keys (no chain nodes).
   [[nodiscard]] try_update_result_type try_remove_fixed_width_key(
@@ -1663,12 +1688,27 @@ class [[nodiscard]] olc_inode_4 final
     parent_class::remove(child_index, db_instance);
   }
 
+  /// Remove a child of this two-child I4 and return the other one, with this
+  /// I4's prefix and dispatch byte prepended to its prefix if it is an inode.
+  /// \param child_to_delete Index of the child to remove (0 or 1)
+  /// \param child_to_leave_guard Write guard on the remaining child if it is an
+  /// inode; inactive for a leaf
+  /// \param db_instance Database instance
   [[nodiscard]] auto leave_last_child(
       std::uint8_t child_to_delete,
+      [[maybe_unused]] const optimistic_lock::write_guard& child_to_leave_guard,
       UNODB_DETAIL_NO_STATS_CONST db_type& db_instance) noexcept {
     UNODB_DETAIL_ASSERT(lock(*this).is_obsoleted_by_this_thread());
     UNODB_DETAIL_ASSERT(node_ptr_lock(this->children[child_to_delete].load())
                             .is_obsoleted_by_this_thread());
+#ifndef NDEBUG
+    const auto child_to_leave_ptr{
+        this->children[parent_class::other_child_index(child_to_delete)]
+            .load()};
+    UNODB_DETAIL_ASSERT(
+        child_to_leave_ptr.type() == node_type::LEAF ||
+        child_to_leave_guard.guards(node_ptr_lock(child_to_leave_ptr)));
+#endif
 
     return parent_class::leave_last_child(child_to_delete, db_instance);
   }
@@ -2453,7 +2493,7 @@ template <typename Key, typename Value, typename HeapTag, class INode>
       // For variable-length keys, check leave_last_child precondition:
       // prefix merge must not overflow key_prefix_capacity.
       if constexpr (std::is_same_v<Key, key_view>) {
-        const std::uint8_t child_to_leave = (child_i == 0) ? 1U : 0U;
+        const std::uint8_t child_to_leave = INode::other_child_index(child_i);
         const auto remaining = inode.get_child(child_to_leave);
         if (remaining.type() != node_type::LEAF) {
           const auto* const ri{
@@ -2462,13 +2502,10 @@ template <typename Key, typename Value, typename HeapTag, class INode>
           if (ri->get_key_prefix().length() + inode.get_key_prefix().length() +
                   1 >
               detail::key_prefix_capacity) {
-            // LCOV_EXCL_START — prefix merge overflow requires keys that
-            // produce two adjacent nodes whose combined prefix exceeds capacity
             child_guard.unlock_and_obsolete();
             inode.remove(child_i, db_instance);
             *child_in_parent = nullptr;
             return true;
-            // LCOV_EXCL_STOP
           }
         } else if constexpr (detail::can_eliminate_key_in_leaf_v<Key, Value>) {
           // Keyless leaf: don't collapse — keep the chain intact.
@@ -2478,12 +2515,18 @@ template <typename Key, typename Value, typename HeapTag, class INode>
           return true;
         }
       }
+      optimistic_lock::write_guard remaining_guard;
+      if (UNODB_DETAIL_UNLIKELY(
+              (!olc_db<Key, Value, HeapTag>::try_write_lock_i4_survivor(
+                  inode, child_i, remaining_guard))))
+        return {};
       auto current_node{
           olc_art_policy<Key, Value, HeapTag>::make_db_inode_reclaimable_ptr(
               &inode, db_instance)};
       node_guard.unlock_and_obsolete();
       child_guard.unlock_and_obsolete();
-      *node_in_parent = current_node->leave_last_child(child_i, db_instance);
+      *node_in_parent =
+          current_node->leave_last_child(child_i, remaining_guard, db_instance);
 
       UNODB_DETAIL_ASSERT(!node_guard.active());
       UNODB_DETAIL_ASSERT(!child_guard.active());
@@ -2630,6 +2673,8 @@ olc_db<Key, Value, HeapTag>::try_get(art_key_type k) const noexcept {
     if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.try_read_unlock()))
       return {};  // LCOV_EXCL_LINE
 
+    detail::sync(detail::sync_in_get_after_parent_unlock);
+
     const auto node_type = node.type();
 
     if (node_type == node_type::LEAF) {
@@ -2661,7 +2706,10 @@ olc_db<Key, Value, HeapTag>::try_get(art_key_type k) const noexcept {
         match_key_prefix(*inode, remaining_key);
 
     // A key that mismatches this node's prefix, or a key_view key that ends
-    // inside or at the end of it, is not stored.
+    // inside or at the end of it, is not stored.  The descent can also get
+    // here with a stored key if an I4 collapse lengthened this node's prefix,
+    // or a prefix split shortened it, after try_get released the parent.
+    // Either moved this node's version.
     if (shared_key_prefix_length < key_prefix_length ||
         key_matches_prefix_to_end(remaining_key, shared_key_prefix_length)) {
       if (UNODB_DETAIL_UNLIKELY(!node_critical_section.try_read_unlock()))
@@ -3494,10 +3542,9 @@ olc_db<Key, Value, HeapTag>::try_upsert(
         // I4 collapse that merged the parent into this node, or a prefix
         // split that moved this node below a new I4, rewrites its prefix in
         // place without obsoleting it, so one in between shows only on the
-        // parent's version.  So does a collapse after the lock, as it does not
-        // move the survivor's version.  Either way match_key_prefix() may have
-        // matched at the old depth.  Validate the parent before fn sees what
-        // may be another key's value, as the leaf duplicate arms do.
+        // parent's version, and match_key_prefix() may have matched at the
+        // old depth.  Validate the parent before fn sees what may be another
+        // key's value, as the leaf duplicate arms do.
         if (UNODB_DETAIL_UNLIKELY(!parent_critical_section.check())) return {};
         const auto action = fn(local);
         UNODB_DETAIL_DISABLE_MSVC_WARNING(6326)
@@ -5063,31 +5110,20 @@ void olc_db<Key, Value, HeapTag>::dump() const {
 
 template <typename Key, typename Value, typename HeapTag>
 UNODB_DETAIL_DISABLE_MSVC_WARNING(26440)
-bool olc_db<Key, Value, HeapTag>::try_collapse_i4(
+void olc_db<Key, Value, HeapTag>::collapse_i4(
     detail::olc_node_ptr i4_node, std::uint8_t del_ci,
     in_critical_section<detail::olc_node_ptr>* slot,
-    optimistic_lock::write_guard& guard) {
+    optimistic_lock::write_guard& guard,
+    [[maybe_unused]] const optimistic_lock::write_guard& remaining_guard) {
   auto* const i4{i4_node.template ptr<inode_4*>()};
+  UNODB_DETAIL_ASSERT(i4->can_collapse(del_ci));
   i4->remove_child_entry(del_ci);
   const auto rem_iter = i4->begin();
   const auto rem = i4->get_child(0);
-  if constexpr (art_policy::can_eliminate_leaf) {
-    if (i4->is_value_in_slot(0)) {
-      return false;  // Remaining child is a packed value — can't collapse.
-    }
-  }
-  if (rem.type() != node_type::LEAF) {
-    auto* const ri{rem.template ptr<inode_type*>()};
-    if (ri->get_key_prefix().length() + i4->get_key_prefix().length() + 1 >
-        detail::key_prefix_capacity) {
-      return false;  // prefix overflow — leave as single-child I4
-    }
-    ri->get_key_prefix().prepend(i4->get_key_prefix(), rem_iter.key_byte);
-  } else if constexpr (art_policy::can_eliminate_key_in_leaf) {
-    // Keyless leaf: collapsing would lose key bytes encoded in this
-    // inode's prefix+dispatch.  Keep the chain intact.
-    return false;
-  }
+  UNODB_DETAIL_ASSERT(rem.type() != node_type::LEAF);
+  UNODB_DETAIL_ASSERT(remaining_guard.guards(node_ptr_lock(rem)));
+  rem.template ptr<inode_type*>()->get_key_prefix().prepend(
+      i4->get_key_prefix(), rem_iter.key_byte);
   if (slot != nullptr)
     *slot = rem;
   else
@@ -5100,9 +5136,27 @@ bool olc_db<Key, Value, HeapTag>::try_collapse_i4(
 #ifdef UNODB_DETAIL_WITH_STATS
   account_shrinking_inode<node_type::I4>();
 #endif
-  return true;
 }
 UNODB_DETAIL_RESTORE_MSVC_WARNINGS()
+
+template <typename Key, typename Value, typename HeapTag>
+bool olc_db<Key, Value, HeapTag>::try_write_lock_i4_survivor(
+    inode_4& i4, std::uint8_t child_to_delete,
+    optimistic_lock::write_guard& guard) noexcept {
+  UNODB_DETAIL_ASSERT(lock(i4).is_write_locked());
+  UNODB_DETAIL_ASSERT(i4.is_min_size());
+  const std::uint8_t child_to_leave =
+      inode_4::other_child_index(child_to_delete);
+  if constexpr (art_policy::can_eliminate_leaf) {
+    UNODB_DETAIL_ASSERT(!i4.is_value_in_slot(child_to_leave));
+  }
+  const auto child{i4.get_child(child_to_leave)};
+  if (child.type() == node_type::LEAF) return true;
+  auto critical_section = node_ptr_lock(child).try_read_lock_no_wait();
+  if (UNODB_DETAIL_UNLIKELY(critical_section.must_restart())) return false;
+  guard = optimistic_lock::write_guard{std::move(critical_section)};
+  return !guard.must_restart();
+}
 
 template <typename Key, typename Value, typename HeapTag>
 typename olc_db<Key, Value, HeapTag>::try_update_result_type
@@ -5222,13 +5276,33 @@ olc_db<Key, Value, HeapTag>::try_chain_cut(
     }
   }
 
-  // --- Step 4.1: Pre-acquire grandparent if shrinkage needed ---
+  // --- Step 4.1: Pre-acquire survivor and grandparent if CPP is replaced ---
   const bool cpp_is_root =
       (cut_level == 0) || (chain_top >= stk_n && stk_n == 0);
   const std::size_t cpp_idx = cpp_is_root ? 0 : (cut_level - 1);
 
-  bool needs_shrink = false;
+  // The chain's child index in the cut-point parent, looked up under
+  // cpp_guard: a concurrent insert or remove there may have shifted it since
+  // the downward pass.  A root cut does not use it.
+  const std::uint8_t del_ci = [&]() noexcept -> std::uint8_t {
+    if (cpp_is_root) return 0;
+    const auto& cpe = stk[cpp_idx];
+    const auto [ci, child] = cpe.node.template ptr<inode_type*>()->find_child(
+        cpe.node.type(), cpe.key_byte);
+    // cpp_guard locks the version under which that node's link was checked,
+    // so the key byte still leads to it.
+    UNODB_DETAIL_ASSERT(child != nullptr);
+    UNODB_DETAIL_ASSERT(
+        child->load() ==
+        (cut_level < stk_n ? stk[cut_level].node : chain_bottom));
+    return ci;
+  }();
+
+  // Whether Step 4.2 replaces the cut-point parent in its own parent, after a
+  // shrink or an I4 collapse, instead of just removing the chain's entry.
+  bool replaces_cpp = false;
   optimistic_lock::write_guard gp_guard;
+  optimistic_lock::write_guard remaining_guard;
 
   if (!cpp_is_root) {
     const auto& cpe = stk[cpp_idx];
@@ -5238,27 +5312,70 @@ olc_db<Key, Value, HeapTag>::try_chain_cut(
     const auto cpt = cpe.node.type();
     const auto cpc = cpi->get_children_count();
 
-    needs_shrink = (cpt == node_type::I4 && cpc <= 2) ||
-                   (cpt == node_type::I16 &&
-                    cpc == detail::basic_inode_16<art_policy>::min_size) ||
-                   (cpt == node_type::I48 &&
-                    cpc == detail::basic_inode_48<art_policy>::min_size) ||
-                   (cpt == node_type::I256 &&
-                    cpc == detail::basic_inode_256<art_policy>::min_size);
+    const bool needs_shrink =
+        (cpt == node_type::I4 && cpc <= 2) ||
+        (cpt == node_type::I16 &&
+         cpc == detail::basic_inode_16<art_policy>::min_size) ||
+        (cpt == node_type::I48 &&
+         cpc == detail::basic_inode_48<art_policy>::min_size) ||
+        (cpt == node_type::I256 &&
+         cpc == detail::basic_inode_256<art_policy>::min_size);
+    const bool cut_point_i4_collapses =
+        needs_shrink && cpt == node_type::I4 &&
+        cpe.node.template ptr<inode_4*>()->can_collapse(del_ci);
 
-    if (needs_shrink) {
+    // An I4 collapse prepends the I4's prefix to a remaining inode's prefix,
+    // so lock that inode before the point of no return.  Lock it before the
+    // grandparent: a chain cut whose chain top it is waits in Step 3 for the
+    // cut-point parent and rereads it at its current version, but checks the
+    // grandparent in Step 4.1 against its descent, so this cut's restart must
+    // not move the grandparent.  A chain cut that has it as its own cut-point
+    // parent and replaces it restarts regardless, as this cut's lock on the
+    // cut-point parent has already moved that cut's grandparent.
+    //
+    // Every Step 4.1 restart releases the survivor, then the chain,
+    // chain_bottom included, before the cut-point parent, which cpp_guard's
+    // destructor releases, so that a chain-top holder, once it gets the
+    // cut-point parent, finds this cut's chain top unlocked.
+    const auto release_chain_and_restart =
+        [&remaining_guard, &chain_guards,
+         &chain_bottom_guard]() noexcept -> try_update_result_type {
+      remaining_guard = {};
+      chain_guards.clear();
+      chain_bottom_guard.unlock();
+      return {};
+    };
+    if (cut_point_i4_collapses &&
+        UNODB_DETAIL_UNLIKELY(!try_write_lock_i4_survivor(
+            *cpe.node.template ptr<inode_4*>(), del_ci, remaining_guard)))
+      return release_chain_and_restart();
+
+    // Only a replacement writes the grandparent's slot, or the root.
+    replaces_cpp =
+        needs_shrink && (cpt != node_type::I4 || cut_point_i4_collapses);
+    if (replaces_cpp) {
       if (cpp_idx >= 1) {
         const auto& gpe = stk[cpp_idx - 1];
         auto gp_rcs = node_ptr_lock(gpe.node).rehydrate_read_lock(gpe.version);
-        if (UNODB_DETAIL_UNLIKELY(!gp_rcs.check())) return {};
+        if (UNODB_DETAIL_UNLIKELY(!gp_rcs.check()))
+          return release_chain_and_restart();
         gp_guard = optimistic_lock::write_guard{std::move(gp_rcs)};
-        if (UNODB_DETAIL_UNLIKELY(gp_guard.must_restart())) return {};
+        if (UNODB_DETAIL_UNLIKELY(gp_guard.must_restart()))
+          return release_chain_and_restart();
       } else {
         gp_guard = lock_root_pointer_to_stk0();
-        if (UNODB_DETAIL_UNLIKELY(gp_guard.must_restart())) return {};
+        if (UNODB_DETAIL_UNLIKELY(gp_guard.must_restart()))
+          return release_chain_and_restart();
       }
     }
   }
+
+  // A replacement writes the grandparent's slot or the root, so it must hold
+  // that lock, whichever node type the cut-point parent has.
+  UNODB_DETAIL_ASSERT(!replaces_cpp ||
+                      gp_guard.guards(cpp_idx >= 1
+                                          ? node_ptr_lock(stk[cpp_idx - 1].node)
+                                          : root_pointer_lock));
 
   // --- Step 4.2: Point of no return — cut and shrink ---
   if (cpp_is_root) {
@@ -5267,23 +5384,12 @@ olc_db<Key, Value, HeapTag>::try_chain_cut(
     const auto& cpe = stk[cpp_idx];
     auto* const cpi{cpe.node.template ptr<inode_type*>()};
     const auto cpt = cpe.node.type();
-    // The chain's child index, looked up under cpp_guard: a concurrent insert
-    // or remove here may have shifted it since the downward pass.  cpp_guard
-    // locks the version under which the chain's link was checked, so the key
-    // byte still leads to it.
-    const auto [del_ci, del_child]{cpi->find_child(cpt, cpe.key_byte)};
-    UNODB_DETAIL_ASSERT(del_child != nullptr);
-    UNODB_DETAIL_ASSERT(
-        del_child->load() ==
-        (cut_level < stk_n ? stk[cut_level].node : chain_bottom));
 
-    if (!needs_shrink) {
+    if (!replaces_cpp) {
       cpi->remove_child_entry(cpt, del_ci);
     } else if (cpt == node_type::I4) {
-      // I4 collapse: remove entry, promote remaining child if
-      // prefix merge fits.
       auto* slot = (cpp_idx >= 1) ? cpe.slot : nullptr;
-      std::ignore = try_collapse_i4(cpe.node, del_ci, slot, cpp_guard);
+      collapse_i4(cpe.node, del_ci, slot, cpp_guard, remaining_guard);
     } else {
       // I16/I48/I256 shrink via shrink constructors.
       UNODB_DETAIL_DISABLE_MSVC_WARNING(26815)
