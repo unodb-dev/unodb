@@ -70,6 +70,18 @@ add_unodb_test(NAME test_fault_injection COMMAND test_fault_injection)
 
 add_db_test_target(test_art)
 target_compile_options(test_art PRIVATE "$<${is_msvc}:/bigobj>")
+# Rerun the tests that intercept failures on purpose under each gtest flag that
+# traps or throws on any failure, intercepted or not, so that an interception
+# without intercepted_failure_guard fails here.  An empty selection fails too.
+# Google Test before 1.18 ignores GTEST_FAIL_IF_NO_TEST_SELECTED, but answers
+# the equivalent --gtest_fail_if_no_test_selected with its help text and a pass.
+foreach(flag IN ITEMS break throw)
+  add_unodb_test(NAME "test_art_intercepted_failure_${flag}"
+    COMMAND test_art "--gtest_filter=AssertValueForKey.*"
+    "--gtest_${flag}_on_failure")
+  set_property(TEST "test_art_intercepted_failure_${flag}" APPEND PROPERTY
+    ENVIRONMENT GTEST_FAIL_IF_NO_TEST_SELECTED=1)
+endforeach()
 
 add_db_test_target(test_art_bulk_load)
 target_link_libraries(test_art_bulk_load PRIVATE qsbr_test_utils)
