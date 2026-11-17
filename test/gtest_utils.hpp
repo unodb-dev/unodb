@@ -3,7 +3,7 @@
 #define UNODB_DETAIL_GTEST_UTILS_HPP
 
 /// \file
-/// Google Test wrapper macros.
+/// Google Test wrapper macros, and a guard for intercepted failures.
 ///
 /// \ingroup test-internals
 ///
@@ -15,6 +15,15 @@
 #include "global.hpp"
 
 #include <gtest/gtest.h>
+
+// GoogleTest before 1.12, which a parent project may supply, has only
+// GTEST_FLAG(); these are 1.12's definitions without Abseil flags.
+#ifndef GTEST_FLAG_GET
+#define GTEST_FLAG_GET(name) ::testing::GTEST_FLAG(name)
+#endif
+#ifndef GTEST_FLAG_SET
+#define GTEST_FLAG_SET(name, value) (void)(::testing::GTEST_FLAG(name) = value)
+#endif
 
 /// \addtogroup test-internals
 /// \{
@@ -252,6 +261,63 @@
   } while (0)
 
 /// \}
+
+namespace unodb::test {
+
+/// RAII guard that clears Google Test's `break_on_failure` and
+/// `throw_on_failure` flags for its lifetime and then restores them.  A
+/// failure that a test intercepts on purpose, with `EXPECT_NONFATAL_FAILURE` or
+/// a `testing::ScopedFakeTestPartResultReporter`, still traps or throws under
+/// these flags.  Declare this guard around just the intercepted statement: the
+/// flags are process-wide, so no failure reported on any thread during its
+/// lifetime traps or throws.  With `EXPECT_NONFATAL_FAILURE`, declare it inside
+/// the statement argument rather than around the macro, whose check that the
+/// failure happened runs after the statement:
+/// \code{.cpp}
+/// EXPECT_NONFATAL_FAILURE(
+///     { const unodb::test::intercepted_failure_guard guard; stmt; }, substr);
+/// \endcode
+/// Rerun each test that intercepts a failure under this guard with
+/// `--gtest_break_on_failure` and with `--gtest_throw_on_failure`, as
+/// test/CMakeLists.txt does for test_art's: every other run passes without the
+/// guard.
+class [[nodiscard]] intercepted_failure_guard final {
+ public:
+  /// Save both flags and clear them.
+  intercepted_failure_guard() noexcept
+      : break_on_failure_{GTEST_FLAG_GET(break_on_failure)},
+        throw_on_failure_{GTEST_FLAG_GET(throw_on_failure)} {
+    GTEST_FLAG_SET(break_on_failure, false);
+    GTEST_FLAG_SET(throw_on_failure, false);
+  }
+
+  /// Restore both flags.
+  ~intercepted_failure_guard() {
+    GTEST_FLAG_SET(break_on_failure, break_on_failure_);
+    GTEST_FLAG_SET(throw_on_failure, throw_on_failure_);
+  }
+
+  /// Copy construction is disabled.
+  intercepted_failure_guard(const intercepted_failure_guard&) = delete;
+
+  /// Copy assignment is disabled.
+  intercepted_failure_guard& operator=(const intercepted_failure_guard&) =
+      delete;
+
+  /// Move construction is disabled.
+  intercepted_failure_guard(intercepted_failure_guard&&) = delete;
+
+  /// Move assignment is disabled.
+  intercepted_failure_guard& operator=(intercepted_failure_guard&&) = delete;
+
+ private:
+  /// `break_on_failure` as the guard found it.
+  const bool break_on_failure_;
+  /// `throw_on_failure` as the guard found it.
+  const bool throw_on_failure_;
+};
+
+}  // namespace unodb::test
 
 /// \}
 

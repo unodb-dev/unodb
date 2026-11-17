@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <stdexcept>
 #include <tuple>
+#include <utility>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest-spi.h>
@@ -1072,20 +1073,14 @@ void assert_check_key_1_ends_caller(const unodb::test::u64_db& db,
                                     unodb::value_view expected,
                                     testing::TestPartResultArray& failures) {
   bool ran_on = false;
-  // Intercepted failures still trap or throw under these flags.
-  const auto break_on_failure = GTEST_FLAG_GET(break_on_failure);
-  const auto throw_on_failure = GTEST_FLAG_GET(throw_on_failure);
-  GTEST_FLAG_SET(break_on_failure, false);
-  GTEST_FLAG_SET(throw_on_failure, false);
   {
+    const unodb::test::intercepted_failure_guard guard;
     const testing::ScopedFakeTestPartResultReporter reporter{
         testing::ScopedFakeTestPartResultReporter::
             INTERCEPT_ONLY_CURRENT_THREAD,
         &failures};
     check_key_1(db, expected, ran_on);
   }
-  GTEST_FLAG_SET(break_on_failure, break_on_failure);
-  GTEST_FLAG_SET(throw_on_failure, throw_on_failure);
   UNODB_ASSERT_FALSE(ran_on);
   // The failed check, then ASSERT_NO_FATAL_FAILURE's own failure.
   UNODB_ASSERT_EQ(failures.size(), 2);
@@ -1112,6 +1107,52 @@ UNODB_TEST(AssertValueForKey, MissEndsCaller) {
   const auto* const message = failures.GetTestPartResult(0).message();
   UNODB_ASSERT_THAT(message, ::testing::HasSubstr("db.get did not find"));
   UNODB_ASSERT_THAT(message, ::testing::HasSubstr("db dump"));
+}
+
+/// Google Test's `break_on_failure` and `throw_on_failure` flags, in that
+/// order.
+using gtest_failure_flags = std::pair<bool, bool>;
+
+/// Read both flags.
+[[nodiscard]] gtest_failure_flags get_gtest_failure_flags() noexcept {
+  return {GTEST_FLAG_GET(break_on_failure), GTEST_FLAG_GET(throw_on_failure)};
+}
+
+/// Set both flags to \a flags.
+void set_gtest_failure_flags(gtest_failure_flags flags) noexcept {
+  GTEST_FLAG_SET(break_on_failure, flags.first);
+  GTEST_FLAG_SET(throw_on_failure, flags.second);
+}
+
+/// Set the flags to \a flags and return them as read inside an
+/// intercepted_failure_guard's scope and then after it.
+[[nodiscard]] std::pair<gtest_failure_flags, gtest_failure_flags>
+flags_inside_and_after_guard(gtest_failure_flags flags) noexcept {
+  set_gtest_failure_flags(flags);
+  gtest_failure_flags inside{};
+  {
+    const unodb::test::intercepted_failure_guard guard;
+    inside = get_gtest_failure_flags();
+  }
+  return {inside, get_gtest_failure_flags()};
+}
+
+/// intercepted_failure_guard clears both flags for its lifetime and then
+/// restores each from its own saved value.  Each flag is set alone, as the
+/// test_art_intercepted_failure_* reruns set them, so that a guard that
+/// restores a flag from the other's value fails too.  The flags are restored
+/// before anything is asserted, so that a broken guard fails this test instead
+/// of trapping or throwing in it.
+UNODB_TEST(InterceptedFailureGuard, ClearsAndRestoresFlags) {
+  const auto saved = get_gtest_failure_flags();
+  const auto break_alone = flags_inside_and_after_guard({true, false});
+  const auto throw_alone = flags_inside_and_after_guard({false, true});
+  set_gtest_failure_flags(saved);
+  constexpr gtest_failure_flags cleared{false, false};
+  UNODB_ASSERT_EQ(break_alone.first, cleared);
+  UNODB_ASSERT_EQ(break_alone.second, (gtest_failure_flags{true, false}));
+  UNODB_ASSERT_EQ(throw_alone.first, cleared);
+  UNODB_ASSERT_EQ(throw_alone.second, (gtest_failure_flags{false, true}));
 }
 
 }  // namespace
