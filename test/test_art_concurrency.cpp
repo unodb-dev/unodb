@@ -2367,21 +2367,36 @@ template <unsigned ReleaseHit, class Parked, class Interleaved>
 }
 
 /// A parked operation that never reaches its park point must fail the test
-/// rather than leave the interleaved thread waiting for the park forever.
-UNODB_TEST(RunParkedUntilReleased, MissedParkFailsInsteadOfHanging) {
+/// rather than leave the interleaved thread waiting for the park forever, and
+/// the interleaved operation must then run and find both points disarmed, so
+/// that it neither waits in a release nor parks.  ReleaseHit is one more than
+/// its hits of the release point, so that a release hit the disarm fails to
+/// stop is counted instead of releasing.  The park point is checked for a hook
+/// instead of hit, since a hit it fails to stop would park the interleaved
+/// operation for good.
+UNODB_TEST(RunParkedUntilReleased, MissedParkDisarmsBeforeRelease) {
+  unodb::detail::sync_point park_point;
+  unodb::detail::sync_point release_point;
   bool interleaved_ran = false;
+  bool park_point_armed = true;
+  const auto interleaved = [&park_point, &release_point, &interleaved_ran,
+                            &park_point_armed]() noexcept {
+    interleaved_ran = true;
+    unodb::detail::sync(release_point);
+    park_point_armed = static_cast<bool>(park_point.hook_);
+  };
+  std::pair<unsigned, unsigned> hits{};
   EXPECT_NONFATAL_FAILURE(
       {
         const unodb::test::intercepted_failure_guard guard;
-        // Only parked's hits are counted after a miss, none here; this test
-        // checks the failure.
-        std::ignore = run_parked_until_released<1>(
-            unodb::detail::sync_after_chain_locked,
-            unodb::detail::sync_between_chain_locks, []() noexcept {},
-            [&interleaved_ran]() noexcept { interleaved_ran = true; });
+        hits = run_parked_until_released<2>(
+            park_point, release_point, []() noexcept {}, interleaved);
       },
       "returned before its park");
   UNODB_ASSERT_TRUE(interleaved_ran);
+  // The release hook did not run: the interleaved hit came after the disarm.
+  UNODB_ASSERT_EQ(0U, hits.second);
+  UNODB_ASSERT_FALSE(park_point_armed);
 }
 
 /// The parked operation's own hits of the release point must not release it,
