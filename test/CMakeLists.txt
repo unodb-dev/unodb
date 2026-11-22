@@ -80,6 +80,7 @@ target_compile_options(test_art_key_view_full_chain PRIVATE "$<${is_msvc}:/bigob
 add_db_test_target(test_art_iter)
 add_db_test_target(test_art_scan)
 add_db_test_target(test_art_concurrency)
+target_compile_options(test_art_concurrency PRIVATE "$<${is_msvc}:/bigobj>")
 add_db_test_target(test_art_upsert)
 target_compile_options(test_art_upsert PRIVATE "$<${is_msvc}:/bigobj>")
 add_db_test_target(test_art_allocator)
