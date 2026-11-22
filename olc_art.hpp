@@ -4963,6 +4963,7 @@ olc_db<Key, Value, HeapTag>::try_chain_cut(
   // --- Step 2: Lock the chain bottom-up ---
   boost::container::small_vector<optimistic_lock::write_guard, 16> chain_guards;
   std::size_t cut_level = stk_n;
+  optimistic_lock::write_guard cpp_guard;
 
   if (stk_n > 0 && chain_top < stk_n) {
     chain_guards.push_back(std::move(parent_guard));
@@ -4986,16 +4987,15 @@ olc_db<Key, Value, HeapTag>::try_chain_cut(
       chain_guards.push_back(std::move(wg));
       cut_level = i;
     }
+  } else {
+    // No chain: the leaf's parent is the cut-point parent.
+    cpp_guard = std::move(parent_guard);
   }
 
   detail::sync(detail::sync_after_chain_locked);
 
   // --- Step 3: Acquire the cut_point_parent ---
-  optimistic_lock::write_guard cpp_guard;
-
-  if (chain_top >= stk_n) {
-    cpp_guard = std::move(parent_guard);
-  } else {
+  if (chain_top < stk_n) {
     for (;;) {
       if (cut_level == 0) {
         auto rcs = root_pointer_lock.try_read_lock();
