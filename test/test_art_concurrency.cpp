@@ -39,6 +39,7 @@
 #include "sync_point_test_utils.hpp"
 #include "test_tuple_heap.hpp"
 #include "thread_sync.hpp"
+using unodb::test::release_after_missed_park;
 using unodb::test::run_parked_interleaving;
 using unodb::test::sync_point_guard;
 #endif
@@ -626,6 +627,52 @@ UNODB_TYPED_TEST(ARTChainConcurrencyTest, DISABLED_ChainStressTest) {
 // helpers also used unconditionally are declared with the group above.
 using unodb::test_data::make_key_26;
 using unodb::test_data::make_key_34;
+
+// ===================================================================
+// Tests of run_parked_interleaving() itself.
+// ===================================================================
+
+/// A parked operation that never reaches its sync point must fail the test
+/// rather than leave the interleaved thread waiting for the park forever.
+UNODB_TEST(RunParkedInterleaving, MissedParkFailsInsteadOfHanging) {
+  unodb::detail::sync_point point;
+  bool interleaved_ran = false;
+  EXPECT_NONFATAL_FAILURE(
+      {
+        const unodb::test::intercepted_failure_guard guard;
+        // Only parked's hits are counted after a miss, none here; this test
+        // checks the failure.
+        std::ignore = run_parked_interleaving(
+            point, []() noexcept {},
+            [&interleaved_ran]() noexcept { interleaved_ran = true; });
+      },
+      "returned before hit 1 of its sync point");
+  UNODB_ASSERT_TRUE(interleaved_ran);
+}
+
+/// A parked operation that returns between its first hit and its park must
+/// fail the test too, and the interleaved operation's own hits of the point
+/// must not park it.  ParkHit is one more than both callables' hits together,
+/// so that a hit the disarm fails to stop is counted instead of parking.
+UNODB_TEST(RunParkedInterleaving, PartialMissDisarmsBeforeRelease) {
+  unodb::detail::sync_point point;
+  const auto hit_point = [&point]() noexcept { unodb::detail::sync(point); };
+  unsigned hits = 0;
+  bool interleaved_ran = false;
+  EXPECT_NONFATAL_FAILURE(
+      {
+        const unodb::test::intercepted_failure_guard guard;
+        hits = run_parked_interleaving<3>(
+            point, hit_point, [&interleaved_ran, &hit_point]() noexcept {
+              interleaved_ran = true;
+              hit_point();
+            });
+      },
+      "returned before hit 3 of its sync point");
+  // parked's hit only: interleaved's came after the disarm.
+  UNODB_ASSERT_EQ(1U, hits);
+  UNODB_ASSERT_TRUE(interleaved_ran);
+}
 
 // ===================================================================
 // Remove descent vs. a concurrent prefix split of the first chain node of a
@@ -2348,20 +2395,13 @@ template <unsigned ReleaseHit, class Parked, class Interleaved>
   // Only the park hook writes parked_reached, on the parked thread, so this
   // read races with nothing; park_hits may still be counting interleaved hits.
   if (!parked_reached) {
-    // The interleaved thread is still waiting for the park.  Disarm first, so
-    // that it cannot park or wait in a release, and consume its resume_sync
-    // notify, so that every sync ends reset, as ~thread_sync asserts.
-    park_point.disarm();
-    release_point.disarm();
-    park_sync.notify();
-    resume_sync.wait();
+    // The interleaved operation may pass either point.
+    release_after_missed_park(park_sync, resume_sync, park_point,
+                              release_point);
   }
   interleaved_thread.join();
   unodb::this_thread().qsbr_resume();
   unodb::this_thread().quiescent();
-  // Reported only now: under --gtest_throw_on_failure the report throws, and
-  // unwinding past a joinable thread would terminate the run before the
-  // exception could reach a handler.
   if (!parked_reached) ADD_FAILURE() << "parked returned before its park";
   return {park_hits, release_hits};
 }
