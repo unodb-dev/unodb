@@ -1627,21 +1627,30 @@ UNODB_TEST(OLCChainCutInterleaved, ABAOnChainNode) {
     UNODB_ASSERT_TRUE(db.remove(key_b));
   }
 
+  bool t1_removed = false;
+  bool t2_inserted = false;
+  bool t2_removed = false;
   const auto hits = run_parked_interleaving(
       unodb::detail::sync_between_chain_locks,
-      [&] { std::ignore = db.remove(key_a); },
+      [&] { t1_removed = db.remove(key_a); },
       [&] {
         {
           const unodb::quiescent_state_on_scope_exit q{};
-          std::ignore = db.insert(t2_key, vals[3]);
+          t2_inserted = db.insert(t2_key, vals[3]);
         }
-        std::ignore = db.remove(t2_key);
+        t2_removed = db.remove(t2_key);
       });
   // T1's park and T2's remove of t2_key cutting its own chain; T1 does not
   // restart: Step 2 cannot lock the moved chain[0], which Step 3's Case B
   // locks once it has one child again, and Step 3 then locks Root-I4, which
   // T2 never wrote, at its descent version.
   UNODB_ASSERT_EQ(2U, hits);
+  // A cut of the chain top that key_a shares would delete key_a with t2_key;
+  // T1 would then restart, find key_a gone and return false without another
+  // hit.
+  UNODB_ASSERT_TRUE(t1_removed);
+  UNODB_ASSERT_TRUE(t2_inserted);
+  UNODB_ASSERT_TRUE(t2_removed);
 
   const unodb::quiescent_state_on_scope_exit q{};
   UNODB_ASSERT_FALSE(db.get(key_a).has_value());
