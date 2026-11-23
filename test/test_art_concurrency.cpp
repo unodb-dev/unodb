@@ -923,6 +923,56 @@ UNODB_TYPED_TEST(OLCRemoveDescentVsSplit, SplitChainTopBelowInodeKeepsSibling) {
 }
 
 // ===================================================================
+// Remove descent vs. an insert into a chain I4 whose only child is a packed
+// value.  The descent loads the child and checks the node, then reads whether
+// the child's slot holds a packed value.  An insert in between can shift the
+// packed value to the next slot and leave a node pointer, whose value bit is
+// clear, in its old one.
+// ===================================================================
+
+/// T1 removes chain_key, whose value is the only child of a chain I4 at 0x10
+/// below Root-I4, and parks before it reads the value bit of that child's
+/// slot.  T2 inserts a key that leaves the chain I4 at 0x11, before
+/// chain_key's 0x22, and goes on below it, so the slot T1 found chain_key's
+/// value in now holds T2's chain.  T1 must restart instead of taking the value
+/// it loaded for a node pointer.
+UNODB_TEST(OLCChainValueBitVsInsert, RemoveRestarts) {
+  using db_type = unodb::test::key_view_u64val_olc_db;
+  constexpr std::array other_key{std::byte{0x05}, std::byte{0x01}};
+  constexpr std::array chain_key{std::byte{0x10}, std::byte{0x20},
+                                 std::byte{0x21}, std::byte{0x22}};
+  constexpr std::array t2_key{std::byte{0x10}, std::byte{0x20}, std::byte{0x21},
+                              std::byte{0x11}, std::byte{0x33}};
+  constexpr std::uint64_t other_val{0x42};
+  // A packed value's low bits sit where a node pointer's tag does, and these
+  // are I4's.  Read as a pointer, it is read-locked as an I4.  As a leaf, it
+  // would take the branch that write-locks the node first, which restarts.
+  constexpr std::uint64_t chain_val{0x61};
+  constexpr std::uint64_t t2_val{0x43};
+
+  db_type db;
+  UNODB_ASSERT_TRUE(db.insert(unodb::key_view{other_key}, other_val));
+  UNODB_ASSERT_TRUE(db.insert(unodb::key_view{chain_key}, chain_val));
+
+  bool removed = false;
+  bool inserted = false;
+  const auto hits = run_parked_interleaving(
+      unodb::detail::sync_before_chain_value_bit_read,
+      [&] { removed = db.remove(unodb::key_view{chain_key}); },
+      [&] { inserted = db.insert(unodb::key_view{t2_key}, t2_val); });
+  // T1's park only: its retry finds two children at 0x10, so it does not take
+  // the chain-I4 branch there.
+  UNODB_ASSERT_EQ(1U, hits);
+  UNODB_ASSERT_TRUE(removed);
+  UNODB_ASSERT_TRUE(inserted);
+
+  ASSERT_VALUE_FOR_KEY(db_type, db, unodb::key_view{other_key}, other_val);
+  ASSERT_VALUE_FOR_KEY(db_type, db, unodb::key_view{t2_key}, t2_val);
+  const unodb::quiescent_state_on_scope_exit q{};
+  UNODB_ASSERT_FALSE(db.get(unodb::key_view{chain_key}).has_value());
+}
+
+// ===================================================================
 // Iterator step vs. a concurrent write.  When next() or prior() fails its
 // step, it re-seeks to the current key.  The step has already written its
 // target's key prefix and dispatch bytes into the iterator's key buffer by

@@ -65,6 +65,11 @@ inline sync_point sync_before_remove_root_read;
 /// removal.
 inline sync_point sync_before_remove_child_read;
 
+/// Sync point: fires in try_remove_key_view's chain-I4 branch after it has
+/// loaded the child and checked the node, before it reads whether the child's
+/// slot holds a packed value.
+inline sync_point sync_before_chain_value_bit_read;
+
 /// Sync point: fires in add_or_choose_subtree before write guard acquisition
 /// during node growth (I4→I16 etc.).
 inline sync_point sync_before_insert_grow_guard;
@@ -3998,6 +4003,7 @@ olc_db<Key, Value, HeapTag>::try_remove_key_view(
       if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return {};
 
       if constexpr (art_policy::can_eliminate_leaf) {
+        detail::sync(detail::sync_before_chain_value_bit_read);
         if (inode->is_value_in_slot(node_type, ci)) {
           // Packed value — key match means remaining_key has 1 byte left.
           if (remaining_key.size() != 1) {
@@ -4020,6 +4026,11 @@ olc_db<Key, Value, HeapTag>::try_remove_key_view(
           return try_chain_cut(node, cv, std::move(pg), std::move(ng),
                                optimistic_lock::write_guard{}, stk, stk_n);
         }
+        // An insert into the node since the check above can clear the value
+        // bit of cv's slot: while it shifts the bits, or for good once it has
+        // moved cv, a packed value, to the next slot.  Check again before cv
+        // is used as a pointer.
+        if (UNODB_DETAIL_UNLIKELY(!node_critical_section.check())) return {};
       }
 
       if (cv.type() == node_type::LEAF) {
