@@ -3377,8 +3377,8 @@ UNODB_TEST(OLCRemoveChooseSubtree, ConcurrentInsertIntoSameInode) {
 }
 
 // RT2: T1 removes key_a from an I4 at min_size (2 children).
-// T2 removes key_b (the other child) concurrently.  One thread
-// succeeds, the other restarts and finds the key gone.
+// T2 removes key_b (the other child) concurrently, so T1 restarts
+// and cuts key_a's chain instead.
 UNODB_TEST(OLCRemoveChooseSubtree, ConcurrentRemoveFromMinSizeI4) {
   using db_type = unodb::olc_db<unodb::key_view, unodb::value_view>;
   // key_a, key_b and sibling, in that order.
@@ -3400,13 +3400,25 @@ UNODB_TEST(OLCRemoveChooseSubtree, ConcurrentRemoveFromMinSizeI4) {
   UNODB_ASSERT_TRUE(db.insert(key_b, vals[1]));
   UNODB_ASSERT_TRUE(db.insert(sibling, vals[2]));
 
+  unsigned chain_locked_hits = 0;
+  // Declared after the counter, so that it disarms the hook first.
+  const sync_point_guard chain_locked_guard{
+      unodb::detail::sync_after_chain_locked};
+  unodb::detail::sync_after_chain_locked.arm(
+      [&chain_locked_hits]() noexcept { ++chain_locked_hits; });
+  bool t1_removed = false;
+  bool t2_removed = false;
   const auto hits = run_parked_interleaving(
       unodb::detail::sync_before_remove_write_guard,
-      [&] { std::ignore = db.remove(key_a); },
-      [&] { std::ignore = db.remove(key_b); });
+      [&] { t1_removed = db.remove(key_a); },
+      [&] { t2_removed = db.remove(key_b); });
   // T1's park and T2's remove of key_b; T1's parent write-guard upgrade fails,
   // and its retry finds the bottom I4 single-child and chain-cuts it instead.
   UNODB_ASSERT_EQ(2U, hits);
+  // Both hits above come before T1's retry; this one is the retry's cut.
+  UNODB_ASSERT_EQ(1U, chain_locked_hits);
+  UNODB_ASSERT_TRUE(t1_removed);
+  UNODB_ASSERT_TRUE(t2_removed);
 
   const unodb::quiescent_state_on_scope_exit q{};
   UNODB_ASSERT_FALSE(db.get(key_a).has_value());
