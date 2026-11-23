@@ -831,6 +831,11 @@ add_library(unodb_util INTERFACE)
 target_include_directories(unodb_util INTERFACE ".")
 if(Boost_FOUND)
   target_include_directories(unodb_util SYSTEM INTERFACE ${Boost_INCLUDE_DIRS})
+  # AppleClang searches /usr/local/include, where Homebrew puts Boost on Intel
+  # Macs, as an ordinary directory ahead of the -isystem one above, so Boost's
+  # headers would get our warnings.
+  target_compile_options(unodb_util INTERFACE
+    "$<$<AND:$<PLATFORM_ID:Darwin>,${is_any_clang_genex}>:--system-header-prefix=boost/>")
 endif()
 
 add_unodb_library(unodb_qsbr qsbr.cpp qsbr.hpp qsbr_ptr.cpp qsbr_ptr.hpp)
