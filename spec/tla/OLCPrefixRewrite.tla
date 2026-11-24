@@ -30,6 +30,14 @@
 \*             other arms either upgrade P's read lock to a write lock, which
 \*             validates it, or reach a leaf whose key they compare.
 \*             try_insert orders its steps the same way.
+\*   "remove_chain": validate P, then read-lock S, as try_remove_key_view
+\*             does when S is the first chain node of a run: P's last check
+\*             is remove_or_choose_subtree's, or the root pointer's, before
+\*             S is read-locked.  With HandOverCheck it validates P again
+\*             when it hands P's read lock over to S, before it acts on what
+\*             it read at S ("Check a chain run's parent before the key_view
+\*             remove descends past it"); before that commit it dropped P's
+\*             read lock unchecked, and only S was validated from then on.
 \* Then it reads S's prefix length and bytes: in one load with SingleLoad
 \* (match_key_prefix(), "Read each OLC descent's key prefix in one load"), or
 \* in two before it.
@@ -54,9 +62,10 @@
 \*   NoStaleDepthResult: a descent that finishes used the prefix word that is
 \*                       correct at its depth
 \*
-\* OLCPrefixRewrite.cfg (get) and OLCPrefixRewrite_Upsert.cfg (upsert) pass
-\* with every fix.  Each of the four OLCPrefixRewrite_BugDemo_*.cfg drops one
-\* fix and SHOULD violate the invariant it names.
+\* OLCPrefixRewrite.cfg (get), OLCPrefixRewrite_Upsert.cfg (upsert) and
+\* OLCPrefixRewrite_RemoveChain.cfg (remove_chain) pass with every fix.  Each
+\* of the five OLCPrefixRewrite_BugDemo_*.cfg drops one fix and SHOULD violate
+\* the invariant it names.
 
 EXTENDS Integers
 
@@ -66,7 +75,8 @@ CONSTANTS
     SurvivorLock,   \* collapse write-locks S
     SingleLoad,     \* prefix length and bytes from one load
     KeyEndCheck,    \* check for a key that ends inside the prefix
-    ParentRecheck   \* upsert validates P again before using S's contents
+    ParentRecheck,  \* upsert validates P again before using S's contents
+    HandOverCheck   \* remove_chain validates P when it hands P's lock to S
 
 OBSOLETE == -1
 
@@ -179,7 +189,7 @@ RGetValidateP ==
     /\ UNCHANGED <<wvars, r_restarted>>
 
 RUpsertValidateP ==
-    /\ rpc = "at_p" /\ ReaderKind = "upsert"
+    /\ rpc = "at_p" /\ ReaderKind \in {"upsert", "remove_chain"}
     /\ rpc' = IF PValid THEN "lock_s" ELSE "restart"
     /\ UNCHANGED <<p_ver, s_ver, word, r_p_ver, r_s_ver, r_len_w, r_bytes_w,
                    r_expect, r_outcome>>
@@ -239,12 +249,13 @@ RIndexPastEnd ==
     /\ UNCHANGED <<wvars, r_restarted>>
 
 \* Before the descent acts on what it read at S (returns, continues, or hands
-\* it to an upsert lambda), it validates S.  An upsert with ParentRecheck
-\* validates P too.
+\* it to an upsert lambda), it validates S.  An upsert with ParentRecheck,
+\* and a chain remove with HandOverCheck, validate P too.
 RUse ==
     /\ rpc = "use"
     /\ LET ok == /\ s_ver = r_s_ver
                  /\ (ReaderKind = "upsert" /\ ParentRecheck) => PValid
+                 /\ (ReaderKind = "remove_chain" /\ HandOverCheck) => PValid
        IN rpc' = IF ok THEN "finished" ELSE "restart"
     /\ UNCHANGED <<p_ver, s_ver, word, r_p_ver, r_s_ver, r_len_w, r_bytes_w,
                    r_expect, r_outcome>>
@@ -303,6 +314,7 @@ TypeOK ==
     /\ word \in {"orig", "long", "short"}
     /\ wpc \in {"idle", "lock_s", "rewrite", "unlock", "done"}
     /\ w_kind \in {"collapse", "split"}
+    /\ ReaderKind \in {"get", "upsert", "remove_chain"}
     /\ rpc \in {"at_p", "validate_p", "lock_s", "read_len", "read_bytes",
                 "compare", "index_past_end", "use", "restart", "at_p_new",
                 "finished"}

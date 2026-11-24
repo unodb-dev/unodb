@@ -65,6 +65,10 @@ run_stage "Stage 11: OLCKeyViewChain (VIS + shared prefix)" OLCKeyViewChain.tla 
 run_stage "Stage 12: ARTTreeMaintenance (sequential tree)" ARTTreeMaintenance.tla ARTTreeMaintenance.cfg
 run_stage "Stage 13: OLCPrefixRewrite (get descent)" OLCPrefixRewrite.tla OLCPrefixRewrite.cfg
 run_stage "Stage 13: OLCPrefixRewrite (upsert descent)" OLCPrefixRewrite.tla OLCPrefixRewrite_Upsert.cfg
+run_stage "Stage 13: OLCPrefixRewrite (chain remove descent)" OLCPrefixRewrite.tla OLCPrefixRewrite_RemoveChain.cfg
+run_stage "Stage 14: OLCChainCutVsSplit (root chain cut)" OLCChainCutVsSplit.tla OLCChainCutVsSplit.cfg
+run_stage "Stage 14: OLCChainCutVsSplit (root shrink)" OLCChainCutVsSplit.tla OLCChainCutVsSplit_Shrink.cfg
+run_stage "Stage 15: OLCIterReseek (next() re-seek)" OLCIterReseek.tla OLCIterReseek.cfg
 run_stage "H10: OLCRemoveDescent (VIS)" OLCRemoveDescent.tla OLCRemoveDescent_VIS.cfg
 run_stage "H10: OLCRemoveDescent (no VIS)" OLCRemoveDescent.tla OLCRemoveDescent_NoVIS.cfg
 echo
@@ -74,6 +78,11 @@ run_bugdemo "Stage 13: collapse without survivor lock" OLCPrefixRewrite.tla OLCP
 run_bugdemo "Stage 13: prefix in two loads" OLCPrefixRewrite.tla OLCPrefixRewrite_BugDemo_SplitLoad.cfg
 run_bugdemo "Stage 13: key ends inside prefix" OLCPrefixRewrite.tla OLCPrefixRewrite_BugDemo_KeyEnd.cfg
 run_bugdemo "Stage 13: upsert without parent recheck" OLCPrefixRewrite.tla OLCPrefixRewrite_BugDemo_UpsertNoParentRecheck.cfg
+run_bugdemo "Stage 13: chain remove without hand-over check" OLCPrefixRewrite.tla OLCPrefixRewrite_BugDemo_RemoveChainNoHandOverCheck.cfg
+run_bugdemo "Stage 14: root chain cut without root check" OLCChainCutVsSplit.tla OLCChainCutVsSplit_BugDemo_NoRootCheck.cfg
+run_bugdemo "Stage 14: root shrink without root check" OLCChainCutVsSplit.tla OLCChainCutVsSplit_BugDemo_NoRootCheckShrink.cfg
+run_bugdemo "Stage 14: chain relock without link check" OLCChainCutVsSplit.tla OLCChainCutVsSplit_BugDemo_NoLinkCheck.cfg
+run_bugdemo "Stage 15: re-seek to the modified keybuf_" OLCIterReseek.tla OLCIterReseek_BugDemo.cfg
 run_bugdemo "H10: value bit read after last check" OLCRemoveDescent.tla OLCRemoveDescent_BugDemo.cfg
 echo
 if [ $FAIL -eq 0 ]; then
