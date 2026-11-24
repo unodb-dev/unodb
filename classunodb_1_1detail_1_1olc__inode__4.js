@@ -1,8 +1,9 @@
 var classunodb_1_1detail_1_1olc__inode__4 =
 [
-    [ "init", "classunodb_1_1detail_1_1olc__inode__4.html#af23c2911888581187e407ccfc374e41d", null ],
-    [ "init", "classunodb_1_1detail_1_1olc__inode__4.html#ac5f7e57665a92223281f5c92ffd6cbd7", null ],
-    [ "init", "classunodb_1_1detail_1_1olc__inode__4.html#ae80bbb414392297f5657b0bf3ed98ef6", null ],
-    [ "init", "classunodb_1_1detail_1_1olc__inode__4.html#ae6fdb4c217c0955f6c58e7db74be7940", null ],
-    [ "init", "classunodb_1_1detail_1_1olc__inode__4.html#a7425ab2ea131246a6c7639394d4087c9", null ]
+    [ "init", "classunodb_1_1detail_1_1olc__inode__4.html#a0abd4bfec958e128f2b3f25da0c2cb6b", null ],
+    [ "init", "classunodb_1_1detail_1_1olc__inode__4.html#a4f76291854c27e7126feed74e297f5df", null ],
+    [ "init", "classunodb_1_1detail_1_1olc__inode__4.html#aa90fba72ab9cfbef9d92ba29cab63aab", null ],
+    [ "init", "classunodb_1_1detail_1_1olc__inode__4.html#a47da9e406b4014f807b2e50d1753aeb2", null ],
+    [ "init", "classunodb_1_1detail_1_1olc__inode__4.html#a4b714b28d0f626eae3e63b6576f8a55d", null ],
+    [ "leave_last_child", "classunodb_1_1detail_1_1olc__inode__4.html#ace00731aca0539ff42d6ad4d23b79d5c", null ]
 ];

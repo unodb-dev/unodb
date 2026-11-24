@@ -1,8 +1,8 @@
 var classunodb_1_1olc__db_1_1iterator =
 [
-    [ "empty_key_buf", "structunodb_1_1olc__db_1_1iterator_1_1empty__key__buf.html", null ],
     [ "stack_entry", "structunodb_1_1olc__db_1_1iterator_1_1stack__entry.html", "structunodb_1_1olc__db_1_1iterator_1_1stack__entry" ],
-    [ "get_key_result", "classunodb_1_1olc__db_1_1iterator.html#a6d0b5ed947705c4d0ce4149205e53be6", null ],
+    [ "empty_key_buf", "structunodb_1_1olc__db_1_1iterator_1_1empty__key__buf.html", null ],
+    [ "get_key_result", "classunodb_1_1olc__db_1_1iterator.html#a682a070832cc7ec0c0476fe7fdcec38e", null ],
     [ "iterator", "classunodb_1_1olc__db_1_1iterator.html#a168dc074cdfa5413e7d3e7b965ec855e", null ],
     [ "cmp", "classunodb_1_1olc__db_1_1iterator.html#a89ff35889142eb419857ad67e80e7a55", null ],
     [ "current_node", "classunodb_1_1olc__db_1_1iterator.html#a32c4abe29d8bce8312da50c159a56a6e", null ],
@@ -20,6 +20,8 @@ var classunodb_1_1olc__db_1_1iterator =
     [ "push", "classunodb_1_1olc__db_1_1iterator.html#a1578d8e2cbf23c70458115d07a35a79b", null ],
     [ "push", "classunodb_1_1olc__db_1_1iterator.html#a8398ca302bd72f1f6e65644f1ab7c34e", null ],
     [ "push_leaf", "classunodb_1_1olc__db_1_1iterator.html#aaefd3182666bda4a655d0486df1361b3", null ],
+    [ "reseek_key", "classunodb_1_1olc__db_1_1iterator.html#a6fde52ed53a6afdbf00fbfde6d7f6e00", null ],
+    [ "save_reseek_key", "classunodb_1_1olc__db_1_1iterator.html#ad1da8048cd3c847230c5c8590ef1b64f", null ],
     [ "seek", "classunodb_1_1olc__db_1_1iterator.html#a8cd750013f9567dc6cb31fdcf280e197", null ],
     [ "test_only_stack", "classunodb_1_1olc__db_1_1iterator.html#a3b5ac2bde15e3d4af3b03ffdf81f0d8e", null ],
     [ "top", "classunodb_1_1olc__db_1_1iterator.html#ad59b584795e6e7b063f66bb965f3d79b", null ],
@@ -34,5 +36,6 @@ var classunodb_1_1olc__db_1_1iterator =
     [ "db_", "classunodb_1_1olc__db_1_1iterator.html#a8f453def307034758721fdb90b54c3b9", null ],
     [ "get_key_buf_", "classunodb_1_1olc__db_1_1iterator.html#a1a7287824bf7c97c1071f96a576132ac", null ],
     [ "keybuf_", "classunodb_1_1olc__db_1_1iterator.html#a6ea483c2b43a16dd8bc5bb18d46933e2", null ],
+    [ "reseek_key_buf_", "classunodb_1_1olc__db_1_1iterator.html#ab1c014223d24365133abe9a79a00c02a", null ],
     [ "stack_", "classunodb_1_1olc__db_1_1iterator.html#a559f2229853202eee57ac82fc16b0c93", null ]
 ];

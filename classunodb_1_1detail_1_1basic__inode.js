@@ -1,7 +1,7 @@
 var classunodb_1_1detail_1_1basic__inode =
 [
-    [ "bulk_load_tag", "structunodb_1_1detail_1_1basic__inode_1_1bulk__load__tag.html", null ],
     [ "single_child_tag", "structunodb_1_1detail_1_1basic__inode_1_1single__child__tag.html", null ],
+    [ "bulk_load_tag", "structunodb_1_1detail_1_1basic__inode_1_1bulk__load__tag.html", null ],
     [ "art_key_type", "classunodb_1_1detail_1_1basic__inode.html#a789345e4cacd1d9e179e0dcfe7aa064a", null ],
     [ "db_leaf_unique_ptr", "classunodb_1_1detail_1_1basic__inode.html#aa0833ddfc1e689707d1c487e2f34767c", null ],
     [ "db_type", "classunodb_1_1detail_1_1basic__inode.html#aada67e1b1be140b695c809ff1ebbeb44", null ],

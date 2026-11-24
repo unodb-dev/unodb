@@ -2,6 +2,7 @@ var namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03 =
 [
     [ "ARTKeyEncodeDecodeTest", "classanonymous__namespace_02test__key__encode__decode_8cpp_03_1_1ARTKeyEncodeDecodeTest.html", null ],
     [ "key_factory", "classanonymous__namespace_02test__key__encode__decode_8cpp_03_1_1key__factory.html", "classanonymous__namespace_02test__key__encode__decode_8cpp_03_1_1key__factory" ],
+    [ "compare", "namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03.html#a60d6d8602d9590be64fd0031611bbf07", null ],
     [ "do_encode_decode_double_test", "namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03.html#ac5d416baef898bc0539d9db6d8f6d1b6", null ],
     [ "do_encode_decode_float_test", "namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03.html#acbe62e62ca6e6e4f2f1e0de48f285721", null ],
     [ "do_encode_decode_lt_test", "namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03.html#a49042703c8970d6397e5aaa2ff02f710", null ],
@@ -28,5 +29,7 @@ var namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03 =
     [ "UNODB_TEST", "namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03.html#a47b1cb5ec26ade31add559780741faf1", null ],
     [ "UNODB_TEST", "namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03.html#aad7a5ffd7192458300bb032496ee3816", null ],
     [ "UNODB_TEST", "namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03.html#a8af5a084f97aa55c0a4c5a5437360417", null ],
-    [ "UNODB_TEST", "namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03.html#abcc3d19a00ae023b0b9c8e8a8350f28c", null ]
+    [ "UNODB_TEST", "namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03.html#abcc3d19a00ae023b0b9c8e8a8350f28c", null ],
+    [ "UNODB_TEST", "namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03.html#a96ee2b544477da64fefb50199e46b6bf", null ],
+    [ "UNODB_TEST", "namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03.html#ae920faf1fd049d180fa9c28d655dfd42", null ]
 ];

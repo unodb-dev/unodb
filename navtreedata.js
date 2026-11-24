@@ -86,7 +86,7 @@ var NAVTREE =
       [ "Namespace List", "namespaces.html", "namespaces_dup" ],
       [ "Namespace Members", "namespacemembers.html", [
         [ "All", "namespacemembers.html", "namespacemembers_dup" ],
-        [ "Functions", "namespacemembers_func.html", null ],
+        [ "Functions", "namespacemembers_func.html", "namespacemembers_func" ],
         [ "Variables", "namespacemembers_vars.html", null ],
         [ "Typedefs", "namespacemembers_type.html", null ],
         [ "Enumerations", "namespacemembers_enum.html", null ]
@@ -100,7 +100,7 @@ var NAVTREE =
       [ "Class Members", "functions.html", [
         [ "All", "functions.html", "functions_dup" ],
         [ "Functions", "functions_func.html", "functions_func" ],
-        [ "Variables", "functions_vars.html", null ],
+        [ "Variables", "functions_vars.html", "functions_vars" ],
         [ "Typedefs", "functions_type.html", null ],
         [ "Related Symbols", "functions_rela.html", null ]
       ] ]
@@ -120,20 +120,22 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"classunodb_1_1db.html#a6d9e134ceb0828edcfda76bab9e3d0ca",
-"classunodb_1_1detail_1_1basic__inode.html#ac0b0a49458da13290693abb4d81cb5c6",
-"classunodb_1_1detail_1_1basic__inode__4.html#af3348dec16bae6a32557d3b43f0006db",
-"classunodb_1_1detail_1_1basic__leaf_3_01no__key__tag_00_01Header_01_4.html#a4cd336e9dbe6de8d361b8fdb902fdc5a",
-"classunodb_1_1detail_1_1tree__depth.html#a46bb58c1b9e47eecee51003b6afc25a9",
-"classunodb_1_1olc__db.html#a07df0b7a4c643a33a74509ab5f61ca78",
-"classunodb_1_1optimistic__lock_1_1write__guard.html#a78944bd2ee4e432ec03659fbdcb4c435",
-"classunodb_1_1qsbr__ptr.html#a9a8253c746c2966aa12b391620d93963",
-"group__internal.html#gad564cfad4e209ae80d3f840512f12b84",
-"namespaceanonymous__namespace_02test__key__encode__decode_8cpp_03.html#acbe62e62ca6e6e4f2f1e0de48f285721",
-"structanonymous__namespace_02test__art__scan_8cpp_03_1_1scan__callback__exception.html",
-"structunodb_1_1detail_1_1olc__impl__helpers.html#a42c4bb8c2e56ceeb33d1bbe86de4dd15",
-"unionunodb_1_1detail_1_1key__prefix.html#a289084e3e46efbcba12228051a30c373"
+"classunodb_1_1db.html#ab44447a83db994122fd5f90e4d95c6fa",
+"classunodb_1_1detail_1_1basic__inode__16.html#a7df351453216d67056618e4315d251cb",
+"classunodb_1_1detail_1_1basic__inode__48.html#a71f2abecee53674821566d031b78c10c",
+"classunodb_1_1detail_1_1basic__node__ptr.html#acefc94edd4cb286796d99fd39015957f",
+"classunodb_1_1fake__read__critical__section.html#aef58c23a1eca1fac26c4a7ee1ff28b27",
+"classunodb_1_1olc__db.html#a4193d26fa18740f1e9fef6c56bf4a8f8",
+"classunodb_1_1optimistic__lock_1_1write__guard.html#aecfbd1a3a70115e656ad5ae57de13d8f",
+"classunodb_1_1qsbr__ptr.html#abd3a78cf23f7e31d7322b7f2a80e250e",
+"group__internal.html#ga64906efb65be8598a955afeb9ec61eae",
+"namespaceanonymous__namespace_02test__art__concurrency_8cpp_03.html#aa878c2caa6bd6be5f4076ce7b3da5b12",
+"namespacemembers_u.html",
+"structunodb_1_1detail_1_1basic__art__key.html#a2424f684fcd0eb8c9af138caaf4befe5",
+"structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01Storage_00_01CritSec_01_4.html",
+"unionunodb_1_1detail_1_1key__prefix__snapshot.html#aef125645bbaaf0270fea3ccaeddf1b7b"
 ];
 
-var SYNCONMSG = 'click to disable panel synchronisation';
-var SYNCOFFMSG = 'click to enable panel synchronisation';
+var SYNCONMSG = 'click to disable panel synchronization';
+var SYNCOFFMSG = 'click to enable panel synchronization';
+var LISTOFALLMEMBERS = 'List of all members';

@@ -1,6 +1,10 @@
 var namespaceanonymous__namespace_02test__art__key__view_8cpp_03 =
 [
     [ "ARTKeyViewCorrectnessTest", "classanonymous__namespace_02test__art__key__view_8cpp_03_1_1ARTKeyViewCorrectnessTest.html", null ],
+    [ "make_key", "namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html#abf71517691422736207f81ff49d07df8", null ],
+    [ "make_key_17", "namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html#a01e71cfb7de662ff659a9773ad266b60", null ],
+    [ "make_key_17_byte10", "namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html#a7f4170f7ee66bc431a27478846e65e11", null ],
+    [ "make_long_key", "namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html#a116e2c687984c7c43f976ebd0ecac58d", null ],
     [ "UNODB_TYPED_TEST", "namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html#a3c3f9a05ce521ced6f912ae7f8baaa1f", null ],
     [ "UNODB_TYPED_TEST", "namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html#a5fe26e8f41743920c6722be80e0159d2", null ],
     [ "UNODB_TYPED_TEST", "namespaceanonymous__namespace_02test__art__key__view_8cpp_03.html#afebfa02efbcecc613ea41acb6e32aa69", null ],

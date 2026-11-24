@@ -9,5 +9,6 @@ var searchData=
   ['value_5fbitmask_5ffield_3c_20false_2c_20std_3a_3aarray_3c_20t_2c_20n_20_3e_2c_20critsec_20_3e_6',['value_bitmask_field&lt; false, std::array&lt; T, N &gt;, CritSec &gt;',['../structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01std_1_1array_3_01T_00_01N_01_4_00_01CritSec_01_4.html',1,'unodb::detail']]],
   ['value_5fbitmask_5ffield_3c_20false_2c_20storage_2c_20critsec_20_3e_7',['value_bitmask_field&lt; false, Storage, CritSec &gt;',['../structunodb_1_1detail_1_1value__bitmask__field_3_01false_00_01Storage_00_01CritSec_01_4.html',1,'unodb::detail']]],
   ['version_5ftype_8',['version_type',['../classunodb_1_1optimistic__lock_1_1version__type.html',1,'unodb::optimistic_lock']]],
-  ['visitor_9',['visitor',['../classunodb_1_1visitor.html',1,'unodb']]]
+  ['visitor_9',['visitor',['../classunodb_1_1visitor.html',1,'unodb']]],
+  ['visitor_3c_20db_5ftype_3a_3aiterator_20_3e_10',['visitor&lt; db_type::iterator &gt;',['../classunodb_1_1visitor.html',1,'unodb']]]
 ];

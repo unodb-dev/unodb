@@ -1,12 +1,12 @@
 var classunodb_1_1detail_1_1basic__inode__256 =
 [
-    [ "bitmask_base", "classunodb_1_1detail_1_1basic__inode__256.html#adcd75ffb263093660b53c2e95d61c497", null ],
-    [ "critical_section_policy", "classunodb_1_1detail_1_1basic__inode__256.html#a21ea168423ff7639bf8423cd34d6caa8", null ],
-    [ "db_leaf_unique_ptr", "classunodb_1_1detail_1_1basic__inode__256.html#aa0833ddfc1e689707d1c487e2f34767c", null ],
-    [ "db_type", "classunodb_1_1detail_1_1basic__inode__256.html#aada67e1b1be140b695c809ff1ebbeb44", null ],
-    [ "node_ptr", "classunodb_1_1detail_1_1basic__inode__256.html#af470045f63b1888c85166604c3d8a6be", null ],
+    [ "bitmask_base", "classunodb_1_1detail_1_1basic__inode__256.html#a6a8efc8c4827ad0f35235e366f4a1f25", null ],
+    [ "critical_section_policy", "classunodb_1_1detail_1_1basic__inode__256.html#a4a53f950dc5bbd2228aa7691370e6abf", null ],
+    [ "db_leaf_unique_ptr", "classunodb_1_1detail_1_1basic__inode__256.html#a70f0919e2173a241352756769a4e2b5a", null ],
+    [ "db_type", "classunodb_1_1detail_1_1basic__inode__256.html#a1663ee78d939c891694bcb91bcd5ea82", null ],
+    [ "node_ptr", "classunodb_1_1detail_1_1basic__inode__256.html#aee7fd84eab624389e4f94ff09d872765", null ],
     [ "parent_class", "classunodb_1_1detail_1_1basic__inode__256.html#af53c633ab44e3bc7e0d81aac1d88b68d", null ],
-    [ "tree_depth_type", "classunodb_1_1detail_1_1basic__inode__256.html#aac1bb90f2042b839804342ab39b6866f", null ],
+    [ "tree_depth_type", "classunodb_1_1detail_1_1basic__inode__256.html#afe0e33e1fb2bded50d1f221575f67ba7", null ],
     [ "basic_inode_256", "classunodb_1_1detail_1_1basic__inode__256.html#a053ba373e6b7a89dc85b129a013c02df", null ],
     [ "basic_inode_256", "classunodb_1_1detail_1_1basic__inode__256.html#a65fec56b15829c10473a303f394f3760", null ],
     [ "basic_inode_256", "classunodb_1_1detail_1_1basic__inode__256.html#a59d8965eaa100770410b1d9952624beb", null ],

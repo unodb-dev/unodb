@@ -1,6 +1,8 @@
 var namespaces_dup =
 [
-    [ "anonymous_namespace{micro_benchmark.cpp}", "namespaceanonymous__namespace_02micro__benchmark_8cpp_03.html", null ],
+    [ "anonymous_namespace{micro_benchmark.cpp}", "namespaceanonymous__namespace_02micro__benchmark_8cpp_03.html", [
+      [ "decode", "namespaceanonymous__namespace_02micro__benchmark_8cpp_03.html#a4767a3d84c3944a80cbce658a012142e", null ]
+    ] ],
     [ "anonymous_namespace{micro_benchmark_bulk_load.cpp}", "namespaceanonymous__namespace_02micro__benchmark__bulk__load_8cpp_03.html", [
       [ "random_keys", "namespaceanonymous__namespace_02micro__benchmark__bulk__load_8cpp_03.html#a259bd7d45d9de2780829d89eacd2085f", null ],
       [ "sequential_keys", "namespaceanonymous__namespace_02micro__benchmark__bulk__load_8cpp_03.html#acaaed74562aaf797448f6a808cd4a058", null ]
@@ -18,7 +20,10 @@ var namespaces_dup =
     ] ],
     [ "anonymous_namespace{test_art.cpp}", "namespaceanonymous__namespace_02test__art_8cpp_03.html", "namespaceanonymous__namespace_02test__art_8cpp_03" ],
     [ "anonymous_namespace{test_art_allocator.cpp}", "namespaceanonymous__namespace_02test__art__allocator_8cpp_03.html", "namespaceanonymous__namespace_02test__art__allocator_8cpp_03" ],
-    [ "anonymous_namespace{test_art_bulk_load.cpp}", "namespaceanonymous__namespace_02test__art__bulk__load_8cpp_03.html", null ],
+    [ "anonymous_namespace{test_art_bulk_load.cpp}", "namespaceanonymous__namespace_02test__art__bulk__load_8cpp_03.html", [
+      [ "key_view", "namespaceanonymous__namespace_02test__art__bulk__load_8cpp_03.html#a1893d992823119cb454026ee0c85d024", null ],
+      [ "value_view", "namespaceanonymous__namespace_02test__art__bulk__load_8cpp_03.html#afdf6adb9d48f5d2227c309f98b1ff936", null ]
+    ] ],
     [ "anonymous_namespace{test_art_concurrency.cpp}", "namespaceanonymous__namespace_02test__art__concurrency_8cpp_03.html", "namespaceanonymous__namespace_02test__art__concurrency_8cpp_03" ],
     [ "anonymous_namespace{test_art_fuzz_deepstate.cpp}", "namespaceanonymous__namespace_02test__art__fuzz__deepstate_8cpp_03.html", null ],
     [ "anonymous_namespace{test_art_heap.cpp}", "namespaceanonymous__namespace_02test__art__heap_8cpp_03.html", "namespaceanonymous__namespace_02test__art__heap_8cpp_03" ],

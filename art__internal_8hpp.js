@@ -1,13 +1,13 @@
 var art__internal_8hpp =
 [
-    [ "unodb::detail::basic_art_key< KeyType >", "structunodb_1_1detail_1_1basic__art__key.html", "structunodb_1_1detail_1_1basic__art__key" ],
-    [ "unodb::detail::tree_depth< ArtKey >", "classunodb_1_1detail_1_1tree__depth.html", "classunodb_1_1detail_1_1tree__depth" ],
-    [ "unodb::detail::basic_db_leaf_deleter< Db >", "classunodb_1_1detail_1_1basic__db__leaf__deleter.html", "classunodb_1_1detail_1_1basic__db__leaf__deleter" ],
-    [ "unodb::detail::basic_db_inode_deleter< INode, Db >", "classunodb_1_1detail_1_1basic__db__inode__deleter.html", "classunodb_1_1detail_1_1basic__db__inode__deleter" ],
-    [ "unodb::detail::basic_node_ptr< Header >", "classunodb_1_1detail_1_1basic__node__ptr.html", "classunodb_1_1detail_1_1basic__node__ptr" ],
+    [ "unodb::detail::basic_art_key&lt; KeyType &gt;", "structunodb_1_1detail_1_1basic__art__key.html", "structunodb_1_1detail_1_1basic__art__key" ],
+    [ "unodb::detail::tree_depth&lt; ArtKey &gt;", "classunodb_1_1detail_1_1tree__depth.html", "classunodb_1_1detail_1_1tree__depth" ],
+    [ "unodb::detail::basic_db_leaf_deleter&lt; Db &gt;", "classunodb_1_1detail_1_1basic__db__leaf__deleter.html", "classunodb_1_1detail_1_1basic__db__leaf__deleter" ],
+    [ "unodb::detail::basic_db_inode_deleter&lt; INode, Db &gt;", "classunodb_1_1detail_1_1basic__db__inode__deleter.html", "classunodb_1_1detail_1_1basic__db__inode__deleter" ],
+    [ "unodb::detail::basic_node_ptr&lt; Header &gt;", "classunodb_1_1detail_1_1basic__node__ptr.html", "classunodb_1_1detail_1_1basic__node__ptr" ],
     [ "unodb::detail::key_buffer", "classunodb_1_1detail_1_1key__buffer.html", "classunodb_1_1detail_1_1key__buffer" ],
-    [ "basic_db_leaf_unique_ptr", "art__internal_8hpp.html#aeb00b329c3bf0c46a435db94b85df28d", null ],
-    [ "compare", "art__internal_8hpp.html#a749463245ed07a65e2df960ac1beb847", null ],
-    [ "compare", "art__internal_8hpp.html#a60d6d8602d9590be64fd0031611bbf07", null ],
-    [ "get_u64", "art__internal_8hpp.html#a7d9586a5c7fc84c4bbc05b716fd1ce03", null ]
+    [ "unodb::detail::basic_db_leaf_unique_ptr", "namespaceunodb_1_1detail.html#a209c1d46a2b0f54d23098263ab139b80", null ],
+    [ "unodb::detail::compare", "namespaceunodb_1_1detail.html#a749463245ed07a65e2df960ac1beb847", null ],
+    [ "unodb::detail::compare", "namespaceunodb_1_1detail.html#a60d6d8602d9590be64fd0031611bbf07", null ],
+    [ "unodb::detail::get_u64", "namespaceunodb_1_1detail.html#a7d9586a5c7fc84c4bbc05b716fd1ce03", null ]
 ];

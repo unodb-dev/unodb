@@ -1,10 +1,16 @@
 var namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03 =
 [
     [ "ARTKeyViewFullChainTest", "classanonymous__namespace_02test__art__key__view__full__chain_8cpp_03_1_1ARTKeyViewFullChainTest.html", "classanonymous__namespace_02test__art__key__view__full__chain_8cpp_03_1_1ARTKeyViewFullChainTest" ],
-    [ "scan_direction", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#a9efeb298173c8c2f218de6c6c7000fbb", [
-      [ "forward", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#a9efeb298173c8c2f218de6c6c7000fbba965dbaac085fc891bfbbd4f9d145bbc8", null ],
-      [ "reverse", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#a9efeb298173c8c2f218de6c6c7000fbba4d9c2073afa3c2abb817dceb22c34de6", null ]
-    ] ],
+    [ "scan_direction", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#a9efeb298173c8c2f218de6c6c7000fbb", null ],
+    [ "copy_key", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#a4ed9339b3d87eaf3deaa58a450f72c2f", null ],
+    [ "make_key", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#abf71517691422736207f81ff49d07df8", null ],
+    [ "make_key_11", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#aea9936947d40c69830195a40db3038fe", null ],
+    [ "make_key_17", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#a01e71cfb7de662ff659a9773ad266b60", null ],
+    [ "make_key_17_byte10", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#a7f4170f7ee66bc431a27478846e65e11", null ],
+    [ "make_key_26", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#af622e3324547981f174932f6c2d94675", null ],
+    [ "make_key_34", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#a8c2eba0e89e7332ac96686d916564850", null ],
+    [ "make_long_key", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#a116e2c687984c7c43f976ebd0ecac58d", null ],
+    [ "make_short_key", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#aaa9fed18dcad48dfb68b91ca2c7e00de", null ],
     [ "UNODB_TYPED_TEST", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#a3ab354559466837563bf48a657c4b011", null ],
     [ "UNODB_TYPED_TEST", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#aac0d8d8c97e0b02a38f89c528ed00e7b", null ],
     [ "UNODB_TYPED_TEST", "namespaceanonymous__namespace_02test__art__key__view__full__chain_8cpp_03.html#a4f0444e4fe0c8f1c32be86c5dc2e7c08", null ],

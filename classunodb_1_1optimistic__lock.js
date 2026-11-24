@@ -1,8 +1,8 @@
 var classunodb_1_1optimistic__lock =
 [
+    [ "version_type", "classunodb_1_1optimistic__lock_1_1version__type.html", "classunodb_1_1optimistic__lock_1_1version__type" ],
     [ "atomic_version_type", "classunodb_1_1optimistic__lock_1_1atomic__version__type.html", "classunodb_1_1optimistic__lock_1_1atomic__version__type" ],
     [ "read_critical_section", "classunodb_1_1optimistic__lock_1_1read__critical__section.html", "classunodb_1_1optimistic__lock_1_1read__critical__section" ],
-    [ "version_type", "classunodb_1_1optimistic__lock_1_1version__type.html", "classunodb_1_1optimistic__lock_1_1version__type" ],
     [ "write_guard", "classunodb_1_1optimistic__lock_1_1write__guard.html", "classunodb_1_1optimistic__lock_1_1write__guard" ],
     [ "optimistic_lock", "classunodb_1_1optimistic__lock.html#a0733ad84e6f45d73043b661275f60b2a", null ],
     [ "~optimistic_lock", "classunodb_1_1optimistic__lock.html#a20e74ba469d7a88d080c4f379fa87885", null ],
@@ -15,6 +15,7 @@ var classunodb_1_1optimistic__lock =
     [ "is_write_locked", "classunodb_1_1optimistic__lock.html#ad9696be3421cb1dd27566cfb352d870c", null ],
     [ "rehydrate_read_lock", "classunodb_1_1optimistic__lock.html#a3d3bc8fc5293073acb7f1dc9b8f7080a", null ],
     [ "try_read_lock", "classunodb_1_1optimistic__lock.html#a557b207dfd8a0d42a63e27dd34a05db0", null ],
+    [ "try_read_lock_no_wait", "classunodb_1_1optimistic__lock.html#aba42020970598e4c5921e92b391c456f", null ],
     [ "try_read_unlock", "classunodb_1_1optimistic__lock.html#a427d68606712d24c073e8f2c13264f55", null ],
     [ "try_upgrade_to_write_lock", "classunodb_1_1optimistic__lock.html#a462a9f65f786f790dbbc1b8af92a9e37", null ],
     [ "write_unlock", "classunodb_1_1optimistic__lock.html#a0f579be6e903ef98b1fa9a3122ee636b", null ],

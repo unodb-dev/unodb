@@ -2,8 +2,8 @@ var classunodb_1_1test_1_1tree__verifier =
 [
     [ "comparator", "structunodb_1_1test_1_1tree__verifier_1_1comparator.html", null ],
     [ "empty_heap_tag", "structunodb_1_1test_1_1tree__verifier_1_1empty__heap__tag.html", null ],
-    [ "ikey_type", "classunodb_1_1test_1_1tree__verifier.html#afa56f531a5ce52d2b664ce1f2abdf993", null ],
-    [ "key_wrapper", "classunodb_1_1test_1_1tree__verifier.html#a6c5c1e7a508a504352158a4765c15dc7", null ],
+    [ "ikey_type", "classunodb_1_1test_1_1tree__verifier.html#ab26c8ad080d274ba06d5f5515e473b6e", null ],
+    [ "key_wrapper", "classunodb_1_1test_1_1tree__verifier.html#aeb83b821b210a379cfcd2480aba2b89f", null ],
     [ "u64", "classunodb_1_1test_1_1tree__verifier.html#aa7373b14dd50b75e137b990048017f44", null ],
     [ "assert_dump_does_not_crash", "classunodb_1_1test_1_1tree__verifier.html#af43d5125bf8421626da6e07a7a08fc3e", null ],
     [ "check_present_values", "classunodb_1_1test_1_1tree__verifier.html#aa5272379cd23253f105135a5a448d2f2", null ],

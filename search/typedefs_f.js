@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['size_5ftype_0',['size_type',['../classunodb_1_1key__encoder.html#a09a289c46cce6e9fa710bcad5aba9c0f',1,'unodb::key_encoder']]],
-  ['smaller_5fderived_5ftype_1',['smaller_derived_type',['../classunodb_1_1detail_1_1basic__inode.html#a21ee048102d910e4cb8b4b02f3ad0582',1,'unodb::detail::basic_inode']]],
-  ['stack_5fentry_2',['stack_entry',['../classunodb_1_1db_1_1iterator.html#a64f4a1355ccf658cc9037e747b4af4a5',1,'unodb::db::iterator']]]
+  ['read_5fcritical_5fsection_0',['read_critical_section',['../structunodb_1_1detail_1_1basic__art__policy.html#a7194c552f09724d7198b25128062e1e8',1,'unodb::detail::basic_art_policy::read_critical_section'],['../classunodb_1_1detail_1_1basic__inode__impl.html#aa4af9266f513dc05ed7e1a4bc20b8816',1,'unodb::detail::basic_inode_impl::read_critical_section']]],
+  ['reference_1',['reference',['../classunodb_1_1qsbr__ptr.html#a193c5790a5afb0e7d4910a3ec678c63f',1,'unodb::qsbr_ptr']]]
 ];

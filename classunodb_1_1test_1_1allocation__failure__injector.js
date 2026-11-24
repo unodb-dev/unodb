@@ -6,5 +6,5 @@ var classunodb_1_1test_1_1allocation__failure__injector =
     [ "reset", "classunodb_1_1test_1_1allocation__failure__injector.html#a229f390699b118f4f2a35d7bfdfc617f", null ],
     [ "allocation_counter", "classunodb_1_1test_1_1allocation__failure__injector.html#a1504ebd7361714e5c1a1ad88566049ac", null ],
     [ "fail_on_nth_allocation_", "classunodb_1_1test_1_1allocation__failure__injector.html#aa2a7ef67aa270a2a8a50782040b5c90d", null ],
-    [ "paused", "classunodb_1_1test_1_1allocation__failure__injector.html#aa4550e186361238a556d817a5ce0b1c5", null ]
+    [ "paused", "classunodb_1_1test_1_1allocation__failure__injector.html#a3ec55200fa79dbf2db79e3e67e905f8b", null ]
 ];
