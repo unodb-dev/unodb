@@ -16,7 +16,7 @@
 \*      prefix (word "short").  try_insert / try_upsert, the
 \*      "shared_prefix_length < key_prefix_length" arms.
 \*
-\* One descent, for a key stored below S, reached S through P, so it is at S's old depth and the only
+\* One descent reached S through P, so it is at S's old depth and the only
 \* prefix word that is correct there is "orig".  ReaderKind orders its steps
 \* as one of the code's descents does:
 \*   "get":    read-lock S, then validate P (try_get, try_remove_key_view,
@@ -50,6 +50,20 @@
 \* (key_matches_prefix_to_end(), "Check for a key that ends inside an OLC
 \* inode's key prefix") the last case then indexes the key past its end.
 \*
+\* The key is stored below S or, with KeyIsPrefix, absent: a strict prefix
+\* of the keys below S that ends inside S's correct prefix.  That second
+\* case is dc47727e's sequential trigger, a get, remove or scan_from() of
+\* such a key with no writer at all ("none"); an insert or upsert of it is
+\* a caller error that the code asserts on, so it is not modeled for them.
+\* With KeyEndCheck the descent reports the key absent there; without it
+\* the descent indexes the key past its end.
+\*
+\* Before the fixes, the descents already validated P on the paths that
+\* report a miss or split (a mismatch, and a key that ends in the prefix):
+\* try_remove_key_view's mismatch arm unlocks P with a check, and the
+\* insert and upsert split arms upgrade P's read lock.  ParentRecheck and
+\* HandOverCheck gate only the paths that act on a match.
+\*
 \* The bytes compared are abstract: which word was read, and which outcome
 \* the comparison had, not the bytes themselves.  A restarted descent starts
 \* over from above P; once the writer has finished it reaches S at S's new
@@ -71,12 +85,13 @@ EXTENDS Integers
 
 CONSTANTS
     ReaderKind,     \* "get" or "upsert"
-    Writers,        \* subset of {"collapse", "split"}
+    Writers,        \* subset of {"collapse", "split"}, or {"none"}
     SurvivorLock,   \* collapse write-locks S
     SingleLoad,     \* prefix length and bytes from one load
     KeyEndCheck,    \* check for a key that ends inside the prefix
     ParentRecheck,  \* upsert validates P again before using S's contents
-    HandOverCheck   \* remove_chain validates P when it hands P's lock to S
+    HandOverCheck,  \* remove_chain validates P when it hands P's lock to S
+    KeyIsPrefix     \* the key is absent: a strict prefix of keys below S
 
 OBSOLETE == -1
 
@@ -120,7 +135,7 @@ Init ==
 \* WRITER
 
 WLockP ==
-    /\ wpc = "idle"
+    /\ wpc = "idle" /\ w_kind # "none"
     /\ Even(p_ver)
     /\ p_ver' = p_ver + 1
     /\ wpc' = "lock_s"
@@ -225,8 +240,10 @@ RReadBytes ==
 
 \* Comparing the key with the prefix.  With the correct word the key matches;
 \* with a rewritten one any outcome its length allows is possible.
+Correct == IF KeyIsPrefix THEN "key_end" ELSE "match"
+
 Outcomes(w) ==
-    IF w = r_expect THEN {"match"}
+    IF w = r_expect THEN {Correct}
     ELSE IF w = "long" THEN {"mismatch", "wrong_match", "key_end"}
     ELSE {"mismatch", "wrong_match"}
 
@@ -249,13 +266,17 @@ RIndexPastEnd ==
     /\ UNCHANGED <<wvars, r_restarted>>
 
 \* Before the descent acts on what it read at S (returns, continues, or hands
-\* it to an upsert lambda), it validates S.  An upsert with ParentRecheck,
-\* and a chain remove with HandOverCheck, validate P too.
+\* it to an upsert lambda), it validates S.  An upsert and a chain remove
+\* validate P too on a miss or split, and on a match with ParentRecheck or
+\* HandOverCheck respectively.
 RUse ==
     /\ rpc = "use"
-    /\ LET ok == /\ s_ver = r_s_ver
-                 /\ (ReaderKind = "upsert" /\ ParentRecheck) => PValid
-                 /\ (ReaderKind = "remove_chain" /\ HandOverCheck) => PValid
+    /\ LET actsOnMatch == r_outcome \in {"match", "wrong_match"}
+           checksP == \/ ReaderKind = "upsert" /\ (~actsOnMatch \/ ParentRecheck)
+                      \/ ReaderKind = "remove_chain"
+                         /\ (~actsOnMatch \/ HandOverCheck)
+           ok == /\ s_ver = r_s_ver
+                 /\ checksP => PValid
        IN rpc' = IF ok THEN "finished" ELSE "restart"
     /\ UNCHANGED <<p_ver, s_ver, word, r_p_ver, r_s_ver, r_len_w, r_bytes_w,
                    r_expect, r_outcome>>
@@ -266,7 +287,7 @@ RUse ==
 \* depth after the rewrite.
 RRestart ==
     /\ rpc = "restart"
-    /\ wpc = "done"
+    /\ wpc \in {"done"}
     /\ rpc' = "at_p_new"
     /\ r_expect' = word
     /\ r_restarted' = TRUE
@@ -285,7 +306,7 @@ RRestartAtS ==
 
 \* Both done: the behavior ends.
 Terminated ==
-    /\ rpc = "finished" /\ wpc = "done"
+    /\ rpc = "finished" /\ (wpc = "done" \/ w_kind = "none")
     /\ UNCHANGED vars
 
 -----------------------------------------------------------------------------
@@ -306,14 +327,14 @@ NoTornPrefix == rpc = "compare" => r_len_w = r_bytes_w
 NoKeyOverrun == rpc # "index_past_end"
 
 NoStaleDepthResult ==
-    rpc = "finished" => (r_bytes_w = r_expect /\ r_outcome = "match")
+    rpc = "finished" => (r_bytes_w = r_expect /\ r_outcome = Correct)
 
 TypeOK ==
     /\ p_ver \in {OBSOLETE} \cup 0..3
     /\ s_ver \in 0..3
     /\ word \in {"orig", "long", "short"}
     /\ wpc \in {"idle", "lock_s", "rewrite", "unlock", "done"}
-    /\ w_kind \in {"collapse", "split"}
+    /\ w_kind \in {"collapse", "split", "none"}
     /\ ReaderKind \in {"get", "upsert", "remove_chain"}
     /\ rpc \in {"at_p", "validate_p", "lock_s", "read_len", "read_bytes",
                 "compare", "index_past_end", "use", "restart", "at_p_new",
