@@ -68,6 +68,8 @@ run_stage "Stage 13: OLCPrefixRewrite (upsert descent)" OLCPrefixRewrite.tla OLC
 run_stage "Stage 13: OLCPrefixRewrite (chain remove descent)" OLCPrefixRewrite.tla OLCPrefixRewrite_RemoveChain.cfg
 run_stage "Stage 14: OLCChainCutVsSplit (root chain cut)" OLCChainCutVsSplit.tla OLCChainCutVsSplit.cfg
 run_stage "Stage 14: OLCChainCutVsSplit (root shrink)" OLCChainCutVsSplit.tla OLCChainCutVsSplit_Shrink.cfg
+run_stage "Stage 14: OLCChainCutVsSplit (inner shrink)" OLCChainCutVsSplit.tla OLCChainCutVsSplit_InnerShrink.cfg
+run_stage "Stage 13: OLCPrefixRewrite (absent prefix key)" OLCPrefixRewrite.tla OLCPrefixRewrite_AbsentPrefixKey.cfg
 run_stage "Stage 15: OLCIterReseek (next() re-seek)" OLCIterReseek.tla OLCIterReseek.cfg
 run_stage "H10: OLCRemoveDescent (VIS)" OLCRemoveDescent.tla OLCRemoveDescent_VIS.cfg
 run_stage "H10: OLCRemoveDescent (no VIS)" OLCRemoveDescent.tla OLCRemoveDescent_NoVIS.cfg
@@ -81,9 +83,21 @@ run_bugdemo "Stage 13: upsert without parent recheck" OLCPrefixRewrite.tla OLCPr
 run_bugdemo "Stage 13: chain remove without hand-over check" OLCPrefixRewrite.tla OLCPrefixRewrite_BugDemo_RemoveChainNoHandOverCheck.cfg
 run_bugdemo "Stage 14: root chain cut without root check" OLCChainCutVsSplit.tla OLCChainCutVsSplit_BugDemo_NoRootCheck.cfg
 run_bugdemo "Stage 14: root shrink without root check" OLCChainCutVsSplit.tla OLCChainCutVsSplit_BugDemo_NoRootCheckShrink.cfg
+run_bugdemo "Stage 14: pre-fix chain cut, both checks off" OLCChainCutVsSplit.tla OLCChainCutVsSplit_BugDemo_PreFix.cfg
+run_bugdemo "Stage 13: absent key ending inside a prefix" OLCPrefixRewrite.tla OLCPrefixRewrite_BugDemo_KeyEndAbsent.cfg
 run_bugdemo "Stage 14: chain relock without link check" OLCChainCutVsSplit.tla OLCChainCutVsSplit_BugDemo_NoLinkCheck.cfg
 run_bugdemo "Stage 15: re-seek to the modified keybuf_" OLCIterReseek.tla OLCIterReseek_BugDemo.cfg
 run_bugdemo "H10: value bit read after last check" OLCRemoveDescent.tla OLCRemoveDescent_BugDemo.cfg
+echo
+echo "=== Reachability guards (each must be violated, or its config is vacuous) ==="
+run_bugdemo "H10: insert restarts the reader" OLCRemoveDescent.tla OLCRemoveDescent_Reach.cfg
+run_bugdemo "Stage 13: get catches a stale compare" OLCPrefixRewrite.tla OLCPrefixRewrite_Reach.cfg
+run_bugdemo "Stage 13: upsert catches a stale compare" OLCPrefixRewrite.tla OLCPrefixRewrite_Upsert_Reach.cfg
+run_bugdemo "Stage 13: chain remove catches a stale compare" OLCPrefixRewrite.tla OLCPrefixRewrite_RemoveChain_Reach.cfg
+run_bugdemo "Stage 14: root chain cut restarts after a split" OLCChainCutVsSplit.tla OLCChainCutVsSplit_Reach.cfg
+run_bugdemo "Stage 14: root shrink restarts after a split" OLCChainCutVsSplit.tla OLCChainCutVsSplit_Shrink_Reach.cfg
+run_bugdemo "Stage 14: inner shrink restarts after a split" OLCChainCutVsSplit.tla OLCChainCutVsSplit_InnerShrink_Reach.cfg
+run_bugdemo "Stage 15: next() re-seeks" OLCIterReseek.tla OLCIterReseek_Reach.cfg
 echo
 if [ $FAIL -eq 0 ]; then
 	echo -e "${GREEN}All stages passed!${NC}"

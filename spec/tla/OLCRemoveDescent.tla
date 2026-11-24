@@ -285,6 +285,10 @@ StateConstraint == version <= MaxVersion
 \* SAFETY
 
 \* Reader only dereferences when it loaded a real pointer.
+\* Reachability guard, which OLCRemoveDescent_Reach.cfg must violate: an
+\* insert makes the re-check after the value bit restart the reader.
+ReachInsertRestart == ~(rpc = "restart" /\ w_kind = "insert")
+
 NoDereferenceNonPointer ==
     rpc = "deref" => r_child = "PTR"
 

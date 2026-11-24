@@ -30,11 +30,19 @@
 \*   "root_shrink": R is a min-size inode with other children: the cut-point
 \*                  parent.  Step 4.1 locks the root pointer, and Step 4.2
 \*                  replaces R in it with R shrunk by the chain's entry.
+\*   "inner_shrink": as root_shrink, but R is below the root, under an inode
+\*                  G = stk[-1].  The variables root and rp_ver then stand
+\*                  for G's slot for R and G's version.  Step 4.1 locks G by
+\*                  upgrading it at its descent version (rehydrate_read_lock
+\*                  and check()), so a split of R, which moves G, restarts the
+\*                  cut without any content check: the case that shows why
+\*                  the root pointer, which has no descent version, needed
+\*                  RootCheck.
 \*
 \* One insert, of a key K that splits a prefix:
 \*   "split_root": K diverges inside R's prefix.  The insert upgrades the
-\*                 root pointer and R, installs N (children R and K) as root,
-\*                 and shortens R's prefix.
+\*                 root pointer (G in inner_shrink) and R, installs N
+\*                 (children R and K) in it, and shortens R's prefix.
 \*   "split_c1":   K diverges inside C1's prefix.  It upgrades R and C1,
 \*                 points R's slot for C1 at Z (children C1 and K), and
 \*                 shortens C1's prefix.
@@ -53,8 +61,10 @@
 \* the chain discards Z if R's slot pointed to Z.  The insert's key K must not
 \* be discarded.
 \*
-\* OLCChainCutVsSplit.cfg and OLCChainCutVsSplit_Shrink.cfg pass with both
-\* checks.  OLCChainCutVsSplit_BugDemo_NoRootCheck.cfg (root_chain) and
+\* OLCChainCutVsSplit.cfg, OLCChainCutVsSplit_Shrink.cfg and
+\* OLCChainCutVsSplit_InnerShrink.cfg pass with both checks; InnerShrink
+\* passes without RootCheck too.  OLCChainCutVsSplit_BugDemo_PreFix.cfg turns
+\* both checks off, as in the pre-fix code.  OLCChainCutVsSplit_BugDemo_NoRootCheck.cfg (root_chain) and
 \* OLCChainCutVsSplit_BugDemo_NoRootCheckShrink.cfg (root_shrink) drop
 \* RootCheck, and OLCChainCutVsSplit_BugDemo_NoLinkCheck.cfg drops LinkCheck;
 \* each SHOULD violate NoLostInsert.
@@ -62,7 +72,7 @@
 EXTENDS Integers
 
 CONSTANTS
-    Shape,        \* "root_chain" or "root_shrink"
+    Shape,        \* "root_chain", "root_shrink" or "inner_shrink"
     Inserts,      \* subset of {"split_root", "split_c1"}
     LinkCheck,    \* re-read moved nodes only with the link check (Step 3)
     RootCheck,    \* lock the root pointer only while it points to R
@@ -154,12 +164,14 @@ RStep2R ==
     /\ UNCHANGED ins
 
 \* Step 3 at cut_level 0, or Step 4.1 for a shrinking root cut-point parent:
-\* read-lock the root pointer, check it with RootCheck, upgrade.
+\* read-lock the root pointer, check it with RootCheck, upgrade.  For
+\* inner_shrink, Step 4.1 upgrades G at its descent version instead.
 RLockRootPointer ==
     /\ rpc \in {"step3", "gp_root"}
     /\ (rpc = "step3" => cut_level = 0)
-    /\ Even(rp_ver)
-    /\ IF RootCheck /\ root # "R"
+    /\ Shape = "inner_shrink" \/ Even(rp_ver)
+    /\ IF IF Shape = "inner_shrink" THEN rp_ver # DescentVer
+          ELSE RootCheck /\ root # "R"
        THEN /\ rpc' = "restart" /\ UNCHANGED <<rp_ver, r_held_rp>>
        ELSE /\ rp_ver' = rp_ver + 1 /\ r_held_rp' = TRUE /\ rpc' = "cut"
     /\ UNCHANGED <<root, r_ver, c1_ver, r_slot, key_at, lost, r_held_c1,
@@ -310,6 +322,10 @@ StateConstraint ==
 
 -----------------------------------------------------------------------------
 \* SAFETY
+
+\* Reachability guard, which OLCChainCutVsSplit*_Reach.cfg must violate: a
+\* split completes and the cut restarts instead of losing its key.
+ReachRestartAfterSplit == ~(rpc = "restarted" /\ key_at \in {"N", "Z"})
 
 NoLostInsert == ~lost
 

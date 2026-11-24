@@ -8,7 +8,8 @@
 \* Remover: locks chain1, then chain0 (bottom-up), then evaluates parent.
 \* Inserter: can add a child to chain0 OR chain1, breaking membership.  No
 \* other remove runs, and no insert replaces a child link, so the chain links
-\* the code checks in Step 3 always hold here.  c0_c1_idx tracks chain1's
+\* the code checks in Step 3 always hold here; Stage 14
+\* (OLCChainCutVsSplit) models a prefix split that replaces one.  c0_c1_idx tracks chain1's
 \* slot among chain0's children: the cut_level-moves-DOWN insert below moves
 \* chain1 to the second slot whenever the new key byte sorts before chain1's.
 \* A partial cut must cut at chain1's slot as of the version at which the

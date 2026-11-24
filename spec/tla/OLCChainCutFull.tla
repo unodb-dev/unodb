@@ -21,7 +21,8 @@
 \* preventing shrink, etc.).  No other remove runs, and no insert replaces a
 \* child link or installs a new root above gp, so the links the code checks in
 \* Step 3 always hold, and the root pointer it checks before rewriting the root
-\* always targets gp here.  Children are counted, not ordered, so a cut at an
+\* always targets gp here; Stage 14 (OLCChainCutVsSplit) models the prefix
+\* splits that break both.  Children are counted, not ordered, so a cut at an
 \* index that a concurrent insert shifted looks the same here as a cut of the
 \* chain; Stage 9 models such an index.  RCut never replaces a shrinking
 \* cut-point parent in its own parent (gp at P2, the root pointer at P3): it

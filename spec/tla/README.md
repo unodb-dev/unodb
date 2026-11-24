@@ -38,6 +38,16 @@ link to the node below, and that the root pointer is locked only while it
 points to `stk[0]`, for a root chain cut and a shrinking root cut-point
 parent.  Its three bug demonstrations each lose the inserted key.
 
+Stage 14 also has an inner-shrink shape, a cut-point parent below the root
+whose grandparent the cut upgrades at its descent version, which restarts
+the cut with no content check; it shows why the root pointer, which has no
+descent version, needed one.
+
+Each new passing configuration has a `*_Reach.cfg` that must be violated:
+it shows that the configuration still reaches the race its fix handles.
+`run-all-stages.sh` runs the bug demonstrations and these guards after the
+stages.
+
 Stage 15 models `next()` after a failed step for key_view keys without a
 heap.  A step writes bytes into `keybuf_` before checks that can fail, and
 the bug demonstration re-seeks to that `keybuf_`, as the code did before it

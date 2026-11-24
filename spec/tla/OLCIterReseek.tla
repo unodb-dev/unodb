@@ -277,6 +277,10 @@ Spec == Init /\ [][Next]_vars
 -----------------------------------------------------------------------------
 \* SAFETY
 
+\* Reachability guard, which OLCIterReseek_Reach.cfg must violate: a step
+\* fails and next() re-seeks.
+ReachReseek == ipc # "reseek"
+
 Monotonic == ipc = "done" => (e = END \/ Lt(cur0, e))
 
 NoSkipStable ==

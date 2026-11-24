@@ -322,6 +322,10 @@ Spec == Init /\ [][Step]_vars
 -----------------------------------------------------------------------------
 \* SAFETY
 
+\* Reachability guards, which the OLCPrefixRewrite*_Reach.cfg must violate:
+\* a stale compare that the descent catches and restarts on.
+ReachStaleRestart == ~(rpc = "restart" /\ r_bytes_w # "orig")
+
 NoTornPrefix == rpc = "compare" => r_len_w = r_bytes_w
 
 NoKeyOverrun == rpc # "index_past_end"
