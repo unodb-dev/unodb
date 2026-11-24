@@ -19,6 +19,20 @@ Formal models verifying the concurrency protocol for the OLC
 | 10    | OLCChainCutFull    | Root shrink and cascade              |
 | 11    | OLCKeyViewChain    | VIS with shared prefix (key_view)    |
 | 12    | ARTTreeMaintenance | Sequential tree structure invariants |
+| 13    | OLCPrefixRewrite   | Descent vs in-place prefix rewrite   |
+| H10   | OLCRemoveDescent   | Value bit vs pointer in remove       |
+
+Stage 13 models a descent at an inode's old depth while an I4 collapse or a
+prefix split rewrites that inode's key prefix in place.  It checks the
+survivor lock, the single-load prefix read, the check for a key that ends
+inside a prefix, and an upsert's parent recheck; each has a
+`OLCPrefixRewrite_BugDemo_*.cfg` that drops it and violates an invariant.
+
+H10 models a remove descent that reads a child's value bit after its check,
+against a concurrent remove or an insert that rewrites the slot and its bit
+in separate stores.  `OLCRemoveDescent_BugDemo.cfg` drops the re-check after
+the bit read, as `try_remove_key_view`'s chain-I4 branch did, and violates
+`NoDereferenceNonPointer`.
 
 ## Running
 

@@ -30,6 +30,25 @@ run_stage() {
 	fi
 }
 
+# Run a bug demonstration, which must violate an invariant.
+run_bugdemo() {
+	local name="$1" tla="$2" cfg="$3"
+	printf "  %-50s " "$name"
+	rm -rf /tmp/tlc-run
+	local output
+	output=$(timeout 300 java -Xmx4g -XX:+UseParallelGC \
+		-cp ~/tools/tla/tla2tools.jar tlc2.TLC \
+		"$tla" -config "$cfg" -workers 4 \
+		-metadir /tmp/tlc-run -noGenerateSpecTE 2>&1) || true
+	rm -rf /tmp/tlc-run
+	if echo "$output" | grep -q "is violated"; then
+		echo -e "${GREEN}VIOLATED as expected${NC}"
+	else
+		echo -e "${RED}NOT VIOLATED${NC}"
+		FAIL=1
+	fi
+}
+
 echo "=== TLA+ OLC ART Verification Suite ==="
 echo
 run_stage "Stage 1: Inode256VIS (sequential scan)" Inode256VIS.tla Inode256VIS.cfg
@@ -44,6 +63,18 @@ run_stage "Stage 9: OLCChainMultiLevel (multi-level chain)" OLCChainMultiLevel.t
 run_stage "Stage 10: OLCChainCutFull (root/shrink/cascade)" OLCChainCutFull.tla OLCChainCutFull.cfg
 run_stage "Stage 11: OLCKeyViewChain (VIS + shared prefix)" OLCKeyViewChain.tla OLCKeyViewChain.cfg
 run_stage "Stage 12: ARTTreeMaintenance (sequential tree)" ARTTreeMaintenance.tla ARTTreeMaintenance.cfg
+run_stage "Stage 13: OLCPrefixRewrite (get descent)" OLCPrefixRewrite.tla OLCPrefixRewrite.cfg
+run_stage "Stage 13: OLCPrefixRewrite (upsert descent)" OLCPrefixRewrite.tla OLCPrefixRewrite_Upsert.cfg
+run_stage "H10: OLCRemoveDescent (VIS)" OLCRemoveDescent.tla OLCRemoveDescent_VIS.cfg
+run_stage "H10: OLCRemoveDescent (no VIS)" OLCRemoveDescent.tla OLCRemoveDescent_NoVIS.cfg
+echo
+echo "=== Bug demonstrations (each must violate its invariant) ==="
+run_bugdemo "Stage 9: cut at the descent's index" OLCChainMultiLevel.tla OLCChainMultiLevel_BugDemo.cfg
+run_bugdemo "Stage 13: collapse without survivor lock" OLCPrefixRewrite.tla OLCPrefixRewrite_BugDemo_NoSurvivorLock.cfg
+run_bugdemo "Stage 13: prefix in two loads" OLCPrefixRewrite.tla OLCPrefixRewrite_BugDemo_SplitLoad.cfg
+run_bugdemo "Stage 13: key ends inside prefix" OLCPrefixRewrite.tla OLCPrefixRewrite_BugDemo_KeyEnd.cfg
+run_bugdemo "Stage 13: upsert without parent recheck" OLCPrefixRewrite.tla OLCPrefixRewrite_BugDemo_UpsertNoParentRecheck.cfg
+run_bugdemo "H10: value bit read after last check" OLCRemoveDescent.tla OLCRemoveDescent_BugDemo.cfg
 echo
 if [ $FAIL -eq 0 ]; then
 	echo -e "${GREEN}All stages passed!${NC}"
