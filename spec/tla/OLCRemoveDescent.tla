@@ -172,7 +172,7 @@ RCheckChild ==
     /\ rpc = "check_child"
     /\ IF version = r_ver /\ version % 2 = 0
        THEN rpc' = "deref"
-       ELSE rpc' = "restart"
+       ELSE rpc' = "recheck_failed"
     /\ UNCHANGED <<key_index, slot, bitmask, version, r_ver, r_found, r_child,
                    r_bitmask>>
     /\ UNCHANGED wvars
@@ -202,7 +202,7 @@ RVisDone ==
     /\ UNCHANGED wvars
 
 RRestart ==
-    /\ rpc = "restart"
+    /\ rpc \in {"restart", "recheck_failed"}
     /\ rpc' = "idle"
     /\ UNCHANGED <<key_index, slot, bitmask, version, r_ver, r_found, r_child,
                    r_bitmask>>
@@ -286,8 +286,9 @@ StateConstraint == version <= MaxVersion
 
 \* Reader only dereferences when it loaded a real pointer.
 \* Reachability guard, which OLCRemoveDescent_Reach.cfg must violate: an
-\* insert makes the re-check after the value bit restart the reader.
-ReachInsertRestart == ~(rpc = "restart" /\ w_kind = "insert")
+\* the re-check after the value bit (RCheckChild, not the earlier validate)
+\* fails while an insert is in flight or after one.
+ReachInsertRestart == ~(rpc = "recheck_failed" /\ w_kind = "insert")
 
 NoDereferenceNonPointer ==
     rpc = "deref" => r_child = "PTR"
@@ -303,7 +304,7 @@ TypeOK ==
     /\ version \in 0..MaxVersion+2
     /\ rpc \in {"idle", "check_find", "load", "validate", "dispatch",
                 "check_child", "deref", "vis_remove", "vis_removed", "done",
-                "restart"}
+                "restart", "recheck_failed"}
     /\ r_ver \in 0..MaxVersion+2
     /\ r_found \in {TRUE, FALSE}
     /\ r_child \in {"PTR", "VIS_ZERO", "NULL"}

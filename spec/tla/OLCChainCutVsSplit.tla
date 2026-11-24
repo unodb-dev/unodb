@@ -6,7 +6,7 @@
 \* split moves the version of the node it splits without obsoleting it, and
 \* installs a new I4 above that node.  So the cut can find a node it relies on
 \* live at a new version, with a link above or below it rewritten.  Stages 5,
-\* 9 and 10 state that these links always hold.  This stage models the two
+\* 9 and 10 model no such split.  This stage models the two
 \* checks that make the cut restart instead (commit "Check every link a chain
 \* cut relies on"):
 \*   LinkCheck: Step 3 re-reads a node whose version moved and requires that
@@ -62,9 +62,11 @@
 \* be discarded.
 \*
 \* OLCChainCutVsSplit.cfg, OLCChainCutVsSplit_Shrink.cfg and
-\* OLCChainCutVsSplit_InnerShrink.cfg pass with both checks; InnerShrink
-\* passes without RootCheck too.  OLCChainCutVsSplit_BugDemo_PreFix.cfg turns
-\* both checks off, as in the pre-fix code.  OLCChainCutVsSplit_BugDemo_NoRootCheck.cfg (root_chain) and
+\* OLCChainCutVsSplit_InnerShrink.cfg pass with both checks.  RootCheck is
+\* not read for inner_shrink, whose grandparent check is the descent
+\* version's.  OLCChainCutVsSplit_BugDemo_PreFix.cfg turns both checks
+\* off, as in the pre-fix code.  OLCChainCutVsSplit_BugDemo_NoRootCheck.cfg
+\* (root_chain) and
 \* OLCChainCutVsSplit_BugDemo_NoRootCheckShrink.cfg (root_shrink) drop
 \* RootCheck, and OLCChainCutVsSplit_BugDemo_NoLinkCheck.cfg drops LinkCheck;
 \* each SHOULD violate NoLostInsert.

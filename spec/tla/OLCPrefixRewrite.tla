@@ -19,17 +19,18 @@
 \* One descent reached S through P, so it is at S's old depth and the only
 \* prefix word that is correct there is "orig".  ReaderKind orders its steps
 \* as one of the code's descents does:
-\*   "get":    read-lock S, then validate P (try_get, try_remove_key_view,
-\*             the iterator's traversals and try_seek)
+\*   "get":    read-lock S, then validate P (try_get; and the descent of
+\*             try_remove_key_view through a non-chain parent, whose
+\*             remove_or_choose_subtree read-locks the child before it
+\*             unlocks the parent)
 \*   "upsert": validate P, then read-lock S (try_upsert: the
 \*             sync_in_upsert_before_node_lock point comes after the parent's
 \*             check).  With ParentRecheck it validates P again before it uses
 \*             what it read at S ("Check the parent before an OLC upsert's
 \*             value-in-slot lambda", and must_restart_on_key_ending_in_prefix()).
-\*             The model applies the recheck to every use.  In the code the
-\*             other arms either upgrade P's read lock to a write lock, which
-\*             validates it, or reach a leaf whose key they compare.
-\*             try_insert orders its steps the same way.
+\*             The model gates the recheck on the match path only (see
+\*             below); in the code the other arms upgrade P's read lock,
+\*             which validates it.  try_insert orders its steps the same way.
 \*   "remove_chain": validate P, then read-lock S, as try_remove_key_view
 \*             does when S is the first chain node of a run: P's last check
 \*             is remove_or_choose_subtree's, or the root pointer's, before
@@ -76,15 +77,22 @@
 \*   NoStaleDepthResult: a descent that finishes used the prefix word that is
 \*                       correct at its depth
 \*
-\* OLCPrefixRewrite.cfg (get), OLCPrefixRewrite_Upsert.cfg (upsert) and
-\* OLCPrefixRewrite_RemoveChain.cfg (remove_chain) pass with every fix.  Each
-\* of the five OLCPrefixRewrite_BugDemo_*.cfg drops one fix and SHOULD violate
-\* the invariant it names.
+\* Not modeled: two writers, and with them the survivor lock's no-wait
+\* restart and a restart that can meet a second rewrite (r_restarted makes
+\* PValid hold for good, which is sound only for one writer); the descents
+\* of try_upsert_erase and of the iterator's try_seek and traversals; and
+\* the collapse inside try_chain_cut, which Stage 14 does not model either.
+\*
+\* OLCPrefixRewrite.cfg (get), OLCPrefixRewrite_Upsert.cfg (upsert),
+\* OLCPrefixRewrite_RemoveChain.cfg (remove_chain) and
+\* OLCPrefixRewrite_AbsentPrefixKey.cfg pass with every fix.  Each of the six
+\* OLCPrefixRewrite_BugDemo_*.cfg drops one fix and SHOULD violate the
+\* invariant it names, and each *_Reach.cfg SHOULD violate its guard.
 
 EXTENDS Integers
 
 CONSTANTS
-    ReaderKind,     \* "get" or "upsert"
+    ReaderKind,     \* "get", "upsert" or "remove_chain"
     Writers,        \* subset of {"collapse", "split"}, or {"none"}
     SurvivorLock,   \* collapse write-locks S
     SingleLoad,     \* prefix length and bytes from one load

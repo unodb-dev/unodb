@@ -25,7 +25,7 @@
 \*   inner: read the next byte after cur's in cur's inner node, check the
 \*          node.  Found: push it, check again (get_child), done.  Not found:
 \*          pop to the root.
-\*   root:  check the root, read the next first byte, push it, then descend
+\*   root:  read the root's next first byte, check, push it, then descend
 \*          left-most: read-lock that inner node, read its smallest byte,
 \*          push it, check, done.
 \* A failed check sends next() to re-seek: the first key >= the re-seek key.
@@ -41,9 +41,14 @@
 \* view aliased keybuf_ while try_seek() cleared and refilled it
 \* (invalidate()); either way the re-seek key was not the current key.
 \* Key prefixes inside inodes are abstracted away: each level pushes one
-\* byte, as a dispatch byte with an empty prefix would.  prior() is the
-\* mirror image (try_prior(), right-most descent, seek with fwd = false) and
-\* takes the same fix; it is not modeled separately.
+\* byte, as a dispatch byte with an empty prefix would.  prior() is not
+\* modeled separately: try_prior() and try_right_most_traversal() make the
+\* same keybuf_ edits in the same order as try_next() and
+\* try_left_most_traversal(), with prior() for next() and last() for
+\* begin(), before the same checks, and prior() re-seeks with fwd = false
+\* and steps back on a match.  Mirroring the key order maps each behavior
+\* here to one of prior(), and Monotonic and NoSkipStable to their mirrors,
+\* and the fix, save_reseek_key() before the step, is the same call.
 \*
 \* Not modeled: heap mode, where the re-seek key comes from the heap, and a
 \* step that grows keybuf_ past its buffer, which left the old view pointing
