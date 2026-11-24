@@ -6,8 +6,10 @@
 \* entry, before checks that can still fail: it pops the bytes of every level
 \* it leaves, pushes the next child's dispatch byte, and the left-most descent
 \* below pushes each level's bytes (olc_art.hpp, iterator::try_next() and
-\* try_left_most_traversal()).  A byte read before a failing check may come
-\* from a node a writer is rewriting, so it can be any value.  next() then
+\* try_left_most_traversal()).  Every push follows a check() of the read it
+\* pushes (push() is called only after one), so a pushed byte was valid
+\* when pushed; a later check of the same step can still fail and leave it
+\* outdated.  next() then
 \* re-seeks to "the current key" and steps again.  Before "Re-seek a failed
 \* OLC scan step to a copy of the current key" that key was a view of
 \* keybuf_, so it re-sought to whatever the failed step left there.  With
@@ -35,6 +37,14 @@
 \*   Monotonic:     e is after cur0
 \*   NoSkipStable:  e is not after any stable key that is after cur0
 \*
+\* The re-seek is atomic here, so this model does not show that the pre-fix
+\* view aliased keybuf_ while try_seek() cleared and refilled it
+\* (invalidate()); either way the re-seek key was not the current key.
+\* Key prefixes inside inodes are abstracted away: each level pushes one
+\* byte, as a dispatch byte with an empty prefix would.  prior() is the
+\* mirror image (try_prior(), right-most descent, seek with fwd = false) and
+\* takes the same fix; it is not modeled separately.
+\*
 \* Not modeled: heap mode, where the re-seek key comes from the heap, and a
 \* step that grows keybuf_ past its buffer, which left the old view pointing
 \* into freed memory (a memory-safety defect, not an ordering one).
@@ -44,7 +54,9 @@
 
 EXTENDS Integers, Sequences, FiniteSets
 
-CONSTANT SaveCopy  \* re-seek to a copy of the current key
+CONSTANTS
+    SaveCopy,   \* re-seek to a copy of the current key
+    MaxWrites   \* how many times the writer toggles V
 
 \* V = <<0, 1>> shares cur's inner node; V = <<2, 0>> shares the inner node
 \* that the left-most descent enters; V = <<1, 0>> is the only key with its
@@ -63,6 +75,7 @@ VARIABLES
     nver,       \* [Bytes -> version] of each inner node
     V,          \* the volatile key
     wpc,        \* "idle" | "write" | "unlock" | "done"
+    w_count,    \* writes so far
     w_node,     \* ROOT or the first byte of V's inner node
 
     cur0,       \* where next() started
@@ -77,9 +90,9 @@ VARIABLES
     saved,      \* the copy save_reseek_key() made
     e           \* the key next() returned
 
-vars == <<present, rver, nver, V, wpc, w_node, cur0, cur, ipc, it_rv, it_nv,
+vars == <<present, rver, nver, V, wpc, w_count, w_node, cur0, cur, ipc, it_rv, it_nv,
           lm_v, rb, nb1, keybuf, saved, e>>
-wv == <<present, rver, nver, V, wpc, w_node>>
+wv == <<present, rver, nver, V, wpc, w_count, w_node>>
 
 Even(v) == v % 2 = 0
 
@@ -101,16 +114,12 @@ NextFirst(a) ==
 MinByte(a) == CHOOSE x \in {k[2] : k \in InNode(a)} :
                   \A y \in {k[2] : k \in InNode(a)} : x <= y
 
-\* A read of a node a writer holds locked can return any byte.
-Torn(a) == w_node = a /\ ~Even(nver[a])
-RootTorn == w_node = ROOT /\ ~Even(rver)
-
 -----------------------------------------------------------------------------
 Init ==
     /\ V \in Volatile
     /\ present \in {Stable, Stable \cup {V}}
     /\ rver = 0 /\ nver = [a \in Bytes |-> 0]
-    /\ wpc = "idle"
+    /\ wpc = "idle" /\ w_count = 0
     /\ w_node = IF \E k \in Stable : k[1] = V[1] THEN V[1] ELSE ROOT
     /\ cur0 \in Stable /\ cur = cur0
     /\ ipc = "save" /\ it_rv = 0 /\ it_nv = 0 /\ lm_v = 0
@@ -121,23 +130,24 @@ Init ==
 \* WRITER: lock, toggle V, unlock.
 
 WLock ==
-    /\ wpc = "idle"
+    /\ wpc = "idle" /\ w_count < MaxWrites
     /\ IF w_node = ROOT THEN rver' = rver + 1 /\ UNCHANGED nver
        ELSE nver' = [nver EXCEPT ![w_node] = @ + 1] /\ UNCHANGED rver
     /\ wpc' = "write"
-    /\ UNCHANGED <<present, V, w_node>>
+    /\ UNCHANGED <<present, V, w_count, w_node>>
 
 WWrite ==
     /\ wpc = "write"
     /\ present' = IF V \in present THEN present \ {V} ELSE present \cup {V}
     /\ wpc' = "unlock"
-    /\ UNCHANGED <<rver, nver, V, w_node>>
+    /\ UNCHANGED <<rver, nver, V, w_count, w_node>>
 
 WUnlock ==
     /\ wpc = "unlock"
     /\ IF w_node = ROOT THEN rver' = rver + 1 /\ UNCHANGED nver
        ELSE nver' = [nver EXCEPT ![w_node] = @ + 1] /\ UNCHANGED rver
-    /\ wpc' = "done"
+    /\ w_count' = w_count + 1
+    /\ wpc' = IF w_count' < MaxWrites THEN "idle" ELSE "done"
     /\ UNCHANGED <<present, V, w_node>>
 
 Writer == (WLock \/ WWrite \/ WUnlock) /\ UNCHANGED <<cur0, cur, ipc, it_rv,
@@ -154,69 +164,80 @@ ISave ==
     /\ ipc' = "inner_read"
     /\ UNCHANGED <<cur0, cur, it_rv, it_nv, lm_v, rb, nb1, keybuf, e>>
 
-\* inode->next(): read the next byte after cur's in cur's inner node.
+\* inode->next() on cur's inner node, rehydrated at the stack's version.
 IInnerRead ==
     /\ ipc = "inner_read"
-    /\ IF Torn(cur[1]) THEN rb' \in Bytes \cup {NONE}
-       ELSE rb' = NextByte(cur[1], cur[2])
+    /\ rb' = NextByte(cur[1], cur[2])
     /\ ipc' = "inner_check"
     /\ UNCHANGED <<cur0, cur, it_rv, it_nv, lm_v, nb1, keybuf, saved, e>>
 
-\* check(); then pop() and either push(e2) or pop to the root.
+\* check(); then pop() and either push(e2) or, with no next child, pop to
+\* the root.
 IInnerCheck ==
     /\ ipc = "inner_check"
     /\ IF nver[cur[1]] # it_nv
        THEN Fail /\ UNCHANGED keybuf
        ELSE IF rb = NONE
-       THEN keybuf' = <<cur[1]>> /\ ipc' = "root_check"
+       THEN keybuf' = <<cur[1]>> /\ ipc' = "root_read"
        ELSE keybuf' = <<cur[1], rb>> /\ ipc' = "inner_check2"
     /\ UNCHANGED <<cur0, cur, it_rv, it_nv, lm_v, rb, nb1, saved, e>>
 
-\* get_child() and its check(), then push_leaf: done.
+\* get_child()'s check(), push_leaf and the unlock check: done.
 IInnerCheck2 ==
     /\ ipc = "inner_check2"
     /\ IF nver[cur[1]] # it_nv THEN Fail /\ UNCHANGED e
        ELSE e' = <<cur[1], rb>> /\ ipc' = "done"
     /\ UNCHANGED <<cur0, cur, it_rv, it_nv, lm_v, rb, nb1, keybuf, saved>>
 
-\* At the root: rehydrate and check it, read its next child, pop and push.
+\* At the root: rehydrate it, read its next child, check.  None: pop the
+\* root, and the stack is empty (end()).  Else pop and push(e2).
+IRootRead ==
+    /\ ipc = "root_read"
+    /\ nb1' = NextFirst(cur[1])
+    /\ ipc' = "root_check"
+    /\ UNCHANGED <<cur0, cur, it_rv, it_nv, lm_v, rb, keybuf, saved, e>>
+
 IRootCheck ==
     /\ ipc = "root_check"
-    /\ IF rver # it_rv THEN Fail /\ UNCHANGED <<nb1, keybuf, e>>
-       ELSE /\ nb1' \in IF RootTorn THEN Bytes ELSE {NextFirst(cur[1])}
-            /\ IF nb1' = NONE
-               THEN e' = END /\ ipc' = "done" /\ UNCHANGED keybuf
-               ELSE keybuf' = <<nb1'>> /\ ipc' = "root_check2"
-                    /\ UNCHANGED e
-    /\ UNCHANGED <<cur0, cur, it_rv, it_nv, lm_v, rb, saved>>
+    /\ IF rver # it_rv THEN Fail /\ UNCHANGED <<keybuf, e>>
+       ELSE IF nb1 = NONE
+       THEN e' = END /\ keybuf' = <<>> /\ ipc' = "done"
+       ELSE keybuf' = <<nb1>> /\ ipc' = "root_check2" /\ UNCHANGED e
+    /\ UNCHANGED <<cur0, cur, it_rv, it_nv, lm_v, rb, nb1, saved>>
 
-\* get_child() and its check() at the root.
+\* get_child()'s check() at the root.
 IRootCheck2 ==
     /\ ipc = "root_check2"
     /\ IF rver # it_rv THEN Fail ELSE ipc' = "lm_lock"
     /\ UNCHANGED <<cur0, cur, it_rv, it_nv, lm_v, rb, nb1, keybuf, saved, e>>
 
-\* try_left_most_traversal(): read-lock the inner node (waits while locked).
+\* try_left_most_traversal(): read-lock the inner node (waits while it is
+\* locked), then try_read_unlock() the root.
 ILmLock ==
     /\ ipc = "lm_lock"
     /\ Even(nver[nb1])
     /\ lm_v' = nver[nb1]
-    /\ ipc' = "lm_read"
+    /\ ipc' = IF rver # it_rv THEN "reseek" ELSE "lm_read"
     /\ UNCHANGED <<cur0, cur, it_rv, it_nv, rb, nb1, keybuf, saved, e>>
 
-\* begin(), push its byte, check().  An empty node is a node a remove has
-\* emptied, which moved its version.
+\* begin(), then check().  An inner node that a remove emptied fails it.
 ILmRead ==
     /\ ipc = "lm_read"
-    /\ IF Torn(nb1) THEN rb' \in Bytes
-       ELSE rb' = IF InNode(nb1) = {} THEN NONE ELSE MinByte(nb1)
-    /\ keybuf' = IF rb' = NONE THEN keybuf ELSE <<nb1, rb'>>
+    /\ rb' = IF InNode(nb1) = {} THEN NONE ELSE MinByte(nb1)
     /\ ipc' = "lm_check"
-    /\ UNCHANGED <<cur0, cur, it_rv, it_nv, lm_v, nb1, saved, e>>
+    /\ UNCHANGED <<cur0, cur, it_rv, it_nv, lm_v, nb1, keybuf, saved, e>>
 
 ILmCheck ==
     /\ ipc = "lm_check"
-    /\ IF nver[nb1] # lm_v \/ rb = NONE THEN Fail /\ UNCHANGED e
+    /\ IF nver[nb1] # lm_v \/ rb = NONE
+       THEN Fail /\ UNCHANGED keybuf
+       ELSE keybuf' = <<nb1, rb>> /\ ipc' = "lm_check2"
+    /\ UNCHANGED <<cur0, cur, it_rv, it_nv, lm_v, rb, nb1, saved, e>>
+
+\* push(t), then get_child()'s check(), push_leaf and the unlock check.
+ILmCheck2 ==
+    /\ ipc = "lm_check2"
+    /\ IF nver[nb1] # lm_v THEN Fail /\ UNCHANGED e
        ELSE e' = <<nb1, rb>> /\ ipc' = "done"
     /\ UNCHANGED <<cur0, cur, it_rv, it_nv, lm_v, rb, nb1, keybuf, saved>>
 
@@ -224,7 +245,7 @@ ILmCheck ==
 \* key >= akey.  A match steps again from it, from a fresh stack.
 IReseek ==
     /\ ipc = "reseek"
-    /\ wpc \in {"idle", "done"}
+    /\ wpc \in {"idle", "done"}   \* try_seek retries until no write is in flight
     /\ LET akey == IF SaveCopy THEN saved ELSE keybuf
            ge == {k \in present : ~Lt(k, akey)}
        IN IF ge = {} THEN e' = END /\ ipc' = "done"
@@ -241,9 +262,12 @@ IReseek ==
 \* Both finished.  A next() that finished first waits for the writer.
 IDone == ipc = "done" /\ wpc = "done" /\ UNCHANGED vars
 
+\* A next() that finished while the writer can still run: let it run.
+
 Iterator ==
-    (ISave \/ IInnerRead \/ IInnerCheck \/ IInnerCheck2 \/ IRootCheck
-     \/ IRootCheck2 \/ ILmLock \/ ILmRead \/ ILmCheck \/ IReseek)
+    (ISave \/ IInnerRead \/ IInnerCheck \/ IInnerCheck2 \/ IRootRead
+     \/ IRootCheck \/ IRootCheck2 \/ ILmLock \/ ILmRead \/ ILmCheck
+     \/ ILmCheck2 \/ IReseek)
     /\ UNCHANGED wv
 
 Next == Writer \/ Iterator \/ IDone
