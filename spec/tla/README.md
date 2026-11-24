@@ -19,6 +19,45 @@ Formal models verifying the concurrency protocol for the OLC
 | 10    | OLCChainCutFull    | Root shrink and cascade              |
 | 11    | OLCKeyViewChain    | VIS with shared prefix (key_view)    |
 | 12    | ARTTreeMaintenance | Sequential tree structure invariants |
+| 13    | OLCPrefixRewrite   | Descent vs in-place prefix rewrite   |
+| 14    | OLCChainCutVsSplit | Chain cut vs split of a node it uses |
+| 15    | OLCIterReseek      | Iterator re-seek after failed step   |
+| H10   | OLCRemoveDescent   | Value bit vs pointer in remove       |
+
+Stage 13 models a descent at an inode's old depth while an I4 collapse or a
+prefix split rewrites that inode's key prefix in place.  It checks the
+survivor lock, the single-load prefix read, the check for a key that ends
+inside a prefix, an upsert's parent recheck, and the chain remove's check
+of a chain run's parent when it hands that parent's lock over; each has a
+`OLCPrefixRewrite_BugDemo_*.cfg` that drops it and violates an invariant.
+
+Stage 14 models `try_chain_cut` while an insert splits the prefix of a node
+the cut relies on, which moves that node without obsoleting it and installs
+an I4 above it.  It checks that Step 3 re-reads a moved node only with its
+link to the node below, and that the root pointer is locked only while it
+points to `stk[0]`, for a root chain cut and a shrinking root cut-point
+parent.  Its three bug demonstrations each lose the inserted key.
+
+Stage 14 also has an inner-shrink shape, a cut-point parent below the root
+whose grandparent the cut upgrades at its descent version, which restarts
+the cut with no content check; it shows why the root pointer, which has no
+descent version, needed one.
+
+Each new passing configuration has a `*_Reach.cfg` that must be violated:
+it shows that the configuration still reaches the race its fix handles.
+`run-all-stages.sh` runs the bug demonstrations and these guards after the
+stages.
+
+Stage 15 models `next()` after a failed step for key_view keys without a
+heap.  A step writes bytes into `keybuf_` before checks that can fail, and
+the bug demonstration re-seeks to that `keybuf_`, as the code did before it
+saved a copy, and returns an earlier key or skips a stable one.
+
+H10 models a remove descent that reads a child's value bit after its check,
+against a concurrent remove or an insert that rewrites the slot and its bit
+in separate stores.  `OLCRemoveDescent_BugDemo.cfg` drops the re-check after
+the bit read, as `try_remove_key_view`'s chain-I4 branch did, and violates
+`NoDereferenceNonPointer`.
 
 ## Running
 

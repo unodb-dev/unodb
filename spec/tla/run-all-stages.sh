@@ -30,6 +30,25 @@ run_stage() {
 	fi
 }
 
+# Run a bug demonstration, which must violate an invariant.
+run_bugdemo() {
+	local name="$1" tla="$2" cfg="$3"
+	printf "  %-50s " "$name"
+	rm -rf /tmp/tlc-run
+	local output
+	output=$(timeout 300 java -Xmx4g -XX:+UseParallelGC \
+		-cp ~/tools/tla/tla2tools.jar tlc2.TLC \
+		"$tla" -config "$cfg" -workers 4 \
+		-metadir /tmp/tlc-run -noGenerateSpecTE 2>&1) || true
+	rm -rf /tmp/tlc-run
+	if echo "$output" | grep -q "is violated"; then
+		echo -e "${GREEN}VIOLATED as expected${NC}"
+	else
+		echo -e "${RED}NOT VIOLATED${NC}"
+		FAIL=1
+	fi
+}
+
 echo "=== TLA+ OLC ART Verification Suite ==="
 echo
 run_stage "Stage 1: Inode256VIS (sequential scan)" Inode256VIS.tla Inode256VIS.cfg
@@ -44,6 +63,41 @@ run_stage "Stage 9: OLCChainMultiLevel (multi-level chain)" OLCChainMultiLevel.t
 run_stage "Stage 10: OLCChainCutFull (root/shrink/cascade)" OLCChainCutFull.tla OLCChainCutFull.cfg
 run_stage "Stage 11: OLCKeyViewChain (VIS + shared prefix)" OLCKeyViewChain.tla OLCKeyViewChain.cfg
 run_stage "Stage 12: ARTTreeMaintenance (sequential tree)" ARTTreeMaintenance.tla ARTTreeMaintenance.cfg
+run_stage "Stage 13: OLCPrefixRewrite (get descent)" OLCPrefixRewrite.tla OLCPrefixRewrite.cfg
+run_stage "Stage 13: OLCPrefixRewrite (upsert descent)" OLCPrefixRewrite.tla OLCPrefixRewrite_Upsert.cfg
+run_stage "Stage 13: OLCPrefixRewrite (chain remove descent)" OLCPrefixRewrite.tla OLCPrefixRewrite_RemoveChain.cfg
+run_stage "Stage 14: OLCChainCutVsSplit (root chain cut)" OLCChainCutVsSplit.tla OLCChainCutVsSplit.cfg
+run_stage "Stage 14: OLCChainCutVsSplit (root shrink)" OLCChainCutVsSplit.tla OLCChainCutVsSplit_Shrink.cfg
+run_stage "Stage 14: OLCChainCutVsSplit (inner shrink)" OLCChainCutVsSplit.tla OLCChainCutVsSplit_InnerShrink.cfg
+run_stage "Stage 13: OLCPrefixRewrite (absent prefix key)" OLCPrefixRewrite.tla OLCPrefixRewrite_AbsentPrefixKey.cfg
+run_stage "Stage 15: OLCIterReseek (next() re-seek)" OLCIterReseek.tla OLCIterReseek.cfg
+run_stage "H10: OLCRemoveDescent (VIS)" OLCRemoveDescent.tla OLCRemoveDescent_VIS.cfg
+run_stage "H10: OLCRemoveDescent (no VIS)" OLCRemoveDescent.tla OLCRemoveDescent_NoVIS.cfg
+echo
+echo "=== Bug demonstrations (each must violate its invariant) ==="
+run_bugdemo "Stage 9: cut at the descent's index" OLCChainMultiLevel.tla OLCChainMultiLevel_BugDemo.cfg
+run_bugdemo "Stage 13: collapse without survivor lock" OLCPrefixRewrite.tla OLCPrefixRewrite_BugDemo_NoSurvivorLock.cfg
+run_bugdemo "Stage 13: prefix in two loads" OLCPrefixRewrite.tla OLCPrefixRewrite_BugDemo_SplitLoad.cfg
+run_bugdemo "Stage 13: key ends inside prefix" OLCPrefixRewrite.tla OLCPrefixRewrite_BugDemo_KeyEnd.cfg
+run_bugdemo "Stage 13: upsert without parent recheck" OLCPrefixRewrite.tla OLCPrefixRewrite_BugDemo_UpsertNoParentRecheck.cfg
+run_bugdemo "Stage 13: chain remove without hand-over check" OLCPrefixRewrite.tla OLCPrefixRewrite_BugDemo_RemoveChainNoHandOverCheck.cfg
+run_bugdemo "Stage 14: root chain cut without root check" OLCChainCutVsSplit.tla OLCChainCutVsSplit_BugDemo_NoRootCheck.cfg
+run_bugdemo "Stage 14: root shrink without root check" OLCChainCutVsSplit.tla OLCChainCutVsSplit_BugDemo_NoRootCheckShrink.cfg
+run_bugdemo "Stage 14: pre-fix chain cut, both checks off" OLCChainCutVsSplit.tla OLCChainCutVsSplit_BugDemo_PreFix.cfg
+run_bugdemo "Stage 13: absent key ending inside a prefix" OLCPrefixRewrite.tla OLCPrefixRewrite_BugDemo_KeyEndAbsent.cfg
+run_bugdemo "Stage 14: chain relock without link check" OLCChainCutVsSplit.tla OLCChainCutVsSplit_BugDemo_NoLinkCheck.cfg
+run_bugdemo "Stage 15: re-seek to the modified keybuf_" OLCIterReseek.tla OLCIterReseek_BugDemo.cfg
+run_bugdemo "H10: value bit read after last check" OLCRemoveDescent.tla OLCRemoveDescent_BugDemo.cfg
+echo
+echo "=== Reachability guards (each must be violated, or its config is vacuous) ==="
+run_bugdemo "H10: insert restarts the reader" OLCRemoveDescent.tla OLCRemoveDescent_Reach.cfg
+run_bugdemo "Stage 13: get catches a stale compare" OLCPrefixRewrite.tla OLCPrefixRewrite_Reach.cfg
+run_bugdemo "Stage 13: upsert catches a stale compare" OLCPrefixRewrite.tla OLCPrefixRewrite_Upsert_Reach.cfg
+run_bugdemo "Stage 13: chain remove catches a stale compare" OLCPrefixRewrite.tla OLCPrefixRewrite_RemoveChain_Reach.cfg
+run_bugdemo "Stage 14: root chain cut restarts after a split" OLCChainCutVsSplit.tla OLCChainCutVsSplit_Reach.cfg
+run_bugdemo "Stage 14: root shrink restarts after a split" OLCChainCutVsSplit.tla OLCChainCutVsSplit_Shrink_Reach.cfg
+run_bugdemo "Stage 14: inner shrink restarts after a split" OLCChainCutVsSplit.tla OLCChainCutVsSplit_InnerShrink_Reach.cfg
+run_bugdemo "Stage 15: next() re-seeks" OLCIterReseek.tla OLCIterReseek_Reach.cfg
 echo
 if [ $FAIL -eq 0 ]; then
 	echo -e "${GREEN}All stages passed!${NC}"

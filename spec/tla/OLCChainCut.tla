@@ -2,7 +2,9 @@
 (* OLC (Optimistic Lock Coupling) chain-cut protocol.
    Models a remover thread cutting a child node from a parent in a B+-tree
    with optimistic lock coupling, and a concurrent inserter that can target
-   the parent or grandparent node.  Children are counted, not ordered, so a
+   the parent or grandparent node.  No insert splits a prefix, so every
+   link the cut relies on holds; Stage 14 (OLCChainCutVsSplit) models the
+   splits that break them.  Children are counted, not ordered, so a
    cut at an index that a concurrent insert shifted looks the same here as a
    cut of the chain; Stage 9 (OLCChainMultiLevel) models such an index.  Cut
    makes no write into the grandparent: it leaves the shrunk parent linked as
