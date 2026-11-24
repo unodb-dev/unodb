@@ -11,7 +11,8 @@
 \* Reader protocol.  The same steps model both remove descents that read a
 \* child's value bit: remove_or_choose_subtree, and try_remove_key_view's
 \* chain-I4 branch (olc_art.hpp, "Chain I4 detection").
-\*   1. find_child: read key_index; if mapped, return the slot address
+\*   1. find_child: read key_index; if mapped, return the slot address (no
+\*      check here; the load's check in step 3 covers it)
 \*   2. load: read the slot's content (one atomic load)
 \*   3. validate: check() the node's version
 \*   4. dispatch: read the value bit.  With VIS and the bit set, take the
@@ -40,6 +41,21 @@
 \*             in separate stores, and in between the bit can be clear for a
 \*             slot that holds, or held, a packed value.  key_index stays
 \*             TRUE: the reader's key byte is still mapped.
+\*
+\* The writer chooses its kind, and an insert its two values, each time it
+\* locks, so removes and inserts interleave across writes.
+\*
+\* Over-approximations: an insert may leave w_mid_bit TRUE, though
+\* insert_at() always clears the bit at the insert position; and w_new =
+\* "PTR" also covers the node_ptr add_to_nonfull overload and the chain_top
+\* call site, which leave the bit clear for good.  The crash in the bug
+\* demonstration is that case: a packed value moved out of the reader's
+\* slot and a chain's pointer moved in.  Any read of a packed value as a
+\* pointer counts as the crash here; in the code a packed value whose tag
+\* reads as a leaf instead takes the leaf arm, which write-locks and so
+\* restarts.  One slot: a "key absent" answer for a packed value that moved
+\* to the next slot is not checked; the code's try_read_unlock() of the node
+\* catches it.
 \*
 \* Safety: the reader never dereferences unless r_child = "PTR".
 \*
@@ -96,8 +112,7 @@ Init ==
     /\ wpc = "idle"
     /\ w_kind \in WriterKinds
     /\ w_new \in SlotKinds
-    \* Without VIS there is no bitmask: the bit stays FALSE.
-    /\ w_mid_bit \in IF VIS THEN {TRUE, FALSE} ELSE {FALSE}
+    /\ w_mid_bit = FALSE
 
 -----------------------------------------------------------------------------
 \* READER
@@ -205,9 +220,15 @@ WLock ==
     /\ version % 2 = 0
     /\ version <= MaxVersion
     /\ version' = version + 1
-    /\ wpc' = IF w_kind = "clear" THEN "clear" ELSE "ins_children"
+    /\ w_kind' \in WriterKinds
+    /\ w_new' \in SlotKinds
+    \* Without VIS there is no bitmask: the bit stays FALSE.
+    /\ w_mid_bit' \in IF VIS THEN {TRUE, FALSE} ELSE {FALSE}
+    \* A remove of a key that a remove already cleared is not possible.
+    /\ w_kind' = "clear" => key_index
+    /\ wpc' = IF w_kind' = "clear" THEN "clear" ELSE "ins_children"
     /\ UNCHANGED <<key_index, slot, bitmask, rpc, r_ver, r_found, r_child,
-                   r_bitmask, w_kind, w_new, w_mid_bit>>
+                   r_bitmask>>
 
 WClear ==
     /\ wpc = "clear"
